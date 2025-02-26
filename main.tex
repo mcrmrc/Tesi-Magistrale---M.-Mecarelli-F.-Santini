@@ -1,0 +1,70 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{latexsym}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+
+
+%\usepackage[english]{babel}
+\usepackage[italian]{babel}
+
+%pacchetti matematica
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{stackengine}
+\usepackage{algpseudocode}
+\usepackage{caption}
+
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+
+
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{setspace}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\usepackage{listings}
+\usepackage{import}
+\usepackage[normalem]{ulem}
+
+\newtheorem{definizione}{Definizione}[section]
+
+\newtheorem{teorema}{Teorema}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{proposizione}{Proposizione}[section]
+\newtheorem{corollario}{Corollario}[section]
+
+\newtheorem{dimostrazione}{Dimostrazione}[section]
+
+\newtheorem{esempio}{Esempio}[section]
+
+\newtheorem{dimostrazioneT}{Dimostrazione}[teorema]
+\newtheorem{dimostrazioneL}{Dimostrazione}[lemma]
+\newtheorem{dimostrazioneP}{Dimostrazione}[proposizione]
+\newtheorem{dimostrazioneC}{Dimostrazione}[corollario]
+
+\newtheorem{esempioT}{Esempio}[teorema]
+\newtheorem{esempioL}{Esempio}[lemma]
+\newtheorem{esempioP}{Esempio}[proposizione]
+\newtheorem{esempioC}{Esempio}[corollario]
+
+\begin{document}
+    \input{frontmatter}
+    %\input{dedica}
+    
+    % Opzionale
+    % \input{sommario}
+\tableofcontents \newpage
+\lstlistoflistings \newpage
+\listoffigures \newpage
+
+\section{Introduzione ai Covert Channel} 
+\import{./file}{covert_channel} \newpage 
+\section{Introduzione al protocollo ICMP} 
+\import{./file}{icmp} \newpage 
+\section{Covert Channel Attacks on ICMP} 
+\import{./file}{icmp_covertChannel} \newpage 
+\end{document}

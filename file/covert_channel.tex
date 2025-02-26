@@ -1,0 +1,483 @@
+\subsection{Cos'è un Covert Cahnnel?}
+Un \textbf{Covert Channel} è un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare/trasferire dati, in maniera non autorizzata e non voluta, 
+fra processi/entità comunicanti spesso senza essere rivelati e spesso evitando (se non violando) le normali politiche di sicurezza.  
+\vspace{2ex} \newline
+Solitamente operano al di fuori dei soliti meccanismi di comunicazioni. 
+Quindi non usando i normali protocolli/canali di comunicazione (es network sockets, emails) non generano segnali di un uso improprio del sistema. 
+Ciò li rende difficili da rilevare usando i tipici strumenti di monitoraggio. %Inoltre non usando spesso protocolli di comunicazione standard (es TCP/IP),  
+Inoltre questi canali sfruttano le vulnerabilità o comportamenti non previsti nei sistemi. 
+\vspace{2ex} \newline
+In un Covert Channel, qualsiasi risorsa condivisa può essere utilizzata come canale nascosto ed è per questo che possono esistere 
+in qualunque sistema (che abbia delle risorse condivise). 
+Lo sfruttamento di queste risorse porta alla fuoriuscita/scambio di dati. %non autorizzata.  
+\vspace{2ex} \newline 
+L'attacco è un problema siccome sono estremamente difficili da identificare e controllare. 
+La loro esistenza spesso rimane non notata dagli amministratori (di sistema) siccome si nascondono all'interno dei 
+normali processi del sistema. 
+Sono inoltre un problema significativo in tutti quegli ambienti altamente sicuri (es ambienti militari, governativi,\dots) 
+dove una fuoriuscita di informazioni può avere conseguenze gravi.  
+%
+\subsection{Principali categorie di Covert Channel}
+Le principali categorie di canali nascosti sono: 
+\begin{itemize}
+    \item Covert Channel Timing (Temporizzazione): 
+    \newline 
+    coinvolgono la scrittura di dati a un'area di memoria condivisa in cui entrambi i processi possono accedere 
+    \begin{esempio}
+        Modificare i permessi dei file o i metadati per codificare informazioni. 
+        Oppure modificare variabili condivise o buffer
+    \end{esempio}
+    \item Covert Channel Storage (Archiviazione): 
+    \newline 
+    manipolano la temporalizzazione o l'ordine di eventi per codificare informazioni. 
+    \begin{esempio}
+        Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
+        oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
+    \end{esempio}
+    \item Covert Channel Behavioral (Comportamentali) 
+\end{itemize}
+\subsubsection{Covert Channel Timing (temporizzazione)}
+I canali nascosti di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (umano o processo) di acquisire 
+informazioni attraverso il cambiamento nel tempo di risposta di una risorsa.
+Essenzialmente qualsiasi metodo che utilizza un orologio o una misurazione del tempo per segnalare il valore inviato sul canale.
+\href{https://www.youtube.com/watch?v=QIvsmQQ6vu8}{Esempio}
+%
+\subsubsection{Covert Channel Storage (Archiviazione)}
+Nei canali nascosti di archiviazione un processo scrive su una risorsa condivisa, mentre un altro processo legge da 
+essa. I canali di archiviazione possono essere utilizzati tra processi all’interno di un singolo computer o tra più 
+computer in una rete.
+\vspace{1ex} \newline 
+I veicoli dell'attacco sono tutte quelle risorse che consentono la scrittura, diretta o indiretta, di una risorsa 
+da parte di un processo e la sual lettura, diretta o indiretta, da parte di un altro.
+\begin{esempio}
+    Un esempio di canale di archiviazione è la condivisione di un file. 
+    Supponiamo che l’utente A con privilegi di autorizzazione elevati voglia trasmettere in segreto, dati riservati all’utente B con un livello di sicurezza inferiore. 
+    Per farlo, utilizzerà un file word apparentemente contenente informazioni non classificate, dove invece occulterà l’informazione riservata. 
+\end{esempio}
+%
+\subsubsection{Covert Channel Behavioral (Comportamentali)}
+I canali nascosti comportamentali operano trasmettendo dati in base all’assegnazione di diversi eventi di processi, sistemi e 
+applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli.
+%\vspace{1ex} \newline
+%Tra i più affascinanti canali nascosti comportamentali, in cui mi sono imbattuto, quello che utilizza il protocollo 
+%ICMP (Internet Control Message Protocol), sfrutta appieno caratteristiche quali la rapidità di attivazione, semplicità d’uso e 
+%bypassa molte delle policy e standard di sicurezza con estrema nonchalance, manifestando in maniera ottimale le caratteristiche di 
+%Stealthiness e Indistinguishability.
+%L’ICMP è progettato per fornire feedback su problemi di comunicazione di una rete TCP/IP. 
+%L’ ICMP si affida al supporto di base dell’IP come parte di protocollo di livello superiore. 
+%A causa di questa dipendenza, sia ICMPv4 che ICMPv6 esistono per entrambe le versioni di IP. 
+%Applicazioni come ad es. traceroute e ping utilizzano i messaggi ICMP per raccogliere informazioni e diagnosticare eventuali 
+%problemi di rete. 
+%\vspace{1ex} \newline
+%I canali nascosti spesso sfruttano per i propri flussi di informazioni, alcune caratteristiche tecniche incorporate nelle reti 
+%IEEE 802, caratteristiche che normalmente non vengono “viste” a livello di rete più alto perché considerate di servizio.
+%\vspace{1ex} \newline
+%L’idea di utilizzare l’ICMP come canale nascosto è quindi quella di sfruttare una comunicazione standard con un protocollo inferiore 
+%rispetto a TCP o UDP. Questo avrà un “ingombro” ridotto in tutto il traffico di rete e potrà passare inosservato agli amministratori 
+%di rete e agli analizzatori di traffico, in quanto, come detto, normalmente è utilizzato per la diagnostica e manutenzione della rete 
+%e degli host connessi, non per il trasporto dati, quindi difficilmente bloccato da policy di sicurezza.
+%Questo rende il protocollo ICMP un canale nascosto decisamente praticabile, l’uso di campi dati o payload all’interno di determinati 
+%messaggi ICMP permette di incorporare il messaggio del canale nascosto facilmente e trasforma paradossalmente l’ICMP stesso in un 
+%canale nascosto. Questi semplici fattori consentono all’ICMP di essere di fatto un traffico invisibile, vediamo un esempio. 
+%
+%---
+%
+\subsection{Struttura/Caratteristiche dei Covert Channel} 
+Tipicamente è costituito da due principali componenti: 
+\begin{itemize}
+    \item \textbf{Mittente} (Covert Transmitter): è l'entita che codifica e trasmette le informazioni nascote usando una risorsa di sistema condivisa.  
+    \item \textbf{Destinatario} (Covert Listener): è l'entità che rileva e decifra l'informazione segreta dalla risorsa condivisa. 
+\end{itemize}
+%
+\subsubsection*{Come funzionano i Covert Channel?} 
+Il mittente inserisce informazioni segrete in un componente del sistema che è osservabile da un destinatario. 
+Il destinatario decifra i dati trasmessi di nascosto monitorando i cambiamenti nel comportamento del sistema. 
+\vspace{1ex} \newline
+Le informaizoni vengono inserite sfruttano gli effetti collaterali delle normali operazione del sistema 
+senza un esplicito intento di comunicare.  %(delay o scrittura su file condivisi) 
+\vspace{1ex} \newline  
+Un Covert Channel quindi opera cifrando dati nascosti nei comportamenti del sistema che i controlli di sicurezza 
+tipicamente non monitorano così da permettere la comunicazione segreta fra due entità. 
+%è strutturato come un sistema di comunicazione segreta che bypassa i normali meccanismi di sicurezza. 
+%
+\subsubsection*{Caratteristiche Chiave dei covert Channel} 
+Le principali caratteristiche di un Covert Channel sono:  \newline
+$\bullet$ \textbf{Stealthiness} (furtività):  \newline
+si devono poter aggirare i controlli in maniera nascosta
+\vspace{2ex} \newline
+$\bullet$ \textbf{Bandwith} (capacità di trasmissione):  \newline
+la capacità di trasmissione dei dati che è generalmente bassa in termini di dati/tempo (throughput). 
+Un eccessivo carico di informazioni, potrebbe rendere anomalo il funzionamento di quelle risorse o delle normali 
+strutture dati. %Si stanno utilizzando altre risorse
+Nei canali nascosti generalmente il throughput è inversamente correlato alla segretezza di un canale.
+\begin{center}
+    Più dati un canale trasmette in un determinato periodo di tempo, maggiore è il rischio che il canale venga scoperto
+\end{center}
+\vspace{2ex}
+$\bullet$ \textbf{Indistinguishability} (Indistinguibilità):  \newline
+di solilto si sfruttano servizi e/o risorse già presenti e quindi non sospette. 
+\vspace{1ex} \newline 
+Uno dei maggiori problemi nell’implementazione di un canale nascosto è il “rumore”
+(es. sfruttando eccessivamente le risorse alterando e/o danneggiando il corretto funzionamento delle stesse)
+che potrebbe attirare l'attenzione da parte degli amministratori di sistema. 
+La necessità è quella di riuscire a trasmette attraverso un canale nascosto mantenendo conforme e inalterato il 
+funzionamento della risorsa utilizzata così da rendersi “indistinguibili” dalla risorsa autorizzata e quindi invisibili ai sistemi di monitoraggio.
+\vspace{4ex} \newline
+Ulteriori caratteristiche sono: 
+\vspace{2ex} \newline
+$\bullet$ \textbf{Unintended Use of Resources}: Covert channels exploit system resources 
+(e.g shared memory, CPU usage, or file attributes) in ways that were not intended for communication. 
+\newline
+$\bullet$ \textbf{Hidden Communication}: They are designed to avoid detection, often leveraging 
+legitimate system operations to mask the transmission of data. 
+\vspace{2ex} \newline
+$\bullet$ \textbf{Violation of Security Policies}: They allow unauthorized exchange of information, 
+potentially breaching confidentiality, integrity, or availability requirements.   
+\vspace{2ex} \newline
+$\bullet$ \textbf{Hidden Communication Medium}: 
+\newline 
+The channel is embedded within legitimate system operations, such as CPU load, memory access, network traffic, or file system metadata. 
+Examples: CPU cache, TCP/IP headers, power consumption, packet timing.
+\vspace{2ex} \newline
+$\bullet$  \textbf{Encoding Mechanism}: 
+\newline 
+The sender manipulates a shared system resource to encode data. 
+Common techniques:
+\begin{itemize}
+    \item Timing-Based Encoding: Using time intervals (e.g., delays between network packets). 
+    \item Storage-Based Encoding: Modifying file attributes, memory bits, or cache states. 
+    \item Protocol Abuse: Altering TCP flags, sequence numbers, or unused bits in packet headers. 
+\end{itemize} 
+$\bullet$  \textbf{Transmission Mechanism}: 
+\newline 
+The sender continuously alters system behavior to transmit bits of information. 
+This can be done by introducing delays, changing CPU load, or modifying memory states in a controlled manner. 
+\newline
+$\bullet$  \textbf{Decoding Mechanism}: 
+\newline 
+The receiver monitors the shared resource to detect and reconstruct the transmitted data. 
+Example: Measuring execution time variations to infer secret data. 
+\newline
+$\bullet$  \textbf{Synchronization and Error Correction}: 
+\newline 
+The sender and receiver must synchronize (e.g., using pre-agreed timing signals). 
+Error detection mechanisms (such as parity bits or checksums) ensure accurate data retrieval.
+\begin{esempio}{Esempio di un Covert channel in una rete} \newline
+    $\bullet$ Sender: Modifies the Time-to-Live (TTL) field in IP packets to represent binary data (e.g., TTL=64 → bit 1, TTL=128 → bit 0). 
+    \newline
+    $\bullet$ Receiver: Observes incoming packet TTL values to reconstruct the hidden message.
+\end{esempio}
+%
+\subsection{Vulnerabilità Utilizzate}
+I Covert Channel sfruttano le vulnerabilità nel design del sistema, nelle politiche di sicurezza e nei protocolli di comunicazione per trasferire informazioni segretamente. 
+Sfruttando queste vulnerabilità, gli attaccanti possono stabilire Covert Channel che evitano il controllo degli standard  sicurezza, 
+permettendo esfiltrazione non autorizzata di dati o comunicazione fra processi interni (inter-process comunicaizone). 
+\vspace{2ex}\newline
+La loro mitigazione richiede controllo degli accessi, randomizzazione dei tempi, iniezione di rumore e una sicurezza hardware migliore. 
+\subsubsection*{Principali vulnerabilità usate dai covert Channel} 
+$\bullet$ \textbf{Shared Resource Exploitation} 
+\begin{itemize}
+    \item CPU Scheduling: l'attaccante può modulare l'uso della CPU per diffondere informazioni. 
+    \item Cache Memory: gli attacchi side-channel alla cache sfruttano le differenze nei tempi di accesso per dedurre i dati. 
+    \item File System Access: i processi possono dedurre informazioni in base ai lock dei file, timestamp o sull'attività del disco
+\end{itemize}
+\vspace{1ex}  
+$\bullet$ \textbf{Timing-Based Vulnerabilities} 
+\begin{itemize}
+    \item \textbf{Response Time Variability}: l'attacante misura i tempi di risposta del sistema per estrarre segreti. 
+    \item \textbf{Instruction Execution Delays}: le differenze del tempo di esecuzione tra le operazioni privilegiate e non possono causare la fuoriuscita di dati. 
+\end{itemize}
+\vspace{1ex}  
+$\bullet$ \textbf{Timing-Based Vulnerabilities} 
+\begin{itemize}
+    \item \textbf{Packet Timing}: le informazioni possono essere codificate negli intervalli durante la trasmissione dei pacchetti 
+    \item \textbf{Header Manipulation}: campi come TTL, sequenza dei numeri o bit non utilizzati possono essere utilizzati per codificare i dati 
+    \item \textbf{Traffic Patterns}: le variazioni nel flusso del traffico (es burst size) si possono comportare come un Covert Channel. 
+\end{itemize}
+\vspace{1ex}  
+$\bullet$ \textbf{Memory and CPU State Manipulation} 
+\begin{itemize}
+    \item Branch Prediction and Speculative Execution: Exploited in attacks like Spectre and Meltdown.
+    \item Power Consumption Analysis: Side channels can reveal cryptographic keys
+\end{itemize}
+\vspace{1ex}  
+$\bullet$ \textbf{Operating System and Virtualization Flaws} 
+\begin{itemize}
+    \item Inter-Process Communication (IPC) Abuse: Processes can infer data through shared memory or message passing.
+    \item Hypervisor Weaknesses: Virtual machines can leak information across guest instances.
+\end{itemize}
+\vspace{1ex}  
+$\bullet$ \textbf{Hardware Vulnerabilities} 
+\begin{itemize}
+    \item Electromagnetic Emissions: Sensitive data can be leaked via EM signals (TEMPEST attacks).
+    \item Acoustic Side-Channels: Keyboard sounds, fan speed variations, or power supply noise can be analyzed.
+\end{itemize}
+%
+\subsection{Applicazione dei Covert Channel}
+I Covert Channel sono spesso applicati in: 
+\begin{itemize}
+    \item Malware and Espionage: usati per esfiltrare dati sensibili. 
+    \item Security Testing: identificare e mitigare i Covert Channel è una parte fondamentale nel stabilire la sicurezza del sistema. 
+    \item Ricerca: espolare i Covert Channel aiuta a capire potenziali vulnerabilità in sistemi complessi. 
+\end{itemize} 
+%
+\subsection{Covert Channel Attacks} 
+Gli attachi tramite Covert Channel sfruttano vulnerabilita nel design del sistema, nelle risorse condivise e nelle
+politiche di sicurezza per trasmettere segretamente dati fra processi o sistemi aggirando i tradizionali 
+controlli di sicurezza. 
+Questi attacchi sono spessi usati per l'esfiltrazione dei dati, privilege escaletion o comunicazioni 
+silenzione tra delle componenti malware. 
+\subsubsection*{Types of Covert Channel Attacks} 
+\begin{enumerate}
+    \item \textbf{Storage-Based Covert Channels}: 
+    These attacks manipulate shared system resources to store and retrieve hidden information.
+    \begin{esempio}{\quad1\newline}
+        File Attribute Manipulation: Malware alters file metadata (e.g., timestamps, permissions) to encode messages. 
+        \newline 
+        Shared Memory Exploitation: Processes communicate by modifying shared memory regions. 
+        \newline 
+        Disk Usage Signaling: One process writes or deletes data, and another process detects changes. 
+        \newline 
+        TCP/IP Header Fields: Attackers encode data in unused or optional fields of network packets (e.g., IP ID, sequence numbers, or TTL values).
+    \end{esempio}
+    \item \textbf{Timing-Based Covert Channels}: 
+    These attacks manipulate system timing or performance to transmit hidden information. 
+    \begin{esempio}{\quad\newline}
+        CPU Load Fluctuation: Malware alters CPU usage patterns, which another process measures to decode information.
+        \newline 
+        Network Packet Timing: The sender transmits packets at specific time intervals to encode binary data.
+        \newline 
+        Cache-Based Attacks: Attackers use cache access times (e.g., Flush+Reload, Prime+Probe) to leak secrets
+        \newline 
+        Power Consumption Analysis: Sensitive data is extracted by analyzing power usage variations (used in side-channel cryptographic attacks).
+    \end{esempio} 
+\end{enumerate}
+\subsubsection*{Notable Covert Channel Attacks} 
+\begin{table}
+    \begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|}
+        \hline
+        Attack Name & Type & Description \\
+        \hline 
+        Spectre and Meltdown & Timing (Cache) & Exploit speculative execution to leak memory contents \\ 
+        \hline 
+        Flush+Reload & Timing (Cache) & Attacker flushes shared memory and reloads it to observe access patterns. \\
+        \hline 
+        Prime+Probe & Timing (Cache) & Attacker fills cache and monitors eviction patterns to infer secret data. \\
+        \hline 
+        TCP Covert Channel & Storage (Network) & Encodes data in TCP packet fields (e.g., sequence numbers, flags). \\
+        \hline 
+        File Lock Covert Channel & Storage (Filesystem) & Uses file locking/unlocking as a signaling mechanism. \\
+        \hline 
+        Packet Timing Attack & Timing (Network) & Varies packet transmission timing to send hidden messages. \\ 
+        \hline 
+        Keystroke Timing Attack & Timing (Human Interaction) & Infers typed keys based on timing variations between keystrokes. \\
+        \hline 
+    \end{tabular}
+\end{table}
+\subsubsection*{Real-World Examples of Covert Channel Attacks}
+\begin{itemize}
+    \item Malware-Based Attacks: 
+    \newline 
+    Duqu 2.0 (2015): Used covert TCP/IP channels to exfiltrate data while avoiding detection.
+    DNS Tunneling Attacks: Malware hides data inside DNS queries (e.g., C2 communication for botnets). 
+    \item Cloud \& Virtualization-Based Covert Channels: 
+    \newline 
+    Hypervisor Covert Channels: Virtual machines (VMs) on the same physical host leak data via shared CPU cache or memory. 
+    Cloud Timing Attacks: Cloud tenants use execution timing differences to infer co-resident VM activities. 
+\end{itemize}
+\subsubsection*{Mitigation Strategies}
+Gli attacchi tramite Covert Channel sfruttano le debolezze, del timing del sistema, delle risorse condivise e dei protocolli di rete, 
+per trasmettere dati nascosti. 
+Pongono una seria minaccia nella comunicazione fra malware, esfiltrazione dei dati e il cyber-spionaggio. 
+Difese efficaci implicano l'isolamento delle risorse, iniezione di rumore e rilevamento delle anomalie così da disturbare questi attacchi. 
+\textbf{System-Level Defenses}
+\begin{itemize}
+    \item Enforce strong access control (MAC, RBAC) to prevent unauthorized process interactions. 
+    \item Use mandatory data flow control models (Bell-LaPadula, Biba) to prevent information leaks. 
+    \item Disable unnecessary shared resources (e.g., inter-process communication, shared memory).
+\end{itemize}
+\textbf{Network Defenses}
+\begin{itemize}
+    \item Deploy deep packet inspection (DPI) and anomaly detection to identify hidden data in network traffic. 
+    \item Enforce network segmentation to limit unauthorized data flows.
+\end{itemize}
+\textbf{Hardware \& OS Defenses}
+\begin{itemize}
+    \item Randomize execution times and inject noise into system responses (to disrupt timing-based attacks). 
+    \item Implement constant-time cryptographic operations to prevent timing side channels. 
+    \item Flush and partition CPU caches to prevent cross-process cache attacks. 
+\end{itemize}
+%
+\subsection{Protezione contro i Covert Channel}
+Il loro rilevametno e la loro mitigazione richiede un rigoroso monitoraggio, l'isolamento delle risorse e 
+tecniche per introdurre rumore. 
+%
+I Covert channel sfruttano le vulnerabilità del sistema per trasmettere segretamente dei dati. 
+Proteggersi da loro, richiede una combinazione di rinforzo delle politiche, gestione delle risorse e tecniche di monitoraggio. 
+%
+Mitigare i Covert channel richiede una sicurezza multi livello fra hardware, OS, applicazioni e reti. 
+Siccome la completa eliminazione è difficle, strategie di rilevazione e minimizzazione sono essenziali 
+(es randomizzazione, rigoroso controllo degli accessi delle risorse, rilevamento delle anomalie). 
+%
+Le effettive strategie per la mitigazione sono: 
+\subsubsection*{System and Policy-Based Protections}
+\begin{enumerate}
+    \item \textbf{Strict Access Control Policies}: 
+    \newline 
+    Implement least privilege and mandatory access control (MAC) to restrict unauthorized communication between processes. 
+    Use sandboxing and compartmentalization to isolate processes. 
+    \item \textbf{Information Flow Control}: 
+    \newline 
+    Enforce data flow policies to prevent high-security processes from leaking data to lower-security processes (Bell-LaPadula, Biba model). 
+    \item \textbf{Process Separation and Isolation}: 
+    \newline 
+    Use virtualization and containerization to separate processes. 
+    Apply air-gapping for highly sensitive systems
+\end{enumerate}
+\subsubsection*{Timing and Resource Management Protections} 
+\begin{itemize}
+    \item \textbf{Randomization Techniques }
+    \newline 
+    Introduce noise in system responses (e.g., randomizing execution times, adding delays) to disrupt timing-based covert channels. 
+    Use cache randomization or flush techniques to prevent cache-based side-channel attacks. 
+    \item \textbf{Rate Limiting and Bandwidth Control} 
+    \newline 
+    Restrict CPU, memory, or network bandwidth to limit the capacity of a covert channel. 
+    Implement throttling mechanisms for shared resources.
+\end{itemize}
+\subsubsection*{Network Security Protections} 
+\begin{itemize}
+    \item \textbf{Packet Inspection and Filtering}: 
+    \newline 
+    Use Deep Packet Inspection (DPI) to detect anomalous patterns in network traffic. 
+    Block or sanitize unused fields in protocols (e.g., TCP/IP headers). 
+    \item \textbf{Traffic Analysis and Anomaly Detection}: 
+    \newline 
+    Employ AI-based monitoring to detect unusual communication patterns. 
+    Use intrusion detection systems (IDS) and log analysis to identify suspicious activities.
+\end{itemize} 
+\subsubsection*{Hardware and Software Security Enhancements} 
+\begin{itemize}
+    \item Secure Hardware Design 
+    \newline 
+    Implement constant-time cryptographic operations to prevent timing-based attacks. 
+    Use secure enclaves (e.g., Intel SGX, ARM TrustZone) to protect sensitive computations. 
+    \item OS-Level Protections 
+    \newline 
+    Enforce memory isolation and disable shared memory where unnecessary. 
+    Implement secure scheduling algorithms to prevent process-based timing leaks. 
+\end{itemize} 
+\subsubsection*{Covert Channel Auditing and Testing} 
+\begin{itemize}
+    \item Regularly perform covert channel analysis in penetration tests. 
+    \item Use covert channel detection tools (e.g., network flow analysis, system behavior monitoring). 
+\end{itemize}
+%
+\subsection{Strategie di mitigazione}
+\textbf{Strategie di Mitigazione} 
+\newline 
+Controllo sugli Accessi: limnitare i permessi per prevenire scambio di informazioni non autorizzato 
+Monitoraggio del Traffico: analizzare i comportamenti del sistema per rilevare anomalie 
+Aggiunta di Rumore (Noise Injection): introdurre casualità nei pattern temporali o di accesso alla memoria per rendere il prelevamento dei dati difficile.  
+%
+Strategie di mitigazione: 
+\begin{itemize}
+    \item System Design: Minimize shared resources and unnecessary communication paths. 
+    \item Monitoring: Detect unusual patterns in resource usage or timing. 
+    \item Access Controls: Restrict access to critical resources. 
+    \item Noise Introduction: Add random delays or variations to disrupt timing-based channels.
+\end{itemize}
+\vspace{2ex}  
+% Characteristics 
+%Un Covert Channel viene chiamato così perchè è nascosoto dai meccanismi di controllo degli accessi dei sistemi operativi siccome non usa il meccanismo di trasferimento dati legittimo del sistema (lettura/scrittura) 
+%e quindi non possono essere identificati o controllati dai meccanismi di sicurezza alla base della sicurezza dei sistemi operativi. 
+%\vspace{1ex} \newline
+%I Covert Channel sono eccessivamente difficili da installare nei sistemi reali e spesso possono essere identificati monitorando le performance del sistema. 
+%In aggiunta soffrono da un basso 'signal-to-noise ratio' e 'low data rates'. 
+%Possono essere anche rimossi manualmente con un alto grado di fiducia da sistemi sicuri, da strategie di analisi ben definite. 
+%\vspace{1ex} \newline 
+I Covert Channel possono passare attraverso sistemi operativi sicuri a richiedono misure speciali per poterli controllare; 
+in particolare l'analisi dei Covert Channel è l'unico modo provato per poterli gestire. 
+Al contrario, sistemi operativi sicuri possono facilemnte identificare e/o prevenire l'uso improprio di canali legittimi.
+\vspace{2ex} \newline 
+\subsubsection*{Identifying Covert Channels} 
+PASS 
+\subsubsection*{Eliminating Covert Channels} 
+Le possibilità di un Covert Channel non possono essere eliminate sebbene possano essere significatamente ridotte da un design e analisi attenti. 
+La rilevazione di un Covert Channel può essere resa maggiormente difficile usando caratteristiche del medium di comunicazione per il canale legittimo che non sono mai controllati o esaminati da utenti legittimi. 
+\begin{esempio}
+    Un file può essere aperto e chiuso da un progremma in modo specifico pattern temporale così che possa essere rilevato da un altro programma; 
+    lo schema potrà essere poi interpretato come una stringa di bit formando così un Covert Channel. 
+    Di conseguenza, siccome è improbabile che l'utente legittimo controlli i pattern relativi alla chiusura/apertura dei file; 
+    questo tipo ti Covert Channel può rimanere non identificato per un lungo periodo. 
+\end{esempio}
+\vspace{2ex} 
+\subsubsection*{Data hiding in OSI model} 
+PASS 
+\vspace{2ex} \newline 
+\subsubsection*{DATA hiding in LAN environment by covert channels} 
+PASS 
+\vspace{2ex} \newline 
+\subsubsection*{Data hiding in TCP/IP Protocols suite} 
+PASS 
+%
+
+
+
+
+
+
+\subsection{Aree di ricerca sui covert Channel}
+
+One significant area of research involves the development of covert communication mechanisms in wireless 
+environments. 
+For instance, a study introduced a covert wireless unidirectional communication method that utilizes the beacon 
+intervals of access points in IEEE 802.11 networks. This method, known as the ping-pong covert timing channel 
+(PPCTC), aims to minimize the chances of detection while ensuring reliable data transmission, even in the presence 
+of errors[1]. 
+This innovation demonstrates the potential for covert channels to be effectively integrated into existing network 
+protocols with minimal modifications.
+
+Another critical aspect of covert channels is their detection. As covert communications become more advanced and 
+harder to identify, researchers are exploring machine learning (ML) techniques to enhance detection capabilities. 
+A review highlighted various types of covert channels and the effectiveness of different ML approaches in 
+identifying these hidden threats. The study emphasized the need for ongoing research to improve detection methods, 
+as traditional security measures often fail to recognize covert communications[2].
+Additionally, the use of Internet of Things (IoT) protocols for data exfiltration has garnered attention. 
+Research has shown that protocols like MQTT and AMQP are particularly effective for covert data transfers due 
+to their design for low bandwidth and power consumption, making them suitable for IoT environments. 
+A software tool developed for this purpose demonstrated how these protocols could be exploited for unauthorized 
+data transfers, underscoring the need for robust detection mechanisms in IoT networks[3].
+Furthermore, a long-term analysis of the Internet's susceptibility to covert channels revealed that the evolution 
+of network protocols has influenced the effectiveness of information hiding techniques. 
+This study suggested that continuous monitoring and quantification of covert channel capabilities should be 
+integral to cybersecurity strategies[4].
+Lastly, a specific threat analysis focused on using port scans as a cover for covert command and control channels. 
+This research proposed a novel method for hiding information within TCP port scans and syslog messages, providing 
+insights into potential indicators of compromise and mitigation strategies[5].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
