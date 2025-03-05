@@ -1,225 +1,230 @@
-A covert channel is a hidden communication method that allows attackers to transfer data in a way that bypasses 
-security policies. ICMP covert channels use ICMP packets (typically Echo Requests and Replies) to hide data inside 
-fields that are normally ignored or not monitored.
+Un Covert channel è un metodo di comunicazione nascosto che consente agli attaccanti di trasferire dati in 
+un modo da aggirare le politiche di sicurezza. 
+I Covert Channel ICMP utilizzano pacchetti ICMP (tipicamente richieste e risposte di eco) per nascondere 
+i dati all'interno di campi che normalmente vengono ignorati o non monitorati.
 \vspace{2ex} \newline
-Attackers exploit ICMP because:
+Gli aggressori sfruttano l'ICMP perché:
 \begin{itemize}
-    \item Many firewalls and security devices allow ICMP traffic for network diagnostics.
-    \item ICMP packets can carry hidden payloads without raising suspicion.
-    \item Traditional security systems focus on TCP/UDP traffic, neglecting ICMP. 
+    \item Molti firewall e dispositivi di sicurezza consentono il traffico ICMP per la diagnostica della rete.
+    \item I pacchetti ICMP possono trasportare dati (payload) nascosti senza destare sospetti.
+    \item I sistemi di sicurezza tradizionali si concentrano sul traffico TCP/UDP, trascurando ICMP.
 \end{itemize}
 %
-\subsection{How ICMP Covert Channels Work}
+\subsection{Come funzionano i Covert Channel ICMP}
 \subsubsection{ICMP Tunneling}
-ICMP tunneling allows attackers to encapsulate data inside ICMP packets, creating a hidden communication channel.
+Il tunneling ICMP consente agli aggressori di incapsulare i dati all'interno dei pacchetti ICMP, creando un canale di comunicazione nascosto.
 \begin{enumerate}
-    \item The attacker embeds command and control (C2) instructions inside ICMP packets.
-    \item These packets are sent to a compromised system behind a firewall.
-    \item The system extracts the hidden instructions and executes them.
-    \item Responses are sent back using ICMP Echo Replies
+    \item L'attaccante inserisce istruzioni di comando e controllo (C2) nei pacchetti ICMP.
+    \item Questi pacchetti vengono inviati a un sistema compromesso dietro un firewall.
+    \item Il sistema estrae le istruzioni nascoste e le esegue.
+    \item Le risposte vengono inviate tramite ICMP Echo Replies
 \end{enumerate}
-\begin{esempio}{Example Use Case}\newline
-    Malware (e.g., botnets) uses ICMP to bypass firewalls and receive commands from remote attackers.
-    Attackers establish a reverse shell over ICMP, controlling a compromised machine.
+\begin{esempio}{Esempio di un caso d'uso}\newline
+    I malware (ad esempio le botnet) utilizzano il protocollo ICMP per aggirare i firewall e ricevere comandi da aggressori remoti.
+    Gli attaccanti stabiliscono una reverse shell tramite ICMP, controllando una macchina compromessa. 
 \end{esempio}
-\begin{esempio}{Example Tools for ICMP Tunneling}\newline
-    Icmpsh – Creates a reverse shell over ICMP.
-    PingTunnel – Tunnels TCP traffic through ICMP Echo Requests and Replies.
-    Ptunnel-NG – Advanced version of PingTunnel for bypassing firewalls
+\begin{esempio}{Esempi di Strumenti per il tunneling ICMP}\newline
+    Icmpsh - Crea una shell inversa tramite ICMP.
+    PingTunnel – Incanala il traffico TCP attraverso richieste e risposte di eco ICMP.
+    Ptunnel-NG – Versione avanzata di PingTunnel per aggirare i firewall
 \end{esempio}
-\subsubsection{ICMP Data Exfiltration}
-Attackers can steal data (passwords, files, sensitive information) by embedding it inside ICMP packets and sending 
-it to an external server. 
+\subsubsection{Esfiltrazione dei dati ICMP}
+Gli aggressori possono rubare dati (password, file, informazioni sensibili) incorporandoli nei pacchetti ICMP 
+e inviandoli a un server esterno.
 \begin{enumerate}
-    \item The attacker encodes sensitive data (e.g., credit card numbers, encryption keys) into ICMP packets.
-    \item The packets are sent to an external server controlled by the attacker.
-    \item The attacker extracts and decodes the stolen data from the ICMP traffic.
+    \item L'aggressore codifica dati sensibili (ad esempio numeri di carte di credito, chiavi di crittografia) in pacchetti ICMP.
+    \item I pacchetti vengono inviati a un server esterno controllato dall'aggressore.
+    \item L'aggressore estrae e decodifica i dati rubati dal traffico ICMP.
 \end{enumerate}
-\begin{esempio}{Example Use Case}\newline
-    An insider threat exfiltrates classified data using ICMP Echo Requests.
-    A malware infection transmits keylogs or screenshots via ICMP packets
+\begin{esempio}{Esempio di caso d'uso}\newline
+    Una minaccia interna estrae dati classificati tramite richieste ICMP Echo.
+    Un'infezione da malware trasmette keylog o screenshot tramite pacchetti ICMP
 \end{esempio}
-\begin{esempio}{Example Tools for ICMP Data Exfiltration}\newline
-    icmptx – Encodes and transfers data via ICMP packets.
-    LOKI – Hides data in ICMP Echo Replies.
-    Hans – Uses ICMP for encrypted data transfer
+\begin{esempio}{Esempio di strumenti per l'esfiltrazione di dati con ICMP}\newline
+    icmptx - Codifica e trasferisce dati tramite pacchetti ICMP.
+    LOKI - Nasconde i dati nelle risposte ICMP Echo.
+    Hans - Utilizza ICMP per il trasferimento di dati criptati.
 \end{esempio}
-\subsubsection{ICMP-Based Botnet Command \& Control (C2)}
-Some botnets and malware use ICMP to communicate with their command-and-control servers (C2)
+\subsubsection{Comando e controllo (C2) della botnet basato su ICMP}
+Alcune botnet e malware utilizzano ICMP per comunicare con i loro server di comando e controllo (C2)
 \begin{enumerate}
-    \item The attacker embeds C2 commands in ICMP packets.
-    \item The infected bot reads the command and executes it.
-    \item The bot sends execution results back via ICMP replies
+    \item L'attaccante inserisce i comandi C2 nei pacchetti ICMP.
+    \item Il bot infetto legge il comando e lo esegue.
+    \item Il bot invia i risultati dell'esecuzione tramite risposte ICMP
 \end{enumerate}
-\begin{esempio}{Example Malware Using ICMP for C2 Communication}\newline
-    Duqu – Used ICMP to send encrypted data.
-    Pingback – A malware that receives commands via ICMP.
-    Trojan.Medo – Used ICMP as a backdoor channel
+\begin{esempio}{Esempio di malware che utilizzano ICMP per la comunicazione C2}\newline
+    Duqu – Utilizza ICMP per inviare dati crittografati.
+    Pingback - Un malware che riceve comandi tramite ICMP.
+    Trojan.Medo - Utilizzava ICMP come canale backdoor.
 \end{esempio} 
 %
-\subsection{How to Detect and Mitigate ICMP Covert Channels}
-\subsubsection{Detection Techniques}
+\subsection{Come rilevare e mitigare i covert channel ICMP}
+\subsubsection{Tecniche di rilevamento}
 \begin{enumerate}
-    \item Monitor ICMP Traffic \newline
-    Analyze ICMP packet size (e.g., unusually large payloads).
-    Detect high-frequency ICMP traffic to unknown external hosts.
-    Check for ICMP packets with irregular patterns (e.g., varying TTL values).
-    \item Use Deep Packet Inspection (DPI) \newline
-    Inspect ICMP payloads for unusual embedded data.
-    Flag ICMP packets that contain non-standard responses.
-    \item Anomaly Detection with IDS/IPS \newline
-    Use Snort, Suricata, or Zeek to detect abnormal ICMP activity. 
+    \item Monitora il traffico ICMP \newline
+    Analizzare le dimensioni dei pacchetti ICMP (ad esempio, payload insolitamente grandi).
+    Rileva il traffico ICMP ad alta frequenza verso host esterni sconosciuti.
+    Verificare la presenza di pacchetti ICMP con schemi irregolari (ad esempio, valori TTL variabili).
+    \item Usa l'ispezione approfondita dei pacchetti (DPI) \newline
+    Esaminare i payload ICMP per rilevare eventuali dati incorporati insoliti.
+    Contrassegna i pacchetti ICMP che contengono risposte non standard.
+    \item Rilevamento delle anomalie con IDS/IPS \newline
+    Utilizzate Snort, Suricata o Zeek per rilevare attività ICMP anomale. 
 \end{enumerate}
-\begin{esempio}{Snort rule to detect ICMP tunneling}\newline
+\begin{esempio}{egola Snort per rilevare il tunneling ICMP}\newline
     \noindent
     \begin{lstlisting}{python}
         alert icmp any any -> any any (msg:"ICMP tunnel detected"; content:"secret";)
     \end{lstlisting}
 \end{esempio}
 %
-\subsubsection{Prevention and Mitigation Strategies}
+\subsubsection{Strategie di prevenzione e mitigazione}
 \begin{enumerate}
-    \item Restrict ICMP Traffic \newline
-    Block ICMP traffic from untrusted sources at the firewall.
-    Allow only necessary ICMP messages (e.g., Destination Unreachable).
-    Disable ICMP Echo Requests/Replies on critical systems.
-    \item Rate-Limit ICMP Packets \newline
-    Limit ICMP packet size to prevent hidden data transfer.
-    Configure firewalls to allow only a specific number of ICMP packets per second.
-    \item Use Encryption for Data Transfer \newline
-    Prevent attackers from intercepting sensitive data by encrypting all legitimate communication (e.g., using VPNs, TLS).
-    \item Deploy Endpoint Security Solutions \newline
-    Use host-based firewalls to block suspicious ICMP communication.
-    Install antivirus and EDR (Endpoint Detection and Response) tools to detect malware using ICMP covert channels
+    \item Limitare il traffico ICMP \newline
+    Bloccare il traffico ICMP proveniente da fonti non attendibili sul firewall.
+    Consenti solo i messaggi ICMP necessari (ad esempio, Destinazione non raggiungibile).
+    Disattivare le richieste/risposte di eco ICMP sui sistemi critici.
+    \item Limitare la velocità dei pacchetti ICMP \newline
+    Limitare la dimensione dei pacchetti ICMP per evitare il trasferimento nascosto di dati.
+    Configurare i firewall in modo da consentire solo un numero specifico di pacchetti ICMP al secondo.
+    \item Usa la crittografia per il trasferimento dei dati \newline
+    Impedisci agli aggressori di intercettare dati sensibili crittografando tutte le comunicazioni legittime (ad esempio tramite VPN, TLS).
+    \item Implementare soluzioni di sicurezza per gli endpoint \newline
+    Utilizzare firewall basati sull'host per bloccare le comunicazioni ICMP sospette.
+    Installare strumenti antivirus e EDR (Endpoint Detection and Response) per rilevare le minacce informatiche che utilizzano i covert channel ICMP.
 \end{enumerate}
 %
-\subsection{Real-World Example of an ICMP Covert Channel Attack}
-Case Study: Duqu Malware (2011)
+\subsection{Esempio reale di attacco tramite covert channel ICMP}
+Caso di studio: Duqu Malware (2011)
 \begin{itemize}
-    \item What Happened?
-    Duqu, a sophisticated malware, used ICMP packets to exfiltrate data from infected systems
-    \item How It Worked:
-    It embedded stolen data inside ICMP Echo Requests sent to a remote server.
-    Security tools failed to detect it because ICMP was considered harmless 
-    \item Mitigation:
-    Organizations learned to monitor ICMP traffic and block unnecessary ICMP messages to prevent future attacks
+    \item Cosa è successo?
+    Duqu, un malware sofisticato, utilizza pacchetti ICMP per esfiltrare dati dai sistemi infetti
+    \item Come funziona:
+    Incorpora dati rubati all'interno di richieste ICMP Echo inviate a un server remoto.
+    Gli strumenti di sicurezza non sono riusciti a rilevarlo perché ICMP era considerato innocuo
+    \item Mitigazione:
+    Le organizzazioni hanno imparato a monitorare il traffico ICMP e a bloccare i messaggi ICMP non necessari per prevenire futuri attacchi
 \end{itemize}
 %
-\subsection{Summary: How to Secure Against ICMP Covert Channels}
-ICMP covert channels pose a serious security risk because they bypass firewalls, evade detection, and allow hidden 
-data transmission. Organizations must monitor ICMP traffic, restrict its use, and employ security tools to detect 
-and block covert channels effectively.
+\subsection{Riepilogo: come proteggersi dai canali nascosti ICMP} 
+I covert channel ICMP rappresentano un serio rischio per la sicurezza perché aggirano i firewall, eludono il 
+rilevamento e consentono la trasmissione di dati nascosti. 
+Le organizzazioni devono monitorare il traffico ICMP, limitarne l'uso e utilizzare strumenti di sicurezza per 
+rilevare e bloccare efficacemente i covert channel. 
 \newline 
 \begin{minipage}{\linewidth}
     \begin{tabular}{|p{0.5\linewidth}|p{0.5\linewidth}|}
         \hline
-        Mitigation Method & Effectiveness \\
+        Metodo di mitigazione & Effetti \\
         \hline \hline
-        Disable ICMP if not needed & Prevents most ICMP-based attacks. \\
-        Limit ICMP to necessary types & Blocks unnecessary attack vectors. \\
-        Monitor ICMP traffic patterns & Detects anomalies and data exfiltration. \\
-        Use Deep Packet Inspection (DPI) & Identifies hidden data in ICMP packets. \\
-        Implement IDS/IPS rules for ICMP & Alerts on suspicious ICMP activity. \\
-        Block outgoing ICMP at firewalls & Prevents data leaks via ICMP. \\
+        Disattiva ICMP se non necessario & impedisce la maggior parte degli attacchi basati su ICMP \\
+        Limita ICMP ai tipi necessari & blocca i vettori di attacco non necessari \\
+        Monitora i modelli di traffico ICMP & rileva anomalie ed esfiltrazione di dati \\
+        Utilizza la Deep Packet Inspection (DPI) & identifica i dati nascosti nei pacchetti ICMP. \\
+        Implementa regole IDS/IPS per ICMP & avvisi su attività ICMP sospette \\
+        Blocca ICMP in uscita dai firewall & impedisce perdite di dati tramite ICMP \\
         \hline 
     \end{tabular}
 \end{minipage}
 %
 %
-\subsection{Covert Channel Attacks on ICMP: Mitigation and Detection Strategies}
-\subsection{What Are ICMP Covert Channel Attacks?}
-ICMP (Internet Control Message Protocol) is primarily used for network diagnostics and error reporting, but 
-attackers can exploit it to create covert channels—hidden communication pathways used for data exfiltration, 
-command and control (C2), and bypassing security policies.
-\subsubsection*{How ICMP Covert Channels Work}
+\subsection{Attacchi Covert Channel su ICMP: strategie di mitigazione e rilevamento} 
+\subsection{Cosa sono gli attacchi Covert Channel ICMP?}
+ICMP (Internet Control Message Protocol) è utilizzato principalmente per la diagnostica di rete e la 
+segnalazione di errori, ma gli aggressori possono sfruttarlo per creare covert channel, percorsi di 
+comunicazione nascosti utilizzati per l'esfiltrazione dei dati, comando e controllo (C2) e aggiramento delle 
+policy di sicurezza.
+\subsubsection*{Come funzionano i Covert Channel ICMP}
 \begin{itemize}
-    \item Data Encoding: Attackers embed hidden messages inside ICMP packets, such as Echo Requests (ping) or Echo Replies.
-    \item Firewall Evasion: Since ICMP is often allowed in firewalls, attackers use it to bypass security policies.
-    \item Stealth Communication: Malware and botnets use ICMP to secretly communicate with a remote attacker
+    \item Codifica dei dati: gli aggressori incorporano messaggi nascosti all'interno di pacchetti ICMP, come richieste di Eco (ping) o risposte di Eco.
+    \item Evasione del firewall: Poiché ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza.
+    \item Comunicazione furtiva: Malware e botnet utilizzano ICMP per comunicare segretamente con un attaccante remoto.
 \end{itemize}
 \begin{minipage}{\linewidth}
-    Example ICMP Covert Channel Attacks:
+    Esempi di attacchi Covert Channel ICMP: 
     \newline
     \begin{tabular}{|p{0.5\linewidth}|p{0.5\linewidth}} 
         \hline
-        Attack Type & Description \\
+        Tipo di attacco & descrizione \\
         \hline \hline 
-        ICMP Tunneling & Encapsulating TCP/IP traffic inside ICMP packets to evade firewall restrictions. \\
-        ICMP Data Exfiltration & Sending stolen data hidden inside ICMP payloads to an external server. \\
-        ICMP-Based Command \& Control (C2) & Malware receiving commands from an attacker via ICMP. \\
-        ICMP Reverse Shell & A backdoor that allows an attacker to control a machine remotely using ICMP. \\
+        Tunneling ICMP & incapsulamento del traffico TCP/IP all'interno di pacchetti ICMP per eludere le restrizioni del firewall \\
+        Esfiltrazione dati ICMP & invio di dati rubati nascosti all'interno di payload ICMP a un server esterno. \\
+        Comando e controllo (C2) basati su ICMP & malware che riceve comandi da un aggressore tramite ICMP.. \\
+        ICMP Reverse Shell & una backdoor che consente a un aggressore di controllare una macchina da remoto tramite ICMP. \\
         \hline 
     \end{tabular}
 \end{minipage}
 %
-\subsection{Detection Strategies for ICMP Covert Channels}
-\subsubsection{Network Traffic Monitoring} 
-Monitor ICMP packet volume and packet sizes for anomalies.
-Detect ICMP packets with unusually large payloads (e.g., data exfiltration attempts)
-Identify ICMP packets with constant payload changes, which could indicate hidden data transfer
+\subsection{Strategie di rilevamento per Covert Channel ICMP}
+\subsubsection{Monitoraggio del traffico di rete} 
+Monitorare il volume e le dimensioni dei pacchetti ICMP per anomalie.
+Rilevare i pacchetti ICMP con payload insolitamente grandi (ad esempio, tentativi di esfiltrazione dei dati).
+Identificare i pacchetti ICMP con modifiche costanti del payload, che potrebbero indicare il trasferimento di dati nascosti.
 \subsubsection{Deep Packet Inspection (DPI)}
-Analyze ICMP payload content for encoded messages, encryption, or anomalies.
-Look for non-standard ICMP responses (e.g., an Echo Reply containing unexpected data).
-Identify patterns of communication with external IP addresses over ICMP
-\subsubsection{Intrusion Detection and Prevention Systems (IDS/IPS)}
-Use Snort, Suricata, or Zeek to detect and alert on suspicious ICMP activity
-\begin{esempio}{Snort Rule for ICMP Tunneling Detection}
+Analizzare il contenuto del payload ICMP per messaggi codificati, crittografia o anomalie.
+Cercare risposte ICMP non standard (ad esempio, una risposta Echo contenente dati inaspettati).
+Identificare schemi di comunicazione con indirizzi IP esterni tramite ICMP
+\subsubsection{Sistemi di rilevamento e prevenzione delle intrusioni (IDS/IPS)}
+Utilizzare Snort, Suricata o Zeek per rilevare e segnalare attività ICMP sospette
+\begin{esempio}{Regola Snort per il rilevamento del tunneling ICMP}
     \begin{lstlisting}{shell}
         alert icmp any any -> any any (msg:"ICMP tunnel detected"; content:"malicious_payload"; sid:100001;)
     \end{lstlisting}
 \end{esempio}
-Implement behavioral analysis to detect abnormal ICMP usage
-\subsubsection{Anomaly-Based Detection}
-Use Machine Learning or SIEM (Security Information and Event Management) tools to flag deviations in ICMP usage.
-Detect high-frequency ICMP traffic that could indicate C2 communication
+Implementare analisi comportamentali per rilevare un utilizzo anomalo di ICMP
+\subsubsection{Rilevamento basato su anomalie}
+Utilizzare strumenti di apprendimento automatico o SIEM (Security Information and Event Management) per segnalare deviazioni nell'utilizzo di ICMP.
+Rilevare il traffico ICMP ad alta frequenza che potrebbe indicare una comunicazione C2
 %
-\subsection{Mitigation Strategies for ICMP Covert Channels}
-\subsubsection{Restrict ICMP Traffic}
-Disable ICMP on servers and endpoints unless explicitly needed.
-Configure firewalls and routers to allow only essential ICMP messages (e.g., "Destination Unreachable," "Time Exceeded").
-\begin{esempio}{Firewall Rule to Block ICMP Traffic}\newline
+\subsection{Strategie di mitigazione per Covert Channel ICMP}
+\subsubsection{Restringere il traffico ICMP}
+Disattivare ICMP sui server e sugli endpoint a meno che non sia esplicitamente necessario.
+Configurare firewall e router in modo da consentire solo i messaggi ICMP essenziali (ad esempio, 
+“Destination Unreachable”, “Time Exceeded”). 
+\begin{esempio}{Regola del firewall per bloccare il traffico ICMP}\newline
     \begin{lstlisting}
         iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
     \end{lstlisting}
 \end{esempio}
 %
-\subsubsection*{Rate-Limiting ICMP Traffic}
-Limit the frequency and size of ICMP packets to prevent tunneling.
-Example: Configure firewalls to allow only a certain number of ICMP requests per second
+\subsubsection*{Limitazione del traffico ICMP}
+Limita la frequenza e la dimensione dei pacchetti ICMP per evitare il tunneling.
+Esempio: Configurare i firewall per consentire solo un certo numero di richieste ICMP al secondo.
 \begin{esempio}
     \begin{lstlisting}
         iptables -A INPUT -p icmp -m limit --limit 1/second -j ACCEPT
     \end{lstlisting}
 \end{esempio}
-\subsubsection{Use Encryption to Prevent Data Leakage}
-Implement TLS/SSL encryption for legitimate communications to prevent attackers from using ICMP for exfiltration.
-Block unauthorized plaintext transmissions over ICMP.
-\subsubsection{Block ICMP on External Interfaces}
-Prevent outbound ICMP traffic from internal networks to stop exfiltration.
-Allow ICMP only for internal diagnostic purposes.
-\subsubsection{Endpoint Security \& Antivirus}
-Deploy EDR (Endpoint Detection \& Response) solutions to detect malware using ICMP for communication
-Regularly update antivirus software to identify and block known threats
-\subsubsection{Implement ICMP Proxy Filtering}
-Use ICMP proxies to inspect, sanitize, and block unexpected ICMP payloads.
-Allow only legitimate diagnostic ICMP traffic to pass through
+\subsubsection{Utilizza la crittografia per prevenire la fuga di dati}
+Implementa la crittografia TLS/SSL per comunicazioni legittime così da impedire agli aggressori di utilizzare ICMP per l'esfiltrazione.Block unauthorized plaintext transmissions over ICMP.
+Bloccare le trasmissioni non autorizzate di testo in chiaro su ICMP.
+\subsubsection{Blocca ICMP su interfacce esterne}
+Impedisci il traffico ICMP in uscita dalle reti interne per fermare l'esfiltrazione.
+Consenti ICMP solo per scopi diagnostici interni.
+\subsubsection{Sicurezza degli endpoint \& Antivirus}
+Implementare soluzioni EDR (Endpoint Detection \& Response) per rilevare le minacce informatiche che utilizzano ICMP per comunicare.
+Aggiorna regolarmente il software antivirus per identificare e bloccare le minacce note
+\subsubsection{Implementa ICMP Proxy Filtering}
+Utilizza proxy ICMP per ispezionare, sanificare e bloccare payload ICMP inaspettati.
+Consenti solo il passaggio di traffico ICMP diagnostico legittimo
 %
-\subsection{Summary: Detection \& Mitigation Techniques}
-ICMP covert channels pose serious security risks, allowing stealthy data exfiltration, tunneling, and malware 
-communication. By implementing strict ICMP restrictions, deep packet inspection, firewall rules, and anomaly 
-detection, organizations can effectively detect and mitigate these threats. 
+\subsection{Riepilogo: tecniche di rilevamento \& mitigazione}
+I canali nascosti ICMP pongono seri rischi per la sicurezza, consentendo l'esfiltrazione 
+furtiva dei dati, il tunneling e la comunicazione di malware.
+Implementando rigide restrizioni ICMP, l'ispezione approfondita dei pacchetti, le regole 
+del firewall e il rilevamento delle anomalie, le organizzazioni possono rilevare e mitigare efficacemente queste minacce.
 \newline
 \begin{minipage}{\linewidth}
     \begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|}
         \hline 
-        Technique & Detection & Mitigation \\
+        Tecnica & Rilevamento & Mitigazione \\
         \hline \hline
-        Network Traffic Analysis & Identifies anomalies in ICMP volume and patterns & Restricts unnecessary ICMP types \\
-        Deep Packet Inspection (DPI) & Detects data exfiltration and tunneling & Blocks ICMP packets with unexpected payloads \\
-        IDS/IPS (Snort, Zeek) & Alerts on unusual ICMP behavior & Blocks suspicious ICMP requests \\
-        Rate Limiting & Detects excessive ICMP requests & Prevents ICMP flooding and tunneling \\
-        Firewall Rules & Flags unauthorized ICMP requests & Blocks outbound ICMP from critical systems \\
-        Endpoint Security (EDR) & Detects malware using ICMP covert channels & Prevents malicious ICMP execution \\
+        Analisi del traffico di rete & identifica anomalie nel volume e nei pattern ICMP & limita i tipi ICMP non necessari \\
+        Deep Packet Inspection (DPI) & rileva l'esfiltrazione e il tunneling dei dati & blocca i pacchetti ICMP con payload inattesi \\
+        IDS/IPS (Snort, Zeek) & segnala comportamenti ICMP insoliti & blocca le richieste ICMP sospette \\
+        Limitazione della velocità & rileva richieste ICMP eccessive & impedisce il flooding e il tunneling ICMP \\
+        Regole del firewall & contrassegna le richieste ICMP non autorizzate & blocca l'ICMP in uscita dai sistemi critici \\
+        Endpoint Security (EDR) & Rileva malware tramite Covert Channel ICMP & Previene l'esecuzione ICMP dannosa \\
         \hline 
     \end{tabular}
 \end{minipage}
