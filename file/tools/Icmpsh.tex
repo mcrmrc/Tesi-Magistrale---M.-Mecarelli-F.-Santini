@@ -1,0 +1,122 @@
+%https://www.kitploit.com/2015/06/icmpsh-simple-reverse-icmp-shell.html
+%https://esgeeks.com/icmpsh-shell-reverse-con-icmp/
+%https://github.com/skmt/icmpsh 
+
+%https://github.com/nelsonmaligro/icmpshell
+\section{Icmpsh}
+\subsection{Description}
+icmpsh is a simple reverse ICMP shell with a win32 slave and a POSIX compatible master in C, Perl or Python. 
+The main advantage over the other similar open source tools is that it does not require administrative privileges to run onto the target machine.
+The tool is clean, easy and portable. 
+The slave (client) runs on the target Windows machine, it is written in C and works on Windows only whereas the master (server) can run on any platform on the attacker machine as it has been implemented in C and Perl.
+%
+\subsection{Features}
+\begin{itemize}
+    \item Open source software - primarily coded by Nico, forked by me.
+    \item Client/server architecture.
+    \item The master is portable across any platform that can run either C, Perl or Python code.
+    \item The target system has to be Windows because the slave runs on that platform only for now.
+    \item The user running the slave on the target system does not require administrative privileges.
+\end{itemize}
+%
+\subsection{Usage}
+\textbf{Running the master}
+The master is straight forward to use. There are no extra libraries required for the C and Python versions. The Perl master however has the following dependencies:
+IO::Socket
+NetPacket::IP
+NetPacket::ICMP
+When running the master, don't forget to disable ICMP replies by the OS. For example: sysctl -w net.ipv4.icmp_echo_ignore_all=1
+If you miss doing that, you will receive information from the slave, but the slave is unlikely to receive commands send from the master.
+\textbf{Running the slave} 
+The slave comes with a few command line options as outlined below:
+-t host            host ip address to send ping requests to. This option is mandatory!
+-r                 send a single test icmp request containing the string "Test1234" and then quit. 
+                   This is for testing the connection.
+-d milliseconds    delay between requests in milliseconds 
+-o milliseconds    timeout of responses in milliseconds. If a response has not received in time, 
+                   the slave will increase a counter of blanks. If that counter reaches a limit, the slave will quit.
+                   The counter is set back to 0 if a response was received.
+-b num             limit of blanks (unanswered icmp requests before quitting)
+-s bytes           maximal data buffer size in bytes
+In order to improve the speed, lower the delay (-d) between requests or increase the size (-s) of the data buffer.
+\vspace{2ex} \newline
+icmp-slave-complete.c : Hard coded values
+For the ease of execution, I have hard coded the values of target, delay, timeout, data buffer. 
+It will help to execute the binary directly without command line arguments.
+Check line number 186 to 197.
+\begin{itemize}
+    \item target: IP address of attacker's machine
+    \item delay: delay between requests in milliseconds
+    \item timeout: timeout in milliseconds
+    \item max_blanks: maximal number of blanks (unanswered icmp requests)
+    \item max_data_size: maximal data buffer size in bytes
+\end{itemize}
+
+%https://github.com/hemp3l/icmpsh
+\section{icmpsh}
+icmpsh is a simple reverse ICMP shell with a win32 slave and a POSIX compatible master in C or Perl.
+The master is straight forward to use. There are no extra libraries required for the C version. 
+The Perl master however has the following dependencies:
+\begin{itemize}
+    \item IO::Socket
+    \item NetPacket::IP
+    \item NetPacket::ICMP
+\end{itemize}
+When running the master, don't forget to disable ICMP replies by the OS: sysctl -w net.ipv4.icmp_echo_ignore_all=1
+If you miss doing that, you will receive data from the slave, but the slave is unlikely to retrieve any commands sent from the master.
+\vspace{lex} \newline
+\textbf{Running the slave} 
+The slave comes with a few command line options as outlined below:
+%
+In order to improve the speed, lower the delay (-d) between requests or increase the size (-s) of the data buffer.
+
+%https://github.com/bdamele/icmpsh
+\section{icmpsh}
+icmpsh is a simple reverse ICMP shell with a win32 slave and a POSIX compatible master in C, Perl or Python. 
+The main advantage over the other similar open source tools is that it does not require administrative privileges to run onto the target machine.
+\vspace{lex} \newline
+The tool is clean, easy and portable. 
+The slave (client) runs on the target Windows machine, it is written in C and works on Windows only whereas the master (server) can run on any platform on the attacker machine as it has been implemented in C and Perl by Nico Leidecker and I have ported it to Python too, hence this GitHub fork.
+\vspace{lex} \newline
+\textbf{Features}
+\begin{itemize}
+    \item Open source software - primarily coded by Nico, forked by me.
+    \item Client/server architecture.
+    \item The master is portable across any platform that can run either C, Perl or Python code.
+    \item The target system has to be Windows because the slave runs on that platform only for now.
+    \item The user running the slave on the target system does not require administrative privileges.
+\end{itemize}
+\vspace{lex} \newline
+\textbf{Usage}
+Running the master: 
+The master is straight forward to use. 
+There are no extra libraries required for the C and Python versions. 
+The Perl master however has the following dependencies:
+\begin{itemize}
+    \item IO::Socket
+    \item NetPacket::IP
+    \item NetPacket::ICMP
+\end{itemize}
+When running the master, don't forget to disable ICMP replies by the OS. 
+For example: sysctl -w net.ipv4.icmp_echo_ignore_all=1
+If you miss doing that, you will receive information from the slave, but the slave is unlikely to receive commands send from the master.
+\vspace{lex} \newline
+Running the slave: 
+The slave comes with a few command line options as outlined below:
+-t host            host ip address to send ping requests to. This option is mandatory!
+
+-r                 send a single test icmp request containing the string "Test1234" and then quit. 
+                   This is for testing the connection.
+
+-d milliseconds    delay between requests in milliseconds 
+
+-o milliseconds    timeout of responses in milliseconds. If a response has not received in time, 
+                   the slave will increase a counter of blanks. If that counter reaches a limit, the slave will quit.
+                   The counter is set back to 0 if a response was received.
+
+-b num             limit of blanks (unanswered icmp requests before quitting)
+
+-s bytes           maximal data buffer size in bytes
+In order to improve the speed, lower the delay (-d) between requests or increase the size (-s) of the data buffer.
+
+
