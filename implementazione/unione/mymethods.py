@@ -1,6 +1,4 @@
-from scapy.all import get_if_list, get_if_addr 
-from scapy.all import conf
-import argparse
+from scapy.all import conf 
 
 def add_argument(param_arg, parser=None):
     if parser is None:
@@ -14,7 +12,6 @@ def add_argument(param_arg, parser=None):
     if not param_arg[0].startswith("--") and not param_arg[0].startswith("-"):
         raise Exception("L'argomento deve iniziare con - oppure con --")
     return parser.add_argument(param_arg[0],type=param_arg[1], help=param_arg[2])
-    
 
 def supported_arguments(parser=None):
     if parser is None:
@@ -43,13 +40,6 @@ def check_args(parser=None):
         print("Errore: {}".format(e)) 
         exit(1) 
 
-def test_check_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--host_ip',type=str, help="L'IP dell host dove ricevere i pacchetti ICMP")
-    parser.add_argument('--host_iface',type=str, help="Intefaccia di rete dove l'host riceverà i pacchetti ICMP")
-    #parser.add_argument('--provaFlag',type=int, help="Comando da eseguire")
-    check_args(parser)
-
 def calc_checksum(data: bytes) -> int:
     """
     Calculate the Internet checksum for the given data.
@@ -72,28 +62,10 @@ def calc_checksum(data: bytes) -> int:
     checksum = ~checksum & 0xFFFF
     return checksum
 
-def test_calc_checksum():
-    # Example data (as bytes)
-    example_data = b"__CONNECT__ "
-    example_data = b"Hello, checksum!"
-    result = calc_checksum(example_data)
-    print(f"Checksum: {result:#06x}")  # Print checksum in hexadecimal format
-
 def iface_from_IP(target_ip=None):
     if target_ip is None:
         raise Exception("Indirizzo IP uguale a None")
     iface_name = conf.route.route(target_ip)[0]
     iface_ip = conf.route.route(target_ip)[1] 
     return iface_ip,iface_name 
-
-def test_iface_from_IP():
-    target_ip="192.168.56.1"
-    iface_ip,iface_name=iface_from_IP(target_ip)
-    if iface_ip is not None:
-        print(f"L'interfaccia per {target_ip} è: {iface_ip}")
-    if iface_name is not None:
-        print(f"Il nome dell'interfaccia per {target_ip} è: {iface_name}")
-
-
-if __name__=="__main__":
-    test_iface_from_IP() 
+ 
