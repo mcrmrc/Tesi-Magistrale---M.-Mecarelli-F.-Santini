@@ -11,7 +11,6 @@ parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante")
 event = threading.Event()
 ip_attaccante=None
 ip_vittima=None
-id_redirect=None
 
 def callback_redirect(packet):
     if packet[IP].src is not ip_attaccante:
@@ -28,7 +27,7 @@ def callback_redirect(packet):
             print("Fine connessione")
             event.set()
             return 
-    if not packet[ICMP].id==mymethods.calculate(payload):
+    if not packet[ICMP].id==mymethods.calc_checksum(payload):
         print("Il payload non combacia con il checksum")
         print(packet.summary())
         return
@@ -50,8 +49,8 @@ def parte_redirect_packet():
     ) 
     sniffer.start()
     event.wait()
-    sniffer.join()
     sniffer.stop()
+    sniffer.join() 
 
 packet_received_event = threading.Event()
 
@@ -67,15 +66,22 @@ def callback_vittima(packet):
     global timeout_timer,ip_vittima
     print("Packet received: {}".format(packet.summary())) 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
-        payload = mymethods.calculate(bytes(packet[Raw].load))
-        check_sum=mymethods.calculate(b"__CONNECT__ ")
+        payload = mymethods.calc_checksum(bytes(packet[Raw].load))
+        check_sum=mymethods.calc_checksum(b"__CONNECT__ ") 
+        print( check_sum)
+        if packet[ICMP].type!=8 and packet[ICMP].type!=0:
+            print(f"Il messaggio non è una Request o Reply: {packet[ICMP].type}")
+            return
+            raise Exception(f"Il messaggio non è una Request o Reply: {packet[ICMP].type}")
         if check_sum==payload and ip_vittima==packet[IP].src and packet[ICMP].id==check_sum:
             print("Payload: {}".format(payload)) 
             print("Vittima IPs: {}".format(ip_vittima))
+            packet_received_event.set()
             timeout_timer.cancel() 
             event.set()
-        else:
+        else: 
             print(f"Il paccheto proviene da {packet[IP].src} ma non è valido")
+            return
             raise Exception(f"Il paccheto proviene da {packet[IP].src} ma non è valido")    
 
 def connessione_vittima():
@@ -85,6 +91,7 @@ def connessione_vittima():
         raise Exception("IP vittima non specificato")
     payload="__CONNECT__ "
     print(payload)
+    print(ip_vittima)
     id_icmp=mymethods.calc_checksum(payload.encode()) 
     pkt = IP(dst=ip_vittima)/ICMP(id=id_icmp) / payload
     ans = sr1(pkt, timeout=2, verbose=1)
@@ -92,27 +99,28 @@ def connessione_vittima():
         print(f"{ip_vittima} is alive")
         #ans.show() 
         sniffer= AsyncSniffer(
-            filter=f"icmp and src host {ip_vittima}" 
+            filter=f"icmp and src {ip_vittima}" 
             #,count=1 
             ,prn=callback_vittima 
             #,store=True 
             ,iface=mymethods.iface_from_IP(ip_vittima)[1]
         )
-        timeout_timer = threading.Timer(10, sniffer_timeout)
+        timeout_timer = threading.Timer(20, sniffer_timeout)
         sniffer.start() 
         timeout_timer.start()
         event.wait()
+        print(f"sinffer is runing: {sniffer.running}")
         if not sniffer.running:
             return False
-        sniffer.join()
         sniffer.stop()
+        sniffer.join() 
         return True
     print(f"No reply: {ip_vittima} is not responding") 
     return False
 
 def callback_attaccante(packet):
-    print("Packet received: {}".format(packet.summary()))
     global ip_vittima
+    print("Packet received: {}".format(packet.summary())) 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
         payload = bytes(packet[Raw].load)
         if b'__CONNECT__' in payload and ip_attaccante==packet[IP].src:
@@ -134,7 +142,7 @@ def connessione_attaccante():
             #,store=True 
             ,iface=mymethods.iface_from_IP(ip_attaccante)[1]
     )  
-    sniffer.start()  
+    sniffer.start() 
     event.wait() 
     sniffer.stop()
     sniffer.join()
@@ -152,18 +160,20 @@ def connessione_attaccante():
         print(f"No reply: {ip_attaccante} is not responding")
         return False
 
-if __name__ == "__main__":  
+if __name__ == "__main__": 
+    global sniffer
+    ip_vittima="192.168.56.1" 
     print("Main function") 
     args=mymethods.check_args(parser) 
     if args.ip_attaccante is None :
         print("Devi specificare l'IP dell'attaccante")
         mymethods.supported_arguments(parser)
         exit(0) 
-    global sniffer
+    
     ip_attaccante=args.ip_attaccante 
     try:
-        #exit(0) if not connessione_attaccante() else None
-        ip_vittima="192.168.56.1"
+        exit(0) if not connessione_attaccante() else None 
+        exit(0)
         exit(0) if not connessione_vittima() else None
     except Exception as e:
         print(f"Eccezione: {e}")

