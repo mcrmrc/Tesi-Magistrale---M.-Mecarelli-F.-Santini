@@ -15,7 +15,7 @@ def send_packet(data="",ip_dst=None, time=10):
     if type(data) is not str or data is None:
         raise Exception("Dati non validi") 
     
-    data="" if data is None else data
+    data="" if data is None else str(data)
     icmp_id=mymethods.calc_checksum(data.encode())
     gateway=".".join(
         ip_dst.split(".")[index] if index!=3 else "0" 
@@ -29,10 +29,9 @@ def send_packet(data="",ip_dst=None, time=10):
     if ans:
         print(f"Reply: \t{ip_dst} is alive\n")
         #ans.show()
-        return True
-    else:
-        print(f"No reply: \t{ip_dst} is not responding\n")
-        return False
+        return True 
+    print(f"No reply: \t{ip_dst} is not responding\n")
+    return False
 
 def sniffer_timeout():
     global sniffer
@@ -43,6 +42,7 @@ def sniffer_timeout():
 
 def proxy_callback(packet):
     global ip_attacker, proxy_ip, timeout_timer
+    print("comunication_callback")
     print("Packet received: \n{}".format(packet.summary()))     
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
         if b'__CONNECT__' in bytes(packet[Raw].load):
@@ -84,6 +84,24 @@ def set_args_parser():
     parser.add_argument("--ip_host",type=str, help="IP dell'attaccante")
     return mymethods.check_args(parser)
 
+def check_connessione(ip_dst,args=None):
+    global sniffer, timeout_timer
+    if type(ip_dst) is not str or re.match(ip_reg_pattern, ip_dst) is None:
+        raise Exception("IP non valido") 
+    if args is None or type(args) is not dict:
+        raise Exception("Argomenti non validi") 
+    
+    print(f"Controllo la connessione con {ip_dst}...")
+    sniff_packet(args) 
+    pkt_conn_arrived.wait()
+    if sniffer.running:
+        sniffer.stop()
+        sniffer.join()
+    data=b"__CONNECT__ "
+    if send_packet(data,ip_dst):
+        return True
+    return False
+
 def test_connection(ip_dst,args:dict,data=None,timeout_time=60):
     global sniffer, timeout_timer
     if type(ip_dst) is not str or re.match(ip_reg_pattern, ip_dst) is None:
@@ -96,6 +114,7 @@ def test_connection(ip_dst,args:dict,data=None,timeout_time=60):
         if args is None or type(args) is not dict:
             raise Exception("Argomenti non validi")
         sniff_packet(args) 
+        pkt_conn_arrived.wait()
         if sniffer.running:
             sniffer.stop()
             sniffer.join()
