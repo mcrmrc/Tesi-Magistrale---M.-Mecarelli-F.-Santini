@@ -6,6 +6,7 @@ import argparse
 import mymethods
 import threading
 import comunication_methods as conn  
+import re
 
 def analizza_pacchetto(packet):#ex packet_callback 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
@@ -164,9 +165,7 @@ def test_connection(ip_dst):
 def global_variables():
     global parser, proxyIP, sniffed_data
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--ip_vittima",type=str, help="IP della vittima")
-    #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
+    
 
     proxyIP = [
         "192.168.56.101"
@@ -176,9 +175,16 @@ def global_variables():
     ]  
     sniffed_data=[] 
 
+def get_args_parser():
+    global parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip_vittima",type=str, help="IP della vittima")
+    #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
+    return mymethods.check_args(parser)
+
 if __name__ == "__main__": 
     #1) l'attaccante si connettte prima con la vittima 
-    args=mymethods.check_args(parser)
+    args=get_args_parser()
     if type(args.ip_vittima) is not str or re.match(conn.ip_reg_pattern, args.ip_vittima) is None:
         print("Devi specificare l'IP della vittima con --ip_vittima")
         mymethods.supported_arguments(parser)
