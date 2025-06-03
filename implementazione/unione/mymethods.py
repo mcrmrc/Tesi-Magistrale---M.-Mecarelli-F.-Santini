@@ -69,4 +69,15 @@ def iface_from_IP(target_ip=None):
     iface_name = conf.route.route(target_ip)[0]
     iface_ip = conf.route.route(target_ip)[1] 
     return iface_ip,iface_name 
- 
+
+def sanitize(stringa):
+    if type(stringa) is not str or string is None:
+        raise Exception("Stringa non valida")
+    stringa = ''.join(
+        char if char in string.printable 
+        else'' 
+        for char in stringa
+    ) 
+    return stringa.strip() 
+
+
