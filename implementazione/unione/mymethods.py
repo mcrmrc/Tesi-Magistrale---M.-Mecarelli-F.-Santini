@@ -1,4 +1,9 @@
 from scapy.all import conf 
+import string
+import re
+import argparse
+import socket
+import urllib.request
 
 def add_argument(param_arg, parser=None):
     if parser is None:
@@ -24,15 +29,15 @@ def supported_arguments(parser=None):
             help=action.help
         )) 
 
-def check_args(parser=None): 
+def check_args(parser: argparse.ArgumentParser = None): 
     if parser is None:
-        raise Exception("Parser nullo")
+        raise ValueError("Parser nullo")
     try:
         args, unknown = parser.parse_known_args()
         #args= parser.parse_args()
         print("Argomenti passati: {}".format(args))
         if len(unknown) > 0:
-            print("Argomenti sconosciuti: {}".format(unknown))
+            print(f"Argomenti sconosciuti: {unknown}")
             supported_arguments(parser)
             exit(1) 
         return args
@@ -63,6 +68,15 @@ def calc_checksum(data: bytes) -> int:
     print(f"The checksum of {data} is {checksum}")
     return checksum
 
+def calc_gateway(ip_dst=None):
+    ip_reg_pattern=r"\d+\.\d+\.\d+\.\d+" 
+    if type(ip_dst) is not str or re.match(ip_reg_pattern, ip_dst) is None :
+        raise Exception("IP non valido")
+    return ".".join(
+        ip_dst.split(".")[index] if index!=3 else "0" 
+        for index in range(len(ip_dst.split(".")))
+    )
+
 def iface_from_IP(target_ip=None):
     if target_ip is None:
         raise Exception("Indirizzo IP uguale a None")
@@ -80,4 +94,16 @@ def sanitize(stringa):
     ) 
     return stringa.strip() 
 
+def find_local_IP():
+    s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8",80))
+        local_ip=s.getsockname()[0]
+    except Exception as e:
+        print(f"find_local_IP: {e}")
+    finally:
+        s.close()
+    return local_ip
 
+def find_public_IP():
+    return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
