@@ -10,6 +10,7 @@ import comunication_methods as com
 import re
 import sys
 import datetime
+import random
 
 
 def analizza_pacchetto(packet):#ex packet_callback 
@@ -118,7 +119,6 @@ def unisciDati(dati):
     return payload 
 
 #--Parte 3--#
-
 def callback_wait_answer_proxy(packet): 
     print("sniffing") 
     print("Packet received: {}".format(packet.summary())) 
@@ -226,16 +226,98 @@ def def_global_variables():
     proxy_IP = [
         "192.168.56.101"
         ,"192.168.56.103" 
-        #,"192.168.56.1"
-        #,"192.168.56.xxx"
+        ,"192.168.56.1"
+        ,"192.168.56.xxx"
     ] 
 
     global sniffed_data
     sniffed_data=[] 
 
 #-- Main --#
+
+
+def get_data_from_proxy(packet):
+    global received_data
+    print(f"Packet received {packet.summary()}")
+    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
+        checksum=mymethods.calc_checksum((com.LAST_PACKET+"\n").encode())
+        if checksum==packet[ICMP].id and (com.LAST_PACKET).encode() in packet[Raw].load and packet[IP].src in proxy_IP:
+            print("Done: all packet received")
+            event_proxy_ip.get(packet[IP].src).set()
+            return
+        checksum=mymethods.calc_checksum(packet[Raw].load)
+        if checksum==packet[ICMP].id and packet[IP].src in proxy_IP:
+            print(f"Received Data:\ID:{packet[ICMP].id}\tSeq:{packet[ICMP].seq}\tPayload:{packet[Raw].load}")
+            #received_data.append(packet[Raw].load)
+
+
+def wait_data_from_proxy(src_addresses): 
+    print(f"Gli indirizzi dei proxy sono: {src_addresses}") 
+    args={
+        "filter":f"icmp and src ({src_addresses})" 
+        #,"count":1 
+        ,"prn":get_data_from_proxy 
+        #,"store":True 
+        ,"iface":mymethods.iface_from_IP(src_addresses)[1]
+    }
+    com.sniff_packet(args) 
+    event_proxy_ip
+    event_proxy_ip.get(src_addresses).wait() 
+    event_proxy_ip.get(src_addresses).clear() 
+    #timeout_timer = threading.Timer(timeout_time, sniffer_timeout) 
+    #sniffer.start()
+    #timeout_timer.start() 
+    if com.sniffer.running: 
+        com.sniffer.stop()
+        com.sniffer.join()
+    if com.timeout_timer.is_alive():
+        com.timeout_timer.cancel()
+        print(f"La connessione con {src_addresses} è stabilita")
+        return True
+    print("Keep waiting")
+    return False
+
+def set_event_proxy_ip():
+    global event_proxy_ip
+    event_proxy_ip={}
+    for proxy in proxy_IP:
+        event_proxy_ip.update({proxy:threading.Event()})
+    print(f"Eventi per i proxy creati: {event_proxy_ip}")
+
 def parte_2():
-    pass
+    global proxy_IP
+    proxy_IP = [
+        "192.168.56.101"
+        #,"192.168.56.103" 
+        #,"192.168.56.1"
+        #,"192.168.56.xxx"
+    ] 
+    global received_data
+    received_data=[]
+    print(f"Proxy:{proxy_IP}")
+    not_corrected_ip=com.check_proxy_ipaddress(proxy_IP)
+    if len(not_corrected_ip)!=0:
+        print(f"Ip non corretto: {not_corrected_ip}")
+        for ip in not_corrected_ip:
+            proxy_IP.remove(ip) 
+    print(f"Proxy:{proxy_IP}")
+    command=input(f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> ")
+    while command.lower() not in ["exit","quit"]:
+        print(f"Comando:\t{command}")
+        try:
+            chosen_proxy=random.choice(proxy_IP)
+        except Exception as e:
+            print(f"chosen_proxy: {e}")
+            break
+        print(f"Il comando {command} verrà mandato al proxy {chosen_proxy} tramite l'interfaccia {mymethods.iface_from_IP(chosen_proxy)[1]}")
+        if com.send_packet(command.encode(),chosen_proxy):
+            print("The proxy received the command")
+            print(datetime.datetime.now())
+            set_event_proxy_ip() 
+            for proxy in proxy_IP:
+                wait_data_from_proxy(proxy)
+        command=input(f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> ")
+    print("Uscita dalla shell\texit") 
 
 def part_1():
     #1) Si controllano gli argomenti
@@ -278,7 +360,7 @@ def part_1():
 
 if __name__ == "__main__":
     #Stabilire connessione
-    part_1()
+    #part_1()
     #
     parte_2()
     exit(0)
