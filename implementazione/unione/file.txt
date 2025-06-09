@@ -1,0 +1,17 @@
+Waiting for a command...
+The checksum of b'pwd' is 11144
+Payload received:       b'pwd'
+ICMP ID:        11144
+Checksum:       11144
+Comando ricevuto: b'pwd'
+Type:<class 'bytes'>    Comando:b'pwd'
+Type:<class 'str'>      Comando:b'pwd'
+Sistema supportato...
+Il sistema è Linux...
+Shell aperta con successo...
+Esecuzione comando: b'pwd'
+Is shell still alive None
+Output: __END__
+
+Error: bash: riga 1: bpwd: comando non trovato
+

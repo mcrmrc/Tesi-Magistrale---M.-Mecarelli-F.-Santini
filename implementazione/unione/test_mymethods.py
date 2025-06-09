@@ -44,3 +44,14 @@ if __name__=="__main__":
     test_calc_checksum()
     test_iface_from_IP()
     test_find_ip_addresses() 
+    if "marco":
+        print("La stringa marco è considerata come vera")
+    if "False":
+        print("La stringa False è considerata come vera")
+    if "0":
+        print("La stringa 0 è considerata come vera")
+    print("La stringa bool(marco) è considerata come vera") if bool("marco") else print("False")
+    print("La stringa bool(False) è considerata come vera") if bool("False") else print("False")
+    print("La stringa bool(0) è considerata come vera") if bool(0) else print("False")
+        
+    
