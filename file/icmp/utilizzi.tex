@@ -1,0 +1,28 @@
+\subsubsection{Utilizzi di ICMP nelle reti} 
+\begin{enumerate}
+    \item Ping (Richiesta Echo ICMP e Risposta Echo) 
+    \vspace{1ex} \newline 
+    Il comando \textbf{ping}, invia pacchetti ICMP Echo Request per testare la connettività.
+    \begin{itemize}
+        \item Invia delle richieste Eco ICMP a una destinazione per verificare la connettività.
+        \item Se l'host è raggiungibile, risponde con un ICMP Echo Reply.
+    \end{itemize}
+    \item Traceroute (tracert su Windows, traceroute su Linux/macOS) 
+    \vspace{1ex} \newline 
+    Il comando \textbf{traceroute}, utilizza messaggi ICMP Time Exceeded per mappare il percorso dei pacchetti.
+    \begin{itemize}
+        \item Tramite i messaggi ICMP Time Exceeded traccia il percorso che i pacchetti seguono attraverso una rete
+        \item Il valore TTL (Time-To-Live) viene incrementato per determinare ciascun router lungo il percorso.
+    \end{itemize}
+    \item Scoperta del percorso MTU (PMTUD) 
+    \vspace{1ex} \newline 
+    La \textbf{PMTUD}, utilizza messaggi ICMP Fragmentation Needed per ottimizzare le dimensioni dei pacchetti. 
+    Ovvero per trovare la dimensione ottimale del pacchetto per un percorso di rete.
+\end{enumerate} 
+% ICMP in IPv6 (ICMPv6)
+% ICMPv6 extends ICMP functionality for IPv6 networks, including:
+%\begin{itemize}
+%    \item Neighbor Discovery Protocol (NDP) – Replaces ARP for IPv6 
+%    \item Router Advertisements & Solicitation – Helps configure IPv6 addresses. 
+%    \item MLD (Multicast Listener Discovery) – Manages multicast group memberships
+%\end{itemize}
