@@ -1,0 +1,31 @@
+\subsection{Caratteristiche chiave dei covert Channel} 
+$\bullet$ \textbf{Stealthiness} (furtività):  \newline
+Si devono poter aggirare i controlli in maniera nascosta.
+\vspace{2ex} \newline
+$\bullet$ \textbf{Bandwith} (capacità di trasmissione):  \newline
+La capacità di trasmissione viene espressa in termini di \textbf{throughput} ($\frac{dati}{tempo}$). 
+E un eccessivo carico di informazioni, potrebbe rendere anomalo il funzionamento delle risorse.
+\vspace{1ex} \newline
+Quindi il throughput è inversamente correlato alla segretezza di un canale: 
+più dati un canale trasmette in un determinato periodo di tempo, maggiore è il rischio che il canale venga scoperto
+\vspace{2ex} \newline
+$\bullet$ \textbf{Indistinguishability} (Indistinguibilità):  \newline
+Di solilto si sfruttano servizi e/o risorse già presenti e quindi non sospette; 
+uno dei maggiori problemi nell'implementazione di un canale nascosto è il “rumore” che potrebbe attirare l'attenzione 
+da parte degli amministratori (es. se si sfruttano eccessivamente le risorse). 
+\vspace{1ex} \newline
+La necessità è quella di riuscire a trasmette attraverso un canale nascosto mantenendo conforme e inalterato il 
+funzionamento della risorsa utilizzata così da rendersi “indistinguibili” dalla risorsa autorizzata e di 
+conseguenza invisibili ai sistemi di monitoraggio.
+Per evitare la rilevazione, il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
+(e.g carico della CPU, accesso alla memoria, traffico della rete, metadati del file systema). 
+\vspace{4ex} \newline
+Ulteriori caratteristiche sono: 
+\vspace{2ex} \newline
+$\bullet$ \textbf{Uso involontario delle risorse}: \newline
+I Covert channels sfruttano le risorse del sistema (e.g memoria cxondivisa, uso della CPU, attributi dei file) 
+in maniere non previste per la comunicazione. 
+\vspace{2ex} \newline
+$\bullet$ \textbf{Violazione delle politiche di sicurezza}: \newline 
+Permettono lo scambio non autorizzato di informazioni, potenzialmente violando 
+i requisiti di confidenzialità, di integrità o quelli di disponibilità. 
