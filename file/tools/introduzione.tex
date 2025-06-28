@@ -1,28 +1,52 @@
-Prima di sviluppare un covert Channel Channel che potesse esfiltrare i dati dalla macchina vittima; 
-si sono analizzati strumenti già presenti per studiarne il comportamento. 
-\vspace{2ex} \newline
-Da ciò si è arrivati alle seguenti conclusioni: 
-\begin{enumerate}
-    \item Il bisogno di un proxy intermediario fra la vittima e l'attaccante così da nasconderne l'entita. 
-    \item Un numero di proxy che permetta la distribuzione omogenea del traffico generato e non generare un throughput elevato (dato il numero di messaggi scambiati)
-    \item  Un limite alla dimensione dei dati inviati. 
-    Se mai si volesse esfiltrare un file contenente una grande quantità di dati; 
-    questo potrebbe generare rumore e destare sospetti. 
-    \item Un periodo di riposo randomico dopo ogni richiesta fatta dall'attaccante. 
-    Maggiore è il numero di richieste maggiore questo valore dovrà crescere così da non far notare la propria presenza. 
-    Questo valore può variare anche in base a quanti messaggi sono stati scambiati con la vittima.
-    \item Il testo scambiato non deve essere in chiaro. 
-    Così da non permettere di leggere da sistemi di monitoraggio, ciò che viene mandato. 
-    %\item 
-\end{enumerate}
-%l'attaccante si può connettere ai proxy. 
-%Si può quindi utilizzare una tipologia di comunicazione meno nascosta e più diretta.
-%Si possono quindi creare dei Socket
+Analizziamo dei programmi già presenti per identificare le loro caratterisitche e per capire quali metodi vengnao utilizzatiu per la creazione del covert Channel e lo scambio di messaggi.
+Per ognuno di essi, dove possibile, si effettuerà una richiesta alla vittima;  
+prima partendo da un comando leggero (e.g \textbf{pwd}) per poi passare a comandi sempre più difficili e quindi maggiormente rilevabili (e.g \textbf{cd /path; ls -l} oppure \textbf{cat ./file\_grande}, \dots)
+\vspace{1ex} \newline
+Gli strumenti analizzati sono i seguenti:
+%\begin{itemize}
+%	\item C
+%\end{itemize}
+\subsubsection*{$\bullet$ICMP Door} 
+\begin{itemize}
+    \item[] \textbf{PRO}: Tramite delle Echo Reply crea un canale di comunicazione tra attaccante e vittima. 
+    In particolare realizza una reverse shell sulla quale inviare comandi e ricevere risposte.
+    \item[] \textbf{CONS}: Vengono trasmesse in sequenza molteplici Echo Reply, e il campo Data contiene la risposta in chiaro e quindi facilmente rilevabile. 
+    Inoltre l'identificatore della sessione rimane invariato. 
+    %Quindi se mai la comunicazione venisse scoperta la vuittima potrebbe filtrare i pacchetti con quello specifico ID
+\end{itemize}
+Se un agente monitorasse il flusso dei dati, in quel momento, noterebbe il numero di Echo Reply sospetto soprattuto se non è presente una Echo Request analoga.
+Inoltre non essendo i dati crittografati, gli basta analizzare il poacchetto per vedere cosa viene inviato.
+Potrebbe quindi facilmente scoprire il canale nascosto. 
+\vspace{1ex} \newline
+Di solito per ogni Echo Request corrisponde una singola Echo Reply in cui la risposta rimanda i dati ricevuti dalla richiesta.
+Il campo Data di solito o è vuoto o contiene frasi gia preimpostate (e.g helloworld). 
+
+\subsubsection*{$\bullet$ICMP Exfil}  
+\begin{itemize}
+    \item[] \textbf{PRO}: Tramite la temporalizzazione delle Echo Request crea un canale di comunicazione tra attaccante e vittima. 
+    Anche se un IDS analizzasse il pacchetto non troverebbe anomalie in esso. 
+    \item[] \textbf{CONS}: Più lento rispetto alla classica modifica dei dati del pacchetto ma acnhe più silensioso. 
+    %Quindi se mai la comunicazione venisse scoperta la vuittima potrebbe filtrare i pacchetti con quello specifico ID
+\end{itemize}
+Testandolo non funzionava: non si riusciva a passare i i dati sebbene fossero lettere e numeri. 
+Tuttavia la teoria è valida.
+
+\subsubsection*{$\bullet$icmpsh}  
+\begin{itemize}
+    \item[] \textbf{PRO}: Non richiede i privilegi di amministratore. Crea un canale tramite le Echo Reply
+    \item[] \textbf{CONS}: Gira solo su Windows. Ergo la machcina vittima deve avere Windows
+    %Quindi se mai la comunicazione venisse scoperta la vuittima potrebbe filtrare i pacchetti con quello specifico ID
+\end{itemize}
+Scritto in C, Python e Perl.
+
+\subsubsection*{$\bullet$ICMP Shell}  
+
+\subsubsection*{$\bullet$ICMP Tunnel}  
+\begin{itemize}
+    \item[] \textbf{PRO}: Tramite la delle Echo Reply crea un canale di comunicazione tra attaccante e vittima. 
+    Inoltre un proxy comunica con la vittima (al posto dell'attaccante) e i dati vengono cifrati.
+    \item[] \textbf{CONS}: Le Echo Reply, se numerose, destano sospetti. 
+    %Quindi se mai la comunicazione venisse scoperta la vuittima potrebbe filtrare i pacchetti con quello specifico ID
+\end{itemize}
 
 
-%https://noxenius.medium.com/icmpdoor-how-i-used-an-icmp-reverse-shell-12814ca1b0e7
-\subsection{Detection and Mitigation}
-Network administrators and security engineers should limit or deny ICMP traffic as much as possible. 
-When this is not feasible due to protocol requirements or network planning, scope the accepted source and destination of ICMP packets. 
-This blog post elaborates on how to configure this with iptables.
-%TO-DO

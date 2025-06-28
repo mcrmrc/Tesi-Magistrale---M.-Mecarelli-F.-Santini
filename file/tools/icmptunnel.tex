@@ -17,15 +17,7 @@ The IP traffic is sent in the 'data' field of ICMP packets.
 RFC 792, which is IETF's rules governing ICMP packets, allows for an arbitrary data length for any type 0 (echo reply) or 8 (echo message) ICMP packets.
 \vspace{1ex} \newline
 So basically the client machine uses only the ICMP protocol to communicate with the proxy server. 
-Applications running on the client machine are oblivious to this fact and work seamlessly.
-\vspace{2ex} \newline
-RFC 792, which is IETF's rules governing ICMP packets, allows for an arbitrary data length for any type 0 (echo reply) or 8 (echo message) ICMP packets.
-So basically the client machine uses only the ICMP protocol to communicate with the proxy server. 
-Applications running on the client machine are oblivious to this fact and work seamlessly.
-
-
-
-
+Applications running on the client machine are oblivious to this fact and work seamlessly. 
 %
 Adding sufficient encryption to the data, icmptunnel can be used to establish an encrypted communication channel between two host machines.
 %Encrypted Communication Channel
@@ -40,7 +32,7 @@ icmptunnel has been successfully tested on Ubuntu 14.04 LTS, it should work on o
 \end{enumerate} 
 
 
-\subsection{Step-by-step instructions}
+\subsection*{Step-by-step instructions}
 \begin{enumerate}
     \item Install make on both machines.
     \item Clone this repository using this command: git clone https://github.com/DhavalKapil/icmptunnel
@@ -51,7 +43,7 @@ icmptunnel has been successfully tested on Ubuntu 14.04 LTS, it should work on o
 \end{enumerate}
 \begin{enumerate}
     \item On the client side, find out your gateway and the corresponding interface: route -n
-    Edit client.sh and replace <server> with the IP address of the proxy server. <gateway> with gateway address obtained above and similarly for <interface>.
+    Edit client.sh and replace  $<\text{server}>$ with the IP address of the proxy server. $<\text{gateway}>$ with gateway address obtained above and similarly for $<\text{interface}>$.
 \end{enumerate}
 \begin{enumerate}
     \item Check the DNS server at client side. 
@@ -59,7 +51,7 @@ icmptunnel has been successfully tested on Ubuntu 14.04 LTS, it should work on o
     One suggestion is to use 8.8.8.8(Google's DNS server) which will be accessible to the proxy server. 
     You would need to edit your DNS settings for this. 
     You might need to manually delete the route for your local DNS server from your routing table.
-    \item Run the tunnel on your client with root privileges: [sudo] ./icmptunnel -c <server>
+    \item Run the tunnel on your client with root privileges: [sudo] ./icmptunnel -c $<\text{server}>$ 
 \end{enumerate}
 The tunnel should run and your client machine should be able to access the internet. 
 All traffic will be tunneled through ICMP.
@@ -79,15 +71,10 @@ This prevents the kernel from responding to ping packets itself.
     \item Now point your web browser at the local SOCKS server.
 \end{itemize}
 \vspace{1ex} 
-Further Information: See ./icmptunnel -h for a list of options.
+Further Information: See ./icmptunnel -h for a list of options. 
 
-
-
-
-
-
-\subsection{Architecture}
-icmptunnel works by creating a virtual tunnel interface(say tun0). 
+\subsection*{Architecture}
+icmptunnel works by creating a virtual tunnel interface (say tun0). 
 All the user traffic on the client host is routed to tun0. 
 icmptunnel listens on this interface for IP packets. 
 These packets are encapsulated in an ICMP echo packet(i.e. the payload of the ICMP packet is nothing but the original IP packet). 
@@ -109,26 +96,26 @@ The user applications read from this virtual interface and hence get the proper 
 %
 \begin{minipage}{\linewidth}
     \centering
-    \includegraphics[width=0.8\textwidth]{../img/ICMPtunnel/architecture_overall.jpeg}
-    \caption{Overall Architecture of icmptunnel}
+    \captionof{figure}{Overall Architecture of icmptunnel}
+    \includegraphics[width=0.8\textwidth]{../img/ICMPtunnel/architecture_overall.jpeg} 
     \label{fig:overall:architecture}
 \end{minipage}
 \begin{minipage}{\linewidth}
     \centering
-    \includegraphics[width=0.8\textwidth]{../img/ICMPtunnel/architecture_client.jpeg}
-    \caption{Client Architecture of icmptunnel}
+    \captionof{figure}{Client Architecture of icmptunnel}
+    \includegraphics[width=0.8\textwidth]{../img/ICMPtunnel/architecture_client.jpeg} 
     \label{fig:client:architecture}
 \end{minipage}
 \begin{minipage}{\linewidth}
     \centering
-    \includegraphics[width=0.8\textwidth]{../img/ICMPtunnel/architecture_proxy.jpeg}
-    \caption{Proxy Server Architecture of icmptunnel}
+    \captionof{figure}{Proxy Server Architecture of icmptunnel}
+    \includegraphics[width=0.8\textwidth]{../img/ICMPtunnel/architecture_proxy.jpeg} 
     \label{fig:proxy:architecture}
 \end{minipage}
 
 
 
-\subsection{Implementation}
+\subsection*{Implementation}
 \begin{itemize}
     \item ICMP is implemented using raw C sockets.
     \item The checksum is calculated using the algorithm given in RFC 1071. 
@@ -143,7 +130,7 @@ The user applications read from this virtual interface and hence get the proper 
 
 
 
-\subsection{Network Setup}
+\subsection*{Network Setup}
 Proxy server is connected to eth0. 
 This interface provides full internet connection.
 Both the client and proxy server are connected to wlan0(a WiFi hotspot). 
@@ -166,7 +153,7 @@ Wireshark is used to capture network traffic at both ends on various interface.
 
 
 %https://github.com/packetgeek/icmptunnel-docker-demo
-\section{icmptunnel-docker-demo}
+\subsection*{icmptunnel-docker-demo}
 \textbf{Setting up an ICMPtunnel demo on Docker}
 Following are my notes on setting up a basic 5-container network to demonstrate the use of an ICMPtunnel. 
 The architecture is based on vanilla Ubuntu containers, OpenVSwitch, iproute2, and the icmptunnel utility by Dhaval Kapil. 
