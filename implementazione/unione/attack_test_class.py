@@ -368,8 +368,8 @@ class Attaccante:
                 print(f"il proxy scelto è {chosen_proxy}")
             except Exception as e:
                 raise ValueError(f"send_command_to_victim: {e}") 
+            send_start_to_proxies(chosen_proxy, self.proxy_list)
             chosen_proxy=send_command_to_chosen_proxy(command, chosen_proxy, self.proxy_list)
-            send_start_to_proxies(chosen_proxy, self.proxy_list) 
             for thread in self.thread_list.values():
                 thread.join()
             print(self.thread_proxy_response)

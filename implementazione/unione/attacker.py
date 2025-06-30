@@ -260,8 +260,7 @@ def wait_data_from_proxy(src_addresses):
         #,"store":True 
         ,"iface":mymethods.iface_from_IP(src_addresses)[1]
     }
-    com.sniff_packet(args) 
-    event_proxy_ip
+    com.sniff_packet(args)  
     event_proxy_ip.get(src_addresses).wait() 
     event_proxy_ip.get(src_addresses).clear() 
     #timeout_timer = threading.Timer(timeout_time, sniffer_timeout) 
@@ -384,3 +383,10 @@ if __name__ == "__main__":
     for data in dati_separati:
         payload.append(unisciDati(data))
     print(payload)
+
+
+
+class Attacker:
+
+    def __init__(self):
+        pass
