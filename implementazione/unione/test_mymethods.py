@@ -28,7 +28,7 @@ def test_calc_checksum():
 
 def test_iface_from_IP():
     target_ip="192.168.56.1"
-    iface_ip,iface_name=mymethods.iface_from_IP(target_ip)
+    iface_ip,iface_name=mymethods.iface_from_IPv4(target_ip)
     if iface_ip is not None:
         print(f"L'interfaccia per {target_ip} è: {iface_ip}")
     if iface_name is not None:
