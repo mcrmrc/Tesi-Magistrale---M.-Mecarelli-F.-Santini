@@ -5,7 +5,8 @@ import argparse
 import mymethods
 import time
 import re 
-import subprocess
+import subprocess 
+import ipaddress
 
 CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
 CONFIRM_VICTIM="__CONFIRM_VICTIM__"
@@ -18,8 +19,6 @@ END_DATA="__END_DATA__"
 
 exit_cases=["exit","quit",END_COMMUNICATION]
 
-ip_reg_pattern=r"^\d+\.\d+\.\d+\.\d+$"
-
 #------------------------
 def is_callback_function(callback_function=None):
     #the type of a function can be 'function' or 'method'
@@ -28,9 +27,20 @@ def is_callback_function(callback_function=None):
     return True
 
 def is_valid_ipaddress(ip_address:str): 
+    try:
+        return ipaddress.IPv4Address(ip_address)
+    except ValueError:
+        raise ValueError(f"is_valid_ipaddress: ip_address non è un indirizzo IPv4 valido {ip_address}") 
+    ip_reg_pattern=r"^\d+\.\d+\.\d+\.\d+$"
     if type(ip_address) is not str or re.match(ip_reg_pattern, ip_address) is None:
         raise ValueError(f"is_valid_ipaddress: ip_address non è un indirizzo valido {ip_address}") 
     return True
+
+def is_valid_ipaddress_v6(ip_address:str): 
+    try:
+        return ipaddress.IPv6Address(ip_address)
+    except ValueError:
+        raise ValueError(f"is_valid_ipaddress_v6: ip_address non è un indirizzo IPv6 valido {ip_address}") 
 
 def is_valid_time(timeout_time=None):    
     if timeout_time is None or not isinstance(timeout_time, (int, float)):
@@ -72,6 +82,11 @@ def is_bytes(byte:bytes=None):
         raise Exception(f"is_bytes: byte non valido {byte}")
     return True 
 
+def is_integer(integer:int=None):
+    if integer is None or not isinstance(integer,int):
+        raise Exception(f"is_integer: int non valido {integer}")
+    return True 
+
 def is_boolean(booleano:bool=None):
     if booleano is None or not isinstance(booleano,bool):
         raise Exception(f"is_boolean: booleano non valido {booleano}")
@@ -105,8 +120,7 @@ def check_args_sniffer(args:dict=None):
 def check_proxy_ipaddress(proxy_list:list):
     wrong_ips=[]
     for proxy in proxy_list:
-        try: 
-            #print(re.match(ip_reg_pattern, proxy))
+        try:  
             if not is_valid_ipaddress(proxy): 
                 wrong_ips.append(proxy)
         except Exception as e: 
@@ -301,3 +315,102 @@ def setup_thread_4_foreach_proxy(proxy_list:list=None,callback_function=None):
     print(f"Thread creati:\t{thread_list}")
     print(f"Risposte create:\t{thread_proxy_response}")
     return thread_lock, thread_proxy_response, thread_list
+
+def aaa_get_mac_by_ipv6(ipv6_dst:str=None, ipv6_src:str=None, iface_name:str=None): 
+    try:
+        is_string(ipv6_dst)
+    except Exception as e:
+        raise Exception(f"get_mac_by_ipv6: ipv6_dst non è una stringa valida {ipv6_dst}")
+    try:
+        is_string(iface_name)
+    except Exception as e:
+        raise Exception(f"get_mac_by_ipv6: iface_name non è una stringa valida {iface_name}")
+    try:  
+        address_dst=is_valid_ipaddress_v6(ipv6_dst)
+        address_src=is_valid_ipaddress_v6(ipv6_src)
+        src_mac=get_if_hwaddr(iface_name)
+        multicast_mac = "33:33:" + address_dst.packed[-4:].hex()[:2] + ":" + \
+            address_dst.packed[-4:].hex()[2:4] + ":" + \
+            address_dst.packed[-4:].hex()[4:6] + ":" + \
+            address_dst.packed[-4:].hex()[6:8]
+        solicited_node_multicast = "ff02::1:ff" + address_dst.exploded[-7:].replace(":", "")
+
+        ns_multicast_ip = in6_getnsma(address_dst.packed)
+        dst_multicast_mac = in6_getnsmac(address_dst.packed) 
+        
+        ndp_pkt= (
+            Ether(dst=dst_multicast_mac, src=src_mac) / \
+            IPv6(src=address_src.packed, dst=str(ns_multicast_ip)) /\
+            ICMPv6ND_NS(tgt=address_dst.packed) /\
+            ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
+        )
+        response = sr1p(ndp_pkt, verbose=False, timeout=2, iface=iface_name)
+        if response and ICMPv6NDOptDstLLAddr  in response:
+            resolved_mac = resp[ICMPv6NDOptDstLLAddr].lladdr
+            print(f"Resolved MAC: {resolved_mac}")
+            return resolved_mac
+        else:
+            raise RuntimeError("get_mac_by_ipv6: Failed to resolve MAC via NDP")
+    except Exception as e:
+        raise Exception(f"get_mac_by_ipv6: {e}")
+
+import socket
+def get_mac_by_ipv6(ipv6_dst: str, ipv6_src: str, iface_name: str):
+    try:
+        # Validate and convert
+        dst_ip = ipaddress.IPv6Address(ipv6_dst)
+        src_ip = ipaddress.IPv6Address(ipv6_src)
+        src_mac = get_if_hwaddr(iface_name)
+        print(f"Source MAC: {src_mac}")
+        print(f"Source IPv6: {src_ip.compressed}")
+        print(f"Destination IPv6: {dst_ip.compressed}")
+
+        # Create solicited-node multicast address (ff02::1:ffXX:XXXX)
+        ns_multicast_ip = in6_getnsma(dst_ip.packed)
+        dst_multicast_mac = in6_getnsmac(dst_ip.packed)
+        print(f"Solicited Node Multicast IP: {ns_multicast_ip}")
+        print(f"Destination Multicast MAC: {dst_multicast_mac}")
+        ns_multicast_ip_str = socket.inet_ntop(socket.AF_INET6, ns_multicast_ip)
+
+        # Build NDP Neighbor Solicitation
+        ndp_pkt = (
+            Ether(dst=dst_multicast_mac, src=src_mac) /
+            IPv6(src=f"{src_ip.compressed }%{iface_name}", dst=f"{ns_multicast_ip_str}%{iface_name}") /
+            ICMPv6ND_NS(tgt=str(dst_ip)) /
+            ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
+        )
+
+        print(f"Sending NDP to {ns_multicast_ip} via iface {iface_name}")
+        resp = srp1(ndp_pkt, timeout=2, iface=iface_name, verbose=False)
+
+        if resp and ICMPv6NDOptDstLLAddr in resp:
+            resolved_mac = resp[ICMPv6NDOptDstLLAddr].lladdr
+            print(f"Resolved MAC: {resolved_mac}")
+            return resolved_mac
+        else: 
+            cached_mac=check_mac_in_cache(dst_ip, iface_name)
+            if cached_mac:
+                print(f"(Fallback) Resolved MAC from cache: {cached_mac}")
+                return cached_mac
+            raise Exception("MAC resolution failed: No NDP response and no cache entry.") 
+    except Exception as e:
+        raise Exception(f"get_mac_by_ipv6: {e}")
+
+def check_mac_in_cache(ipv6_addr:str=None, iface_name: str=None):
+    try: 
+        is_string(iface_name)
+        ipv6_addr = is_valid_ipaddress_v6(ipv6_addr)
+
+        output = subprocess.check_output(
+            ["ip", "-6", "neigh", "show", "dev", iface_name],
+            universal_newlines=True
+        )
+        for line in output.splitlines():
+            if ipv6_addr.compressed.lower() in line.lower():
+                match = re.search(r"lladdr\s+([0-9a-f:]{17})", line)
+                if match:
+                    print(f"MAC address found in cache: {match}")
+                    return match.group(1)
+        return None
+    except Exception as e:
+        raise Exception(f"check_mac_in_cache: {e}") 
