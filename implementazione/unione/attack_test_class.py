@@ -9,6 +9,12 @@ import random
 import threading
 from functools import partial 
 
+#Try disabling the firewall temporarily on the VM to test:
+#   On Windows: 
+#   netsh advfirewall set allprofiles state off
+#On Linux: 
+#   sudo ufw disable (if ufw is used)
+
 
 #------------------------------------
 def callback_wait_data_from_proxy(packet): 
@@ -304,7 +310,7 @@ class Attaccante:
             #,"count":1 
             ,"prn":callback_wait_conn_from_proxy
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(gateway_proxy)[1]
+            ,"iface":mymethods.iface_from_IPv4(gateway_proxy)[1]
         }
         try:
             self.event_pktconn=com.get_threading_Event()
@@ -330,7 +336,7 @@ class Attaccante:
             #,"count":"1" 
             ,"prn":callback_attacker_wait_proxy_update
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(gateway_proxy)[1] 
+            ,"iface":mymethods.iface_from_IPv4(gateway_proxy)[1] 
         } 
         try:
             event_thread=self.event_proxy_update.get(proxy)
@@ -386,7 +392,7 @@ class Attaccante:
             #,"count":1 
             ,"prn": callback_wait_data_from_proxy 
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(gateway_proxy)[1]
+            ,"iface":mymethods.iface_from_IPv4(gateway_proxy)[1]
         }  
         try:
             event_thread=self.event_thread_update.get(proxy)
