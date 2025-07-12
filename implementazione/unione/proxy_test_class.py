@@ -147,7 +147,7 @@ class Proxy:
             #,"count":1 
             ,"prn": callback_wait_conn_from_attacker 
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(self.gateway_host)[1]
+            ,"iface":mymethods.iface_from_IPv4(self.gateway_host)[1]
         }
         try:
             self.event_pktconn=com.get_threading_Event()
@@ -229,7 +229,7 @@ class Proxy:
             ,"count":1 
             ,"prn":callback_wait_conn_from_victim 
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(self.gateway_vittima)[1]
+            ,"iface":mymethods.iface_from_IPv4(self.gateway_vittima)[1]
         } 
         try:
             self.event_pktconn=com.get_threading_Event()
@@ -295,7 +295,7 @@ class Proxy:
             #,"count":1 
             ,"prn":callback_wait_command_from_attacker
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(self.gateway_attaccante)[1]
+            ,"iface":mymethods.iface_from_IPv4(self.gateway_attaccante)[1]
         }
         try:
             self.event_pktconn=com.get_threading_Event()
@@ -324,7 +324,7 @@ class Proxy:
             #,"count":1 
             ,"prn":callback_wait_data_from_vicitm
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(self.gateway_vittima)[1]
+            ,"iface":mymethods.iface_from_IPv4(self.gateway_vittima)[1]
         }
         try: 
             self.event_pktconn=com.get_threading_Event()
