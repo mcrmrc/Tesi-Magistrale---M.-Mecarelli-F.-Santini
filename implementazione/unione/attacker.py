@@ -210,7 +210,7 @@ def check_value_in_parser(args):
         return False
     if type(args.ip_vittima) is not str or re.match(com.ip_reg_pattern, args.ip_vittima) is None:
         print("Devi specificare l'IP della vittima con --ip_vittima")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         return False
     return True
 
