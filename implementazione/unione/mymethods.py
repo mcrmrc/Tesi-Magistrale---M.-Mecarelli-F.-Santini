@@ -33,7 +33,7 @@ def add_argument(param_arg, parser=None):
         raise Exception("L'argomento deve iniziare con - oppure con --")
     return parser.add_argument(param_arg[0],type=param_arg[1], help=param_arg[2])
 
-def supported_arguments(parser=None):
+def print_parser_supported_arguments(parser=None):
     if parser is None:
         raise Exception("Parser nullo")
     print("Controlla di inserire due volte - per gli argomenti")
@@ -53,7 +53,7 @@ def check_args(parser: argparse.ArgumentParser = None):
         print("Argomenti passati: {}".format(args))
         if len(unknown) > 0:
             print(f"Argomenti sconosciuti: {unknown}")
-            supported_arguments(parser)
+            print_parser_supported_arguments(parser)
             exit(1) 
         return args
     except Exception as e:
@@ -80,7 +80,7 @@ def calc_checksum(data: bytes) -> int:
     
     # One's complement of the result
     checksum = ~checksum & 0xFFFF
-    print(f"The checksum of {data} is {checksum}")
+    print(f"\tThe checksum of {data} is {checksum}")
     return checksum
 
 def calc_gateway(ip_dst=None):
@@ -106,7 +106,85 @@ def iface_from_IPv4(target_ip=None):
     iface_ip = conf.route.route(target_ip)[1] 
     return iface_ip,iface_name  
 
-def iface_from_IPv6(target_ip=None):
+def iface_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
+    if not isinstance(addr_target, ipaddress.IPv4Address) and not isinstance(addr_target, ipaddress.IPv6Address):
+        print(f"Indirizzo IP {addr_target} non valido. Il tipo non è ipaddress.IPv4Address o ipaddress.IPv6Address",file=sys.stderr)
+        return None
+    try:
+        #print(f"Indirizzo IPv{addr_target.version}: {addr_target.compressed}")
+        process=subprocess.Popen(
+            ["ip", f"-{addr_target.version}", "route", "get", addr_target.compressed],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True 
+        )
+        stdout, stderr = process.communicate()
+        #print(f"Codice di ritorno {process.returncode}", flush=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Errore durante l'esecuzione del comando: {e}", file=sys.stderr)
+        return None
+    except ValueError as e:
+        #print(f"Errore di valore: {e}", file=sys.stderr)
+        return None  
+    result_output = None
+    if process.returncode == 0:  
+        result_output = stdout.strip()
+        print(f"Output della route: {result_output}",flush=True)
+    else:
+        #print(f"Codice di ritorno {process.returncode}", file=sys.stderr)
+        print(f"Errore: {stderr.strip()}", file=sys.stderr)  
+        return None
+    if result_output is not None:  
+        match_src = re.search(r"\bsrc\s+([\da-fA-F\.:]+)\b", result_output)  
+        match_dev = re.search(r"dev (\S+)", result_output)
+        if not match_src and not match_dev:
+            print(f"Impossibile estrarre sorgente o interfaccia da output",file=sys.stderr)
+            return None
+        print("match_src: ",match_src)
+        print("match_dev: ",match_dev)
+        ip_src=match_src.group(0).replace("src ","").strip()
+        iface=match_dev.group(0).replace("dev ","").strip()
+        #print(f"Sorgente trovata: {ip_src}")
+        #print(f"Interfaccia trovata: {iface}")
+        return iface
+    return None 
+
+def default_iface(): 
+    try: 
+        process=subprocess.Popen(
+            ["ip", "route"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True 
+        )
+        stdout, stderr = process.communicate()
+        #print(f"Codice di ritorno {process.returncode}", flush=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Errore durante l'esecuzione del comando: {e}", file=sys.stderr)
+        return None
+    except ValueError as e:
+        print(f"Errore di valore: {e}", file=sys.stderr)
+        return None  
+    result_output = None
+    if process.returncode == 0:  
+        result_output = stdout.strip()
+        #print(f"Output della route: {result_output}",flush=True)
+    else:
+        #print(f"Codice di ritorno {process.returncode}", file=sys.stderr)
+        #print(f"Errore: {stderr.strip()}", file=sys.stderr)  
+        return None
+    if result_output is not None: 
+        match_dev = re.search(r"dev (\S+)", result_output)
+        if not match_dev:
+            print(f"Impossibile estrarre sorgente o interfaccia da output",file=sys.stderr)
+            return None 
+        #print("match_dev: ",match_dev) 
+        iface=match_dev.group(0).replace("dev ","").strip() 
+        #print(f"Interfaccia trovata: {iface}")
+        return iface
+    return None 
+
+def iface_from_IPv6(target_ip:ipaddress.IPv6Address=None):
     try:
         addr=ipaddress.IPv6Address(target_ip)
         result=subprocess.run(
@@ -117,6 +195,7 @@ def iface_from_IPv6(target_ip=None):
             check=True
         )
         output = result.stdout.strip() 
+        print("Output: ",output)
         #match = re.search(r'src ([\da-f:]+).* dev (\S+)', output)
         #if not match:
         #    raise RuntimeError(f"Impossibile estrarre interfaccia da:\n{output}")
@@ -182,4 +261,5 @@ def getShellProcess():
     raise Exception(
         "Sistema operativo non supportato per l'apertura della shell"
     )
+
 
