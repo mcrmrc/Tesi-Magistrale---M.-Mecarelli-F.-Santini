@@ -1,0 +1,114 @@
+Ciao
+Argomenti passati: Namespace(file_path='test_attack_file copy.json')
+File di configurazione test_attack_file copy.json caricato correttamente
+IP vittima valido: 192.168.56.101
+IP host valido: 192.168.56.1
+Lista proxy sanificata
+Per ogni proxy creato il proprio evento di aggiornamento 'proxy_update'
+Definito il threading lock per quando si accede alle risposte dei proxy
+Definito per ogni proxy il proprio Thread
+Definito il dizionario contenente le risposte ricevute dai proxy
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_192.168.56.101' is 4682
+	Indirizzo IPv4: 192.168.56.101
+	Proxy:192.168.56.101	Thread ID: 130816233674432
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_192.168.56.104' is 3914
+	Indirizzo IPv4: 192.168.56.104
+	Proxy:192.168.56.104	Thread ID: 130816225281728
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_192.168.56.105' is 3658
+	Indirizzo IPv4: 192.168.56.105
+	Proxy:192.168.56.105	Thread ID: 130816216889024
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_192.168.56.1' is 17274
+	Indirizzo IPv4: 192.168.56.1
+	Proxy:192.168.56.1	Thread ID: 130816208496320
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_::43cc:4881:32d7:a33e' is 203
+Indirizzo IPv6: ::43cc:4881:32d7:a33e
+	Proxy:::43cc:4881:32d7:a33e	Thread ID: 130816200103616
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_fe80::43cc:4881:32d7:a33e' is 27436
+Indirizzo IPv6: fe80::43cc:4881:32d7:a33e
+	Proxy:fe80::43cc:4881:32d7:a33e	Thread ID: 130816191710912
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_fe80::4881:32d7:a33e' is 54060
+Indirizzo IPv6: fe80::4881:32d7:a33e
+	Proxy:fe80::4881:32d7:a33e	Thread ID: 130815845463744
+Codice di ritorno 0
+192.168.56.104 dev enp0s8 src 192.168.56.101 uid 0 
+    cache 
+
+Output della route: 192.168.56.104 dev enp0s8 src 192.168.56.101 uid 0 
+    cache
+Codice di ritorno 0
+Interfaccia per il proxy 192.168.56.104 è None
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_fe80::32d7:a33e' is 43111
+Indirizzo IPv6: fe80::32d7:a33e
+local 192.168.56.101 dev lo src 192.168.56.101 uid 0 
+    cache <local> 
+
+	Proxy:fe80::32d7:a33e	Thread ID: 130815837071040
+Output della route: local 192.168.56.101 dev lo src 192.168.56.101 uid 0 
+    cache <local>
+Interfaccia per il proxy 192.168.56.101 è None
+Codice di ritorno 0
+192.168.56.105 dev enp0s8 src 192.168.56.101 uid 0 
+    cache 
+
+Output della route: 192.168.56.105 dev enp0s8 src 192.168.56.101 uid 0 
+    cache
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_fe80::43c:4881:32d7:a33e' is 26005
+Indirizzo IPv6: fe80::43c:4881:32d7:a33e
+	Proxy:fe80::43c:4881:32d7:a33e	Thread ID: 130816225281728
+Interfaccia per il proxy 192.168.56.105 è None
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_fe80::' is 42705
+Indirizzo IPv6: fe80::
+	Proxy:fe80::	Thread ID: 130816233674432
+Testo di conferma impostato correttamente
+	The checksum of b'__CONFIRM_VICTIM__192.168.56.101_fe80::ffff:4881:32d7:a33e' is 13559
+Indirizzo IPv6: fe80::ffff:4881:32d7:a33e
+	Proxy:fe80::ffff:4881:32d7:a33e	Thread ID: 130816216889024
+Codice di ritorno 0
+192.168.56.1 dev enp0s8 src 192.168.56.101 uid 0 
+    cache 
+
+Output della route: 192.168.56.1 dev enp0s8 src 192.168.56.101 uid 0 
+    cache
+Interfaccia per il proxy 192.168.56.1 è None
+Codice di ritorno 0
+fe80::43cc:4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+
+Codice di ritorno 0
+fe80::4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+
+Codice di ritorno 2
+Interfaccia per il proxy ::43cc:4881:32d7:a33e è None
+Codice di ritorno 0
+fe80::43c:4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+
+Codice di ritorno 0
+fe80:: from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+
+Output della route: fe80:: from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+Codice di ritorno 0
+Interfaccia per il proxy fe80:: è None
+fe80::32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+
+Output della route: fe80::4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+Codice di ritorno 0
+Interfaccia per il proxy fe80::4881:32d7:a33e è None
+Output della route: fe80::43c:4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+Output della route: fe80::43cc:4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+Output della route: fe80::32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+Interfaccia per il proxy fe80::43c:4881:32d7:a33e è None
+Interfaccia per il proxy fe80::43cc:4881:32d7:a33e è None
+fe80::ffff:4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+
+Interfaccia per il proxy fe80::32d7:a33e è None
+Output della route: fe80::ffff:4881:32d7:a33e from :: dev enp0s8 proto kernel src fe80::e274:33a8:a3ca:46ff metric 1024 pref medium
+Interfaccia per il proxy fe80::ffff:4881:32d7:a33e è None
