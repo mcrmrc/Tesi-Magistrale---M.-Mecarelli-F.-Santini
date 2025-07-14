@@ -28,15 +28,15 @@ class Attacker:
         #self.send_time_exceeded(data, ip_dst) 
         #self.send_destination_unreachable(data, ip_dst)
         # Equazione retta Timing CC y=1.17667x^{2}-4.66x+11.81333
-        #self.send_timing_cc_1bit(data, ip_dst) 
-        self.send_timing_cc_2bit(data, ip_dst) 
-        #TROPPO TEMPO self.send_timing_cc_4bit(data, ip_dst) 
+        #self.send_timing_channel_1bit(data, ip_dst) 
+        self.send_timing_channel_2bit(data, ip_dst) 
+        #TROPPO TEMPO self.send_timing_channel_4bit(data, ip_dst) 
 
     def send_information_reply(self,data:bytes=None,ip_dst=None):
         TYPE_INFORMATION_REQUEST=15
         TYPE_INFORMATION_REPLY=16
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -69,7 +69,7 @@ class Attacker:
         TYPE_TIMESTAMP_REQUEST=13 
         TYPE_TIMESTAMP_REPLY=14
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -144,7 +144,7 @@ class Attacker:
     def send_redirect(self,data:bytes=None,ip_dst=None):
         TYPE_REDIRECT=5  
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -168,7 +168,7 @@ class Attacker:
     def send_source_quench(self,data:bytes=None,ip_dst=None):
         TYPE_SOURCE_QUENCH=4  
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -193,7 +193,7 @@ class Attacker:
     def send_parameter_problem(self,data:bytes=None,ip_dst=None):
         TYPE_PARAMETER_PROBLEM=12  
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -218,7 +218,7 @@ class Attacker:
     def send_time_exceeded(self,data:bytes=None,ip_dst=None):
         TYPE_TIME_EXCEEDED=11  
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -243,7 +243,7 @@ class Attacker:
     def send_destination_unreachable(self,data:bytes=None,ip_dst=None):
         TYPE_DESTINATION_UNREACHABLE=3  
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -265,7 +265,7 @@ class Attacker:
             return True  
         return False  
     
-    def send_timing_cc_1bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:08:33.962674
+    def send_timing_channel_1bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:08:33.962674
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
@@ -280,7 +280,7 @@ class Attacker:
         TYPE_ECHO_REPLY=0
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -311,7 +311,7 @@ class Attacker:
         #print("Exec Time",int((end_time-start_time).total_seconds() * 1000))
         print("Exec Time", str(end_time-start_time))
     
-    def send_timing_cc_2bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:07:20.978946
+    def send_timing_channel_2bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:07:20.978946
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
@@ -325,7 +325,7 @@ class Attacker:
         TYPE_ECHO_REPLY=0
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -354,7 +354,7 @@ class Attacker:
         #print("Exec Time",int((end_time-start_time).total_seconds() * 1000))
         print("Exec Time", str(end_time-start_time))
     
-    def send_timing_cc_4bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:12:00.745110 
+    def send_timing_channel_4bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:12:00.745110 
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
@@ -367,7 +367,7 @@ class Attacker:
         TYPE_ECHO_REPLY=0
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         try:
-            com.is_valid_ipaddress(ip_dst)
+            com.is_valid_ipaddress_v4(ip_dst)
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}") 
@@ -397,7 +397,7 @@ class Attacker:
         #print("Exec Time",int((end_time-start_time).total_seconds() * 1000))
         print("Exec Time", str(end_time-start_time))
     
-    def send_timing_cc_8bit(self,data:bytes=None,ip_dst=None):
+    def send_timing_channel_8bit(self,data:bytes=None,ip_dst=None):
         raise Exception("Tempo di esecuzione stimato: 50 minuti per inviare 11 byte")
     
 if __name__=="__main__":
