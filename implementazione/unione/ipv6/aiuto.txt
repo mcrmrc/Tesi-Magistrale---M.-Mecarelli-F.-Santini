@@ -1,0 +1,33 @@
+Ciao
+AAAA
+Output della route: local fe80::43cc:4881:32d7:a33e from :: dev lo table local proto kernel src fe80::43cc:4881:32d7:a33e metric 0 pref medium
+match_src:  <re.Match object; span=(72, 101), match='src fe80::43cc:4881:32d7:a33e'>
+match_dev:  <re.Match object; span=(40, 46), match='dev lo'>
+lo
+enp0s3: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        ether 08:00:27:6e:44:74  txqueuelen 1000  (Ethernet)
+        RX packets 2303  bytes 674226 (674.2 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 3371  bytes 569281 (569.2 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+enp0s8: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.56.102  netmask 255.255.255.0  broadcast 192.168.56.255
+        inet6 fe80::43cc:4881:32d7:a33e  prefixlen 64  scopeid 0x20<link>
+        ether 08:00:27:70:0b:8e  txqueuelen 1000  (Ethernet)
+        RX packets 3621  bytes 453086 (453.0 KB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 272  bytes 37994 (37.9 KB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 1000  (Loopback locale)
+        RX packets 97666  bytes 7008812 (7.0 MB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 97666  bytes 7008812 (7.0 MB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+default via 10.0.2.2 dev enp0s8 proto dhcp src 10.0.2.15 metric 101 
+10.0.2.0/24 dev enp0s8 proto kernel scope link src 10.0.2.15 metric 101 

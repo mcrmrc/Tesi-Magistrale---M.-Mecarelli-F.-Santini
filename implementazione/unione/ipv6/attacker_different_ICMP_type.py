@@ -29,20 +29,21 @@ def ping_once(ip_dst:str=None, iface:str=None, timeout=1):
 class Attacker:
     def __init__(self):
         data="Hello_World".encode()
-        data="cd /home/marco;ls -l".encode()
-        ip_src="fe80::e274:33a8:a3ca:46ff"
-        ip_dst="fe80::43cc:4881:32d7:a33e"
+        #data="cd /home/marco;ls -l".encode()
+        ip_src="fe80::e274:33a8:a3ca:46ff" #attaccante
+        ip_src="fe80::d612:a36a:59a1:f465" #proxy1
+        ip_dst="fe80::43cc:4881:32d7:a33e"#vittima
         #DONE
-        #self.send_information_reply(data, ip_dst,ip_src) 
+        self.send_information_reply(data, ip_dst,ip_src) 
         #self.send_parameter_problem(data, ip_dst, ip_src) 
         #self.send_time_exceeded(data, ip_dst, ip_src)
         #self.send_packet_to_big(data, ip_dst, ip_src) 
         #self.send_destination_unreachable(data, ip_dst, ip_src)          
         
         # Equazione retta Timing CC y=1.17667x^{2}-4.66x+11.81333
-        self.send_timing_cc_1bit(data, ip_dst, ip_src) 
-        #self.send_timing_cc_2bit(data, ip_dst, ip_src) 
-        #TROPPO TEMPO self.send_timing_cc_4bit(data, ip_dst, ip_src) 
+        #self.send_timing_channel_1bit(data, ip_dst, ip_src) 
+        #self.send_timing_channel_2bit(data, ip_dst, ip_src) 
+        #self.send_timing_channel_4bit(data, ip_dst, ip_src) 
 
     def send_information_reply(self,data:bytes=None,ip_dst=None,ip_src=None): 
         TYPE_INFORMATION_REQUEST=128
@@ -53,7 +54,7 @@ class Attacker:
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}")   
-        interface= mymethods.iface_from_IPv6(addr_dst.compressed)[1].strip()
+        interface= mymethods.iface_from_IP(addr_dst.compressed)[1].strip()
         ping_once(addr_dst.compressed,interface)
         dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface)
@@ -61,7 +62,7 @@ class Attacker:
         pkt= (
              Ether(dst=dst_mac, src=src_mac)
             /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
-            /ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=0) 
+            /ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=0) 
             / Raw(load="Hello Neighbour".encode())
         ) 
         print(f"Sending {pkt.summary()} through interface {interface}")  
@@ -95,7 +96,7 @@ class Attacker:
         pkt= (
             Ether(dst=dst_mac, src=src_mac)
             /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
-            /ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=1)
+            /ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=1)
             / Raw(load="Hello Neighbour".encode())
         )
         print(f"Sending {pkt.summary()}") 
@@ -345,8 +346,7 @@ class Attacker:
             #return True  
         #return False 
 
-#--------------------------------
-    def send_timing_cc_1bit(self, data:bytes=None, ip_dst=None, ip_src=None): #Exec Time 0:14:46
+    def send_timing_channel_1bit(self, data:bytes=None, ip_dst=None, ip_src=None): #Exec Time 0:14:46
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
@@ -354,7 +354,7 @@ class Attacker:
         DISTANZA_TEMPI=2 #sec
         TEMPO_1=8 #sec
         if TEMPO_0+DISTANZA_TEMPI*2>=TEMPO_1: 
-            raise ValueError("send_timing_cc: TEMPO_1 non valido")
+            raise ValueError("send_timing_channel: TEMPO_1 non valido")
         TEMPO_BYTE=0*60 #minuti
 
         TYPE_INFORMATION_REQUEST=128
@@ -423,7 +423,7 @@ class Attacker:
         #print("Exec Time",int((end_time-start_time).total_seconds() * 1000))
         print("Exec Time", str(end_time-start_time))
     
-    def send_timing_cc_2bit(self, data:bytes=None, ip_dst=None, ip_src=None): #Exec Time 12:08
+    def send_timing_channel_2bit(self, data:bytes=None, ip_dst=None, ip_src=None): #Exec Time 12:08
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
@@ -496,7 +496,7 @@ class Attacker:
         #print("Exec Time",int((end_time-start_time).total_seconds() * 1000))
         print("Exec Time", str(end_time-start_time))
     
-    def send_timing_cc_4bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:12:00.745110 
+    def send_timing_channel_4bit(self, data:bytes=None, ip_dst=None, ip_src=None): #Exec Time 0:22:20.745110 
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
@@ -505,41 +505,70 @@ class Attacker:
         TEMPO_BYTE=0*60 #minuti  
         print(TEMPI_CODICI)
         
-        TYPE_ECHO_REQUEST=8
-        TYPE_ECHO_REPLY=0
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-        try:
-            com.is_valid_ipaddress(ip_dst)
+        try: 
+            addr_src=ipaddress.IPv6Address(ip_src) 
+            addr_dst=ipaddress.IPv6Address(ip_dst) 
             com.is_bytes(data) 
         except Exception as e:
-            raise Exception(f"information_type: {e}") 
+            raise Exception(f"information_type: {e}")   
+        interface= mymethods.iface_from_IPv6(addr_dst.compressed)[1].strip()
+        ping_once(addr_dst.compressed,interface)
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface)
+
+        pkt= (
+             Ether(dst=dst_mac, src=src_mac)
+            /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
+            /ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=0) 
+            / Raw(load="Hello Neighbour".encode())
+        ) 
+        print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface) 
+        if ans: 
+            print(ans.show())
+            #return True  
+        #return False 
+
         print(data)  
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)  
         bit_data=[]
         for piece_data in data: #BIG ENDIAN
             bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
             #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
             bit_piece_data=[(piece_data >> index) & 1 for index in range(8)]
             print(chr(piece_data),piece_data, bit_piece_data)  
+        
         start_time=datetime.datetime.now(datetime.timezone.utc)
-        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-        print(f"Sending {pkt.summary()}") 
-        ans = sr1(pkt, timeout=0, verbose=1) 
-        print("Length", len(data),len(bit_data))
+        pkt= (
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+            ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+            Raw()
+        ) 
+        print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface)  
         for piece_bit_data in bit_data:
             for bit1, bit2,bit3,bit4 in zip(piece_bit_data[0::4], piece_bit_data[1::4],piece_bit_data[2::4], piece_bit_data[3::4]):
                 index=bit1<<3 | bit2<<2 |  bit3<<1 | bit4 
                 print(bit1, bit2,bit3,bit4,"|", index,"|", TEMPI_CODICI[index])  
                 time.sleep(TEMPI_CODICI[index])  
-                pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-                print(f"Sending {pkt.summary()}")
-                ans = sr1(pkt, timeout=0, verbose=1) 
-            print("Byte")
+                pkt= (
+                    Ether(dst=dst_mac, src=src_mac) /
+                    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+                    ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+                    Raw()
+                ) 
+                print(f"Sending {pkt.summary()} through interface {interface}")  
+                ans = sendp(pkt, verbose=1,iface=interface)
             time.sleep(TEMPO_BYTE)
         end_time=datetime.datetime.now(datetime.timezone.utc)
         #print("Exec Time",int((end_time-start_time).total_seconds() * 1000))
         print("Exec Time", str(end_time-start_time))
     
-    def send_timing_cc_8bit(self,data:bytes=None,ip_dst=None):
+    def send_timing_channel_8bit(self,data:bytes=None,ip_dst=None):
         raise Exception("Tempo di esecuzione stimato: 50 minuti per inviare 11 byte")
     
 if __name__=="__main__":
