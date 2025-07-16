@@ -91,7 +91,7 @@ class AttackType:
                 print("Si è scelto di non continuare")
                 return None
         
-    def get_filter_from_function(self,function_name:str=None): 
+    def get_filter_from_function(self,function_name:str=None, ip_dst=None): 
         if function_name is None or not isinstance(function_name,str):
             raise ValueError(f"La funzione passata non è una stringa: {type(function_name)} {function_name}")
         if self.attack_dict.get(function_name) is None:
@@ -100,47 +100,47 @@ class AttackType:
         match function_name:
             case "ipv4_destination_unreachable": 
                 TYPE_DESTINATION_UNREACHABLE=3 
-                return f"icmp and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE})" #and dst {ip_host}" 
             case "ipv4_source_quench": 
                 TYPE_SOURCE_QUENCH=4  
-                return f"icmp and (icmp[0]=={TYPE_SOURCE_QUENCH}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_SOURCE_QUENCH})" # and dst {ip_host}" 
             case "ipv4_redirect": 
                 TYPE_REDIRECT=5
-                return f"icmp and (icmp[0]=={TYPE_REDIRECT}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_REDIRECT})" # and dst {ip_host}" 
             case "ipv4_timing_channel_1bit": 
                 TYPE_ECHO_REQUEST=8
                 TYPE_ECHO_REPLY=0
-                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}" 
             case "ipv4_timing_channel_2bit": 
                 TYPE_ECHO_REQUEST=8
                 TYPE_ECHO_REPLY=0
-                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}" 
             case "ipv4_timing_channel_4bit": 
                 TYPE_ECHO_REQUEST=8
                 TYPE_ECHO_REPLY=0
-                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}" 
             case "ipv4_time_exceeded": 
                 TYPE_TIME_EXCEEDED=11
-                return f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host}"
+                return f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED})" # and dst {ip_host}"
             case "ipv4_parameter_problem": 
                 TYPE_PARAMETER_PROBLEM=12  
-                return f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM})" # and dst {ip_host}" 
             case "ipv4_timestamp_request": 
                 TYPE_TIMESTAMP_REQUEST=13
                 TYPE_TIMESTAMP_REPLY=14
-                return f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY})" # and dst {ip_host}" 
             case "ipv4_timestamp_reply":
                 TYPE_TIMESTAMP_REQUEST=13 
                 TYPE_TIMESTAMP_REPLY=14
-                return f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY})" # and dst {ip_host}" 
             case "ipv4_information_request": 
                 TYPE_INFORMATION_REQUEST=15
                 TYPE_INFORMATION_REPLY=16
-                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host}"
+                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}"
             case "ipv4_information_reply": 
                 TYPE_INFORMATION_REQUEST=15
                 TYPE_INFORMATION_REPLY=16
-                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host}"
+                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}"
             
             case "ipv6_destination_unreachable": 
                 pass
@@ -160,11 +160,11 @@ class AttackType:
             case "ipv6_information_request": 
                 TYPE_INFORMATION_REQUEST=15
                 TYPE_INFORMATION_REPLY=16 
-                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}" 
             case "ipv6_information_reply": 
                 TYPE_INFORMATION_REQUEST=15
                 TYPE_INFORMATION_REPLY=16 
-                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host}"  
+                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}"  
 
         type_function=[self.attack_dict.get(function_name)] 
         if "request" in function_name:  

@@ -11,7 +11,8 @@ directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
 import mymethods 
 
-from scapy.all import * 
+#from scapy.all import * 
+from scapy.all import IP, ICMP, IPerror, ICMPerror
 
 def callback_get_timing_cc(victim,data,previous_time):
     TYPE_DESTINATION_UNREACHABLE=3 

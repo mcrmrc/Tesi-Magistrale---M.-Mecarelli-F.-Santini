@@ -1,5 +1,6 @@
-from scapy.all import IP, ICMP,Raw, sniff
-from scapy.all import *
+#from scapy.all import *
+from scapy.all import IP, ICMP,Raw
+
 import argparse
 import mymethods
 import re

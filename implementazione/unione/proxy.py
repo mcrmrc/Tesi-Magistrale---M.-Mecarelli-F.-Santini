@@ -1,5 +1,6 @@
+#from scapy.all import *
 from scapy.all import IP, ICMP,Raw, sr1, AsyncSniffer
-from scapy.all import *
+
 import threading 
 import argparse 
 import mymethods

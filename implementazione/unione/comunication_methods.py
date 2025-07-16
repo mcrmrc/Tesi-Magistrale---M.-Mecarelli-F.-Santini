@@ -1,5 +1,6 @@
-from scapy.all import IP, ICMP, Raw, sr1, AsyncSniffer
-from scapy.all import *
+#from scapy.all import *
+from scapy.all import IP, ICMP, Raw, sr1, AsyncSniffer, get_if_hwaddr, in6_getnsma, in6_getnsmac, Ether, IPv6, ICMPv6ND_NS, ICMPv6NDOptSrcLLAddr, srp1, ICMPv6NDOptDstLLAddr
+
 import threading 
 import argparse
 import mymethods
@@ -339,7 +340,7 @@ import socket
 def get_mac_by_ipv6(ipv6_dst: str, ipv6_src: str, iface_name: str):
     try:
         # Validate and convert
-        dst_ip = ipaddress.IPv6Address(ipv6_dst)
+        dst_ip = ipaddress.IPv6Address(ipv6_dst) 
         src_ip = ipaddress.IPv6Address(ipv6_src)
         src_mac = get_if_hwaddr(iface_name)
         print(f"Source MAC: {src_mac}")

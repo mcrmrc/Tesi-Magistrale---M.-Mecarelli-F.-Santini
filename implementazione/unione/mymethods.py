@@ -1,4 +1,5 @@
-from scapy.all import conf 
+#from scapy.all import conf 
+
 import string
 import re
 import argparse

@@ -1,12 +1,13 @@
-import mymethods
+#from scapy.all import * 
 from scapy.all import IP, ICMP, Raw, AsyncSniffer
-from scapy.all import * 
+
 import argparse
 import random
 import comunication_methods as com
 import threading
 import sys
 import select 
+import mymethods
 
 #---------------------- 
 

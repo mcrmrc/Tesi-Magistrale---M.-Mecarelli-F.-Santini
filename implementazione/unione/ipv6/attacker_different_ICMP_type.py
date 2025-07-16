@@ -11,7 +11,9 @@ directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
 import mymethods 
 
-from scapy.all import * 
+#from scapy.all import * 
+from scapy.all import get_if_hwaddr, Ether, IPv6, ICMPv6EchoReply, Raw, sendp, ICMPv6EchoRequest, ICMPv6EchoReply, ICMPv6ParamProblem, IPerror6, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
+
 import datetime 
 import time
 import ipaddress

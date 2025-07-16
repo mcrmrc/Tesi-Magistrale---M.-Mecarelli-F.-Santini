@@ -1,4 +1,6 @@
-from scapy.all import * 
+#from scapy.all import * 
+from scapy.all import IP, ICMP, Raw 
+
 import datetime 
 import time
 import ipaddress

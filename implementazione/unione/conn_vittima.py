@@ -1,7 +1,9 @@
 #L'attaccante riceve i messaggi da determinati indirizzi
 #Ricevuti tutti, li unisce in un unico messaggio
+
+#from scapy.all import *
 from scapy.all import IP, ICMP, sr1
-from scapy.all import *
+
 import string
 import argparse
 

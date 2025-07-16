@@ -11,7 +11,9 @@ directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
 import mymethods 
 
-from scapy.all import * 
+#from scapy.all import * 
+from scapy.all import IPv6, ICMPv6EchoReply, ICMPv6EchoRequest 
+
 import ipaddress
 import socket
 
@@ -237,11 +239,11 @@ def callback_get_information_request(event_pktconn,data):
                 else None
             )
             #print(f"Ricevuto pacchetto da {packet[IPv6].src}...")
-            if packet[echo_type].id==0 and packet[echo_type].seq==1:
+            if packet[icmp_echo_type].id==0 and packet[icmp_echo_type].seq==1:
                 print("END OF TRANSMISSION")
                 com.set_threading_Event(event_pktconn)
                 return
-            icmp_id=packet[echo_type].id
+            icmp_id=packet[icmp_echo_type].id
             byte1 = (icmp_id >> 8) & 0xFF 
             byte2 = icmp_id & 0xFF 
             #print(icmp_id,type(icmp_id))  
