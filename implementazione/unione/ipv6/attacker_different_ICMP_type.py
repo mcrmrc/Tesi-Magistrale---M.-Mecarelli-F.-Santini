@@ -31,7 +31,7 @@ class Attacker:
     def __init__(self):
         data="Hello_World".encode()
         data="cd /home/marco;ls -l".encode()
-        #data="Ciao".encode() 
+        data="Ciao".encode() 
         ip_src="fe80::e274:33a8:a3ca:46ff" #attaccante
         ip_src="fe80::d612:a36a:59a1:f465" #proxy1
         ip_dst="fe80::43cc:4881:32d7:a33e"#vittima
@@ -43,9 +43,9 @@ class Attacker:
         #self.send_destination_unreachable(data, ip_dst, ip_src)          
         
         # Equazione retta Timing CC y=1.17667x^{2}-4.66x+11.81333
-        self.send_timing_channel_1bit(data, ip_dst, ip_src) 
+        #self.send_timing_channel_1bit(data, ip_dst, ip_src) 
         #self.send_timing_channel_2bit(data, ip_dst, ip_src) 
-        #self.send_timing_channel_4bit(data, ip_dst, ip_src) 
+        self.send_timing_channel_4bit(data, ip_dst, ip_src) 
 
     def send_information_reply(self,data:bytes=None,ip_dst=None,ip_src=None): 
         TYPE_INFORMATION_REQUEST=128
@@ -505,25 +505,20 @@ class Attacker:
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}")   
-        interface= mymethods.iface_from_IPv6(addr_dst.compressed)[1].strip()
-        ping_once(addr_dst.compressed,interface)
+        try:
+            interface= mymethods.iface_from_IP(addr_dst) 
+            if interface is None: 
+                print(f"L'interfaccia è {interface}")
+                interface=mymethods.default_iface()
+                ping_once(addr_dst,interface)
+            if mymethods.iface_from_IP(addr_dst.compressed) is None:
+                print("Problema con l'interfaccia non risolto") 
+        except Exception as e:
+            print(f"Excepion: {e}")  
+            interface=mymethods.default_iface() 
         dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
-        src_mac = get_if_hwaddr(interface)
+        src_mac = get_if_hwaddr(interface) 
         
-        pkt= (
-             Ether(dst=dst_mac, src=src_mac)
-            /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
-            /ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=0) 
-            / Raw(load="Hello Neighbour".encode())
-        ) 
-        print(f"Sending {pkt.summary()} through interface {interface}")  
-        ans = sendp(pkt, verbose=1,iface=interface) 
-        if ans: 
-            print(ans.show())
-            #return True  
-        #return False 
-
-        print(data)
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)  
         bit_data=[]
         for piece_data in data: #BIG ENDIAN
@@ -577,25 +572,21 @@ class Attacker:
             com.is_bytes(data) 
         except Exception as e:
             raise Exception(f"information_type: {e}")   
-        interface= mymethods.iface_from_IPv6(addr_dst.compressed)[1].strip()
-        ping_once(addr_dst.compressed,interface)
+        
+        try:
+            interface= mymethods.iface_from_IP(addr_dst) 
+            if interface is None: 
+                print(f"L'interfaccia è {interface}")
+                interface=mymethods.default_iface()
+                ping_once(addr_dst,interface)
+            if mymethods.iface_from_IP(addr_dst.compressed) is None:
+                print("Problema con l'interfaccia non risolto") 
+        except Exception as e:
+            print(f"Excepion: {e}")  
+            interface=mymethods.default_iface() 
         dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
-        src_mac = get_if_hwaddr(interface)
-
-        pkt= (
-             Ether(dst=dst_mac, src=src_mac)
-            /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
-            /ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=0) 
-            / Raw(load="Hello Neighbour".encode())
-        ) 
-        print(f"Sending {pkt.summary()} through interface {interface}")  
-        ans = sendp(pkt, verbose=1,iface=interface) 
-        if ans: 
-            print(ans.show())
-            #return True  
-        #return False 
-
-        print(data)  
+        src_mac = get_if_hwaddr(interface) 
+        
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)  
         bit_data=[]
         for piece_data in data: #BIG ENDIAN
