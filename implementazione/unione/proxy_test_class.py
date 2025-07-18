@@ -102,8 +102,8 @@ def get_value_of_parser(args):
     } 
 
 def check_value_in_parser(args):
-    if type(args) is not argparse.Namespace or args is None:
-        print("Nessun argomento passato") 
+    if not isinstance(args,argparse.Namespace):
+        print("Argomento passato non valido") 
         return False
     if args.ip_attaccante is None or type(args.ip_attaccante) is not str or re.match(com.ip_reg_pattern, args.ip_attaccante) is None:
         print("IP attaccante non valido o non specificato")
@@ -122,7 +122,10 @@ def get_args_from_parser():
     parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante")
     parser.add_argument("--ip_vittima",type=str, help="IP vittima")
     #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
-    return mymethods.check_args(parser) 
+    args= mymethods.check_args(parser) 
+    if not check_value_in_parser(args):
+        raise ValueError("Argomenti nel parser non corretti")
+    return args
 
 #------------------------
 class Proxy: 
