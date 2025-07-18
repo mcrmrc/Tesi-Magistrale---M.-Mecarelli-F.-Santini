@@ -1,3 +1,5 @@
+import ipaddress
+
 class AttackType:
     attack_dict={ 
         "ipv4_destination_unreachable":"ipv4_3" 
@@ -91,7 +93,7 @@ class AttackType:
                 print("Si è scelto di non continuare")
                 return None
         
-    def get_filter_from_function(self,function_name:str=None, ip_dst=None): 
+    def get_filter_attack_from_function(self,function_name:str=None, ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, checksum:int=None): 
         if function_name is None or not isinstance(function_name,str):
             raise ValueError(f"La funzione passata non è una stringa: {type(function_name)} {function_name}")
         if self.attack_dict.get(function_name) is None:
@@ -107,91 +109,130 @@ class AttackType:
             case "ipv4_redirect": 
                 TYPE_REDIRECT=5
                 return f"icmp and (icmp[0]=={TYPE_REDIRECT})" # and dst {ip_host}" 
-            case "ipv4_timing_channel_1bit": 
+            case "ipv4_timing_channel_1bit" | "ipv4_timing_channel_2bit" | "ipv4_timing_channel_4bit":
                 TYPE_ECHO_REQUEST=8
                 TYPE_ECHO_REPLY=0
-                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}" 
-            case "ipv4_timing_channel_2bit": 
-                TYPE_ECHO_REQUEST=8
-                TYPE_ECHO_REPLY=0
-                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}" 
-            case "ipv4_timing_channel_4bit": 
-                TYPE_ECHO_REQUEST=8
-                TYPE_ECHO_REPLY=0
-                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}" 
+                return f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}"  
             case "ipv4_time_exceeded": 
                 TYPE_TIME_EXCEEDED=11
                 return f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED})" # and dst {ip_host}"
             case "ipv4_parameter_problem": 
                 TYPE_PARAMETER_PROBLEM=12  
                 return f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM})" # and dst {ip_host}" 
-            case "ipv4_timestamp_request": 
+            case "ipv4_timestamp_request" | "ipv4_timestamp_reply": 
                 TYPE_TIMESTAMP_REQUEST=13
                 TYPE_TIMESTAMP_REPLY=14
                 return f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY})" # and dst {ip_host}" 
-            case "ipv4_timestamp_reply":
-                TYPE_TIMESTAMP_REQUEST=13 
-                TYPE_TIMESTAMP_REPLY=14
-                return f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY})" # and dst {ip_host}" 
-            case "ipv4_information_request": 
+            case "ipv4_information_request" | "ipv4_information_reply": 
                 TYPE_INFORMATION_REQUEST=15
                 TYPE_INFORMATION_REPLY=16
                 return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}"
-            case "ipv4_information_reply": 
-                TYPE_INFORMATION_REQUEST=15
-                TYPE_INFORMATION_REPLY=16
-                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}"
-            
+            #------------------------------------
             case "ipv6_destination_unreachable": 
-                pass
+                TYPE_DESTINATION_UNREACHABLE=1 
+                f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE})"# and dst {ip_host.compressed}" 
             case "ipv6_packet_to_big": 
-                pass
+                TYPE_PKT_BIG= 2
+                f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG})"# and dst {ip_host.compressed}" 
             case "ipv6_time_exceeded": 
-                pass
+                TYPE_TIME_EXCEEDED=3  
+                f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED})"# and dst {ip_host.compressed}" 
             case "ipv6_parameter_problem": 
-                pass
-            case "ipv6_timing_channel_1bit": 
-                pass
-            case "ipv6_timing_channel_2bit": 
-                pass 
-            case "ipv6_timing_channel_4bit": 
-                pass
+                TYPE_PARAMETER_PROBLEM=4  
+                f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM})"# and dst {ip_host.compressed}" 
+            case "ipv6_timing_channel_1bit" | "ipv6_timing_channel_2bit" | "ipv6_timing_channel_4bit": 
+                TYPE_ECHO_REQUEST=128
+                TYPE_ECHO_REPLY=129
+                f"icmp6 and (icmp6[0]=={TYPE_ECHO_REQUEST} or icmp6[0]=={TYPE_ECHO_REPLY})"# and dst {ip_host.compressed}"  
+            case "ipv6_information_request" | "ipv6_information_reply": 
+                TYPE_ECHO_REQUEST=128
+                TYPE_ECHO_REPLY=129 
+                return f"icmp6 and (icmp6[0]=={TYPE_ECHO_REQUEST} or icmp6[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}"   
 
-            case "ipv6_information_request": 
-                TYPE_INFORMATION_REQUEST=15
-                TYPE_INFORMATION_REPLY=16 
-                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}" 
-            case "ipv6_information_reply": 
-                TYPE_INFORMATION_REQUEST=15
-                TYPE_INFORMATION_REPLY=16 
-                return f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})" # and dst {ip_host}"  
-
-        type_function=[self.attack_dict.get(function_name)] 
-        if "request" in function_name:  
-            type_function.append(
-                self.attack_dict.get(function_name.replace("request","reply"))
-            ) 
-        elif "reply" in function_name: 
-            type_function.append(
-                self.attack_dict.get(function_name.replace("reply","request"))
-            )
-        else:
-            print("La funzione non è ne una 'request' ne una 'reply'")
-        print("type_function: ", type_function)
-        if "ipv6" in type_function[0]:
-            print("La funzione lavora con IPv6")
-        elif "ipv4" in type_function[0]:
-            print("La funzione lavora con IPv4")
-        else: 
-            raise Exception(f"Caso non considerato: {type_function}")
-        xxx=""
-        for index in range(len(type_function)):
-            xxx=xxx+("or " if index!=0 else "")+f" icmp[0]=={type_function[index].split("_")[1]}"
-        print("XXX: ",xxx)
-        #xxx="icmp "+("and " if len(type_function)>0 else None) 
-            
-        #filter=f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})"
-
+    def get_filter_connection_from_function(self,function_name:str=None, ip_src:ipaddress.IPv4Address|ipaddress.IPv6Address=None, checksum:int=None, ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, interface:str=None): 
+        IPv4_ECHO_REQUEST_TYPE=8
+        IPv4_ECHO_REPLY_TYPE=0
+        IPv6_ECHO_REQUEST_TYPE=128
+        IPv6_ECHO_REPLY_TYPE=129
+        if not isinstance(function_name,str):
+            raise ValueError(f"La funzione passata non è una stringa: {type(function_name)} {function_name}")
+        if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
+            raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+        match function_name:
+            case "wait_conn_from_proxy": 
+                if not isinstance(checksum, int):
+                    raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and src {ip_src.compressed} and icmp[4:2]={checksum}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and (icmp6[0]=={IPv6_ECHO_REQUEST_TYPE} and src {ip_src.compressed} and icmp[4:2]={checksum}" 
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}")
+            case "wait_proxy_update":
+                if not isinstance(checksum, int):
+                    raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and src {ip_src.compressed} and icmp[4:2]={checksum}"
+                elif ip_src.version==6:
+                    return f"icmp6 and icmp6[0]==128 and src {ip_src.compressed} and icmp[4:2]={checksum}"
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}")   
+            case "wait_data_from_proxy": 
+                if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and icmp6[0]==128 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+            case "wait_conn_from_attacker":  
+                if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and icmp6[0]==128 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+            case "wait_conn_from_victim":
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and src {ip_src.compressed} and icmp[4:2]={checksum}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and icmp6[0]==128 and src {ip_src.compressed} and icmp[4:2]={checksum}"
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+            case "wait_command_from_attacker":
+                if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and icmp6[0]==128 and src {ip_src.compressed} and dst {ip_dst.compressed}"
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+            case "wait_data_from_vicitm":
+                if ip_src.version==4:
+                    return f"icmp and src {ip_src.compressed} and dst {ip_dst.compressed}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+            case "wait_conn_from_proxy":
+                if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and icmp6[0]==128 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}" 
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+            case "wait_attacker_command":
+                if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+                if ip_src.version==4:
+                    return f"icmp and icmp[0]==8 and dst {ip_dst.compressed}" 
+                elif ip_src.version==6:
+                    return f"icmp6 and icmp6[0]==128 and dst {ip_dst.compressed}" 
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+            case "":
+                if ip_src.version==4:
+                    return aaa
+                elif ip_src.version==6:
+                    return aaa
+                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
         
     
 

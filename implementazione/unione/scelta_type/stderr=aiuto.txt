@@ -1,10 +1,10 @@
-.Ciao
+Ciao
 Argomenti passati: Namespace(file_path='attack_file.json')
 File di configurazione attack_file.json caricato correttamente
 Attacco selezionato: {'ipv4_timing_channel_1bit': 'ipv4__16'}
 IP vittima valido: 192.168.56.102
 Non è stato trovato l'IP locale: [Errno 101] Network is unreachable
-IP host: <class 'ipaddress.IPv4Address'> 192.168.56.104
+IP host valido: 192.168.56.104
 Lista proxy sanificata
 Per ogni proxy creato il proprio evento di aggiornamento 'proxy_update'
 Definito il threading lock per quando si accede alle risposte dei proxy
@@ -14,13 +14,10 @@ Thread for 192.168.56.104 started
 Testo di conferma impostato correttamente:
 	__CONFIRM_VICTIM__192.168.56.102_192.168.56.104
 	The checksum of b'__CONFIRM_VICTIM__192.168.56.102_192.168.56.104' is 3913
-Thread ID: 134555114665664
-Interfaccia per confermarsi a 192.168.56.104 -> enp0s8
-	The checksum of b'__CONFIRM_ATTACKER__192.168.56.102' is 39521
-	Sending IP / ICMP 192.168.56.104 > 192.168.56.104 echo-request 0 / Raw
-Interfaccia per l'aggiornamento di 192.168.56.104 -> enp0s8
-
-Sent 1 packets.
-Il proxy 192.168.56.104 non ha risposto. Conferma connessione negativa
+Thread ID: 126124462962368
+confirm_connection_to_proxy: Indirizzo IP proxy non è ne un IPv4Address ne un IPv6Address: None
 Connessione fallita con 192.168.56.104
-Proxy disponibili dopo eliminazione	[]
+Interfaccia per 192.168.56.104 -> lo
+Coppia 192.168.56.104/False
+check_available_proxies: 192.168.56.104 not present in list. list.remove(x): x not in list
+Proxy disponibili dopo eliminazione	[IPv4Address('192.168.56.104')]

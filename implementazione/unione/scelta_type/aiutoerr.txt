@@ -1,0 +1,25 @@
+Exception in thread Thread-192.168.56.104:
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/scapy/sendrecv.py", line 1289, in stop
+    self.stop_cb()
+    ^^^^^^^^^^^^
+AttributeError: 'AsyncSniffer' object has no attribute 'stop_cb'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.12/threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+  File "/media/sf_implementazione/unione/scelta_type/attacker_begin_attack.py", line 313, in attacker_wait_proxy_update
+    thread_sniffer.stop()  
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/scapy/sendrecv.py", line 1291, in stop
+    raise Scapy_Exception(
+scapy.error.Scapy_Exception: Unsupported (offline or unsupported socket)
+Exception ignored in: <module 'threading' from '/usr/lib/python3.12/threading.py'>
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/threading.py", line 1622, in _shutdown
+    lock.acquire()
+KeyboardInterrupt: 
