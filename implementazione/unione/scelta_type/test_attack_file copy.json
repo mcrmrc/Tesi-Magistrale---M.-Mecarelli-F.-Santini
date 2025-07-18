@@ -31,6 +31,15 @@
         ,{"v6_test9_wrong":"fe80::-1:4881:32d7:a33e"}
         ,{"v6_test10_wrong":"fe80::ffff1:4881:32d7:a33e"}
         ,{"v6_test11_wrong":"fe80::43bcc:4881:32d7:a33e"}
+
+
+
+        ,{"vm_proxy1":"192.168.56.101"}
+        ,{"vm_proxy2":"192.168.56.105"}
+        ,{"test":"192.168.56.xxx"}
+        ,{"not_used":"192.168.56.1"}
+        ,{"vm_tesi2_vittima":"fe80::43cc:4881:32d7:a33e"}
+        ,{"vm_tesi1_attaccante":"fe80::e274:33a8:a3ca:46ff"} 
     ]
     ,"attack_function":"ipv6_timing_1bit"
 }

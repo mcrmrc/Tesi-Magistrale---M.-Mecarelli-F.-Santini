@@ -1,14 +1,20 @@
 {
-    "ip_vittima":"192.168.56.102"
-    ,"ip_host":"192.168.56.101"
+    "ip_vittima":"192.168.56.102" 
     ,"proxy_list":[
-        {"vm_attaccante":"192.168.56.104"} 
-        ,{"vm_proxy1":"192.168.56.101"}
+        {"1vm_attaccante":"192.168.56.101"} 
+        ,{"2vm_attaccante":"fe80::e274:33a8:a3ca:46ff"} 
+
+        ,{"vm_vittima":"fe80::43cc:4881:32d7:a33e" }
+
+        ,{"1vm_proxy1":"192.168.56.104"}
+        ,{"2vm_proxy1":"fe80::d612.a36:a:59a1:f465"}
+
         ,{"vm_proxy2":"192.168.56.105"}
         ,{"test":"192.168.56.xxx"}
         ,{"not_used":"192.168.56.1"}
         ,{"vm_tesi2_vittima":"fe80::43cc:4881:32d7:a33e"}
-        ,{"vm_tesi1_attaccante":"fe80::e274:33a8:a3ca:46ff"} 
+        
+        ,{"v6_test5_wrong":"fe80::43cc:4881:32d7::43cc"}
     ]
     ,"attack_function":"ipv4_timing_channel_1bit"
 }
