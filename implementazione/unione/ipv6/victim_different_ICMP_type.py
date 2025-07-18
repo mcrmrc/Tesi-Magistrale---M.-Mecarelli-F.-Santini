@@ -259,7 +259,7 @@ class Victim:
         #self.get_packet_to_big() 
         #self.get_destination_unreachable() 
 
-        self.get_timing_cc(4) 
+        self.get_timing_cc(1) 
 
     def get_information_request(self): 
         information_data=[]
@@ -463,13 +463,14 @@ class Victim:
                 for bit in str_data[index:index+8][::-1]:
                     int_data=int_data<<1|int(bit)
                 data+=chr(int_data)  
-            com.stop_sinffer(sniffer)
-            if com.stop_timer(pkt_timer): 
-                print(data)
-                return True 
-            return False
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            print(data)
+            return True 
+        return False
+       
         
 
 if __name__=="__main__": 

