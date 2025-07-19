@@ -4,12 +4,10 @@ from scapy.all import IP, ICMP, Raw, AsyncSniffer
 import sys
 import os
 import argparse
-import random
-import comunication_methods as com
+import random 
 import threading
 import sys
-import select 
-import mymethods
+import select  
 import ipaddress
 
 file_path = "../comunication_methods.py"
@@ -156,45 +154,47 @@ def ask_to_continue(msg:str="PLACEHOLDER MESSAGE [si/no]"):
         print("Si è scelto di NO") 
         return False
 
-def done_waiting_timeout():
+def done_waiting_timeout(sniffer, enough_proxy_timer:threading.Timer, event_enough_proxy:threading.Event, callback_reached_proxy_number):
     try:
-        com.is_AsyncSniffer(testclass.sniffer)
-        com.is_threading_Timer(testclass.enough_proxy_timer)
-        com.is_threading_Event(testclass.event_enough_proxy)
+        com.is_AsyncSniffer(sniffer)
+        com.is_threading_Timer(enough_proxy_timer)
+        com.is_threading_Event(event_enough_proxy)
     except Exception as e:
         raise Exception(f"done_waiting_timeout: {e}")
-    if not reached_proxy_number(): 
+    if not callback_reached_proxy_number(): 
         print("Not enough proxies have arrived") 
         msg="Continuare ad aspettare ulteriori proxy? (s/n)"
         if ask_to_continue(msg):
             print("Continuo ad aspettare...")
-            testclass.enough_proxy_timer = threading.Timer(60, done_waiting_timeout)
-            testclass.enough_proxy_timer.start()
+            enough_proxy_timer = threading.Timer(
+                60
+                ,lambda: done_waiting_timeout(sniffer, enough_proxy_timer, event_enough_proxy, callback_reached_proxy_number))
+            enough_proxy_timer.start()
             return
         else:
             print("Smetto di aspettare...") 
     print("Enough proxies have arrived") 
-    com.set_threading_Event(testclass.event_enough_proxy)
+    com.set_threading_Event(event_enough_proxy)
 
 #----------------
-def reached_proxy_number():
-    testclass.lock_connected_proxy.acquire()
-    is_enough_proxy=len(testclass.connected_proxy) >= testclass.num_proxy
-    testclass.lock_connected_proxy.release() 
+def reached_proxy_number(lock_connected_proxy:threading.Lock, connected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address], num_proxy:int):
+    lock_connected_proxy.acquire()
+    is_enough_proxy=len(connected_proxy) >= num_proxy
+    lock_connected_proxy.release() 
     if is_enough_proxy: 
-        print(f"Raggiunto il numero ({testclass.num_proxy}) di proxy necessari:\n\t{testclass.connected_proxy}")
+        print(f"Raggiunto il numero ({num_proxy}) di proxy necessari:\n\t{connected_proxy}")
         return True 
-    print(f"Necessari ancora {testclass.num_proxy-len(testclass.connected_proxy)} proxy")
+    print(f"Necessari ancora {num_proxy-len(connected_proxy)} proxy")
     return False
 
-def add_proxy_to_connected_list(connected_proxy:list, ip_src:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock): 
+def add_proxy_to_connected_list(connected_proxy:list, ip_src:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int): 
     lock_connected_proxy.acquire()
     if ip_src not in connected_proxy:
         connected_proxy.append(ip_src) 
     lock_connected_proxy.release() 
     print(f"{ip_src} aggiunto alla lista dei proxy connessi\n\t{connected_proxy}")
     #msg="Numero minimo di proxy raggiunto. Se ne vogiono aspettare di più? [s/n]"
-    if reached_proxy_number(): # and ask_to_continue(msg)
+    if reached_proxy_number(lock_connected_proxy, connected_proxy, num_proxy): # and ask_to_continue(msg)
         com.set_threading_Event(event_enough_proxy) 
 
 def is_proxy_already_connected(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address ,connected_proxy:list, lock_connected_proxy:threading.Lock):
@@ -208,7 +208,7 @@ def is_proxy_already_connected(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address
     lock_connected_proxy.release() 
     return is_already_connected
 
-def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock): 
+def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int): 
     def callback(packet):
         print(f"callback wait_conn_from_proxy received:\n\t{packet.summary()}") 
         if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
@@ -217,7 +217,7 @@ def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Ad
             if is_proxy_already_connected(ip_src, connected_proxy, lock_connected_proxy): 
                 print(f"already connected with {ip_src}:\n\t{connected_proxy}")
                 return
-            confirm_text=(com.CONFIRM_PROXY+ip_host.com).encode()
+            confirm_text=(com.CONFIRM_PROXY+ip_host.compressed).encode()
             checksum=mymethods.calc_checksum(confirm_text) 
             if confirm_text in packet[Raw].load and checksum==packet[ICMP].id: 
                 print(f"il pacchetto ha confermato la connessione...") 
@@ -229,6 +229,7 @@ def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Ad
                         ,ip_src
                         ,event_enough_proxy
                         ,lock_connected_proxy
+                        ,num_proxy
                     ) 
                     return
         print(f"il pacchetto non ha confermato la connessione...")
@@ -261,14 +262,13 @@ def stop_sinffer(sniffer=None):
     return False
 
 #--------- 
-def check_value_parser(args): 
+def check_value_in_parser(args): 
     try:
         if not isinstance(args,argparse.Namespace):
             raise Exception("Argomento parser non è istanza di argparse.Namespace")  
         if not isinstance(args.num_proxy, int):
             raise ValueError("Il numero di proxy non è un intero") 
-    except Exception as e:
-        mymethods.print_parser_supported_arguments(parser)
+    except Exception as e: 
         raise Exception(f"check_value_in_parser: {e}") 
     return True 
 
@@ -276,21 +276,32 @@ def get_args_from_parser():
     parser = argparse.ArgumentParser()
     #parser.add_argument("--ip_host",type=str, help="L'IP dell host dove ricevere i pacchetti ICMP")
     parser.add_argument("--num_proxy",type=int, help="Numero dei proxy necessari")
-    #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire") 
-    if args:= mymethods.check_for_unknown_args(parser) is None or not check_value_parser(args): 
+    #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")    
+    try:
+        args, unknown =mymethods.check_for_unknown_args(parser)  
+        if len(unknown) > 0: 
+            raise Exception(f"Argomenti sconosciuti: {unknown}") 
+        if check_value_in_parser(args):  
+            return args
+    except Exception as e:
         mymethods.print_parser_supported_arguments(parser)
-        return None
-    return args 
+        raise Exception(f"get_args_from_parser: {e}")
 
 class Victim:
     def __init__(self):
         try: 
             ip_host, errore=mymethods.find_local_IP()
+            ip_host="192.168.56.102" #TOD delete after
             if ip_host is None: 
                 raise Exception(f"Coulnd't get ip: {errore}")
             self.ip_host=ipaddress.ip_address(ip_host)
-            args=get_args_from_parser() 
-            self.num_proxy=args.num_proxy
+            if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
+                raise ValueError("args non è istanza di argparse.Namespace") 
+            dict_values={
+                "num_proxy":args.num_proxy  
+            }
+            self.num_proxy=dict_values.get("num_proxy")
+            print(f"num_proxy: {type(self.num_proxy)} {self.num_proxy}")
         except Exception as e:
             print(f"Eccezione: {e}")
             exit(1) 
@@ -300,7 +311,7 @@ class Victim:
             self.lock_connected_proxy=threading.Lock() 
             self.wait_conn_from_proxy() 
             if len(self.connected_proxy) < self.num_proxy: 
-                print(f"Non sono stati trovati abbastanza proxy ({testclass.connected_proxy})")
+                print(f"Non sono stati trovati abbastanza proxy ({self.connected_proxy})")
                 msg="Utilizzare comunque quelli trovati? [si/no]"
                 if len(self.connected_proxy)<=0 or not ask_to_continue(msg) :
                     print("Interruzione del programma...")  
@@ -340,24 +351,47 @@ class Victim:
             checksum=mymethods.calc_checksum(confirm_text.encode())
             self.event_enough_proxy=com.get_threading_Event() 
             interface=mymethods.default_iface()
+            filter=singleton.AttackType().get_filter_connection_from_function(
+                "victim_wait_conn_from_proxy"
+                ,checksum=checksum
+                ,ip_dst=self.ip_host
+            ) 
         except Exception as e:
             print(f"Eccezione: {e}") 
 
         args={
-            "filter":f"icmp and icmp[0]==8 and dst {self.ip_host} and icmp[4:2]=={checksum}"  
+            "filter": filter
             #,"count":1 
             ,"prn":callback_wait_conn_from_proxy(
                 self.connected_proxy
                 ,self.ip_host
                 ,self.event_enough_proxy
                 ,self.lock_connected_proxy
+                ,self.num_proxy
             )
             #,"store":True 
             ,"iface":interface
         }  
         try: 
+            #sniffer, enough_proxy_timer:threading.Timer, event_enough_proxy:threading.Event 
+            #def callback_function_timer():
+            #    return done_waiting_timeout(
+            #        self.sniffer
+            #        ,self.enough_proxy_timer
+            #        ,self.event_enough_proxy
+            #    ) 
+            callback_function_timer = lambda: done_waiting_timeout(
+                self.sniffer
+                ,self.enough_proxy_timer
+                ,self.event_enough_proxy
+                ,lambda: reached_proxy_number(
+                    self.lock_connected_proxy
+                    ,self.connected_proxy
+                    ,self.num_proxy
+                )
+            )
             self.sniffer,self.enough_proxy_timer=com.sniff_packet_w_callbak(
-                 args,60,done_waiting_timeout
+                 args,60,callback_function_timer
             )
             com.wait_threading_Event(self.event_enough_proxy)  
         except Exception as e:
@@ -447,5 +481,5 @@ class Victim:
             sequenza+=1
 
 if __name__ == "__main__": 
-    pass   
+    Victim()   
     
