@@ -34,9 +34,9 @@ def add_argument(param_arg, parser=None):
         raise Exception("L'argomento deve iniziare con - oppure con --")
     return parser.add_argument(param_arg[0],type=param_arg[1], help=param_arg[2])
 
-def print_parser_supported_arguments(parser=None):
-    if parser is None:
-        raise Exception("Parser nullo")
+def print_parser_supported_arguments(parser:argparse.ArgumentParser=None):
+    if not isinstance(parser,argparse.ArgumentParser):
+        raise Exception(f"Parser nullo: {parser}")
     print("Controlla di inserire due volte - per gli argomenti")
     print("Argomenti supportati:") 
     for action in parser._actions:
@@ -46,18 +46,14 @@ def print_parser_supported_arguments(parser=None):
         )) 
 
 def check_for_unknown_args(parser: argparse.ArgumentParser = None): 
-    try:
-        if isinstance(parser, argparse.ArgumentParser):
-            raise ValueError("Parser non istanza di argparse.ArgumentParser") 
-        args, unknown = parser.parse_known_args() 
-        #print(f"Argomenti passati: {args}")
-        if len(unknown) > 0:
-            raise Exception(f"Argomenti sconosciuti: {unknown}")
-            #print_parser_supported_arguments(parser) 
-        return args
+    if not isinstance(parser, argparse.ArgumentParser):
+        raise ValueError("Parser non istanza di argparse.ArgumentParser") 
+    try: 
+        args, unknown = parser.parse_known_args()  
+        return args, unknown
     except Exception as e:
         print("check_args: {e}") 
-        return None
+        return None, None
 
 def calc_checksum(data: bytes) -> int:
     """
@@ -193,10 +189,9 @@ def find_local_IP():
     try:
         s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8",80))
-        local_ip=s.getsockname()[0]
-        print("AAA: ",local_ip)
+        local_ip=s.getsockname()[0] 
     except Exception as e:
-        print(f"\tNon è stato trovato l'IP locale: {e}")
+        print(f"Non è stato trovato l'IP locale: {e}")
         error=e
         s.close() 
     finally:

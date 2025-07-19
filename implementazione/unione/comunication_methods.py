@@ -294,11 +294,11 @@ def sniff_packet_w_callbak(args:dict=None,timeout_time=60, callback_function=sni
         check_args_sniffer(args) 
         if timeout_time is not None:
             is_valid_time(timeout_time)
-        is_callback_function(callback_function)
+        is_callback_function(callback_function) 
     except Exception as e: 
         raise Exception(f"sniff_packet_w_callbak: {e}")
     timeout_time=int(timeout_time) if timeout_time is not None else timeout_time
-    sniffer= get_AsyncSniffer(args) 
+    sniffer= get_AsyncSniffer(args)  
     timer = get_timeout_timer(timeout_time, callback_function) 
     start_sniffer(sniffer, timer) 
     return sniffer, timer 
