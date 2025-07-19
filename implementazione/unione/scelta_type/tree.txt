@@ -1,0 +1,49 @@
+.
+├── attacker.py
+├── attack_test_class.py
+├── comunication_methods.py
+├── conn_vittima.py
+├── different_type
+│   ├── attacker_different_ICMP_type.py
+│   ├── New Testo OpenDocument.odt
+│   ├── proxy_different_ICMP_type.py
+│   └── victim_different_ICMP_type.py
+├── file.txt
+├── ipv6
+│   ├── aiuto2.txt
+│   ├── aiuto.txt
+│   ├── attacker_different_ICMP_type.py
+│   └── victim_different_ICMP_type.py
+├── mymethods.py
+├── proxy.py
+├── proxy_test_class.py
+├── __pycache__
+│   ├── args_parser.cpython-312.pyc
+│   ├── checksum.cpython-312.pyc
+│   ├── comunication_methods.cpython-312.pyc
+│   ├── comunication_methods.cpython-313.pyc
+│   ├── mymethods.cpython-312.pyc
+│   └── mymethods.cpython-313.pyc
+├── scelta_type
+│   ├── aiutoerr.txt
+│   ├── aiuto.txt
+│   ├── attack_file.json
+│   ├── begin_attacker_attack.py
+│   ├── begin_proxy_attack.py
+│   ├── begin_victim_attack.py
+│   ├── __pycache__
+│   │   └── type_singleton.cpython-312.pyc
+│   ├── run_command.txt
+│   ├── stderr=aiuto.txt
+│   ├── test_attack_file copy.json
+│   ├── test.txt
+│   ├── tree.txt
+│   └── type_singleton.py
+├── test_mymethods.py
+├── test_packet
+│   └── ICMPv6_Timing_Channel_4bit.pcapng
+├── vbox_utils.odt
+├── victim.py
+└── victim_test_class.py
+
+7 directories, 40 files
