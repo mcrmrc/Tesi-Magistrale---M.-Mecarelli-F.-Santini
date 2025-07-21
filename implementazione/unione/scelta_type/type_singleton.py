@@ -162,6 +162,7 @@ class AttackType:
                     raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
                 if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+                
                 if ip_src.version==4:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and icmp[4:2]={checksum}" 
                 elif ip_src.version==6:
@@ -172,6 +173,7 @@ class AttackType:
                     raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
                 if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+                
                 if ip_src.version==4:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and icmp[4:2]={checksum}"
                 elif ip_src.version==6:
@@ -182,6 +184,7 @@ class AttackType:
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
                 if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+                
                 if ip_src.version==4:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
                 elif ip_src.version==6:
@@ -192,6 +195,7 @@ class AttackType:
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
                 if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+                
                 if ip_src.version==4:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
                 elif ip_src.version==6:
@@ -200,6 +204,7 @@ class AttackType:
             case "wait_conn_from_victim":
                 if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+                
                 if ip_src.version==4:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and icmp[4:2]={checksum}" 
                 elif ip_src.version==6:
@@ -208,12 +213,20 @@ class AttackType:
             case "wait_command_from_attacker":
                 if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+                if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+
                 if ip_src.version==4:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
                 elif ip_src.version==6:
                     return f"icmp6 and icmp6[0]==128 and src {ip_src.compressed} and dst {ip_dst.compressed}"
                 else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
             case "wait_data_from_vicitm":
+                if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
+                if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+
                 if ip_src.version==4:
                     return f"icmp and src {ip_src.compressed} and dst {ip_dst.compressed}" 
                 elif ip_src.version==6:
@@ -221,7 +234,10 @@ class AttackType:
                 else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
             case "wait_conn_from_proxy":
                 if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
-                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
+                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}") 
+                if not isinstance(checksum, int):
+                    raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
+                
                 if ip_src.version==4:
                     return f"icmp and icmp[0]==8 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}" 
                 elif ip_src.version==6:
@@ -230,9 +246,10 @@ class AttackType:
             case "wait_attacker_command":
                 if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
-                if ip_src.version==4:
+                
+                if ip_dst.version==4:
                     return f"icmp and icmp[0]==8 and dst {ip_dst.compressed}" 
-                elif ip_src.version==6:
+                elif ip_dst.version==6:
                     return f"icmp6 and icmp6[0]==128 and dst {ip_dst.compressed}" 
                 else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
             case "victim_wait_conn_from_proxy":
@@ -240,6 +257,7 @@ class AttackType:
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
                 if not isinstance(checksum, int):
                     raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
+                
                 if ip_dst.version==4:
                     return f"icmp and icmp[0]==8 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}"
                 elif ip_dst.version==6:
