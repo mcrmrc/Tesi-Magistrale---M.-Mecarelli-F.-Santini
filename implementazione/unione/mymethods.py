@@ -96,7 +96,7 @@ def calc_gateway_ipv6(ip_dst=None):
 
 def iface_src_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
     if not isinstance(addr_target, ipaddress.IPv4Address) and not isinstance(addr_target, ipaddress.IPv6Address):
-        raise Exception(f"L'indirizzo è una {type(addr_target)}. Richiesto o un 'ipaddress.IPv4Address' o un 'ipaddress.IPv6Address': ",file=sys.stderr)
+        raise Exception(f"L'indirizzo non è istanza ne di IPv4Address ne di IPv6Address",file=sys.stderr)
     result_output = None
     try:
         #print(f"Indirizzo IPv{addr_target.version}: {addr_target.compressed}")
