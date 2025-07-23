@@ -7,14 +7,13 @@
         ,{"vm_vittima":"fe80::43cc:4881:32d7:a33e" }
 
         ,{"1vm_proxy1":"192.168.56.104"}
-        ,{"2vm_proxy1":"fe80::d612.a36:a:59a1:f465"}
+        ,{"2vm_proxy1":"fe80::d612:a36a:59a1:f465"}
 
         ,{"vm_proxy2":"192.168.56.105"}
-        ,{"test":"192.168.56.xxx"}
-        ,{"not_used":"192.168.56.1"}
-        ,{"vm_tesi2_vittima":"fe80::43cc:4881:32d7:a33e"}
+        
         
         ,{"v6_test5_wrong":"fe80::43cc:4881:32d7::43cc"}
+        ,{"test":"192.168.56.xxx"}
     ]
     ,"attack_function":"ipv4_timing_channel_1bit"
 }
