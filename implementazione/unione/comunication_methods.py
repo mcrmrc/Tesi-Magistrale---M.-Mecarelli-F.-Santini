@@ -17,7 +17,7 @@ CONFIRM_VICTIM="__CONFIRM_VICTIM__"
 CONFIRM_PROXY="__CONFIRM_PROXY__"
 CONFIRM_COMMAND="__CONFIRM_COMMAND__"
 LAST_PACKET="__LAST_PACKET__"
-START="__START__"
+WAIT_DATA="__WAIT_DATA__"
 END_COMMUNICATION="__END_COMMUNICATION__"
 END_DATA="__END_DATA__"
 
@@ -318,18 +318,18 @@ def sniff_packet(args:dict=None,timeout_time=60, event:threading.Event=None):
     start_sniffer(sniffer, timer) 
     return sniffer, timer 
 #------------------------
-def setup_thread_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None,callback_function=None): 
+def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None,callback_function=None): 
     try: 
         if not is_callback_function(callback_function):
             raise Exception(f"callback_function non valida {callback_function}")
-        if not is_list(proxy_list) or len(proxy_list)<=0:
+        if not is_list(address_list) or len(address_list)<=0:
             raise Exception(f"lista non valida")
     except Exception as e:
         raise Exception(f"setup_thread_4_foreach_proxy: {e}")
     thread_lock=threading.Lock()
-    thread_proxy_response={}
+    thread_response={}
     thread_list={}
-    for proxy in proxy_list:
+    for proxy in address_list:
         if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
             print(f"***\t{proxy} non è un indirizzo valido")
             continue
@@ -339,11 +339,11 @@ def setup_thread_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.I
         )
         thread.name=f"Thread-{proxy.compressed}"
         thread_list.update({proxy.compressed:thread})
-        thread_proxy_response.update({proxy.compressed:False}) 
+        thread_response.update({proxy.compressed:False}) 
     print(f"Definito il threading lock per quando si accede alle risposte dei proxy") #print(f"Lock creato:\t{thread_lock}")
     print("Definito per ogni proxy il proprio Thread") #print(f"Thread creati:\t{thread_list}")
     print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
-    return thread_lock, thread_proxy_response, thread_list
+    return thread_lock, thread_response, thread_list
 
 def get_mac_by_ipv6(ipv6_dst: str, ipv6_src: str, iface_name: str):
     try:
