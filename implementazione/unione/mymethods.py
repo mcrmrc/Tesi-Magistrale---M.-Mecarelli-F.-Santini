@@ -21,6 +21,7 @@ systemsDictionary={
     'wasi':"WASI" 
 }
 
+#------PARSER METHODS------
 def add_argument(param_arg, parser=None):
     if parser is None:
         raise Exception("Parser nullo")
@@ -55,6 +56,7 @@ def check_for_unknown_args(parser: argparse.ArgumentParser = None):
         print("check_args: {e}") 
         return None, None
 
+#------CHECKSUM------
 def calc_checksum(data: bytes) -> int:
     """
     Calculate the Internet checksum for the given data.
@@ -78,6 +80,7 @@ def calc_checksum(data: bytes) -> int:
     print(f"\tThe checksum of {data} is {checksum}")
     return checksum
 
+#------INTERFACE & GATEWAY------
 def calc_gateway(ip_dst=None):
     ip_reg_pattern=r"\d+\.\d+\.\d+\.\d+" 
     if type(ip_dst) is not str or re.match(ip_reg_pattern, ip_dst) is None :
@@ -171,18 +174,6 @@ def default_iface():
         return iface
     return None 
 
-
-
-def sanitize(stringa):
-    if type(stringa) is not str or string is None:
-        raise Exception("Stringa non valida")
-    stringa = ''.join(
-        char if char in string.printable 
-        else'' 
-        for char in stringa
-    ) 
-    return stringa.strip() 
-
 def find_local_IP():
     local_ip=None
     error=""
@@ -201,6 +192,7 @@ def find_local_IP():
 def find_public_IP():
     return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
 
+#------SHELL METHODS------
 def getShellProcess():
     if sys.platform == "win32":
         print("Il sistema è Windows...")
@@ -227,4 +219,26 @@ def getShellProcess():
         "Sistema operativo non supportato per l'apertura della shell"
     )
 
+#------STRING METHODS------
+def sanitize(stringa):
+    if type(stringa) is not str or string is None:
+        raise Exception("Stringa non valida")
+    stringa = ''.join(
+        char if char in string.printable 
+        else'' 
+        for char in stringa
+    ) 
+    return stringa.strip() 
 
+
+#------BOOLEAN METHODS------
+def is_scelta_SI_NO(scelta:str=None):
+    if not isinstance(scelta,str): 
+         return False
+    is_scelta_yes=False 
+    whitebox=["yes","si","yeah"]
+    for x in whitebox:
+        if scelta!="" and (is_scelta_yes or x.startswith(scelta) or x in scelta):
+            is_scelta_yes=True
+            break 
+    return is_scelta_yes
