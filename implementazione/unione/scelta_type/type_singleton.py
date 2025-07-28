@@ -33,14 +33,11 @@ class AttackType:
             list_function_attack={}
             for key,val in self.attack_dict.items():
                 if str(key)==str(attack_name) or str(val)==str(attack_name):
-                    list_function_attack[key]=val 
-            #print("self.used_attack: ",list_function_attack) 
-            #if len(list_function_attack)>0: 
-            #    return list_function_attack
-            #self.print_available_attacks() 
+                    list_function_attack[key]=val  
             return list_function_attack
         except Exception as e:
-            raise Exception(f"Exception: {e}")
+            print(f"Exception: {e}") 
+            return None
     
     def print_available_attacks(self):
         print("Gli attacchi disponibili sono:")
@@ -65,7 +62,7 @@ class AttackType:
         dict_to_check=self.attack_dict 
         result_input=True
         while True: 
-            print_dictionary(dict_to_check)
+            mymethods.print_dictionary(dict_to_check)
             msg="Scegli il nome o il codice della funzione:\t"
             try:
                 scelta=str(input(msg)).lower().strip()
@@ -89,7 +86,7 @@ class AttackType:
                 dict_to_check=func_trovate 
             else:
                 raise Exception(f"Unknown case with len(func_trovate): {len(func_trovate)}")
-            if not is_scelta_SI_NO(result_input):
+            if not mymethods.is_scelta_SI_NO(result_input):
                 print("Si è scelto di non continuare")
                 return None
         
@@ -225,23 +222,4 @@ class AttackType:
         
     
 
-def is_scelta_SI_NO(scelta:str=None):
-    if not isinstance(scelta,str): 
-         return False
-    is_scelta_yes=False 
-    whitebox=["yes","si","yeah"]
-    for x in whitebox:
-        if scelta!="" and (is_scelta_yes or x.startswith(scelta) or x in scelta):
-            is_scelta_yes=True
-            break 
-    return is_scelta_yes
 
-def print_dictionary(dictionary:dict=None):
-    if not isinstance(dictionary,dict):
-        raise Exception("print_dictionary: Dizionario passato non valido") 
-    elif len(dictionary)<=0:
-        print("Il dizionario è vuoto")
-        return
-    print("Valori presenti:")
-    for key, value in dictionary.items():
-        print(f"\t{key}\t{value}")
