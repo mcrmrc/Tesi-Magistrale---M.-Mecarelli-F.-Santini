@@ -17,6 +17,7 @@ CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
 CONFIRM_VICTIM="__CONFIRM_VICTIM__"
 CONFIRM_PROXY="__CONFIRM_PROXY__"
 CONFIRM_COMMAND="__CONFIRM_COMMAND__"
+ATTACK_FUNCTION="__ATTACK_FUNCTION__"
 LAST_PACKET="__LAST_PACKET__"
 WAIT_DATA="__WAIT_DATA__"
 END_COMMUNICATION="__END_COMMUNICATION__"
@@ -27,20 +28,22 @@ exit_cases=["exit","quit",END_COMMUNICATION]
 #------------------------
 def is_callback_function(callback_function=None):
     #the type of a function can be 'function' or 'method'
-    if callback_function is None or not callable(callback_function):
+    if not callable(callback_function):
         print(f"is_callback_function: Callback function invalida {callback_function}") 
         return False
     return True
 
-def is_valid_ipaddress(ip_address:str): 
-    if not isinstance(ip_address, str):
-        print(f"is_valid_ipaddress: ip_address non è una stringa: {type(ip_address)}")
-        return None
-    try:
-        return ipaddress.ip_address(ip_address) 
-    except Exception as e:
-        print(f"is_valid_ipaddress: {e}", file=sys.stderr)  
-        return None 
+def is_valid_ipaddress(ip_address:ipaddress.IPv4Address): 
+    if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
+        return True
+    elif isinstance(ip_address, str):
+        try:
+            ipaddress.ip_address(ip_address) 
+            return True
+        except Exception as e:
+            print(f"is_valid_ipaddress: {e}", file=sys.stderr)  
+            return False 
+    else: return False
 
 def is_valid_time(timeout_time:int|float=None):    
     if not isinstance(timeout_time, (int, float)):
@@ -229,10 +232,10 @@ def start_sniffer(sniffer:AsyncSniffer=None, timer:threading.Timer=None):
 def stop_sinffer(sniffer:AsyncSniffer=None): 
     if not is_AsyncSniffer(sniffer):
         raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}") 
-    if sniffer.running(): 
+    if sniffer.running: 
         sniffer.stop() 
         print("Sniffer Stopped")
-        if sniffer.running():
+        if sniffer.running:
             print("\t***sniffer still alive")
         return True
     return False 
@@ -261,7 +264,7 @@ def sniffer_timeout(sniffer:AsyncSniffer=None,threading_event:threading.Event=No
 
 
 #------------------------
-def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, time=10,icmp_seq=0,id=None,interface=""):
+def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, time=10,icmp_seq:int=0,icmp_id:int=None,interface=""):
     try:
         if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
             raise Exception("iip_dst non è ne istanza di IPv4Address ne IPv6Address")
@@ -269,7 +272,7 @@ def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Addre
             raise Exception(f"I dati non sono bytes: {type(data)}")
     except Exception as e:
         raise Exception(f"send_packet: {e}") 
-    if id is None:
+    if icmp_id is None:
         icmp_id=mymethods.calc_checksum(data) 
     pkt = IP(dst=ip_dst.compressed)/ICMP(id=icmp_id,seq=icmp_seq) / data  
     print(f"\tSending {pkt.summary()}") 
@@ -304,12 +307,12 @@ def sniff_packet(args:dict=None,timeout_time=60, event:threading.Event=None):
             is_valid_time(timeout_time)
         is_threading_Event(event) 
     except Exception as e: 
-        raise Exception(f"sniff_packet: {e}") 
-    sniffer= get_AsyncSniffer(args) 
-    callback_function=lambda: sniffer_timeout(sniffer, event)
-    timeout_time=int(timeout_time) if timeout_time is not None else timeout_time
-    timer = get_timeout_timer(timeout_time, callback_function) 
-    start_sniffer(sniffer, timer) 
+        raise Exception(f"sniff_packet: {e}")  
+    sniffer= get_AsyncSniffer(args)  
+    callback_function=lambda: sniffer_timeout(sniffer, event) 
+    timeout_time=int(timeout_time) if timeout_time is not None else timeout_time 
+    timer = get_timeout_timer(timeout_time, callback_function)  
+    start_sniffer(sniffer, timer)  
     return sniffer, timer 
 #------------------------
 def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None,callback_function=None): 
