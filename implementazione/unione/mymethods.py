@@ -253,5 +253,8 @@ def print_dictionary(dictionary:dict=None):
     for key, value in dictionary.items():
         print(f"\t{key}\t\t{value}") 
 
-
+def ask_bool_choice(msg:str):
+    if not isinstance(msg, str):
+        raise Exception("ask_bool_choice: Il messaggio non è una stringa")
+    return is_scelta_SI_NO(input(f"{msg}"))
 
