@@ -15,5 +15,5 @@
         ,{"v6_test5_wrong":"fe80::43cc:4881:32d7::43cc"}
         ,{"test":"192.168.56.xxx"}
     ]
-    ,"attack_function":"ipv4_5"
+    ,"attack_function":"ipv4_12"
 }
