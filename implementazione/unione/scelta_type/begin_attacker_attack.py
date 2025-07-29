@@ -281,8 +281,7 @@ class Attacker:
             print(f"__init__ connected proxy: {e}", file=sys.stderr)
             exit(1)  
         
-        try: 
-            
+        try:  
             self.send_command_to_victim() 
         except Exception as e:
             print(f"__init__ send command: {e}") 
@@ -348,9 +347,7 @@ class Attacker:
                     socket.sendall(com.WAIT_DATA.encode())  
             
             for thread in self.thread_list.values(): 
-                thread.join()  
-            
-
+                thread.join()   
             print("Separazione dati per SEQ") 
             try:
                 print("ABCDEFG: ",self.received_data)
@@ -389,7 +386,7 @@ class Attacker:
             self.data_lock.acquire() 
             proxy_data.append(data) 
             self.data_lock.release()
-            #print("proxy_data: ",proxy_data)
+            print(f"Received from proxy: {proxy_data}")
             if com.LAST_PACKET.encode() in data:
                 break
         print("Received all data") 
