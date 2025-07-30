@@ -11,8 +11,7 @@ import re
 import random
 import threading
 from functools import partial 
-import json
-import type_singleton as singleton
+import json 
 import socket
 
 file_path = "../comunication_methods.py"
