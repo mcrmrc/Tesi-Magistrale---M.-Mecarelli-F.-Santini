@@ -1927,7 +1927,7 @@ def get_filter_attack_from_function(self,function_name:str=None, ip_dst=None, ch
             TYPE_ECHO_REPLY=129 
             return f"icmp6 and (icmp6[0]=={TYPE_ECHO_REQUEST} or icmp6[0]=={TYPE_ECHO_REPLY})" # and dst {ip_host}"   
 
-def get_filter_connection_from_function(function_name:str=None, ip_src=None, checksum:int=None, ip_dst=None, interface=None):   
+def get_filter_connection_from_function(function_name:str=None, ip_src=None, checksum:int=None, ip_dst=None, interface=None): 
     IPv4_ECHO_REQUEST_TYPE=8
     IPv4_ECHO_REPLY_TYPE=0
     IPv6_ECHO_REQUEST_TYPE=128
@@ -1984,14 +1984,14 @@ def get_filter_connection_from_function(function_name:str=None, ip_src=None, che
                 return f"icmp6 and icmp6[0]==128 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}" 
             else: print(f"Caso non contemplato: {ip_src.version}") 
         #---------------------
-        case "wait_attacker_command"| "victim_wait_conn_from_proxy": 
+        case "wait_attacker_command"| "victim_wait_conn_from_proxy" | "wait_icmpEcho_dst": 
             if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
                 raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
                 
             if ip_dst.version==4:
-                return f"icmp and icmp[0]==8 and dst {ip_dst.compressed}" 
+                return f"icmp and icmp[0]=={IPv4_ECHO_REQUEST_TYPE} and dst {ip_dst.compressed}" 
             elif ip_dst.version==6:
-                return f"icmp6 and icmp6[0]==128 and dst {ip_dst.compressed}" 
+                return f"icmp6 and icmp6[0]=={IPv6_ECHO_REQUEST_TYPE} and dst {ip_dst.compressed}" 
             else: print(f"Caso non contemplato: {ip_src.version}") 
         #---------------------
         case "":
