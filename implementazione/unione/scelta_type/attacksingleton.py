@@ -27,25 +27,25 @@ def send_data(attack_function:dict, data:bytes=None, ip_dst:ipaddress.IPv4Addres
     singleton=SendSingleton() 
     attack_code=next(iter(attack_function.items()))[0]
     match attack_code:
-        case "ipv4_12"|"ipv4_information_reply"|"ipv4_11"|"ipv4_information_request": return singleton.ipv4_information_reply(data,ip_dst)
-        case "ipv4_19"|"ipv4_timestamp_reply"|"ipv4_9"|"ipv4_timestamp_request": return singleton.ipv4_timestamp_reply(data,ip_dst)
-        case "ipv4_3"|"ipv4_redirect": return singleton.ipv4_redirect(data,ip_dst)
-        case "ipv4_2"|"ipv4_source_quench": return singleton.ipv4_source_quench(data,ip_dst)
-        case "ipv4_8"|"ipv4_parameter_problem": return singleton.ipv4_parameter_problem(data,ip_dst)   
-        case "ipv4_7"|"ipv4_time_exceeded": return singleton.ipv4_time_exceeded(data,ip_dst)
         case "ipv4_1"|"ipv4_destination_unreachable": return singleton.ipv4_destination_unreachable(data,ip_dst)
+        case "ipv4_2"|"ipv4_source_quench": return singleton.ipv4_source_quench(data,ip_dst)
+        case "ipv4_3"|"ipv4_redirect": return singleton.ipv4_redirect(data,ip_dst) 
         case "ipv4_4"|"ipv4_timing_channel_1bit": return singleton.ipv4_timing_channel_1bit(data,ip_dst)
         case "ipv4_5"|"ipv4_timing_channel_2bit": return singleton.ipv4_timing_channel_2bit(data,ip_dst)
         case "ipv4_6"|"ipv4_timing_channel_4bit": return singleton.ipv4_timing_channel_4bit(data,ip_dst)
+        case "ipv4_7"|"ipv4_time_exceeded": return singleton.ipv4_time_exceeded(data,ip_dst)
+        case "ipv4_8"|"ipv4_parameter_problem": return singleton.ipv4_parameter_problem(data,ip_dst)   
+        case "ipv4_10"|"ipv4_timestamp_reply"|"ipv4_9"|"ipv4_timestamp_request": return singleton.ipv4_timestamp_reply(data,ip_dst)
+        case "ipv4_12"|"ipv4_information_reply"|"ipv4_11"|"ipv4_information_request": return singleton.ipv4_information_reply(data,ip_dst)
         
-        case "ipv6_9"|"ipv6_information_reply"|"ipv6_8"|"ipv6_information_request": return singleton.ipv6_information_reply(data,ip_dst)
-        case "ipv6_4"|"ipv6_parameter_problem": return singleton.ipv6_parameter_problem(data,ip_dst)
-        case "ipv6_3"|"ipv6_time_exceeded": return singleton.ipv6_time_exceeded(data,ip_dst)
-        case "ipv6_2"|"ipv6_packet_to_big": return singleton.ipv6_packet_to_big(data,ip_dst)
         case "ipv6_1"|"ipv6_destination_unreachable": return singleton.ipv6_destination_unreachable(data,ip_dst)
+        case "ipv6_2"|"ipv6_packet_to_big": return singleton.ipv6_packet_to_big(data,ip_dst)
+        case "ipv6_3"|"ipv6_time_exceeded": return singleton.ipv6_time_exceeded(data,ip_dst) 
+        case "ipv6_4"|"ipv6_parameter_problem": return singleton.ipv6_parameter_problem(data,ip_dst)
         case "ipv6_5"|"ipv6_timing_channel_1bit": return singleton.ipv6_timing_channel_1bit(data,ip_dst)
         case "ipv6_6"|"ipv6_timing_channel_2bit": return singleton.ipv6_timing_channel_2bit(data,ip_dst)
         case "ipv6_7"|"ipv6_timing_channel_4bit": return singleton.ipv6_timing_channel_4bit(data,ip_dst)
+        case "ipv6_9"|"ipv6_information_reply"|"ipv6_8"|"ipv6_information_request": return singleton.ipv6_information_reply(data,ip_dst)
     print("Caso non contemplato")
     return None
 
@@ -90,7 +90,7 @@ class SendSingleton():
             current_time=datetime.datetime.now(datetime.timezone.utc) 
             midnight = current_time.replace(hour=0, minute=0, second=0, microsecond=0) 
 
-            data_pkt=int.from_bytes(data[index+2:index+3])  *10**3
+            data_pkt=int.from_bytes(data[index+2:index+3]) *10**3
             current_time=current_time.replace(microsecond=data_pkt)
             icmp_ts_ori=int((current_time - midnight).total_seconds() * 1000) 
             #icmp_ts_ori= int.from_bytes(data[index+2:index+5])  #(ms_since_midnight << 24) |  
@@ -224,20 +224,26 @@ class SendSingleton():
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        interface,_=mymethods.iface_src_from_IP(ip_dst) 
         TYPE_DESTINATION_UNREACHABLE=3 
         for index in range(0, len(data), 8):
-            dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+4:index+6])) / \
+            dummy_ip=IP(src=ip_dst.compressed, dst="8.8.8.8", len=int.from_bytes(data[index+4:index+6])) / \
                 ICMP(id=int.from_bytes(data[index+6:index+8]))
             pkt= IP(dst=ip_dst.compressed)/\
                 ICMP(type=TYPE_DESTINATION_UNREACHABLE, unused=int.from_bytes(data[index:index+4]) )/\
                 Raw(load=dummy_ip)
             #print(f"Sending {pkt.summary()}") 
-            ans = send(pkt, verbose=1) 
-        dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
+            print(f"Data: {data[index:index+4]}\t{int.from_bytes(data[index:index+4])}")
+            print(f"Data: {data[index+4:index+6]}\t{int.from_bytes(data[index+4:index+6])}") 
+            print(f"Data: {data[index+6:index+8]}\t{int.from_bytes(data[index+6:index+8])}")
+            print(pkt.show())
+            if pkt:
+                ans = send(pkt, verbose=1, iface=interface) 
+        dummy_ip=IP(src=ip_dst.compressed, dst="8.8.8.8") / ICMP(id=0,seq=1)
         pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_DESTINATION_UNREACHABLE)/Raw(load=dummy_ip)
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
+        #print(f"Sending {pkt.summary()}")  
+        print(f"interface: {interface}")
+        ans = send(pkt, verbose=1, iface=interface) 
         if ans: 
             return True  
         return False  
@@ -264,8 +270,8 @@ class SendSingleton():
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
 
         bit_data=[]
-        for piece_data in data: #BIG ENDIAN
-            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
+        for piece_data in data: #byte aggiunti in BIG ENDIAN 
+            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #bit aggiunti in LSB 
             #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
             bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
         start_time=datetime.datetime.now(datetime.timezone.utc) 
@@ -982,8 +988,8 @@ def callback_v6_time_exceeded(event_pktconn,data ):
         return callback
 
 def callback_v6_parameter_problem(event_pktconn,data ): 
-        TYPE_INFORMATION_REPLY=129
-        TYPE_PARAMETER_PROBLEM=4  
+        #TYPE_INFORMATION_REPLY=129
+        #TYPE_PARAMETER_PROBLEM=4  
         def callback(packet): 
             field=None 
             if (layer:=packet.getlayer("IPv6")) is not None:  
@@ -1005,7 +1011,7 @@ def callback_v6_parameter_problem(event_pktconn,data ):
                         data.append(field.to_bytes(2,"big").decode()) 
         return callback
 
-def callback_v6_information_request(event_pktconn,data ):
+def callback_v6_information_request(event_pktconn, data):
         def callback(packet): 
             if packet.haslayer(IPv6) and (packet.haslayer(ICMPv6EchoReply) or packet.haslayer(ICMPv6EchoRequest)):  
                 icmp_echo_type=(
@@ -1561,7 +1567,7 @@ class ReceiveSingleton():
         return False  
 
     def ipv6_parameter_problem(self, ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None): 
-        parameter_problem_data=[]
+        parameter_problem_data=[] 
         if not com.is_IPAddress(ip_host) or not com.is_list(final_data): 
             raise Exception(f"Argoemnti non corretti") 
         TYPE_PARAMETER_PROBLEM=4   

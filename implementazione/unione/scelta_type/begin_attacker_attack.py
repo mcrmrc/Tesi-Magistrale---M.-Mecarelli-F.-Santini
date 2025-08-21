@@ -32,8 +32,33 @@ import attacksingleton
 
 
 #-----------------------------------------
+def separa_dati_byID(received_data:dict[str,list]):
+    dati_separati:dict[str,list]=[]
+    unindent_data=[]
+    ## dati_separati={id:lista}
+    for list_data in received_data.values(): 
+        if isinstance(list_data, bytes):
+                list_data=list_data.decode()
+        else: print(type(data))
+        for data in list_data.split("||"): 
+            unindent_data.append([x for x in data])
+    #print("unindent_data: ",unindent_data)    
+    for list_data in unindent_data:
+        #print("list_data: ",list_data)
+        #print(f"\t***{list_data}")
+        if isinstance(list_data, bytes):
+                list_data=list_data.decode()
+        else: print(type(data))
+        list_data=list_data.split("&&")
+        if len(list_data)!=2:
+            print(f"Errore. Length is {len(list_data)}\t{list_data}")
+            continue
+        if dati_separati.get(list_data[0]) is None:
+            dati_separati.update({list_data[0]:[]}) 
+        dati_separati.get(list_data[0]).append(list_data[1]) 
+    return dati_separati
 
-def separa_dati_byID(received_data:dict[str,list], dati_separati:dict[str,list]):
+def old_separa_dati_byID(received_data:dict[str,list], dati_separati:dict[str,list]):
     unindent_data=[]
     ## dati_separati={id:lista}
     for list_data in received_data.values():
@@ -123,7 +148,9 @@ def elimina_proxy_nonconnessi(thread_lock:threading.Lock=None, thread_response:d
         except Exception as e:
             print(f"check_available_proxies: {proxy} not present in list. {e}")
 
-def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipaddress.IPv4Address, callback_function, dict_proxy_socket:dict, thread_list:dict[str,threading.Thread], attack_function:dict):
+def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipaddress.IPv4Address, callback_function, attack_function:dict):
+    dict_proxy_socket:dict[str,socket.socket]={} 
+    thread_list:dict[str,threading.Thread]={} 
     #unconnected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[] 
     for proxy in proxy_list.copy(): 
         #basic_socket
@@ -133,7 +160,7 @@ def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipadd
             socket_proxy.connect((proxy.compressed, 4567)) #("192.168.56.104", 4567)
             #print(f"Socket: {socket_4_proxy}")
         except Exception as e:
-            print(f"Socket {proxy} get_connected_proxy: {e}")
+            print(f"Socket {proxy} get_connected_proxy: {e}") 
             socket_proxy.close() 
             proxy_list.pop(proxy_list.index(proxy))
             continue 
@@ -156,6 +183,7 @@ def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipadd
         ) 
         thread_list.update({proxy.compressed:thread})
         thread.start() 
+    return thread_list, dict_proxy_socket
     
 #----------------------------------------- 
 def set_proxy_list(config_file):
@@ -174,42 +202,49 @@ def set_proxy_list(config_file):
     return proxy_list
 
 def setIP_host():
-        ip, errore=mymethods.find_local_IP() 
-        if ip is None:
-            ip="192.168.56.104"
-        ip_host=ipaddress.ip_address(ip)        
-        if not isinstance(ip_host, ipaddress.IPv4Address) and not isinstance(ip_host, ipaddress.IPv6Address):
-            #print(f"Coulnd't get ip: {errore}") if ip_host is None else print(ip_host)
-            raise ValueError(f"L'indirizzo IP del host non è valido: {ip_host}:{errore}") 
-        return ip_host
+    while True:
+        try:
+            ip_host, errore=mymethods.find_local_IP() 
+            if ip_host is not None and ipaddress.ip_address(ip_host): 
+                ip_host=ipaddress.ip_address(ip_host) 
+                print("***IP host: ",type(ip_host),ip_host)
+            else:
+                print(f"Errore nel trovare l'IP locale: {errore}")
+                msg="Inserire indirizzo IP dell'host:\n\t#" 
+                ip_host=ipaddress.ip_address(input(msg))  
+                #self.ip_host=ipaddress.ip_address("192.168.56.104") #TODO eliminare alla fine
+                print("***IP host: ",type(ip_host),ip_host)
+            return ip_host
+        except Exception as e:
+                print(f"setIP_host: {e}") 
 
 def setIP_vittima(config_file):
-        ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))  
-        if ip_vittima is None or not (isinstance(ip_vittima, ipaddress.IPv4Address) or isinstance(ip_vittima, ipaddress.IPv6Address)):
-            raise ValueError(f"L'indirizzo IP della vittima non è valido: {ip_vittima}") 
-        return ip_vittima
+    ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))  
+    if ip_vittima is None or not (isinstance(ip_vittima, ipaddress.IPv4Address) or isinstance(ip_vittima, ipaddress.IPv6Address)):
+        raise ValueError(f"L'indirizzo IP della vittima non è valido: {ip_vittima}") 
+    return ip_vittima
 
 def attack_type(json_file): 
-        attack_function = attacksingleton.AttackType().get_attack_function(json_file.get("attack_function"))
-        if not isinstance(attack_function, dict) or len(attack_function.items())!=1:
-            print(f"Funzione di attacco non definita ",
-                f"non è un dizionario ma {type(attack_function)}" if not isinstance(attack_function, dict) 
-                else f"funzioni ricavate {len(attack_function.items())}" if len(attack_function.items())!=1
-                else None
-            )
-            attack_function=attacksingleton.choose_attack_function() 
-        return attack_function
+    attack_function = attacksingleton.AttackType().get_attack_function(json_file.get("attack_function"))
+    if not isinstance(attack_function, dict) or len(attack_function.items())!=1:
+        print(f"Funzione di attacco non definita ",
+            f"non è un dizionario ma {type(attack_function)}" if not isinstance(attack_function, dict) 
+            else f"funzioni ricavate {len(attack_function.items())}" if len(attack_function.items())!=1
+            else None
+        )
+        attack_function=attacksingleton.choose_attack_function() 
+    return attack_function
 
 def load_config_file(default_file_path, path_of_file): 
-        if not os.path.exists(path_of_file) or not str(path_of_file).endswith(".json"):
-            if os.path.exists(default_file_path):
-                print(f"\tFile di configurazione {file_path}  non trovato, si usa quello di default")
-                path_of_file=default_file_path
-            else: 
-                raise FileNotFoundError(f"I file {path_of_file} e {default_file_path} non esistono")
-        with open(path_of_file, 'r') as file: 
-            print(f"File di configurazione {path_of_file} caricato correttamente") 
-            return json.load(file) 
+    if not os.path.exists(path_of_file) or not str(path_of_file).endswith(".json"):
+        if os.path.exists(default_file_path):
+            print(f"\tFile di configurazione {file_path}  non trovato, si usa quello di default")
+            path_of_file=default_file_path
+        else: 
+            raise FileNotFoundError(f"I file {path_of_file} e {default_file_path} non esistono")
+    with open(path_of_file, 'r') as file: 
+        print(f"File di configurazione {path_of_file} caricato correttamente") 
+        return json.load(file) 
 
 def check_value_in_parser(args):
     if not isinstance(args,argparse.Namespace): 
@@ -262,12 +297,10 @@ class Attacker:
             print(f"__init__ main variable: {e}", file=sys.stderr)
             exit(1)  
         
-        try:
-            self.dict_proxy_socket:dict[str,socket.socket]={} 
-            self.thread_list:dict[str,threading.Thread]={} 
-            get_connected_proxy(
+        try: 
+            self.thread_list, self.dict_proxy_socket=get_connected_proxy(
                 self.proxy_list, self.ip_vittima, self.wait_proxy_update, 
-                self.dict_proxy_socket, self.thread_list, self.attack_function
+                self.attack_function
             )  
             print(f"Got all connected proxy") 
             if len(self.proxy_list)<=0:
@@ -299,15 +332,19 @@ class Attacker:
             proxy_socket=self.dict_proxy_socket.get(proxy.compressed)
             confirm_text=com.CONFIRM_VICTIM + self.ip_vittima.compressed+proxy.compressed  
             data_received=proxy_socket.recv(1024).decode()
-            if confirm_text in data_received: 
-                result=data_received.replace(confirm_text,"")
-                print(f"{proxy} è connesso alla vittima? {type(result)} {result}")
-                if result!="True":
-                    print(f"Proxy {proxy} non connesso alla vittima")
-                    self.dict_proxy_socket.pop(proxy.compressed)
-                    proxy_socket.close()  
-                    self.proxy_list.pop(self.proxy_list.index(proxy)) 
-                    return False 
+            if confirm_text not in data_received: 
+                self.dict_proxy_socket.pop(proxy.compressed)
+                proxy_socket.close()  
+                self.proxy_list.pop(self.proxy_list.index(proxy)) 
+                raise Exception(f"{proxy.compressed}: dati ricevuti invalidi {data_received}")
+            result=data_received.replace(confirm_text,"")
+            print(f"{proxy} è connesso alla vittima? {type(result)} {result}")
+            if result!="True":
+                print(f"Proxy {proxy} non connesso alla vittima")
+                self.dict_proxy_socket.pop(proxy.compressed)
+                proxy_socket.close()  
+                self.proxy_list.pop(self.proxy_list.index(proxy)) 
+                return False 
             print(f"Proxy {proxy} connesso alla vittima")
             return True
         except Exception as e:
@@ -350,7 +387,7 @@ class Attacker:
             print("Separazione dati per SEQ") 
             try:
                 print("ABCDEFG: ",self.received_data)
-                separa_dati_byID(self.received_data, self.dati_separati) 
+                self.dati_separati= separa_dati_byID(self.received_data) 
                 print("ABCDEFG: ",self.dati_separati)
             except Exception as e:
                 print(f"send_command_to_victim separa: {e}")
@@ -428,5 +465,4 @@ class Attacker:
     
 
 if __name__=="__main__": 
-    Attacker()
-    #Fare 2a parte
+    Attacker() 
