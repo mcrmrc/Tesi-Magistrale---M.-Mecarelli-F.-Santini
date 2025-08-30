@@ -3,6 +3,11 @@
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 
+%\usepackage[english]{babel}
+%\usepackage[italian]{babel}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 %\usepackage[english]{babel}
 \usepackage[italian]{babel}
@@ -13,29 +18,60 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{mathrsfs}
-\usepackage{stackengine}
+\usepackage{stackengine} 
 \usepackage{algpseudocode}
-\usepackage{caption}
+\usepackage{caption} 
+\usepackage{minted}
 
-\usepackage{graphicx}
-\usepackage[utf8]{inputenc}
+\usepackage{graphicx} 
 
-
-\usepackage[table,xcdraw]{xcolor}
-\usepackage{setspace}
-\usepackage{amssymb}
-\usepackage{amsthm}
+\usepackage[table,xcdraw, dvipsnames]{xcolor}
+\usepackage{setspace} 
 
 \usepackage{listings}
 \usepackage{import}
 \usepackage[normalem]{ulem}
 
+\usepackage{bytefield} 
+
+\usepackage[table,xcdraw]{xcolor} 
+
+\usepackage{url}
+
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\newcommand\myworries[1]{\textcolor{red}{#1}}
+
+\usepackage{enumitem}
+\usepackage{float} 
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage{todonotes}
+\usepackage{amsmath, amssymb}
+\usepackage{placeins} 
+ 
+\usepackage{array}
+\usepackage{booktabs} 
+\usepackage{pifont}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\cmark}{\ding{51}} 
+
+\usepackage[square,numbers]{natbib}
+
+\usepackage{changepage} 
+%\usepackage{showframe}
+
 \newtheorem{definizione}{Definizione}[section]
 
-\newtheorem{teorema}{Teorema}[section]
-\newtheorem{lemma}{Lemma}[section]
-\newtheorem{proposizione}{Proposizione}[section]
-\newtheorem{corollario}{Corollario}[section]
+\newtheorem{teorema}{Theorem}[section] 
+\newtheorem{lemma}{Lemma}[teorema] %[section]  
+\newtheorem{corollario}{Corollary}[teorema] %[section]
+
+\newtheorem{lemm}{Lemma}[section]
+\newtheorem{teorem}{Teorema}[lemm] 
+\newtheorem{proposizione}{Proposizione}[lemm] %[section] 
+\newtheorem{corollari}{Corollario} [lemm] 
+\newtheorem{esempi}{Esempio} [lemm]
 
 \newtheorem{dimostrazione}{Dimostrazione}[section]
 
@@ -49,7 +85,61 @@
 \newtheorem{esempioT}{Esempio}[teorema]
 \newtheorem{esempioL}{Esempio}[lemma]
 \newtheorem{esempioP}{Esempio}[proposizione]
-\newtheorem{esempioC}{Esempio}[corollario]
+\newtheorem{esempioC}{Esempio}[corollario]   
+
+\newcommand{\cvd}{\begin{flushright}$\Box$\end{flushright}}
+\newcommand{\tr}{{\rm Tr}\;}
+\newcommand{\eq}{\begin{equation}}
+\newcommand{\feq}{\end{equation}}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+ 
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+% package italiano
+%
+% Opzionale
+%
+%\renewcommand{\contentsname}{Sommario}
+%\renewcommand{\listfigurename}{List of Figures}
+%\renewcommand{\listtablename}{List of Tables}
+%\renewcommand{\bibname}{Bibliografia}
+%\renewcommand{\indexname}{Indice}
+%\renewcommand{\figurename}{Figura}
+%\renewcommand{\tablename}{Tavola}
+%\renewcommand{\partname}{Parte}
+%\renewcommand{\chaptername}{Capitolo}
+%\renewcommand{\appendixname}{Appendice}
+%\renewcommand{\abstractname}{Abstract}
+%\renewcommand{\footnotesize}{\scriptsize}
+%\renewcommand{\today}{\ifcase\month\or
+%  Gennaio\or Febbraio\or Marzo\or Aprile\or Maggio\or Giugno\or
+%  Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
+%  \space\number\day, \number\year}
+
+% package formato
+\pagestyle{plain}
+%\setlength{\topmargin}{0.0in}
+%\setlength{\headheight}{0.2in}
+%\setlength{\headsep}{0.0in}
+%\setlength{\footskip}{0.5in}
+%\setlength{\textheight}{8.3in}
+\setlength{\textwidth}{6in}
+\setlength{\oddsidemargin}{0.2in}
+\setlength{\evensidemargin}{0.2in}
+\setlength{\parindent}{0.2 in}
+\onehalfspacing
+
+
+\def\cent{\centerline}
+\def\vs{\vskip 10 pt plus 1 pt}
+\def\bs{\bf}
+\def\grad{\vec{\nabla}}
+\def\gradx{\vec{\nabla}_x}
+\def\epsilon{\varepsilon} 
+
+\definecolor{blu_dmi}{HTML}{002e62}
 
 \begin{document}
     \input{frontmatter}
@@ -65,11 +155,11 @@
 \section{Covert Channel} 
 \import{./file}{covert_channel} \newpage 
 %
-\section{Protocollo ICMP} 
-\import{./file}{icmp} \newpage 
-%
 \section{Attacchi ICMP Covert Channel} 
 \import{./file}{icmp_covertChannel} \newpage 
+%
+\section{Protocollo ICMP} 
+\import{./file}{icmp} \newpage 
 %
 \section*{Strumenti Utilizzati} \addcontentsline{toc}{section}{\protect\numberline{}Strumenti Utilizzati}  
 \import{./file}{tools} \newpage 
@@ -77,8 +167,20 @@
 \section*{Parte 2 - Implementazione di un Covert Channel} \addcontentsline{toc}{section}{\protect\numberline{}Implementazione di un Covert Channel}  
 \import{./file}{implementazione} \newpage 
 %
-\section*{Parte 3 - Implementazione di Mitigazioni} \addcontentsline{toc}{section}{\protect\numberline{}Implementazione di Mitigazioni}  
-\import{./file}{mitigazione} \newpage 
+%\section*{Parte 3 - RITA} \addcontentsline{toc}{section}{\protect\numberline{}RITA}  
+%\import{./file}{RITA} \newpage 
+%
+%\section*{Parte 4 - Implementazione di Mitigazioni} \addcontentsline{toc}{section}{\protect\numberline{}Implementazione di Mitigazioni}  
+%\import{./file}{mitigazione} \newpage 
+%\import{./mitigazione/file}{pratiche} 
+%\import{./mitigazione/file}{strategie} 
+%\import{./mitigazione/file}{covertchannel_strategie} 
+
+\appendix
+\import{./file/appendix}{appendix_attacker} \newpage 
+\import{./file/appendix}{appendix_proxy} \newpage 
+\import{./file/appendix}{appendix_victim} \newpage 
+\import{./file/appendix}{appendix_librerie} \newpage 
 
 \end{document}
 
