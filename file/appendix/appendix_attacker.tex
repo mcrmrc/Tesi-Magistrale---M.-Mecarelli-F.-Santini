@@ -16,11 +16,7 @@ Dopodichè si controlla che si sinao inseriti gli argomenti giusti [Code:\ref{sc
 \end{itemize}
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={check_value_in_parser, get_args_from_parser, print_parser_supported_arguments, check_for_unknown_args}, emphstyle=\color{red} 
     ,emph={[2]args, parser, unknown},emphstyle={[2]\color{blue}} 
@@ -72,11 +68,7 @@ Dopodichè la variabile indicante il file json verra passata ai metodi utilizzat
 \end{itemize}
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={load_config_file, load}, emphstyle=\color{red} 
     ,emph={[2]default_file_path, path_file},emphstyle={[2]\color{blue}} 
@@ -131,7 +123,7 @@ def setIP_host():
 
 def setIP_vittima(config_file):
     ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))  
-    if ip_vittima is None or not (isinstance(ip_vittima, ipaddress.IPv4Address) or isinstance(ip_vittima, ipaddress.IPv6Address)):
+    if not isinstance(proxy, ipaddress.IPv4Address)
         raise ValueError(f"L'indirizzo IP della vittima non valido: {ip_vittima}") 
     return ip_vittima
 
@@ -148,7 +140,7 @@ def attack_type(config_file):
     return attack_func
 
 \end{lstlisting}
-\captionof{lstlisting}{Rilevamento degli argomenti passati} 
+\captionof{lstlisting}{Impostazione delle variabili} 
 \label{script:appendice:attaccante:fileconf}
 
 \subsection{Aspettando la conferma dai proxy} 
@@ -159,11 +151,7 @@ Nel caso non combacino la connessione viene chiusa, il proxy tolto dalla lista d
 Altrimenti il metodo continua finchè non terrmina.
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     % 
     ,emph={wait_proxy_update}, emphstyle=\color{red} 
     ,emph={[2]proxy, proxy_socket, data_received},emphstyle={[2]\color{blue}} 
@@ -197,7 +185,7 @@ def wait_proxy_update(proxy:ipaddress.IPv4Address):
         print(f"wait_proxy_update: {e}")
         return False 
 \end{lstlisting}
-\captionof{lstlisting}{Rilevamento degli argomenti passati} 
+\captionof{lstlisting}{Attaccante: aspetta aggiornamento dal proxy} 
 \label{script:appendice:attaccante:proxyUpdate}
 
 \subsection{Ricavare i proxy connessi}
@@ -218,11 +206,7 @@ Altrimenti si crea un thread che verrà aggiunto al dizionario.
 Alla fine ad ogni proxy verra associato il proprio thread. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     % 
     ,emph={get_connected_proxy}, emphstyle=\color{red} 
     ,emph={[2]callback_func, dict_proxy_socket, thread_list},emphstyle={[2]\color{blue}} 
@@ -265,7 +249,7 @@ def get_connected_proxy(proxy_list, ip_vittima, callback_func, attack_func):
         thread.start() 
     return thread_list, dict_proxy_socket
 \end{lstlisting}
-\captionof{lstlisting}{Rilevamento degli argomenti passati} 
+\captionof{lstlisting}{Proxy connessi} 
 \label{script:appendice:attaccante:connectedProxy}
 
 \subsection{Separazione dei dati ricevuti} 
@@ -286,11 +270,7 @@ Dopodichè si itera su questa lista per separare il valore della sequenza dai da
 Questi dati verranno inseriti nel dizionario \textit{dati\_separati} in cui la chiave è il numero di sequenza menre il valore è il dato stesso. 
 \vspace{2ex} \newline
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={separa_dati_byID}, emphstyle=\color{red} 
     ,emph={[2]dati_separati,unindent_data, received_data},emphstyle={[2]\color{blue}} 
@@ -327,11 +307,7 @@ Essendo le chiavi dei numeri; si itera usando l'indice che và da 0 sino alla lu
 Dopodichè si aggiunge il dato ricavato alla lista che conterrà l'unione delle stringhe. 
 \vspace{2ex} \newline
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={unisciDati}, emphstyle=\color{red} 
     ,emph={[2]dati_separati, stringa, data},emphstyle={[2]\color{blue}} 

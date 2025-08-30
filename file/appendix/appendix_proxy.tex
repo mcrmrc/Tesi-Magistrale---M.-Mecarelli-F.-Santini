@@ -15,11 +15,7 @@ Dopodichè crea un lock per poter accedere al dizionario che conterrà le rispos
 al dizionario che conterrà i thread stessi.
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={setup_thread}, emphstyle=\color{red} 
     ,emph={[2]thread_lock, thread_response, thread_dict},emphstyle={[2]\color{blue}} 
@@ -52,11 +48,7 @@ Lo fa indicando l'IP della vittima, il suo stesso IP e il risultato della connes
 Inoltre, nel caso la connessione non sia andata a buon fine, si chiude anche la connessione con l'attaccante. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={confirm_conn_of_victim}, emphstyle=\color{red} 
     ,emph={[2]data, socket_attacker},emphstyle={[2]\color{blue}} 
@@ -108,11 +100,7 @@ Questo risultato verrà memorizzato nel dizionario \textit{thread\_response}.
 Esso ha come chiave l'IP dell'host e come valore il valore booleano indicante lo stato della connessione con la vittima.  
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={wait_conn_from_victim, calc_checksum, get_filter_connection_from_function, callback_wait_conn_from_victim}, emphstyle=\color{red} 
     ,emph={[2]checksum, interface, event_pktconn, args},emphstyle={[2]\color{blue}} 
@@ -181,11 +169,7 @@ Dopodichè il metodo ritorna e termina la sua esecuzione.
 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={callback_wait_conn_from_victim, set_threading_Event}, emphstyle=\color{red} 
     ,emph={[2]pakt, event_pktconn, checksum},emphstyle={[2]\color{blue}} 
@@ -215,11 +199,7 @@ Dopodichè passerà i dati alla funzione \textit{wait\_data} della libreria \tex
 Sarà quest'ultima a gestire la ricezione dei dati dalla vittima [Code \ref{script:appendice:attacksingleton:waitData} ]. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={wait_data_from_vicitm, wait_data}, emphstyle=\color{red} 
     ,emph={[2]data_recvd, information_data},emphstyle={[2]\color{blue}} 
@@ -249,11 +229,7 @@ Tuttavia il proxy ha una connesisone anchec con la vittima e quindi dovrà aggio
 Per farlo definisce il messafggio da mandare e lo spedisce tramite il metodo \textbf{send\_packet}. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={update_victim_end_communication, send_packet}, emphstyle=\color{red} 
     ,emph={[2]data, ip_dst},emphstyle={[2]\color{blue}} 
@@ -269,6 +245,6 @@ def update_victim_end_communication(ip_vittima):
         return
     print(f"{ip_vittima}: la vittima non stata aggiornata")
 \end{lstlisting}
-\captionof{lstlisting}{Aspettando i dati dalla vittima} 
+\captionof{lstlisting}{Aggiornamento sulla fine della connessione} 
 \label{script:appendice:proxy:callback:updateEndComunication} 
 

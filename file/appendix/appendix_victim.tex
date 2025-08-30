@@ -30,11 +30,7 @@ Se la situazione fossse confermata, ricava dal pacchetto la tipologia di attacco
 Poi si aggiunge il proxy appena connesso alla lista dei proxy connessi. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={callback_wait_conn, is_proxy_already_connected, send_packet, add_proxy_to_connected_list}, emphstyle=\color{red} 
     ,emph={[2]ip_src, confirm_text, attack_type, data, pket},emphstyle={[2]\color{blue}} 
@@ -89,11 +85,7 @@ Il metodo acquisisce il lock e poi controlla se l'indirizzo IP è già presente 
 Dopodichè rilascia il lock e ritorna il risultato. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={is_proxy_already_connected}, emphstyle=\color{red} 
     ,emph={[2]IPproxy, conn_proxy, is_already_connected},emphstyle={[2]\color{blue}} 
@@ -122,11 +114,7 @@ si chiede se continuare o aspettarnbe di più.
 Nel caso si volesse continuare, la cosa viene segnalata tramite il threading Event passato. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={add_proxy_to_connected_list, reached_proxy_number}, emphstyle=\color{red} 
     ,emph={[2]conn_proxy, ip_src},emphstyle={[2]\color{blue}} 
@@ -157,11 +145,7 @@ Nel caso sia positivo, stampa un messaggio confermando che si è raggiunto il nu
 Altrimenti stampa un messaggio indicando quanti proxy sono ancora necessari e ritorna False.
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={reached_proxy_number}, emphstyle=\color{red} 
     ,emph={[2]conn_proxy, num_proxy, is_enough_proxy},emphstyle={[2]\color{blue}} 
@@ -196,11 +180,7 @@ In input richiede:
 La funzione callback in questo specifico caso sarà sempre \textbf{reached\_proxy\_number} [Code: \ref{script:appendice:victim:reachedProxyNumber} ]
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={done_waiting_timeout, ask_bool_choice}, emphstyle=\color{red} 
     ,emph={[2]timer, callback_function},emphstyle={[2]\color{blue}} 
@@ -248,11 +228,7 @@ Nel caso in  cui la lista sia vuota, procede a sostituirlo con il comando che in
 Altrimenti ritorna come comando il primo elemento della lista. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={wait_attacker_command, wait_data}, emphstyle=\color{red} 
     ,emph={[2]command},emphstyle={[2]\color{blue}} 
@@ -285,11 +261,7 @@ Per fare ciò, si aggiunge alla fine del comando un messaggio che indica ciò.
 Per farlo, nella funzione, si controlla su quale sistema operativo verrà eseguito e in base a quello si aggiunge questo messaggio. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={append_END_DATA_2_command}, emphstyle=\color{red} 
     ,emph={[2]command},emphstyle={[2]\color{blue}} 
@@ -320,11 +292,7 @@ Una volta avviati i thread, si apsetta che il processo termini così come i thre
 Quando ciò succede, e tutti i thread hannoterminato la loro esecuzione, si ritorneranno le due liste che ora conterranno i dati ricavati dall'esecuzione del comando.
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={general_get_data_from_command, get_shell_command, read_stream}, emphstyle=\color{red} 
     ,emph={[2]proc_shell, stdout_lines, stderr_lines, stdout_thread, stderr_thread},emphstyle={[2]\color{blue}} 
@@ -368,11 +336,7 @@ La lettura dei dati dallo stream avviene in questo modo:
 \end{enumerate}
 %\vspace{2ex} \newline
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={read_stream}, emphstyle=\color{red} 
     ,emph={[2]stream, buffer, label},emphstyle={[2]\color{blue}} 
@@ -422,11 +386,7 @@ Una volta che i dati sonostati mandati a tutti i proxy, si procede ad inviare un
 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+   language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={send_data_to_proxies, send_data, send_lastpacket_toProxies}, emphstyle=\color{red} 
     ,emph={[2]data_4_proxies, string, data, unavailable_proxy},emphstyle={[2]\color{blue}} 
@@ -475,11 +435,7 @@ Per mandare il messaggio che indica che i dati sono stati inviati, si definisce 
 Dopodichè per ogni indirizzo IP presente nella lista dei proxy connessi, si invia il messaggio in questione. 
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={send_lastpacket_toProxies, send_data}, emphstyle=\color{red} 
     ,emph={[2]unavailable_proxy, data, proxy},emphstyle={[2]\color{blue}} 
@@ -497,28 +453,7 @@ def send_lastpacket_toProxies(attack_function, proxy_list):
     return unavailable_proxy
 \end{lstlisting}
 \captionof{lstlisting}{Send LAST\_PACKET ai proxy}  
-\label{script:appendice:victim:sendLastPacket} 
-
-
-\subsection{Operazioni eseguibili sulla lista dei proxy connessi} 
-
-\vspace{2ex} 
-\begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
-    %
-    ,emph={}, emphstyle=\color{red} 
-    ,emph={[2]},emphstyle={[2]\color{blue}} 
-    ,emph={[3]}, emphstyle={[3]\color{olive}} 
-    ,literate={.}{{\char46}}1 {:}{{\char58}}1 
-] 
-AAAAAAAAA
-\end{lstlisting}
-\captionof{lstlisting}{Aspettando i dati dalla vittima}  
-\label{script:appendice:victim:waitConn:fromProxy} 
+\label{script:appendice:victim:sendLastPacket}  
 
 
 
