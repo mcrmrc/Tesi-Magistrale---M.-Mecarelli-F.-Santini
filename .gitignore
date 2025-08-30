@@ -1,2 +1,6 @@
 # Ignore scapy folder
-\implementazione\unione\scelta_type\scapy
+/implementazione/unione/scelta_type/scapy
+/implementazione/packets/
+implementazione/zeek
+/Temp
+*.pcapng
