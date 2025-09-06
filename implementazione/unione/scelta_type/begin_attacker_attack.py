@@ -14,8 +14,11 @@ from functools import partial
 import json 
 import socket 
 
-from mymethods import IS_TYPE as istype, ping_once, IP_INTERFACE as ipinterface, THREADING_EVENT as threadevent 
-from mymethods import TIMER as mytimer, GET as get, SNIFFER as mysniffer, is_scelta_SI_NO, print_dictionary, THREAD as mythread
+from mymethods import IS_TYPE as istype, IP_INTERFACE as ipinterface, THREADING_EVENT as threadevent, CALC as mycalc 
+from mymethods import TIMER as mytimer, GET as get, SNIFFER as mysniffer, THREAD as mythread, PARSER as myparser
+from mymethods import ping_once, is_scelta_SI_NO, print_dictionary, disable_firewall, reenable_firewall, ask_bool_choice 
+from mymethods import CONFIRM_ATTACKER, CONFIRM_VICTIM, CONFIRM_PROXY, CONFIRM_COMMAND, ATTACK_FUNCTION 
+from mymethods import LAST_PACKET, WAIT_DATA, END_COMMUNICATION, END_DATA, exit_cases
 
 from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
 from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
