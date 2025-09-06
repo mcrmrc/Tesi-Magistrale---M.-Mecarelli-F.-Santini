@@ -5,3 +5,4 @@ implementazione/zeek
 /Temp
 *.pcapng
 *.pcap
+/__pycache__
