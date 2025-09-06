@@ -51,16 +51,3 @@ def get_wrong_ipaddress(proxy_list:list):
             wrong_ips.append(proxy)
     return wrong_ips  
 
-#------------------------
- 
-
-
-
-def ping_once(ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, iface:str=None, timeout=1):
-    try:
-        is_string(iface)
-        if isinstance(ip_dst, ipaddress.IPv4Address) or isinstance(ip_dst, ipaddress.IPv6Address):
-            os.system(f"ping6 -c 1 {ip_dst.compressed}%{iface}")
-        else: raise Exception("L'indirizzo non è ne un 'ipaddress.IPv4Address' ne un 'ipaddress.IPv6Address'")
-    except Exception as e:
-        raise Exception(f"ping_once: {e}")
