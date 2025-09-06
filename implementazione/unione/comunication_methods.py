@@ -51,50 +51,7 @@ def get_wrong_ipaddress(proxy_list:list):
             wrong_ips.append(proxy)
     return wrong_ips  
 
-
-#------------------------
-def start_sniffer(sniffer:AsyncSniffer=None, timer:threading.Timer=None):
-    if not isinstance(sniffer, AsyncSniffer):
-        raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}")
-    if not isinstance(timer, threading.Timer):
-        raise Exception(f"Timer non istanza di threading.Timer: {type(timer)}")
-    sniffer.start()
-    timer.start()
-
-def stop_sinffer(sniffer:AsyncSniffer=None): 
-    if not is_AsyncSniffer(sniffer):
-        raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}") 
-    if sniffer.running: 
-        sniffer.stop() 
-        print("Sniffer Stopped")
-        if sniffer.running:
-            print("\t***sniffer still alive")
-        return True
-    return False 
-
-def stop_timer(timer:threading.Timer=None):
-    if not is_threading_Timer(timer):
-        print(f"stop_timer: timer non valido") 
-        return False
-    if timer.is_alive():
-        timer.cancel() 
-        print("Timer Stopped")
-        if timer.is_alive():
-            print("\t***Timer still alive")
-        return True
-    return False
-
-def sniffer_timeout(sniffer:AsyncSniffer=None,threading_event:threading.Event=None): 
-    if not is_AsyncSniffer(sniffer) or not is_threading_Event(threading_event): 
-        raise ValueError("sniffer_timeout: Valori passati non corretti") 
-    if not threading_event.is_set():
-        print("Timeout: No packet received within 60 seconds")
-        if sniffer.running:
-            sniffer.stop() 
-        set_threading_Event(threading_event) 
-
-
-
+ 
 #------------------------
 def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, time=10,icmp_seq:int=0,icmp_id:int=None,interface=""):
     try:
