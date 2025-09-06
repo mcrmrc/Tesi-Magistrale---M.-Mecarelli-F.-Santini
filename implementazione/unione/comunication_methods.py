@@ -52,60 +52,7 @@ def get_wrong_ipaddress(proxy_list:list):
     return wrong_ips  
 
 #-------------------- 
-def get_threading_Event()->threading.Event: 
-    event = threading.Event()
-    try:
-        is_threading_Event(event)
-    except Exception as e:
-        raise Exception(f"get_threading_Event: {e}") 
-    return event
 
-def get_AsyncSniffer(args:dict=None):
-    try: 
-        check_args_sniffer(args)
-    except Exception as e:
-        print(f"get_AsyncSniffer: {e}")
-    return AsyncSniffer( **args )
-
-def get_timeout_timer(timeout_time=60, callback_function=None):
-    try:
-        is_callback_function(callback_function) 
-        if timeout_time is not None:
-            is_valid_time(timeout_time)
-    except Exception as e:
-        raise Exception(f"get_timeout_timer: {e}")
-    return threading.Timer(timeout_time, callback_function)
-
-def get_thread_response(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=True):
-    try:
-        if not isinstance(proxy, ipaddress.IPv4Address) and not not isinstance(proxy, ipaddress.IPv6Address):
-            raise Exception("IP proxy non istanza di IPv4Address o IPv6Address: {proxy}")
-        is_threading_lock(thread_lock)
-        is_dictionary(thread_response)
-        is_boolean(response)
-    except Exception as e:
-        raise Exception(f"get_thread_response: {e}")
-    response=None
-    thread_lock.acquire()
-    response=thread_response.get(proxy.compressed)
-    thread_lock.release()
-    return response 
-
-def update_thread_response(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=False):
-    try:
-        if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
-            raise Exception(f"Proxy not instnace of IPv4Address nor IPv6Address : {type(proxy)}") 
-        if not is_threading_lock(thread_lock):
-            raise Exception(f"update_thread_response: lock {thread_lock}") 
-        if not is_dictionary(thread_response):
-            raise Exception(f"update_thread_response: dict {thread_response}") 
-        if not is_boolean(response):
-            raise Exception(f"update_thread_response: bollean {response}") 
-    except Exception as e:
-        raise Exception(f"update_thread_response: is_boolean {e}")
-    thread_lock.acquire()
-    thread_response.update({proxy.compressed:response}) 
-    thread_lock.release()
 
 #-------------------- 
 def wait_threading_Event(event:threading.Event=None):
