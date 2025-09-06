@@ -1,0 +1,72 @@
+%I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore 
+%(un umano o un processo) di acquisire 
+%informazioni attraverso il cambiamento del tempo di risposta di una risorsa. 
+%Sfruttando gli intervalli di tempo o l'ordine degli eventi per codificare informazioni (e.g. ritardi fra i pacchetti di rete,\dots). 
+%Qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo.
+%\begin{esempio}
+%        Modificare i permessi dei file o i metadati per codificare informazioni oppure modificare variabili condivise o buffer.
+%    \end{esempio}
+%\href{https://www.youtube.com/watch?v=QIvsmQQ6vu8}{Video Esempio} 
+
+\subsubsection{Covert Channel Temporale tramite pacchetti ICMP Echo} 
+In questo caso si definisce un Covert Channel Temporale inviando pacchetti ICMP (di tipo Echo) in intervalli specifici. 
+Tramite la differenza fra il tempo precedente e il tempo di ircezione del nuovo pacchetto; 
+l'attaccante riuscirà a codificare un bit (o coppie di bit) mentre la vittima riuscirà a decodificare il bit (o la coppia di bit) associato all'intervallo. 
+\vspace{1ex} \newline 
+La formula per calcolare i tempi associati alle codifiche dei bit è la seguente: \newline
+\begin{equation}
+    \text{tempo\_base}+\text{index}*(2*\text{distanza\_tempi})
+\end{equation}
+\label{equation:tempi:timingCC}
+In essa il \textbf{tempo di base} indica il minimo dei secondi da aspettare per ogni tempo possibile. 
+L'indice indicherà l'indice associato alla codifica e siccome si trattano bit, corrisponderà all'intero rappresentato dalla coppia di bit (eg 101=5). 
+Invece la distanza è la differenza minima di tempo che tutti i tempi calcoalti dovranno avere. 
+\vspace{1ex} \newline 
+Siccome RITA riesce ad individuare gli schemi temporali calcolati, si è definito un range così da poter mandare tempi randomici e non costanti. 
+Ora la codifica di una coppia di bit, non è più definita da un singolo, costante intervallo di tempo, ma da un range di intervalli temporali. 
+Quindi se si volesse mandare il codice \textit{01}, non si aspetteranno più \textit{7} secondi, ma un tempo randomico che appartiene al range range $[5,9]$. 
+%\begin{lstlisting}
+%DISTANZA_TEMPI=2 #sec 
+%TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(2**2)] #00, 01, 10, 11 
+%TEMPO_BYTE=0*60 #minuti
+%\end{lstlisting} 
+%\captionof{lstlisting}{heading} 
+%Si definisce un \textbf{tempo di base} di \textit{3 secondi} e una \textbf{distanza} minima che tutti i tempi dovranno avere. In questo caso si è deciso che la distanza sia di almeno \textit{2 secondi}. 
+\vspace{1ex} \newline 
+Inoltre si è pensato di introdurre anche un tempo (in minuti) che definirà quanto aspettare una volta che si è mandato un byte. 
+Ciò potrà essere usato se lo scambio di informazioni risultasse prolungato; 
+infatti un numero elevato e continuo di pacchetti potrebbe risultare anomalo. 
+\vspace{3ex} \newline 
+Il dato da inviare (di qualunque tipo esso sia) dovrà essere convertito in una lista di byte, dalla quale estrarremo i singoli bit da mandare. 
+\vspace{3ex} \newline 
+Dopodichè avverrò la comunicazione vera e propria. 
+Si manderà un pacchetto per indicare al destinatario l'inizio della comunicazione e impostare così il tempo di inizio. 
+Se non si determina questo tempo, il destinatario non riuscirà a calcoalre l'intervallo di tempo fra il tempo di arrivo del pacchetto corrente e di quello del pacchetto precedente. 
+Di conseguenza non si riuscirà a decodificare il primo bit. 
+%Dopodichè si manda un pacchetto per inizializzare il tempo del ricevente e si procede con il ciclo. 
+Successivamente si itererà l'intera lista contenente i singoli bit e si aspetterà il tempo associato. 
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Num bit} & \textbf{IPv4} & \textbf{IPv6} \\ 
+        \hline
+        1 & 8:33  & 14:46 \\ 
+        \hline
+        2 & 7:20  & 12:08 \\ 
+        \hline
+        4 & 12:00 & 22:20 \\ 
+        \hline
+    \end{tabular} 
+    \captionof{table}{Tempi di esecuzione del Timing Channel}
+    \label{table:tempi:esecuzione:timingCC}
+\end{center}
+\vspace{1ex} 
+L'unica differenza presente nella versione (del Timing Channel) che utilizza il protocollo IPV6, 
+è la struttura del pacchetto. 
+Si aggiungerà un livello \textit{Ether} in cui si specifica l'indirizzo MAC di destinazione e l'indirizzo MAC sorgente. 
+Inoltre nel livello \textit{IPv6} bisognerà definire lo ScopeId dell'indirizzo di destinazione; 
+ciò verrà fatto specificanto nel campo non solo l'indirizzo IP di destinazione, 
+ma anche l'interfaccia per poter raggiungerlo. 
+%Un livello \textit{Raw} contenente solo il testo '\textit{Hello Neighbour}'. 
+
+

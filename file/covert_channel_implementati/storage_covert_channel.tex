@@ -1,0 +1,73 @@
+%Nei covert channel di archiviazione un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
+%Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
+%\vspace{2ex} \newline
+%Implicano la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi (e.g attributi del file, i bit di memoria, gli stati della cache,\dots).
+%I veicoli, per questo tipo di attacco, sono tutte quelle risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e la lettura (diretta o indiretta) da parte di un altro.
+%\begin{esempio}
+%    Un esempio di un canale di archiviazione è la condivisione di un file. 
+%    Supponendo che l'utente A (con privilegi sufficenti) voglia trasmettere segretamente dei dati riservati all'utente B (con un livello di sicurezza inferiore). 
+%    Utilizzando un file di testo in cui apparentemente verranno scritte informazioni non classificate, mentre in verità occulterà l'informazione riservata. 
+%\end{esempio}
+%\vspace{3ex} \noindent
+Verranno utilizzate le tipologie di messaggi presenti nel protocollo ICMP, 
+per codificare dei dati nei campi presenti. %così da poterli inviare e permettere al destinatario di estrarli. 
+Nelle tabelle sono stati indicati quali campi verranno sfruttati, per ogni tipologia di messaggio ICMP, oltre alla quantità di byte codificabili. 
+%Inoltre è stato indicato anche quant'è il peso di un singolo pacchetto di quella tipologia. 
+\begin{longtable}{|p{0.2 \textwidth}|p{0.15\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|}
+    \hline 
+    \textbf{Tipologia} & \textbf{Byte trasmessi} & \textbf{Campi Sfruttatti} & \textbf{Uso} \\ %messaggi di errore
+    \hline
+    Destination Unreachable & 3-8 & unused, header+64 bits & Una destinazione (rete, porta,\dots) risulta non disponibile  \\ %messaggi di errore
+    \hline 
+    Source Quench & 3-8 & unused, header+64 bits & Un gateway notifica il buffer di memoria per i pacchetti pieno (indica la congestione nella rete). \\ %messaggi di errore
+    \hline 
+    Redirect Message & 3-4 & header+64 bits & Suggerisce un reindirizzamento del pacchetto verso un percorso migliore. \\ %messaggi di errore
+    \hline 
+    Time Exceeded & 3-8 & unused, header+64 bits & Il gateway notifica che il TTL del pacchetto ricevuto risulta zero. \\ %messaggi di errore
+    \hline 
+    Parameter Problem & 4-8 & pointer, unused, header+64 bits & Il gateway rileva dei problemi nei campi dell'intestazione \\ %messaggi di errore
+    \hline 
+    Echo Request & 2 & identifier, data  &  Usato per inviare un dato a un destinatario e ricevere una risposta indietro.\\ %messaggi di informazione
+    \hline 
+    Echo Reply & 2 & identifier, data  &  Replica i dati ricevuti nella richiesta rimandandoli al mittente \\ %messaggi di informazione
+    \hline 
+    Timestamp Request & 5 & identifier,timestamp, data  & Usato per inviare una serie di timestamp a un destinatario e ricevere una risposta indietro.\\ %messaggi di informazione
+    \hline 
+    Timestamp Reply & 5 & identifier,timestamp, data  &  Replica i timestamp ricevuti nella richiesta rimandandoli al mittente \\ %messaggi di informazione
+    \hline 
+    Information Request & 2 & identifier & Permete di scoprire se l'host si trova nella stessa rete di chi ha risposto. Nel mandare il pacchetto lascia il campo \textit{destinazione} vuoto. \\ %messaggi di informazione
+    \hline 
+    Information Reply & 2 & identifier & Risponde alla richiesta con tutti i campi compilati correttamente. In particolare quello relativo al proprio indirizzo IP. \\ %messaggi di informazione
+    \hline 
+    %9 & 0 & CC  & Router Advertisement & Routers announce themselves to hosts. \\
+    %\hline
+    %10 & 0 & CC  & Router Solicitation & Hosts request router advertisements. \\
+    %\hline 
+\end{longtable}
+\captionof{table}{Tipologie di messaggi ICMPv4} 
+\label{table:icmpv4:tipologie} 
+\newpage
+\begin{longtable}{|p{0.2\textwidth}|p{0.15\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|} 
+    \hline 
+    \textbf{Tipologia} & \textbf{Codici} & \textbf{Campi Sfruttatti} & \textbf{Uso} \\
+    \hline
+    Destination Unreachable & 4-8 & unused, invoking packet & Una destinazione (rete, porta,\dots) risulta non disponibile \\ %messaggi di errore
+    \hline 
+    Packet Too Big & 8 & mtu, invoking packet & Un router notifica l'impossibilità nell'inoltrare un pacchetto (indica la congestione nella rete) \\  %messaggi di errore
+    \hline 
+    Time Exceeded & 4-8 & unused, invoking packet & Il gateway notifica che il TTL del pacchetto ricevuto risulta zero. \\ %messaggi di errore
+    \hline 
+    Parameter Problem & 8 & pointer, invoking packet & Il gateway rileva dei problemi nei campi dell'intestazione \\  %messaggi di errore
+    \hline 
+    Echo Request & 2 & identifier, data & Usato per inviare un dato a un destinatario e ricevere una risposta indietro.\\ %messaggi di informazione
+    \hline 
+    Echo Reply & 2 & identifier, data  & Replica i dati ricevuti nella richiesta rimandandoli al mittente \\ %messaggi di informazione
+    \hline 
+\end{longtable}
+\captionof{table}{Tipologie di messaggi ICMPv6} 
+\label{table:icmpv6:tipologie}
+
+%\import{./icmp}{messaggi_errore}  
+
+%\import{./icmp}{messaggi_informativi}  
+

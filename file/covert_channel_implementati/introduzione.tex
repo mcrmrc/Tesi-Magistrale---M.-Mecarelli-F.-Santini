@@ -1,0 +1,47 @@
+Un \textbf{Covert Channel} è un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta.  
+%Ciò avverrà fra processi e/o entità comunicanti senza che vengano rivelati ed evitando (se non violando) le normali politiche di sicurezza. 
+Solitamente operano al di fuori degli usuali meccanismi di comunicazioni sfruttando vulnerabilità o comportamenti non previsti nei sistemi. 
+Ciò permette di non generare segnali di un uso improprio del sistema; 
+inoltre nascondendosi all'interno dei normali processi del sistema, sono difficili da rilevare e/o identificare. 
+La loro esistenza quindi rappresenterà un problema; 
+che spesso rimane non notato dagli amministratori o dai tipici strumenti di monitoraggio. 
+Qualsiasi risorsa condivisa può essere utilizzata come canale nascosto ed 
+è per questo i Covert Channel possono esistere in qualunque sistema. 
+%Questi attacchi sono un problema significativo in tutti quegli ambienti dove una fuoriuscita di informazioni può avere conseguenze gravi (es ambienti militari, governativi,\dots).  
+%Siccome l'suo imporprio che si fà di queste risorse: porta alla fuoriuscita (o scambio) dei dati. 
+\vspace{2ex} \newline 
+Tipicamente il \textbf{mittente} (Covert Transmitter) è l'entita che codifica e trasmette le informazioni; 
+%Il mittente manipola una risorsa di sistema condivisa (osservabile dal destinatario)  per codificare i dati segreti (eg tramite il tempo o la memoria). 
+mentre il \textbf{Destinatario} (Covert Listener) è l'entità che rileva e decifra l'informazione segreta dalla risorsa condivisa. 
+%il destinatario monitora la risorsa condivisa per rilevare, ricostruire e decifrare i dati trasmessi. 
+E nel nostro caso codificheremo i dati o dentro i campi presenti nel protocollo ICMP oppure tramite la distanza di tempo fra un pacchetto è un altro. 
+Normalmente la macchina obbiettivo è protetta da misure di sicurezza (e.g firewall, IDS,\dots)
+\vspace{2ex} \newline  
+%\textbf{Stealthiness} (furtività)
+Tramite un covert channel si devono poter aggirare i controlli in maniera nascosta. 
+Se si vuole quindi implementare un Covert Channel bisogna renderlo il più \textbf{furtivo} possibile; 
+così da non attirare principalmente le attenzioni degli amministratori e secondariamnete quelle degli strumenti utilizzati per il rilevamento degli attacchi. 
+\vspace{2ex} \newline 
+Inoltre il canale avrà il bisogno di poter inviare le informazioni; 
+quindi un \textbf{throughput} (definito come $\frac{dati}{tempo}$) consistente permetterà di scambiare un maggior numero di informazioni. 
+Tuttavia se la capacità di trasmissione risultasse anomala o eccessiva potrebbe essere rilevata. 
+Questo perchè potrebbe andare in conflitto con le risorse legittime eseguite nel sistema. 
+L'\textbf{uso delle risorse} dovrà essere proporzionato. 
+Quindi se la lunghezza di banda (Bandwith) risultasse limitata; 
+più dati il canale trasmette per un determinato intervallo di tempo, maggiore sarà il rischio che venga scoperto
+\vspace{2ex} \newline
+Sfruttando servizi e/o risorse già presenti nel sistema, si potrebbe alterare il loro funzionamento (che chiameremo \textbf{rumore}). 
+L'alterazione del comportamento della risorsa o del servizio sfruttato potrebbe attirare l'attenzione da parte degli amministratori.
+Uno dei maggiori problemi nell'implementazione di un canale nascosto è proprio questo: l'uso eccessivo delle risorse. 
+La necessità cardine, è quella di riuscire a trasmettere informazioni mantenendo conforme lo stato del sistema; 
+così da rendersi \textbf{indistinguibili} dalla risorsa sfruttata e di conseguenza invisibili ai sistemi di monitoraggio. 
+In generale il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
+%(e.g carico della CPU, accesso alla memoria, traffico della rete, metadati del file systema). 
+\vspace{2ex} \newline
+Per evitare la presenza dei Covert Channel, bisogna quindi prestare attenzione all'\textbf{uso involontario delle risorse} 
+ed evitare che esse possano essere usate (in maniere non previste) per la comunicazione. %(e.g memoria condivisa, uso della CPU, attributi dei file)
+Questo perchè, permetterebbero lo scambio non non autorizzato di informazioni; 
+potenzialmente violando le politiche di sicurezza; 
+nelle quali i principali requisiti sono: la confidenzialità dei dati, l'integrità di quest'ultimi o la disponibilità delle risorse e/o servizi. 
+Di conseguenza un metodo per la \textbf{rilevazione delle violazioni} delle politiche di sicurezza, risulta necessaria. 
+
