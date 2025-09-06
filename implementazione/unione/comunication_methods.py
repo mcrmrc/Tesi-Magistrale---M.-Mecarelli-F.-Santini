@@ -52,33 +52,7 @@ def get_wrong_ipaddress(proxy_list:list):
     return wrong_ips  
 
 #------------------------
-def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None,callback_function=None): 
-    try: 
-        if not is_callback_function(callback_function):
-            raise Exception(f"callback_function non valida {callback_function}")
-        if not is_list(address_list) or len(address_list)<=0:
-            raise Exception(f"lista non valida")
-    except Exception as e:
-        raise Exception(f"setup_thread_4_foreach_proxy: {e}")
-    thread_lock=threading.Lock()
-    thread_response={}
-    thread_list={}
-    for proxy in address_list:
-        if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
-            print(f"***\t{proxy} non è un indirizzo valido")
-            continue
-        thread=threading.Thread(
-            target=callback_function
-            ,args=[proxy]
-        )
-        thread.name=f"Thread-{proxy.compressed}"
-        thread_list.update({proxy.compressed:thread})
-        thread_response.update({proxy.compressed:False}) 
-    print(f"Definito il threading lock per quando si accede alle risposte dei proxy") #print(f"Lock creato:\t{thread_lock}")
-    print("Definito per ogni proxy il proprio Thread") #print(f"Thread creati:\t{thread_list}")
-    print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
-    return thread_lock, thread_response, thread_list
-
+ 
 def get_mac_by_ipv6(ipv6_dst: str, ipv6_src: str, iface_name: str):
     try:
         # Validate and convert
