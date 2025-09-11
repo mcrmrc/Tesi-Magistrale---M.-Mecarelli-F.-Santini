@@ -1,6 +1,6 @@
 #from scapy.all import *
 from scapy.all import IP, ICMP, Raw,  Ether, IPv6, ICMPv6ND_NS, ICMPv6NDOptSrcLLAddr, ICMPv6NDOptDstLLAddr
-from scapy.all import sr1, sendp, AsyncSniffer, get_if_hwaddr, in6_getnsma, in6_getnsmac, srp1
+from scapy.all import sr1, sendp, AsyncSniffer, get_if_hwaddr, in6_getnsma, in6_getnsmac, srp1, send
 from scapy.all import conf 
 
 import string
@@ -65,7 +65,7 @@ def check_ipaddress(ip_address:ipaddress.IPv4Address):
 #------SHELL METHODS------
 
 def disable_firewall():
-    print("\n+++Disabling firewall")
+    print("Disabilitando il firewall")
     if sys.platform == "win32":
         print("Il sistema è Windows...")
         #check its current status -> Get-NetFirewallProfile | Format-Table -Property Name, Enabled
@@ -81,10 +81,11 @@ def disable_firewall():
         stdout, stderr = process_shell.communicate()
         if stderr: 
             raise Exception(f"line 345 disable_firewall: {stderr}")  
-        print("Stato iniziale dei profili")
+        #print("Stato iniziale dei profili")
         for line in stdout.split("\n"):
             if any((profile in line) for profile in ["Domain", "Private", "Public"]): 
-                print(f"\tRisultato del profilo: {line}") 
+                #print(f"\tRisultato del profilo: {line}") 
+                pass
         process_shell.wait() 
         #disable the Windows Firewall for all profiles -> Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled False
         command="Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled False"
@@ -99,28 +100,27 @@ def disable_firewall():
         stdout, stderr = process_shell.communicate() 
         if stderr: 
             raise Exception(f"line 363 disable_firewall: {stderr}")
-        print("Firewall disabilitato con successo")  
         process_shell.wait() 
         #verify that the changes have taken effect -> Get-NetFirewallProfile | Format-Table -Property Name, Enabled
-        command="Get-NetFirewallProfile | Format-Table -Property Name, Enabled"
-        process_shell= subprocess.Popen(
-            ["powershell", "-Command", command], 
-            stdin=subprocess.PIPE
-            ,stdout=subprocess.PIPE
-            ,stderr=subprocess.PIPE
-            ,text=True
-            ,bufsize=1
-        )
-        stdout, stderr = process_shell.communicate() 
-        if stderr: 
-            raise Exception(f"line 378 disable_firewall: {stderr}") 
-        print("Controllato il risutlato su tutti i profili")
-        for line in stdout.split("\n"):  
-            if any((profile in line) for profile in ["Domain", "Private", "Public"]):
-                if "True" in line:
-                    raise Exception(f"Profilo non disabilitato: {line}")
-                print(f"\tRisultato del profilo: {line}") 
-        print("Tutti i profili disabilitati")  
+        #command="Get-NetFirewallProfile | Format-Table -Property Name, Enabled"
+        #process_shell= subprocess.Popen(
+        #    ["powershell", "-Command", command], 
+        #    stdin=subprocess.PIPE
+        #    ,stdout=subprocess.PIPE
+        #    ,stderr=subprocess.PIPE
+        #    ,text=True
+        #    ,bufsize=1
+        #)
+        #stdout, stderr = process_shell.communicate() 
+        #if stderr: 
+        #    raise Exception(f"line 378 disable_firewall: {stderr}") 
+        #print("Controllato il risutlato su tutti i profili")
+        #for line in stdout.split("\n"):  
+        #    if any((profile in line) for profile in ["Domain", "Private", "Public"]):
+        #        if "True" in line:
+        #            raise Exception(f"Profilo non disabilitato: {line}")
+        #        #print(f"\tRisultato del profilo: {line}") 
+        print("Tutti i profili disabilitati. Firewall disabilitato con successo") 
         process_shell.wait()
     elif sys.platform=="linux":
         print("Il sistema è Linux...")
@@ -137,10 +137,11 @@ def disable_firewall():
         stdout, stderr = process_shell.communicate()
         if stderr: 
             raise Exception(f"line 401 disable_firewall: {stderr}")  
-        print("Stato iniziale del firewall")
+        #print("Stato iniziale del firewall")
         for line in stdout.split("\n"): 
             if any((stato in line) for stato in ["attivo", "active"]): 
-                print(f"\t{line}")  
+                #print(f"\t{line}")  
+                pass
         process_shell.wait() 
         #Stop the ufw on Linux
         command="sudo ufw disable"
@@ -156,7 +157,8 @@ def disable_firewall():
         if stderr:
             raise Exception(f"line 421 disable_firewall: {stderr}")
         if stdout:
-            print(f"{stdout}")  
+            #print(f"{stdout}") 
+            pass
         process_shell.wait()
         #Disable the ufw on Linux at boot time
         command="sudo systemctl disable ufw"
@@ -171,33 +173,33 @@ def disable_firewall():
         stdout, stderr = process_shell.communicate() 
         process_shell.wait() 
         #Is the ufw running?
-        command="sudo ufw status"
-        process_shell= subprocess.Popen(
-            ["bash", "-c", command] 
-            ,stdin=subprocess.PIPE 
-            ,stdout=subprocess.PIPE 
-            ,stderr=subprocess.PIPE 
-            ,text=True
-            ,bufsize=1
-        )
-        stdout, stderr = process_shell.communicate()
-        if stderr: 
-            raise Exception(f"line 401 disable_firewall: {stderr}")  
-        print("Stato finale del firewall")
-        for line in stdout.split("\n"): 
-            if any((stato in line) for stato in ["inattivo", "inactive"]): 
-                print(f"\t inattivo: {line}") 
-            elif any((stato in line) for stato in ["attivo", "active"]):
-                print(f"\t attivo: {line}") 
+        #command="sudo ufw status"
+        #process_shell= subprocess.Popen(
+        #    ["bash", "-c", command] 
+        #    ,stdin=subprocess.PIPE 
+        #    ,stdout=subprocess.PIPE 
+        #    ,stderr=subprocess.PIPE 
+        #    ,text=True
+        #    ,bufsize=1
+        #)
+        #stdout, stderr = process_shell.communicate()
+        #if stderr: 
+        #    raise Exception(f"line 401 disable_firewall: {stderr}")  
+        #print("Stato finale del firewall")
+        #for line in stdout.split("\n"): 
+        #    if any((stato in line) for stato in ["inattivo", "inactive"]): 
+        #        #print(f"\t inattivo: {line}") 
+        #        pass
+        #    elif any((stato in line) for stato in ["attivo", "active"]):
+        #        #print(f"\t attivo: {line}") 
+        #        pass 
+        print("Tutti i profili disabilitati. Firewall disabilitato con successo")
         process_shell.wait() 
     else:
-        print("Sistema operativo non supportato per l'apertura della shell.")
-        raise Exception(
-            "Sistema operativo non supportato per l'apertura della shell"
-        )
+        raise Exception("Sistema operativo non supportato per l'apertura della shell.") 
 
 def reenable_firewall(): 
-    print("\n+++Reenabiling firewall")
+    print("Riabilitando il firewall")
     if sys.platform == "win32":
         print("Il sistema è Windows...")  
         #check its current status -> Get-NetFirewallProfile | Format-Table -Property Name, Enabled
@@ -213,10 +215,11 @@ def reenable_firewall():
         stdout, stderr = process_shell.communicate()
         if stderr: 
             raise Exception(f"line 466 disable_firewall: {stderr}")  
-        print("Stato iniziale dei profili")
+        #print("Stato iniziale dei profili")
         for line in stdout.split("\n"):
             if any((profile in line) for profile in ["Domain", "Private", "Public"]): 
-                print(f"\tRisultato del profilo: {line}") 
+                #print(f"\tRisultato del profilo: {line}") 
+                pass
         process_shell.wait() 
         #disable the Windows Firewall for all profiles -> Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled False
         command="Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled True"
@@ -231,28 +234,28 @@ def reenable_firewall():
         stdout, stderr = process_shell.communicate() 
         if stderr: 
             raise Exception(f"line 484 disable_firewall: {stderr}")
-        print("Comando eseguito con successo")  
+        #print("Comando eseguito con successo")  
         process_shell.wait()  
         #verify that the changes have taken effect -> Get-NetFirewallProfile | Format-Table -Property Name, Enabled
-        command="Get-NetFirewallProfile | Format-Table -Property Name, Enabled"
-        process_shell= subprocess.Popen(
-            ["powershell", "-Command", command], 
-            stdin=subprocess.PIPE
-            ,stdout=subprocess.PIPE
-            ,stderr=subprocess.PIPE
-            ,text=True
-            ,bufsize=1
-        )
-        stdout, stderr = process_shell.communicate() 
-        if stderr: 
-            raise Exception(f"line 499 disable_firewall: {stderr}") 
-        print("Controllato il risutlato su tutti i profili")
-        for line in stdout.split("\n"):  
-            if any((profile in line) for profile in ["Domain", "Private", "Public"]):
-                if "False" in line:
-                    raise Exception(f"Profilo non riabilitato: {line}")
-                print(f"\tRisultato del profilo: {line}")
-        print("Tutti i profili riabilitati")
+        #command="Get-NetFirewallProfile | Format-Table -Property Name, Enabled"
+        #process_shell= subprocess.Popen(
+        #    ["powershell", "-Command", command], 
+        #    stdin=subprocess.PIPE
+        #    ,stdout=subprocess.PIPE
+        #    ,stderr=subprocess.PIPE
+        #    ,text=True
+        #    ,bufsize=1
+        #)
+        #stdout, stderr = process_shell.communicate() 
+        #if stderr: 
+        #    raise Exception(f"line 499 disable_firewall: {stderr}") 
+        #print("Controllato il risutlato su tutti i profili")
+        #for line in stdout.split("\n"):  
+        #    if any((profile in line) for profile in ["Domain", "Private", "Public"]):
+        #        if "False" in line:
+        #            raise Exception(f"Profilo non riabilitato: {line}")
+        #        #print(f"\tRisultato del profilo: {line}")
+        print("Tutti i profili riabilitati. firewall riabilitato")
         process_shell.wait() 
     elif sys.platform=="linux":
         print("Il sistema è Linux...") 
@@ -269,12 +272,14 @@ def reenable_firewall():
         stdout, stderr = process_shell.communicate()
         if stderr: 
             raise Exception(f"line 474 disable_firewall: {stderr}")  
-        print("Stato iniziale del firewall")
+        #print("Stato iniziale del firewall")
         for line in stdout.split("\n"): 
             if any((stato in line) for stato in ["inattivo", "inactive"]): 
-                print(f"\t inattivo: {line}") 
+                #print(f"\t inattivo: {line}") 
+                pass
             elif any((stato in line) for stato in ["attivo", "active"]):
-                print(f"\t attivo: {line}") 
+                #print(f"\t attivo: {line}") 
+                pass
         process_shell.wait() 
         #Enable the ufw on Linux at boot time
         command="sudo systemctl enable ufw"
@@ -291,7 +296,8 @@ def reenable_firewall():
         #    raise Exception(f"line 437 disable_firewall: {stderr}")
         for line in stdout.split("\n"): 
             if "Created" in line:
-                print(f"Disabled ufw at boot time: {line}") 
+                #print(f"Disabled ufw at boot time: {line}") 
+                pass
         process_shell.wait() 
         #Start the ufw on Linux
         command="sudo ufw enable"
@@ -307,33 +313,34 @@ def reenable_firewall():
         if stderr:
             raise Exception(f"line 421 disable_firewall: {stderr}")
         if stdout:
-            print(f"{stdout}") 
+            #print(f"{stdout}") 
+            pass
         process_shell.wait()
         #Is the ufw running?
-        command="sudo ufw status" #sudo ufw --version 
-        process_shell= subprocess.Popen(
-            ["bash", "-c", command] 
-            ,stdin=subprocess.PIPE 
-            ,stdout=subprocess.PIPE 
-            ,stderr=subprocess.PIPE 
-            ,text=True
-            ,bufsize=1
-        )
-        stdout, stderr = process_shell.communicate()
-        if stderr: 
-            raise Exception(f"line 474 disable_firewall: {stderr}")  
-        print("Stato finale del firewall")
-        for line in stdout.split("\n"): 
-            if any((stato in line) for stato in ["inattivo", "inactive"]): 
-                print(f"\t inattivo: {line}") 
-            elif any((stato in line) for stato in ["attivo", "active"]):
-                print(f"\t attivo: {line}") 
+        #command="sudo ufw status" #sudo ufw --version 
+        #process_shell= subprocess.Popen(
+        #    ["bash", "-c", command] 
+        #    ,stdin=subprocess.PIPE 
+        #    ,stdout=subprocess.PIPE 
+        #    ,stderr=subprocess.PIPE 
+        #    ,text=True
+        #    ,bufsize=1
+        #)
+        #stdout, stderr = process_shell.communicate()
+        #if stderr: 
+        #    raise Exception(f"line 474 disable_firewall: {stderr}")  
+        #print("Stato finale del firewall")
+        #for line in stdout.split("\n"): 
+        #    if any((stato in line) for stato in ["inattivo", "inactive"]): 
+        #        #print(f"\t inattivo: {line}") 
+        #        pass
+        #    elif any((stato in line) for stato in ["attivo", "active"]):
+        #        #print(f"\t attivo: {line}") 
+        #        pass 
+        print("Tutti i profili riabilitati. firewall riabilitato")
         process_shell.wait() 
-    else:
-        print("Sistema operativo non supportato per l'apertura della shell.")
-        raise Exception(
-            "Sistema operativo non supportato per l'apertura della shell"
-        )
+    else: 
+        raise Exception(  "Sistema operativo non supportato per l'apertura della shell")
 
 
 #------STRING METHODS------
@@ -454,12 +461,13 @@ class CALC():
 
 #------------------------
 class IP_INTERFACE(): 
-    def iface_from_IP(addr_target:ipaddress.IPv4Address=None):
+    def iface_from_IP(addr_target:ipaddress.IPv4Address=None)-> tuple[str,str]|tuple[None,None]:
         if IS_TYPE.ipaddress(addr_target):  
             if sys.platform == "win32":
                 return IP_INTERFACE._windows_iface_from_IP(addr_target)
             elif sys.platform=="linux": 
                 return IP_INTERFACE._linux_iface_from_IP(addr_target) 
+            else: return None,None
         raise Exception("iface_from_IP: Argomenti non validi")
     
     def _windows_iface_from_IP(addr_target:ipaddress.IPv4Address=None): 
@@ -471,11 +479,8 @@ class IP_INTERFACE():
         iface=None
         ip_src=None
         try:
-            iface_command="" \
-            "Get-NetIPInterface -InterfaceIndex ("
-            f"Find-NetRoute -RemoteIPAddress {addr_target.exploded} | Select-Object -First 1 -ExpandProperty InterfaceIndex"
-            ") | Select-Object -First 1 -ExpandProperty InterfaceAlias"
-            ""
+            iface_command= f"Get-NetIPInterface -InterfaceIndex (Find-NetRoute -RemoteIPAddress {addr_target.exploded} | Select-Object -First 1 -ExpandProperty InterfaceIndex) | Select-Object -First 1 -ExpandProperty InterfaceAlias" 
+            #print("Iface Comando", iface_command)
             process=subprocess.run(
                 ["powershell","-Command", iface_command]
                 ,capture_output=True
@@ -533,6 +538,7 @@ class IP_INTERFACE():
         return None, None 
 
     def default_iface(): 
+        return conf.iface
         if sys.platform == "win32":
             return IP_INTERFACE._windows_default_iface()
         elif sys.platform=="linux":
@@ -541,8 +547,7 @@ class IP_INTERFACE():
 
     def _general_default_iface(): 
         try:
-            iface = conf.iface  # Automatically detects default iface
-            #iface = conf.iface 
+            iface = conf.iface  # Automatically detects default iface 
             #ip_src = conf.route.route("0.0.0.0")[1] 
             return iface
         except Exception as e:
@@ -559,7 +564,7 @@ class IP_INTERFACE():
             )
             stdout, stderr = process.communicate()
             if process.returncode != 0:
-                raise Exception(f"Errore netsh: {stderr.strip()}") 
+                print(f"_windows_default_iface: {stderr.strip()}") 
             lines = stdout.splitlines()
             for line in lines:
                 if "Connected" in line:
@@ -631,6 +636,215 @@ class IP_INTERFACE():
                         return match.group(1)
         return None 
     
+    def macAddr_src_dsr(ip_src:ipaddress.IPv4Address=None, ip_dst:ipaddress.IPv4Address=None):
+        if IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src):  
+            if sys.platform == "win32":
+                return IP_INTERFACE._windows_macAddr_src_dsr(ip_src, ip_dst)
+            elif sys.platform=="linux": 
+                return IP_INTERFACE._linux_macAddr_src_dsr(ip_src, ip_dst) 
+            else: return None,None
+        raise Exception("iface_from_IP: Argomenti non validi") 
+    
+    def _linux_macAddr_src_dsr(ip_src:ipaddress.IPv4Address=None, ip_dst:ipaddress.IPv4Address=None): 
+        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src)): 
+            return None, None 
+        if ip_dst.version!=ip_src.version: 
+            print("Gli indirizzi IP devono essere della stessa versione")
+            return None, None
+        
+        command_gateway=f"ip -{ip_src.version} route get {ip_src.compressed} | grep -o 'via [^ ]*' |awk '{{print $2}}'" #IP src gateway che raggiunge la destinazione
+        process=subprocess.run(
+            ["bash","-c", command_gateway]
+            ,capture_output=True
+            ,text=True
+        )
+        ip_gateway=process.stdout.strip()
+        print("IP source gateway:", ip_gateway)
+        if not ip_gateway or ip_gateway.strip()=="":
+            ip_gateway=ip_src.compressed
+        command_src=f"ip -{ip_src.version} neigh show $({ip_gateway}) | grep -o 'lladr [^ ]*' | awk '{{print $2}}'" #MAC gateway che raggiunge la destinazione
+        process=subprocess.run(
+            ["bash","-c", command_src]
+            ,capture_output=True
+            ,text=True
+        )
+        mac_src=process.stdout.strip() 
+        if not mac_src: 
+            print("MAC address della sorgente non ricavato")  
+        
+        command_gateway=f"ip -{ip_dst.version} route get {ip_dst.compressed} | grep -o 'via [^ ]*' |awk '{{print $2}}'" #IP dst gateway che raggiunge la destinazione
+        process=subprocess.run(
+            ["bash","-c", command_gateway]
+            ,capture_output=True
+            ,text=True
+        )
+        ip_gateway=process.stdout.strip()
+        print("IP destination gateway:", ip_gateway)
+        if not ip_gateway or ip_gateway.strip()=="":
+            ip_gateway=ip_dst.compressed
+        command_src=f"ip -{ip_dst.version} neigh show $({ip_gateway}) | grep -o 'lladr [^ ]*' | awk '{{print $2}}'" #MAC gateway che raggiunge la destinazione
+        process=subprocess.run(
+            ["bash","-c", command_src]
+            ,capture_output=True
+            ,text=True
+        )
+        mac_dst=process.stdout.strip() 
+        if not mac_dst : 
+            print("MAC address della destinazione non ricavato") 
+        return mac_src, mac_dst 
+
+    def _windows_macAddr_src_dsr(ip_src:ipaddress.IPv4Address=None, ip_dst:ipaddress.IPv4Address=None):
+        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src)): 
+            return None, None
+        mac_src,mac_dst=None,None
+        if ip_dst.version!=ip_src.version: 
+            print("Gli indirizzi IP devono essere della stessa versione")
+            return None, None
+        elif ip_dst.version==4 and ip_src.version==4:
+            command_dst=f"(Get-NetNeighbor -IPAddress '{ip_dst.compressed}').LinkLayerAddress" #restituisce MAC address destinazione
+            print(command_dst)
+            process=subprocess.run(
+                ["powershell","-Command", command_dst]
+                ,capture_output=True
+                ,text=True
+            )  
+            mac_dst=process.stdout.strip() 
+            if not mac_dst: 
+                print("MAC address della destinazione non ricavato") 
+            command_src=f"(Get-NetAdapter -Name(Get-NetIPAddress -IPAddress '{ip_src.compressed}').InterfaceAlias).MacAddress "
+            print(command_src)
+            process=subprocess.run(
+                ["powershell","-Command", command_src]
+                ,capture_output=True
+                ,text=True
+            )  
+            mac_src=process.stdout.strip() 
+            if not mac_src: 
+                print("MAC address della sorgente non ricavato")
+            #print(f"Sorgente: {mac_src}, Destinazione {mac_dst}")
+        elif ip_src.version==6 and ip_dst.version==6: 
+            scope_id=ip_src.scope_id 
+            while not scope_id: 
+                scope_id=IP_INTERFACE.get_IPv6_scopeID(ip_src) 
+                if not scope_id: 
+                    raise Exception("_windows_macAddr_src_dsr: Scope ID non ricavato") 
+            command_src=f"(Get-NetAdapter -InterfaceIndex (Get-NetIPAddress -IPAddress '{ip_src.compressed}%{scope_id}').InterfaceIndex).MacAddress"
+            print("Coom mac src",command_src) 
+            process=subprocess.run(
+                ["powershell","-Command", command_src]
+                ,capture_output=True
+                ,text=True
+            )
+            mac_src=process.stdout.strip() 
+            if not mac_src: 
+                print("MAC address della sorgente non ricavato")
+            
+            scope_id=ip_dst.scope_id 
+            while not scope_id: 
+                scope_id=IP_INTERFACE.get_IPv6_scopeID(ip_dst) 
+                if not scope_id: 
+                    raise Exception("_windows_macAddr_src_dsr: Scope ID non ricavato") 
+            command_dst=f"(Get-NetAdapter -InterfaceIndex (Get-NetIPAddress -IPAddress '{ip_dst.compressed}%{scope_id}').InterfaceIndex).MacAddress"
+            print("Coom mac src",command_dst) 
+            process=subprocess.run(
+                ["powershell","-Command", command_dst]
+                ,capture_output=True
+                ,text=True
+            )
+            mac_dst=process.stdout.strip() 
+            if not mac_dst: 
+                print("MAC address della destinazione non ricavato")
+            #print(f"Sorgente: {mac_src}, Destinazione {mac_dst}")
+        else: raise Exception("Versione IP non implementata")
+        return mac_src, mac_dst
+
+    def _windows_macAddr_src_dsr(ip_address:ipaddress._BaseAddress): 
+        if not IS_TYPE.ipaddress(ip_address):
+            return None 
+        #command_dst2="arp -a | findstr '192.168.1.17'"
+        #restituisce 192.168.1.17  24-77-03-18-7b-74   dinamico
+        comando_mac=f"Get-NetNeighbor -IPAddress {ip_address.compressed} "\
+            "| Where-Object {$_.State -eq 'Reachable' -or $_.State -eq 'Stale'} "\
+            "| Select-Object -First 1 -ExpandProperty LinkLayerAddress " #\ "| Format-Table State, LinkLayerAddress"
+        #print(f"Eseguo comando: {comando_mac}")
+        process=subprocess.run(
+            ["powershell","-Command", comando_mac]
+            ,capture_output=True
+            ,text=True
+        )
+        stdout=process.stdout.strip()
+        stderr=process.stderr.strip()
+        if not stdout: 
+            print(f"Tabella di routing non contiene  MAC address per {ip_address.compressed}") 
+        if stderr or stdout=="":
+            #print(f"Errore nell'esecuzione  del comando: {stderr}") 
+            if ip_address.version==6:
+                scope_id=ip_address.scope_id 
+                while not scope_id: 
+                    scope_id=IP_INTERFACE.get_IPv6_scopeID(ip_address) 
+                    if not scope_id: 
+                        raise Exception(f"get_mac_address: Scope ID non ricavato per l'IP {ip_address.compressed}") 
+                comando_interfaccia=f"(Get-NetIPAddress -IPAddress '{ip_address.compressed}%{scope_id}').InterfaceIndex"
+            elif ip_address.version==4:
+                comando_interfaccia=f"(Get-NetIPAddress -IPAddress '{ip_address.compressed}').InterfaceIndex"
+            else:
+                raise Exception(f"get_mac_address: IP version not supported {ip_address.version}")
+            comando_mac=f"(Get-NetAdapter -InterfaceIndex {comando_interfaccia}).MacAddress"
+            #print("Comando",comando_mac) 
+            process=subprocess.run(
+                ["powershell","-Command", comando_mac]
+                ,capture_output=True
+                ,text=True
+            )
+            stdout=process.stdout.strip() 
+            stderr=process.stderr.strip() 
+            if not stdout: 
+                print("MAC address non ricavato")
+            if stderr or stdout=="":
+                #print(f"Errore nell'esecuzione  del comando: {stderr}") 
+                raise Exception(f"get_mac_address: Impossibile ricavare MAC address per l'IP {ip_address.compressed}")
+        print(f"Output comando:{stdout}")
+
+    def get_IPv6_scopeID(ip_addr:ipaddress.IPv6Address=None):
+        if IS_TYPE.ipaddress(ip_addr) and ip_addr.version==6:
+            scope_id=ip_addr.scope_id 
+            while not scope_id: 
+                if sys.platform == "win32": 
+                    #command_scopeID="(Get-NetIPAddress -AddressFamily IPv6 | Where-Object {$_.IPAddress -like "+f"'{ip_dst.compressed}*'"+"}).InterfaceIndex"
+                    command_scopeID=f"(Find-NetRoute -RemoteIPAddress '{ip_addr.compressed}' | Select-Object -First 1).InterfaceIndex" 
+                    process=subprocess.run(
+                        ["powershell","-Command", command_scopeID]
+                        ,capture_output=True
+                        ,text=True
+                    )
+                    scope_id=process.stdout.strip() 
+                    if not scope_id: 
+                        print("Scope ID non ricavato")
+                elif sys.platform=="linux": 
+                    if ip_addr.version==4:
+                        command=f"arp -n {ip_addr.compressed} | grep {ip_addr.compressed} | awk 'NR>1 {{print $5}}'"
+                    elif ip_addr.version==6:
+                        command=f"ip -6 neigh show {ip_addr.compressed} | grep {ip_addr.compressed} | awk '{{print $3}}'"
+                    else: raise Exception("Versione IP non implementata")
+                    #command_scopeID= ip -{ip_addr.version} route get {ip_addr.compressed} | awk '{for(i=1;i<=NF;i++){if($i=="dev"){print $(i+1)}}}'
+                    command_scopeID=f"ip -{ip_addr.version} route get {ip_addr.compressed} | grep -o 'dev [^ ]*' |awk '{{print $2}}'" 
+                    process_shell= subprocess.Popen(
+                        ["bash", "-c", command_scopeID] 
+                        ,stdin=subprocess.PIPE 
+                        ,stdout=subprocess.PIPE 
+                        ,stderr=subprocess.PIPE 
+                        ,text=True
+                        ,bufsize=1
+                    )
+                    scope_id=process.stdout.strip() 
+                    if not scope_id or scope_id=="" or scope_id.lower()=="incomplete":
+                        process_shell= subprocess.Popen( ["ping", "-c 1", ip_addr.compressed]) 
+                        print("Scope ID non ricavato")
+                else: 
+                    print("Sistema operativo non supportato per il recupero dello scope ID")
+            return scope_id
+        return None
+    
     def mac_from_ipv6(ipv6_dst:ipaddress.IPv6Address, ipv6_src:ipaddress.IPv6Address, iface_name: str):
         if not(IS_TYPE.ipaddress(ipv6_dst) and IS_TYPE.ipaddress(ipv6_src) and IS_TYPE.string(iface_name) and ipv6_dst.version==6 and ipv6_src.version==6): 
             raise Exception("mac_from_ipv6: Argomenti non validi")
@@ -679,24 +893,24 @@ class IP_INTERFACE():
                 return False 
         else: return False
 #------------------------
-class IS_TYPE():
+class IS_TYPE(): 
     def callable_function(callback_function=None):
-        #the type of a function can be 'function' or 'method'
+        #the type of a function can be 'function' or 'method' 
         if callable(callback_function): 
             return True
-        print(f"IS_TYPE:callback_function\tCallback function invalida {callback_function}") 
+        print(f"callable_function: callback function invalida {callback_function}") 
         return False  
     
     def ipaddress(ip_address:ipaddress.IPv4Address): 
         if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
             return True 
-        print(f"IS_TYPE:ipaddress\tIndirizzo IP invalido {ip_address}") 
+        print(f"ipaddress: Indirizzo IP invalido {ip_address}") 
         return False
 
     def time(timeout_time:int|float=None):    
         if isinstance(timeout_time, (int, float)): 
             return True
-        print(f"IS_TYPE:time\tTempo invalido {timeout_time}") 
+        print(f"IS_TYPE.time\tTempo invalido {timeout_time}") 
         return False 
 
     def threading_Event(event:threading.Event=None):
@@ -781,10 +995,11 @@ class GET():
             raise Exception(f"GET:AsyncSniffer\targs is not a dictionary") 
         if SNIFFER.check_args(args):
             return AsyncSniffer( **args ) 
+        print("AHAHAHAH")
         return None
 
     def timer(timeout_time=60, callback_function=None): 
-        if IS_TYPE.callback_function(callback_function) and  IS_TYPE.time(timeout_time): 
+        if IS_TYPE.callable_function(callback_function) and (timeout_time is None or IS_TYPE.time(timeout_time)): 
             return threading.Timer(timeout_time, callback_function)
         return None 
 
@@ -848,15 +1063,15 @@ class THREAD():
             return response 
         return None 
 
-    def update_thread_response(proxy:ipaddress.IPv4Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=False):
-        if IS_TYPE.ipaddress(proxy) and IS_TYPE.threading_lock(thread_lock) and IS_TYPE.dictionary(thread_response) and IS_TYPE.boolean(response): 
-            thread_lock.acquire()
-            thread_response.update({proxy.compressed:response}) 
-            thread_lock.release()
-        raise Exception(f"Non è stato possibile aggiornare il dizionario con la risposta del thread")
+    def update_thread_response(proxy:ipaddress.IPv4Address=None, thread_lock:threading.Lock=None, thread_response:dict=None, response:bool=False):
+        if not (IS_TYPE.ipaddress(proxy) and IS_TYPE.threading_lock(thread_lock) and IS_TYPE.dictionary(thread_response) and IS_TYPE.boolean(response)):  
+            raise Exception(f"update_thread_response: argomenti non validi")
+        thread_lock.acquire()
+        thread_response.update({proxy.compressed:response}) 
+        thread_lock.release() 
         
     def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address]=None,callback_function=None): 
-        if IS_TYPE.callback_function(callback_function) and IS_TYPE.list(address_list) and len(address_list)>0: 
+        if IS_TYPE.callable_function(callback_function) and IS_TYPE.list(address_list) and len(address_list)>0: 
             thread_lock=threading.Lock()
             thread_response={}
             thread_list={}
@@ -899,83 +1114,76 @@ class SNIFFER():
             "opened_socket","session","started_callback","offline","quiet" 
         ]  
         invalid_args=[key for key in args if key not in accepted_key_dict]
-        if len(invalid_args): 
+        if len(invalid_args)>0: 
             print(f"Argomenti non validi {invalid_args}") 
             return False
         return True 
 
     def start(sniffer:AsyncSniffer=None, timer:threading.Timer=None): 
         if not (IS_TYPE.AsyncSniffer(sniffer) and IS_TYPE.threading_Timer(timer)): 
-            raise Exception(f"SNIFFER:start: Argomenti in input non validi")
+            raise Exception(f"SNIFFER.start: Argomenti in input non validi")
         sniffer.start()
         timer.start() 
 
     def stop(sniffer:AsyncSniffer=None): 
-        if IS_TYPE.AsyncSniffer(sniffer) and sniffer.running: 
-            sniffer.stop() 
-            print("Sniffer Stopped")
-            if sniffer.running:
-                print("\t***sniffer still alive")
-            return True
-        if not sniffer.running:
-            print("Sniffer non in esecuzione") 
-        #if not IS_TYPE.AsyncSniffer(sniffer): 
-        #    raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}")  
-        return False 
+        if IS_TYPE.AsyncSniffer(sniffer): 
+            if sniffer.running: 
+                print("Fermo lo sniffer.",end=" ") 
+                sniffer.stop() 
+                if not sniffer.running:
+                    print("Sniffer fermato correttamente.") 
+                    return True
+                print("Sniffer ancora vivo")
+            else: 
+                raise Exception("Lo sniffer non era in esecuzione")
+            return False  
+        raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}") 
 
-    def template_timeout(sniffer:AsyncSniffer=None,event:threading.Event=None): 
-        if not (IS_TYPE.AsyncSniffer(sniffer) and IS_TYPE.threading_Event(event)): 
-            raise ValueError("template_timeout: Argomenti non validi")  
+    def template_timeout(event:threading.Event=None):  
+        if not IS_TYPE.threading_Event(event): 
+            raise Exception("template_timeout: Argomenti non validi")  
         if not event.is_set():
             print("Timeout: No packet received within 60 seconds") 
-            SNIFFER.stop(sniffer) if sniffer.running else print("Sniffer non in esecuzione")  
+            #SNIFFER.stop(sniffer) if sniffer.running else print("Sniffer non in esecuzione")  
             THREADING_EVENT.set(event) 
 
-    def sniff_packet(args:dict=None,timeout_time=60, callback_func_timer=template_timeout, event:threading.Event=None): 
-        if  SNIFFER.check_args(args) and IS_TYPE.time(timeout_time) and IS_TYPE.callback_function(callback_func_timer): 
+    def sniff_packet(args:dict=None,timeout_time=60, callback_func_timer=None): 
+        if  SNIFFER.check_args(args) and (timeout_time is None or IS_TYPE.time(timeout_time)): 
             sniffer= GET.AsyncSniffer(args) 
-            timeout_time=int(timeout_time) if timeout_time is not None else timeout_time 
-            if callback_func_timer is None and IS_TYPE.threading_Event(event): 
-                callback_func_timer=lambda: SNIFFER.template_timeout(sniffer, event) 
-            elif callback_func_timer is None and not IS_TYPE.threading_Event(event): 
-                raise Exception("Impossibile catturare il traffico senza funzione di callback o senza specificare un threading.Event") 
+            timeout_time=int(timeout_time) if timeout_time is not None else timeout_time  
+            if not IS_TYPE.callable_function(callback_func_timer): 
+                print("Considera l'utilizzo di 'template_timeout'")
+                raise Exception(f"sniff_packet: callback non definita {callback_func_timer}")
             timer = GET.timer(timeout_time, callback_func_timer) 
-            SNIFFER.start(sniffer, timer) 
+            SNIFFER.start(sniffer, timer)  
+            if sniffer.running:
+                print("Lo sniffer è partito")
+            else: raise Exception("Lo sniffer non è partito")
             return sniffer, timer 
         raise Exception(f"sniff_packet: Argomenti non validi") 
 
-    def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, time=10,icmp_seq:int=0,icmp_id:int=None,interface=""):
-        try:
-            if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
-                raise Exception("iip_dst non è ne istanza di IPv4Address ne IPv6Address")
-            if not isinstance(data,bytes): 
-                raise Exception(f"I dati non sono bytes: {type(data)}")
-        except Exception as e:
-            raise Exception(f"send_packet: {e}") 
-        if icmp_id is None:
-            icmp_id=mymethods.calc_checksum(data) 
-        pkt = IP(dst=ip_dst.compressed)/ICMP(id=icmp_id,seq=icmp_seq) / data  
-        print(f"\tSending {pkt.summary()}") 
-        if isinstance(interface,str) and interface !="":
-            ans=sendp(pkt, verbose=1, iface=interface)
-        else:
-            ans = sr1(pkt, timeout=time, verbose=1)
-        if ans:
-            #print(f"Reply: \t{ip_dst} is alive\n") 
-            return True 
-        #print(f"No reply: \t{ip_dst} is not responding\n")
-        return False
+    def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address=None, icmp_seq:int=0,icmp_id:int=None): 
+        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.bytes(data) and IS_TYPE.integer(icmp_seq)): 
+            raise Exception("send_packet: Argomenti non validi") 
+        if not icmp_id or not IS_TYPE.integer(icmp_seq): 
+            icmp_id=CALC.checksum(data) 
+        pkt = IP(dst=ip_dst.compressed, src=IP_INTERFACE.find_local_IP()[0])/ICMP(id=icmp_id,seq=icmp_seq) / data  
+        print(f"Sending {pkt.summary()}") 
+        send(pkt, verbose=1, iface=IP_INTERFACE.iface_from_IP(ip_dst)[0]) 
 
 #------------------------
 class TIMER(): 
     def stop(timer:threading.Timer=None): 
-        if IS_TYPE.threading_Timer(timer) and timer.is_alive(): 
-            timer.cancel() 
-            print("Timer Stopped")
-            if timer.is_alive():
-                print("\t***Timer still alive")
-            return True
-        if not timer.is_alive(): 
-            print("Timer non in esecuzione") 
-        return False 
+        if IS_TYPE.threading_Timer(timer): 
+            if timer.is_alive(): 
+                print("Fermo il timer",end="  ")
+                timer.cancel()  
+                if not timer.is_alive():
+                    print("timer fermato correttamente")
+                    return True
+                print("Timer ancora in esecuzione")
+            else: 
+                print("Il timer non era in esecuzione") 
+            return False 
+        raise Exception(f"Timer non istanza di threadig.Timer: {type(timer)}") 
 
