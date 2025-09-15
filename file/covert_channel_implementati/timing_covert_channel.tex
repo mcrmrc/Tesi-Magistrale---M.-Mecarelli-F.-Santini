@@ -69,4 +69,27 @@ ciò verrà fatto specificanto nel campo non solo l'indirizzo IP di destinazione
 ma anche l'interfaccia per poter raggiungerlo. 
 %Un livello \textit{Raw} contenente solo il testo '\textit{Hello Neighbour}'. 
 
-
+\subsubsection{Timing Channel a 8 bit} 
+Uno sviluppo effettuato è stato l'amplamento dei bit trasportabili. 
+Siccome la quantità di dati risulta non congrua alla quantità di tempo speso; 
+si è sviluppato l'approccio presente in ICMP Exfill. 
+In esso viene mandato l'intero byte e il tempo da aspettare è determinato da esso. 
+Questo percè il byte, rappresentante il carattere, può essere letto come un numero intero. 
+\vspace{1ex} \newline 
+Da queso approccio si è cercato di ridurre la quantità di tempo necessaria per mandare i dati. 
+Inizialmente si è optato per sottrarre al numero ricavato un certo valore. 
+Il valore in questione era 31 siccome i caratteri stampabili vanno da 32 sino a 127. 
+Ma anche qui l'ostacolo era la presenta di caratteri speciali che così sarebbero stati tagliati fuori. 
+Di conseguenza caratteri speciali come \\n o \\t non sarebbero potuti essere inviati. 
+\vspace{1ex} \newline 
+La soluzione finale è stata raggiunta tramite il calcolo del delay in questo modo: 
+\begin{center}
+    $\text{min\_delay}+(\text{byte}/255)*(\text{max\_delay}-\text{min\_delay})$
+\end{center}
+Tramite questa funzione il range dei possibili delay è stato ristretto a due valori precisi e definiti: min\_delay e max\_delay. 
+E questo ha permesso l'invio di 72 byte in circa 13/14 minuti. 
+Il lato negativo è una maggiore possibilità di errore: se il computer che riceve i dati subisce un delay, 
+la possibilità di decodificare il carattere sbagliato è magigore rispetto ai metodi illustrati precedentemente. 
+%\vspace{1ex} \newline 
+%Lo sviluppo di un ulteriore Timing Channel che possa inviare 2 bytes sarebbe difficile. 
+%e al momento è possiibile farlo riducendo il massimo tempo di attesa. 
