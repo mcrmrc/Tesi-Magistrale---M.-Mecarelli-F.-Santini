@@ -599,6 +599,12 @@ class SendSingleton():
             pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
             #print(f"Sending {pkt.summary()}") 
             sendp(pkt, verbose=1, iface=interface) 
+        stop_delay = min_delay + (stop_value / 255) * (max_delay - min_delay)
+        print(f"[STOP] Inviando byte di stop {stop_value} dopo {stop_delay}") 
+        time.sleep(stop_delay)  # opzionale, per separarlo dal resto 
+        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
+        #print(f"Sending {pkt.summary()}") 
+        sendp(pkt, verbose=1, iface=interface)
     
     #-------------------------------------
     def ipv6_information_reply(data:bytes=None, addr_src:ipaddress.IPv6Address=None,addr_dst:ipaddress.IPv6Address=None): 
