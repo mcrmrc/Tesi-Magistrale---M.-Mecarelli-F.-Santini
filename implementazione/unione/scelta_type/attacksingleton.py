@@ -573,11 +573,26 @@ class SendSingleton():
             time.sleep(TEMPO_BYTE)
         end_time=datetime.datetime.now(datetime.timezone.utc) 
     
-    
+    def ipv4_timing_channel_8bit(data:bytes=None, ip_dst:ipaddress=None, min_sec_delay:int=1, max_sec_delay:int=30, stop_value: int = 255): 
+        if not (IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_sec_delay) and IS_TYPE.integer(max_sec_delay) and IS_TYPE.integer(stop_value)):
+            raise Exception("test_timing_channel8bit: Argomenti non validi") 
+        old_time=current_time=time.perf_counter() 
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower() 
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"MAC di destinazione: {target_mac}")
+        print(f"Interfaccia per destinazione: {interface}")
 
-
-
-
+        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
+        sendp(pkt, verbose=1, iface=interface) 
+        for byte in data:   
+            delay=min_sec_delay+(byte/255)*(max_sec_delay-min_sec_delay)
+            print(f"Delay :{byte}\t{delay}\n")
+            #print(f"Data: {byte}\t{byte-31}\t{type(byte)}\n") 
+            time.sleep(delay) 
+            
+            pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
+            #print(f"Sending {pkt.summary()}") 
+            sendp(pkt, verbose=1, iface=interface) 
     
     #-------------------------------------
     def ipv6_information_reply(data:bytes=None, addr_src:ipaddress.IPv6Address=None,addr_dst:ipaddress.IPv6Address=None): 
@@ -1727,6 +1742,52 @@ class ReceiveSingleton():
             print(f"Done waiting 'parameter_problem' received: {final_data}") 
             return True 
         return False
+
+    def ipv4_timing_channel_8bit(ip_dst:ipaddress=None, min_sec_delay:int=1, max_sec_delay:int=30, stop_value: int = 255): 
+        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_sec_delay) and IS_TYPE.integer(max_sec_delay) and IS_TYPE.integer(stop_value)):
+            raise Exception("test_timing_channel8bit: Argomenti non validi") 
+        start_time=end_time=previous_time=None 
+        stop_flag={"value":False} 
+        received_data=[] 
+
+        def decode_byte(delay): 
+            #(byte/255)=(delay-min_sec_delay)/(max_sec_delay-min_sec_delay) 
+            frazione = (delay - min_sec_delay) / (max_sec_delay - min_sec_delay) 
+            byte=int(round(frazione*255)) 
+            return byte 
+        
+        def callback_timing_channel8bit(pkt): 
+            nonlocal previous_time, start_time, end_time 
+            if pkt.haslayer("ICMP") and (pkt[ICMP].type==8 or pkt[ICMP].type==0): 
+                #current_time=datetime.datetime.now() 
+                #current_time=time.perf_counter() 
+                current_time=pkt.time 
+                if previous_time is not None: 
+                    delta=(current_time-previous_time).total_seconds() 
+                    byte=decode_byte(delta) 
+                    print(f"Delta:{delta}\tByte:{byte} Char:{chr(byte)}") 
+                    received_data.append(chr(byte)) 
+                    if byte==stop_value: 
+                        stop_flag["value"]=True 
+                        end_time=pkt.time 
+                else: start_time=pkt.time 
+                previous_time=current_time 
+        
+        def stop_filter(pkt): 
+            return stop_flag["value"] 
+        
+        print("In ascolto dei pacchetti ICMP...")
+        sniff(
+            filter=f"icmp and dst host {ip_dst.compressed}" 
+            ,prn=callback_timing_channel8bit 
+            ,store=False 
+            ,stop_filter=stop_filter 
+        )  
+        received_data="".join(x for x in received_data) 
+        print(f"Dati ricevuti: {received_data}") 
+        print(f"Tempo di esecuzione: {end_time-start_time}") 
+
+
 
     #--------------------- 
     def ipv6_information_request(ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None):
