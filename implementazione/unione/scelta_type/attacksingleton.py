@@ -4,17 +4,15 @@ import time
 import os
 import ipaddress
 import string 
-
-from mymethods import IS_TYPE as istype, ping_once, IP_INTERFACE as ipinterface, THREADING_EVENT as threadevent 
-from mymethods import TIMER as mytimer, GET as get, SNIFFER as mysniffer, is_scelta_SI_NO, print_dictionary
+from mymethods import *  
 
 from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
 from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
-from scapy.all import get_if_hwaddr, sendp, sr1, sniff, send
+from scapy.all import get_if_hwaddr, sendp, sr1, sniff, send, srp1
 
 #----------------------------------------------------------------------- 
 def timeout_timing_covertchannel(event_pktconn): 
-        threadevent.set(event_pktconn)
+        THREADING_EVENT.set(event_pktconn)
         return 
 
 def choose_attack_function():  
@@ -51,7 +49,7 @@ def choose_attack_function():
             return None 
 
 def get_filter_attack_from_function(self,function_name:str=None, ip_dst=None, checksum=None): 
-    if not isinstance(function_name,str) or not istype.ipaddress(ip_dst) or not istype.integer(checksum):
+    if not isinstance(function_name,str) or not IS_TYPE.ipaddress(ip_dst) or not IS_TYPE.integer(checksum):
         raise ValueError(f"La funzione passata non è una stringa: {type(function_name)} {function_name}")
     if self.attack_dict.get(function_name) is None:
         raise ValueError(f"La funzione non è presente: {function_name}")
@@ -182,7 +180,7 @@ def get_filter_connection_from_function(function_name:str=None, ip_src=None, che
 
 #-----------------------------------------------------------------------
 def send_data(attack_function:dict, data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-    if not (istype.dictionary(attack_function) and istype.bytes(data) and istype.ipaddress(ip_dst)): 
+    if not (IS_TYPE.dictionary(attack_function) and IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)): 
         raise Exception("send_data: Argomenti non validi")
     print(f"Using {attack_function} as attack function for {ip_dst.compressed}. Sending data: {data}")
     singleton=SendSingleton() 
@@ -212,39 +210,45 @@ def send_data(attack_function:dict, data:bytes=None, ip_dst:ipaddress.IPv4Addres
 
 class SendSingleton(): 
     def ipv4_information_reply(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argomenti non corretti")
         if ip_dst.version!=4:
             raise Exception(f"IP version is not 4: {ip_dst.version}") 
         TYPE_INFORMATION_REQUEST=15
         TYPE_INFORMATION_REPLY=16
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst)         
         for index in range(0, len(data), 2): 
             if index==len(data)-1 and len(data)%2!=0:
                 icmp_id=(data[index]<<8)
             else:
                 icmp_id=(data[index]<<8)+data[index+1] 
-            pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_INFORMATION_REPLY,id=icmp_id)
-            #print(f"Sending {pkt.summary()}") 
-            ans = send(pkt, verbose=1)  
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_INFORMATION_REPLY,id=0,seq=1)
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
-        if ans:  
-            return True  
-        return False 
+            pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_INFORMATION_REPLY,id=icmp_id)
+            pkt.summary()
+            #pkt.show()
+            #ans = srp1(pkt, verbose=1, iface=interface)  usando le replynon ritoranno niente
+            sendp(pkt, verbose=1, iface=interface) 
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_INFORMATION_REPLY,id=0,seq=1)
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
     
     def ipv4_timestamp_reply(data:bytes=None, ip_dst:ipaddress.IPv4Address=None):
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argoemnti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         TYPE_TIMESTAMP_REQUEST=13 
         TYPE_TIMESTAMP_REPLY=14 
         for index in range(0, len(data), 5): 
-            icmp_id=icmp_id=(data[index]<<8)+data[index+1]  
+            try:
+                icmp_id=icmp_id=(data[index]<<8)+data[index+1]  
+            except IndexError as e: 
+                icmp_id=(data[index]<<8)
             
             current_time=datetime.datetime.now(datetime.timezone.utc) 
             midnight = current_time.replace(hour=0, minute=0, second=0, microsecond=0) 
@@ -268,125 +272,154 @@ class SendSingleton():
                 current_time=current_time.replace(minute=current_time.minute+1,second=(current_time.second+1)%60, microsecond=data_pkt)
             icmp_ts_tx=int((current_time - midnight).total_seconds() * 1000)  
 
-            pkt= IP(dst=ip_dst.compressed)/ICMP(
+            pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(
                 type=TYPE_TIMESTAMP_REPLY
                 ,id=icmp_id
                 ,ts_ori=icmp_ts_ori
                 ,ts_rx=icmp_ts_rx
                 ,ts_tx=icmp_ts_tx
             )
-            #print(f"Sending {pkt.summary()}") 
-            ans = send(pkt, verbose=1)  
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_TIMESTAMP_REPLY,id=0,seq=1)
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
-        if ans:  
-            return True  
-        return False 
+            pkt.summary()
+            #pkt.show()
+            sendp(pkt, verbose=1, iface=interface)  
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_TIMESTAMP_REPLY,id=0,seq=1)
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
     
+    def ipv4_echo_reply(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
+            raise Exception(f"Argomenti non corretti")
+        if ip_dst.version!=4:
+            raise Exception(f"IP version is not 4: {ip_dst.version}") 
+        TYPE_ECHO_REQUEST=8
+        TYPE_ECHO_REPLY=0
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst)         
+        for index in range(0, len(data), 2): 
+            if index==len(data)-1 and len(data)%2!=0:
+                icmp_id=(data[index]<<8)
+            else:
+                icmp_id=(data[index]<<8)+data[index+1] 
+            pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY,id=icmp_id)
+            pkt.summary()
+            #pkt.show()
+            #ans = srp1(pkt, verbose=1, iface=interface)  usando le replynon ritoranno niente
+            sendp(pkt, verbose=1, iface=interface) 
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY,id=0,seq=1)
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
+
     def ipv4_redirect(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argoemnti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         TYPE_REDIRECT=5    
         for index in range(0, len(data), 4): 
             #icmp_id=(data[index]<<8)+data[index+1]
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index:index+2])) / \
                 ICMP(id=int.from_bytes(data[index+2:index+4]))
-            pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_REDIRECT)/Raw(load=bytes(dummy_ip)[:28])
-            #print(f"Sending {pkt.summary()}") 
-            ans = send(pkt, verbose=1) 
+            pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_REDIRECT)/Raw(load=bytes(dummy_ip)[:28])
+            pkt.summary()
+            #pkt.show()
+            sendp(pkt, verbose=1, iface=interface) 
         dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_REDIRECT)/Raw(load=bytes(dummy_ip)[:28])
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
-        if ans: 
-            return True  
-        return False 
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_REDIRECT)/Raw(load=bytes(dummy_ip)[:28])
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
     
     def ipv4_source_quench(data:bytes=None, ip_dst:ipaddress.IPv4Address=None):
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argoemnti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         TYPE_SOURCE_QUENCH=4 
         for index in range(0, len(data), 8):
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+4:index+6])) / \
                 ICMP(id=int.from_bytes(data[index+6:index+8]))
-            pkt= IP(dst=ip_dst.compressed)/\
+            pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
                 ICMP(type=TYPE_SOURCE_QUENCH, unused=int.from_bytes(data[index:index+4]))/\
                 Raw(load=bytes(dummy_ip)[:28])
-            #print(f"Sending {pkt.summary()}") 
-            ans = send(pkt, verbose=1) 
+            pkt.summary()
+            #pkt.show()
+            sendp(pkt, verbose=1, iface=interface) 
         dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_SOURCE_QUENCH)/Raw(load=bytes(dummy_ip)[:28])
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
-        if ans: 
-            return True  
-        return False 
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_SOURCE_QUENCH)/Raw(load=bytes(dummy_ip)[:28])
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface)  
     
     def ipv4_parameter_problem(data:bytes=None, ip_dst:ipaddress.IPv4Address=None):
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argomenti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
         print(f"START sending to {ip_dst}: {data}")
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         TYPE_PARAMETER_PROBLEM=12 
         for index in range(0, len(data), 7): 
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+3:index+5])) / \
                 ICMP(id=int.from_bytes(data[index+5:index+7]))
-            pkt= IP(dst=ip_dst.compressed)/\
+            pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
                 ICMP(type=TYPE_PARAMETER_PROBLEM, ptr=int(data[index]) ,unused=int.from_bytes(data[index+1:index+3]) )/\
                 Raw(load=bytes(dummy_ip)[:28])
-            #print(f"Sending {pkt.summary()}") 
-            ans = send(pkt, verbose=1) #iface=interface
+            pkt.summary()
+            #pkt.show()
+            sendp(pkt, verbose=1, iface=interface) #iface=interface
         dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_PARAMETER_PROBLEM)/Raw(load=bytes(dummy_ip)[:28])
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_PARAMETER_PROBLEM)/Raw(load=bytes(dummy_ip)[:28])
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
         print("END data has being sent using ICMP Parameter Problem")  
     
     def ipv4_time_exceeded(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argoemnti non corretti") 
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         TYPE_TIME_EXCEEDED=11 
         for index in range(0, len(data), 6):
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+2:index+4])) / \
                 ICMP(id=int.from_bytes(data[index+4:index+6]))
-            pkt= IP(dst=ip_dst.compressed)/\
+            pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
                 ICMP(type=TYPE_TIME_EXCEEDED, unused=int.from_bytes(data[index:index+2]) )/\
                 Raw(load=bytes(dummy_ip)[:28])
-            #print(f"Sending {pkt.summary()}") 
-            ans = send(pkt, verbose=1) 
+            pkt.summary()
+            #pkt.show()
+            sendp(pkt, verbose=1, iface=interface) 
         dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_TIME_EXCEEDED)/Raw(load=bytes(dummy_ip)[:28])
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
-        if ans: 
-            return True  
-        return False  
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_TIME_EXCEEDED)/Raw(load=bytes(dummy_ip)[:28])
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
     
     def ipv4_destination_unreachable(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-        print(istype.bytes(data) and istype.ipaddress(ip_dst))
-        print(type(data), type(ip_dst))
-        if not (istype.bytes(data) and istype.ipaddress(ip_dst)): 
+        if not (IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)): 
             raise Exception(f"Argomenti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        target_mac = ipinterface.get_macAddress(ip_dst).strip().replace("-",":").lower()
-        interface=ipinterface.iface_from_IP(ip_dst) 
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
         print(f"Interfaccia per destinazione: {interface}")
         TYPE_DESTINATION_UNREACHABLE=3 
         for index in range(0, len(data), 8):
@@ -414,12 +447,14 @@ class SendSingleton():
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argoemnti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         TEMPO_0=3 #sec
         DISTANZA_TEMPI=2 #sec
         TEMPO_1=8 #sec
@@ -437,9 +472,10 @@ class SendSingleton():
             #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
             bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
         start_time=datetime.datetime.now(datetime.timezone.utc) 
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
         for piece_bit_data in bit_data:
             for bit in piece_bit_data:
                 if bit: 
@@ -447,9 +483,10 @@ class SendSingleton():
                 else: 
                     time.sleep(TEMPO_0)
                 current_time=datetime.datetime.now(datetime.timezone.utc)
-                pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-                #print(f"Sending {pkt.summary()}")
-                ans = send(pkt, verbose=1) 
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+                pkt.summary()
+                #pkt.show()
+                sendp(pkt, verbose=1, iface=interface) 
             time.sleep(TEMPO_BYTE)
         end_time=datetime.datetime.now(datetime.timezone.utc) 
     
@@ -457,12 +494,14 @@ class SendSingleton():
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore 
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argoemnti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         DISTANZA_TEMPI=2 #sec
         TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(2**2)] #00, 01, 10, 11
         #TEMPO_00=3, TEMPO_01=TEMPO_00+2*DISTANZA_TEMPI, TEMPO_10=TEMPO_01+2*DISTANZA_TEMPI, TEMPO_11=TEMPO_10+2*DISTANZA_TEMPI
@@ -478,16 +517,18 @@ class SendSingleton():
             #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
             bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
         start_time=datetime.datetime.now(datetime.timezone.utc)
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1) 
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface) 
         for piece_bit_data in bit_data:
             for bit1, bit2 in zip(piece_bit_data[0::2], piece_bit_data[1::2]): 
                 time.sleep(TEMPI_CODICI[(bit1<<1)+bit2]) 
                 current_time=datetime.datetime.now(datetime.timezone.utc)
-                pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-                #print(f"Sending {pkt.summary()}")
-                ans = send(pkt, verbose=1)  
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+                pkt.summary()
+                #pkt.show()
+                sendp(pkt, verbose=1, iface=interface)  
             time.sleep(TEMPO_BYTE)
         end_time=datetime.datetime.now(datetime.timezone.utc) 
     
@@ -495,12 +536,14 @@ class SendSingleton():
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
-        if not istype.bytes(data) or not istype.ipaddress(ip_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
             raise Exception(f"Argoemnti non corretti")
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
         DISTANZA_TEMPI=2 #sec
         TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(4**2)] #0000, 0001, 0010, 0011,...,1111
         TEMPO_BYTE=0*60 #minuti  
@@ -515,22 +558,30 @@ class SendSingleton():
             #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
             bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
         start_time=datetime.datetime.now(datetime.timezone.utc)
-        pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-        #print(f"Sending {pkt.summary()}") 
-        ans = send(pkt, verbose=1)  
+        pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+        pkt.summary()
+        #pkt.show()
+        sendp(pkt, verbose=1, iface=interface)  
         for piece_bit_data in bit_data:
             for bit1, bit2,bit3,bit4 in zip(piece_bit_data[0::4], piece_bit_data[1::4],piece_bit_data[2::4], piece_bit_data[3::4]):
                 index=bit1<<3 | bit2<<2 |  bit3<<1 | bit4  
                 time.sleep(TEMPI_CODICI[index])  
-                pkt= IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
-                #print(f"Sending {pkt.summary()}")
-                ans = send(pkt, verbose=1)  
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+                pkt.summary()
+                #pkt.show()
+                sendp(pkt, verbose=1, iface=interface)  
             time.sleep(TEMPO_BYTE)
-        end_time=datetime.datetime.now(datetime.timezone.utc)  
+        end_time=datetime.datetime.now(datetime.timezone.utc) 
+    
+    
 
+
+
+
+    
     #-------------------------------------
     def ipv6_information_reply(data:bytes=None, addr_src:ipaddress.IPv6Address=None,addr_dst:ipaddress.IPv6Address=None): 
-        if not istype.bytes(data) or not istype.ipaddress(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -539,17 +590,17 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto") 
         except Exception as e: 
-            interface=ipinterface.default_iface() 
+            interface=IP_INTERFACE.default_iface() 
         
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface)
         
         for index in range(0, len(data), 2): 
@@ -577,7 +628,7 @@ class SendSingleton():
         return False 
     
     def ipv6_parameter_problem(data:bytes=None, addr_src:ipaddress.IPv6Address=None,addr_dst:ipaddress.IPv6Address=None): 
-        if not istype.bytes(data) or not istype.ipaddress(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -587,16 +638,16 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst) 
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=ipinterface.default_iface() 
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+            interface=IP_INTERFACE.default_iface() 
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
         for index in range(0, len(data), 8):  
@@ -634,7 +685,7 @@ class SendSingleton():
         return False  
 
     def ipv6_time_exceeded(data:bytes=None, addr_src:ipaddress.IPv6Address=None, addr_dst:ipaddress.IPv6Address=None): 
-        if not istype.bytes(data) or not istype.ipaddress(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -643,16 +694,16 @@ class SendSingleton():
         TYPE_TIME_EXCEEDED= 3
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst) 
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=ipinterface.default_iface() 
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+            interface=IP_INTERFACE.default_iface() 
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
         for index in range(0, len(data), 4): 
@@ -686,7 +737,7 @@ class SendSingleton():
         return False
     
     def ipv6_packet_to_big(data:bytes=None, addr_src:ipaddress.IPv6Address=None, addr_dst:ipaddress.IPv6Address=None): 
-        if not istype.bytes(data) or not istype.ip(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ip(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -696,16 +747,16 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129  
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst) 
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=ipinterface.default_iface() 
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+            interface=IP_INTERFACE.default_iface() 
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface)  
         
         for index in range(0, len(data), 8): 
@@ -739,7 +790,7 @@ class SendSingleton():
         return False
     
     def ipv6_destination_unreachable(data:bytes=None, addr_src:ipaddress.IPv6Address=None, addr_dst:ipaddress.IPv6Address=None): 
-        if not istype.bytes(data) or not istype.ipaddress(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -749,16 +800,16 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst) 
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=ipinterface.default_iface() 
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+            interface=IP_INTERFACE.default_iface() 
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
 
         for index in range(0, len(data), 4): 
@@ -794,7 +845,7 @@ class SendSingleton():
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore 
-        if not istype.bytes(data) or not istype.ipaddress(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -811,16 +862,16 @@ class SendSingleton():
         TYPE_INFORMATION_REPLY=129
         
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst) 
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=ipinterface.default_iface() 
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+            interface=IP_INTERFACE.default_iface() 
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) 
@@ -861,7 +912,7 @@ class SendSingleton():
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
-        if not istype.bytes(data) or not istype.ipaddress(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -876,16 +927,16 @@ class SendSingleton():
         TYPE_INFORMATION_REPLY=129
 
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst) 
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=ipinterface.default_iface() 
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+            interface=IP_INTERFACE.default_iface() 
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)  
@@ -923,7 +974,7 @@ class SendSingleton():
         #Nella comunicazione possono verificarsi turbolenze. 
         #Per poter distinguere i due tempi la distanza deve essere adeguata. 
         #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
-        if not istype.bytes(data) or not istype.ipaddress(addr_src) or not istype.ipaddress(addr_dst):
+        if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(addr_src) or not IS_TYPE.ipaddress(addr_dst):
             raise Exception(f"Argoemnti non corretti")
         if addr_dst.version!=6:
             print(f"IP version is not 6: {addr_dst.version}")
@@ -937,16 +988,16 @@ class SendSingleton():
         TYPE_INFORMATION_REPLY=129
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         try:
-            interface,_= ipinterface.iface_from_IP(addr_dst) 
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=ipinterface.default_iface()
+                interface=IP_INTERFACE.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= ipinterface.iface_from_IP(addr_dst)
+            interface,_= IP_INTERFACE.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=ipinterface.default_iface() 
-        dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+            interface=IP_INTERFACE.default_iface() 
+        dst_mac=IP_INTERFACE.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)  
@@ -983,7 +1034,7 @@ class SendSingleton():
 #-----------------------------------------------------------------------
 def wait_data(attack_function:dict, ip_dst:ipaddress.IPv4Address=None, information_data:list=[], ip_src:ipaddress.IPv4Address=None): 
     #print(f"Waiting data with attack function: {attack_function}") 
-    if not istype.dictionary(attack_function) or not istype.ipaddress(ip_dst) or not istype.list(information_data): 
+    if not IS_TYPE.dictionary(attack_function) or not IS_TYPE.ipaddress(ip_dst) or not IS_TYPE.list(information_data): 
         raise Exception("Argomenti non validi")
     print("CCCCCCCC",ip_dst,file=sys.stderr)
     singleton=ReceiveSingleton() 
@@ -1056,7 +1107,7 @@ class CALLBACK():
                 if previous_time is None: 
                     previous_time=packet.time 
                     timer.cancel()
-                    timer=get.timer(MAX_TIME,callback_function) 
+                    timer=GET.timer(MAX_TIME,callback_function) 
                     timer.start() 
                     return  
                 if packet.time is not None: 
@@ -1068,9 +1119,9 @@ class CALLBACK():
                     previous_time=packet.time
                     timer.cancel() 
                     if len(timing_data)%8==0: 
-                        timer=get.timer(MINUTE_TIME,callback_function) 
+                        timer=GET.timer(MINUTE_TIME,callback_function) 
                     else:
-                        timer=get.timer(MAX_TIME,callback_function) 
+                        timer=GET.timer(MAX_TIME,callback_function) 
                     timer.start()
             return callback
 
@@ -1085,7 +1136,7 @@ class CALLBACK():
                         if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
                             data.append(field.to_bytes(2,"big").decode())
                         elif field is not None and field==0xffff: 
-                            threadevent.set(event_pktconn)
+                            THREADING_EVENT.set(event_pktconn)
                             return
                     layer=(
                         layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
@@ -1095,7 +1146,7 @@ class CALLBACK():
                         if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")==1): 
                             data.append(field.to_bytes(2,"big").decode()) 
                         elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            threadevent.set(event_pktconn)
+                            THREADING_EVENT.set(event_pktconn)
                             return 
             return callback
 
@@ -1111,7 +1162,7 @@ class CALLBACK():
                         if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
                             data.append(field.to_bytes(2,"big").decode())
                         elif field is not None and field==0xffff: 
-                            threadevent.set(event_pktconn)
+                            THREADING_EVENT.set(event_pktconn)
                             return
                     layer=(
                         layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
@@ -1121,7 +1172,7 @@ class CALLBACK():
                         if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
                             data.append(field.to_bytes(2,"big").decode()) 
                         elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            threadevent.set(event_pktconn)
+                            THREADING_EVENT.set(event_pktconn)
                             return
                         #else: print("Caso non considetrato")  
             return callback
@@ -1135,7 +1186,7 @@ class CALLBACK():
                         if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
                             data.append(field.to_bytes(2,"big").decode())
                         elif field is not None and field==0xffff: 
-                            threadevent.set(event_pktconn)
+                            THREADING_EVENT.set(event_pktconn)
                             return
                     layer=(
                         layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
@@ -1145,7 +1196,7 @@ class CALLBACK():
                         if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
                             data.append(field.to_bytes(2,"big").decode()) 
                         elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            threadevent.set(event_pktconn)
+                            THREADING_EVENT.set(event_pktconn)
                             return 
             return callback
 
@@ -1159,7 +1210,7 @@ class CALLBACK():
                         if (field:=layer.getfieldval("ptr")) is not None and field!=0xffffffff: 
                             data.append(field.to_bytes(4,"big").decode()) 
                         elif field is not None and field==0xffffffff: 
-                            threadevent.set(event_pktconn)
+                            THREADING_EVENT.set(event_pktconn)
                             return 
                     if (layer:=layer.getlayer("IPerror6")) is not None: 
                         if (field:=layer.getfieldval("plen")) is not None: 
@@ -1182,7 +1233,7 @@ class CALLBACK():
                         else None
                     ) 
                     if packet[icmp_echo_type].id==0 and packet[icmp_echo_type].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return
                     icmp_id=packet[icmp_echo_type].id
                     byte1 = (icmp_id >> 8) & 0xFF 
@@ -1209,7 +1260,7 @@ class CALLBACK():
                 if previous_time is None: 
                     previous_time=packet.time 
                     timer.cancel()
-                    timer=get.timer(MAX_TIME,callback_function) 
+                    timer=GET.timer(MAX_TIME,callback_function) 
                     timer.start() 
                     return  
                 if packet.time is not None: 
@@ -1221,9 +1272,9 @@ class CALLBACK():
                     previous_time=packet.time
                     timer.cancel() 
                     if len(timing_data)%8==0: 
-                        timer=get.timer(MINUTE_TIME,callback_function) 
+                        timer=GET.timer(MINUTE_TIME,callback_function) 
                     else:
-                        timer=get.timer(MAX_TIME,callback_function) 
+                        timer=GET.timer(MAX_TIME,callback_function) 
                     timer.start()
             return callback
 
@@ -1234,7 +1285,7 @@ class CALLBACK():
                 if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):  
                     inner_ip = IP(packet[Raw].load) 
                     if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return 
                     data.append(packet[ICMP].unused.decode())  
                     data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))  
@@ -1247,7 +1298,7 @@ class CALLBACK():
                 if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):  
                     inner_ip = IP(packet[Raw].load) 
                     if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return 
                     data.append(packet[ICMP].unused.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))  
                     data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))  
@@ -1258,7 +1309,7 @@ class CALLBACK():
             def callback(packet): 
                 if packet.haslayer(IP) and packet.haslayer(ICMP):   
                     if packet[ICMP].id==0 and packet[ICMP].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return
                     icmp_id=packet[ICMP].id
                     byte1 = (icmp_id >> 8) & 0xFF 
@@ -1271,7 +1322,7 @@ class CALLBACK():
             def callback(packet): 
                 if packet.haslayer(IP) and packet.haslayer(ICMP):  
                     if packet[ICMP].id==0 and packet[ICMP].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return
                     icmp_id=packet[ICMP].id
                     byte1 = (icmp_id >> 8) & 0xFF 
@@ -1291,7 +1342,7 @@ class CALLBACK():
                 if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw) : 
                     inner_ip = IP(packet[Raw].load) 
                     if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return  
                     elif not inner_ip: 
                         print("Pacchetto non ha livello IP error\t",packet.summary()) 
@@ -1308,14 +1359,14 @@ class CALLBACK():
                 if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):  
                     inner_ip = IP(packet[Raw].load)
                     if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return 
                     data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))  
                     data.append(inner_ip.len.to_bytes(2,"big").decode())  
                     data.append(inner_ip[ICMP].id .to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))  
             return callback
 
-    def callback_v4_parameter_problem(event_pktconn, data:list ):
+    def calback_v4_parameter_problem(event_pktconn, data:list ):
             TYPE_PARAMETER_PROBLEM=12 
             def callback(packet):  
                 nonlocal event_pktconn, data
@@ -1323,7 +1374,7 @@ class CALLBACK():
                     #print(f"Callbak 'v4_parameter_problem' arrived packet: {packet.summary()}")
                     inner_ip = IP(packet[Raw].load)
                     if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        threadevent.set(event_pktconn)
+                        THREADING_EVENT.set(event_pktconn)
                         return 
                     data.append(packet[ICMP].ptr.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00'))
                     data.append(packet[ICMP].unused.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))  
@@ -1333,16 +1384,16 @@ class CALLBACK():
 
 class ReceiveSingleton():  
     def ipv4_information_request(ip_dst:ipaddress.IPv4Address, final_data:list=[], ip_src:ipaddress.IPv4Address=None): 
-        if not istype.ipaddress(ip_dst) or not istype.list(final_data): 
+        if not IS_TYPE.ipaddress(ip_dst) or not IS_TYPE.list(final_data): 
             raise Exception(f"ipv4_information_request: Argomenti non corretti") 
         information_data=[]
         TYPE_INFORMATION_REQUEST=15 
         TYPE_INFORMATION_REPLY=16 
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter=f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_dst.compressed}"
-            if ip_src and istype.ipaddress(ip_src): 
+            if ip_src and IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1355,17 +1406,17 @@ class ReceiveSingleton():
                 #,"store":True 
                 ,"iface":interface
             }
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None 
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
         except Exception as e:
             raise Exception(f"ipv4_information_request Eccezione: {e}")
         try: 
-            threadevent.wait(event_pktconn) 
-            mysniffer.stop(sniffer)
-            if mytimer.stop(pkt_timer): 
+            THREADING_EVENT.wait(event_pktconn) 
+            SNIFFER.stop(sniffer)
+            if TIMER.stop(pkt_timer): 
                 joined="".join(information_data)
                 cleaned="".join(x for x in joined if x in string.printable)
                 final_data.append(cleaned) 
@@ -1376,16 +1427,16 @@ class ReceiveSingleton():
             raise Exception(f"ipv4_information_request Eccezione: {e}")
         
     def ipv4_timestamp_request(ip_host:ipaddress.IPv4Address, final_data:list=[], ip_src:ipaddress.IPv4Address=None):
-        if not (istype.ipaddress(ip_host) and istype.list(final_data)): 
+        if not (IS_TYPE.ipaddress(ip_host) and IS_TYPE.list(final_data)): 
             raise Exception(f"ipv4_timestamp_request: Argomenti non corretti")  
         timestamp_data=[] 
         TYPE_TIMESTAMP_REQUEST=13
         TYPE_TIMESTAMP_REPLY=14 
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter=f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY}) and dst {ip_host.compressed}" 
-            if ip_src and istype.ipaddress(ip_src):
+            if ip_src and IS_TYPE.ipaddress(ip_src):
                 filter+=f" and src {ip_src.compressed}"
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1398,16 +1449,16 @@ class ReceiveSingleton():
                 ,"iface":interface
             }
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        threadevent.wait(event_pktconn) 
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        THREADING_EVENT.wait(event_pktconn) 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(timestamp_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1416,15 +1467,15 @@ class ReceiveSingleton():
         return False  
     
     def ipv4_redirect(ip_host:ipaddress.IPv4Address, final_data:list=[], ip_src:ipaddress.IPv4Address=None): 
-        if not (istype.ipaddress(ip_host) and istype.list(final_data)): 
+        if not (IS_TYPE.ipaddress(ip_host) and IS_TYPE.list(final_data)): 
             raise Exception(f"ipv4_redirect: Argomenti non corretti") 
         redirect_data=[] 
         TYPE_REDIRECT=5 
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_REDIRECT}) and dst {ip_host.compressed}" 
-            if ip_src and istype.ipaddress(ip_src):
+            if ip_src and IS_TYPE.ipaddress(ip_src):
                 filter+=f" and src {ip_src.compressed}"
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1437,16 +1488,16 @@ class ReceiveSingleton():
                 ,"iface":interface
         } 
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(redirect_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1455,15 +1506,15 @@ class ReceiveSingleton():
         return False  
 
     def ipv4_source_quench(ip_host:ipaddress.IPv4Address, final_data:list=[], ip_src:ipaddress.IPv4Address=None): 
-        if not (istype.ipaddress(ip_host) and istype.list(final_data)): 
+        if not (IS_TYPE.ipaddress(ip_host) and IS_TYPE.list(final_data)): 
             raise Exception(f"Argoemnti non corretti") 
         source_quench_data=[] 
         TYPE_SOURCE_QUENCH=4   
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter=f"icmp and (icmp[0]=={TYPE_SOURCE_QUENCH}) and dst {ip_host.compressed}" 
-            if ip_src and istype.ipaddress(ip_src): 
+            if ip_src and IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1476,16 +1527,16 @@ class ReceiveSingleton():
                 ,"iface":interface
         } 
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(source_quench_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1494,15 +1545,15 @@ class ReceiveSingleton():
         return False  
 
     def ipv4_parameter_problem(ip_host:ipaddress.IPv4Address, final_data:list=[], ip_src:ipaddress.IPv4Address=None):  
-        if not (istype.ipaddress(ip_host) and istype.list(final_data)): 
+        if not (IS_TYPE.ipaddress(ip_host) and IS_TYPE.list(final_data)): 
             raise Exception(f"Argomenti non corretti")  
         parameter_problem_data=[]
         TYPE_PARAMETER_PROBLEM=12 
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host.compressed}" 
-            if ip_src and istype.ipaddress(ip_src): 
+            if ip_src and IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1516,16 +1567,16 @@ class ReceiveSingleton():
                 ,"iface":interface
         } 
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             )   
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer):   
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer):   
             print(f"I DATI SONO CORRETTI: {parameter_problem_data}")
             joined="".join(parameter_problem_data)
             cleaned="".join(x for x in joined if x in string.printable)
@@ -1535,15 +1586,15 @@ class ReceiveSingleton():
         return False  
 
     def ipv4_time_exceeded(ip_host:ipaddress.IPv4Address, final_data:list=[], ip_src:ipaddress.IPv4Address=None): 
-        if not (istype.ipaddress(ip_host) and istype.list(final_data)): 
+        if not (IS_TYPE.ipaddress(ip_host) and IS_TYPE.list(final_data)): 
             raise Exception(f"Argoemnti non corretti") 
         time_exceeded_data=[]
         TYPE_TIME_EXCEEDED=11 
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host.compressed}" 
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1556,17 +1607,17 @@ class ReceiveSingleton():
                 ,"iface":interface
         } 
         try:
-            event_pktconn=get.threading_Event()
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            event_pktconn=GET.threading_Event()
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(time_exceeded_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1576,15 +1627,15 @@ class ReceiveSingleton():
 
     def ipv4_destination_unreachable(ip_host:ipaddress.IPv4Address, final_data:list=[], ip_src:ipaddress.IPv4Address=None): 
         print("HHHHH", ip_host)
-        if not (istype.ipaddress(ip_host) and istype.list(final_data)): 
+        if not (IS_TYPE.ipaddress(ip_host) and IS_TYPE.list(final_data)): 
             raise Exception(f"Argomenti non corretti") 
         destination_unreachable_data=[]
         TYPE_DESTINATION_UNREACHABLE=3  
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host.compressed}"
-            if ip_src and istype.ipaddress(ip_src): 
+            if ip_src and IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1597,18 +1648,18 @@ class ReceiveSingleton():
                 ,"iface":interface
         } 
         try:
-            event_pktconn=get.threading_Event()
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            event_pktconn=GET.threading_Event()
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        threadevent.wait(event_pktconn) 
+        THREADING_EVENT.wait(event_pktconn) 
         print("AAAAIIIII")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer):  
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer):  
             joined="".join(destination_unreachable_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1617,21 +1668,21 @@ class ReceiveSingleton():
         return False  
     
     def ipv4_timing_cc(ip_host:ipaddress.IPv4Address, numero_bit=0, final_data:list=[], ip_src:ipaddress.IPv4Address=None): 
-        if not (istype.ipaddress(ip_host) and istype.list(final_data)): 
+        if not (IS_TYPE.ipaddress(ip_host) and IS_TYPE.list(final_data)): 
             raise Exception(f"ipv4_timing_cc: Argoemnti non corretti")
         if numero_bit<=0:
             raise Exception("ipv4_timing_cc: Numero di bit passato non valido") 
-        interface= ipinterface.default_iface()   
+        interface= IP_INTERFACE.default_iface()   
         timing_data=[]
         TYPE_ECHO_REQUEST=8
         TYPE_ECHO_REPLY=0 
         last_packet_time=None  
         try: 
-            event_pktconn=get.threading_Event()
+            event_pktconn=GET.threading_Event()
             callback_function=lambda: timeout_timing_covertchannel(event_pktconn)
-            timer_timing_CC=get.timer(None,callback_function) 
+            timer_timing_CC=GET.timer(None,callback_function) 
             filter=f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) and dst {ip_host.compressed}"
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
             else: print("No need to listen for the source")
         except Exception as e:
@@ -1651,12 +1702,12 @@ class ReceiveSingleton():
                 ,"iface":interface
         }  
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             )  
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
             str_data=""
             for integer in timing_data:
                 str_data+=format(integer, f'0{numero_bit}b') 
@@ -1668,8 +1719,8 @@ class ReceiveSingleton():
                 raw_data+=chr(int_data) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer):  
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer):  
             joined="".join(raw_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1680,17 +1731,17 @@ class ReceiveSingleton():
     #--------------------- 
     def ipv6_information_request(ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None):
         information_data=[] 
-        if not istype.ipaddress(ip_host) or not istype.list(final_data): 
+        if not IS_TYPE.ipaddress(ip_host) or not IS_TYPE.list(final_data): 
             raise Exception(f"Argoemnti non corretti") 
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129  
         #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
         #print("IP_GOOGLE: ",ip_google)
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter= f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}"
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
         except Exception as e:
             raise Exception(f"Exception: {e}")
@@ -1702,16 +1753,16 @@ class ReceiveSingleton():
                 ,"iface": interface
             }
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
         except Exception as e:
             raise Exception(f"get_information_request: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(information_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1721,14 +1772,14 @@ class ReceiveSingleton():
 
     def ipv6_parameter_problem(ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None): 
         parameter_problem_data=[] 
-        if not istype.ipaddress(ip_host) or not istype.list(final_data): 
+        if not IS_TYPE.ipaddress(ip_host) or not IS_TYPE.list(final_data): 
             raise Exception(f"Argoemnti non corretti") 
         TYPE_PARAMETER_PROBLEM=4   
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter= f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host.compressed}" 
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
         except Exception as e:
             raise Exception(f"Exception: {e}")
@@ -1740,16 +1791,16 @@ class ReceiveSingleton():
                 ,"iface":interface
         } 
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
         except Exception as e:
             raise Exception(f"get_parameter_problem: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(parameter_problem_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1759,14 +1810,14 @@ class ReceiveSingleton():
 
     def ipv6_time_exceeded(ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None): 
         time_exceeded_data=[]
-        if not istype.ipaddress(ip_host) or not istype.list(final_data): 
+        if not IS_TYPE.ipaddress(ip_host) or not IS_TYPE.list(final_data): 
             raise Exception(f"Argoemnti non corretti") 
         TYPE_TIME_EXCEEDED=3 
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter=f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host.compressed}" 
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
         except Exception as e:
             raise Exception(f"Exception: {e}")
@@ -1778,16 +1829,16 @@ class ReceiveSingleton():
                 ,"iface":interface
         } 
         try: 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
-            threadevent.wait(event_pktconn) 
+            THREADING_EVENT.wait(event_pktconn) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(time_exceeded_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1796,15 +1847,15 @@ class ReceiveSingleton():
         return False  
 
     def ipv6_packet_to_big(ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None): 
-        if not istype.ipaddress(ip_host) or not istype.list(timestamp_data): 
+        if not IS_TYPE.ipaddress(ip_host) or not IS_TYPE.list(timestamp_data): 
             raise Exception(f"Argoemnti non corretti") 
         try: 
             timestamp_data:list=[]
             TYPE_PKT_BIG= 2 
-            interface= ipinterface.default_iface() 
-            event_pktconn=get.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
+            event_pktconn=GET.threading_Event()
             filter=f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG}) and dst {ip_host.compressed}" 
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
         except Exception as e: 
             raise Exception(f"Exception: {e}")
@@ -1816,16 +1867,16 @@ class ReceiveSingleton():
                 #,"store":True 
                 ,"iface": interface
             }
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}") 
-        threadevent.wait(event_pktconn)
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        THREADING_EVENT.wait(event_pktconn)
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(timestamp_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1834,15 +1885,15 @@ class ReceiveSingleton():
         return False  
 
     def ipv6_destination_unreachable(ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None): 
-        if not istype.ipaddress(ip_host) or not istype.list(destination_unreachable_data): 
+        if not IS_TYPE.ipaddress(ip_host) or not IS_TYPE.list(destination_unreachable_data): 
             raise Exception(f"Argoemnti non corretti") 
         destination_unreachable_data:list=[]
         TYPE_DESTINATION_UNREACHABLE=1 
         try: 
-            event_pktconn=get.threading_Event()
-            interface= ipinterface.default_iface() 
+            event_pktconn=GET.threading_Event()
+            interface= IP_INTERFACE.default_iface() 
             filter=f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host.compressed}" 
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
         except Exception as e:
             raise Exception(f"Exception: {e}")
@@ -1854,16 +1905,16 @@ class ReceiveSingleton():
                 #,"store":True 
                 ,"iface":interface
             } 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             )  
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}") 
-        threadevent.wait(event_pktconn) 
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        THREADING_EVENT.wait(event_pktconn) 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(destination_unreachable_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1872,10 +1923,10 @@ class ReceiveSingleton():
         return False  
 
     def ipv6_timing_cc(ip_dst:ipaddress.IPv6Address, numero_bit:int=0, final_data:list=[], ip_src:ipaddress.IPv6Address=None):  
-        if not istype.ipaddress(ip_dst) or not istype.list(timing_data): 
+        if not IS_TYPE.ipaddress(ip_dst) or not IS_TYPE.list(timing_data): 
             raise Exception(f"Argoemnti non corretti")
         try:  
-            interface= ipinterface.default_iface() 
+            interface= IP_INTERFACE.default_iface() 
             if numero_bit<=0:
                 raise Exception("Numero di bit passato non valido")
         except Exception as e:
@@ -1885,11 +1936,11 @@ class ReceiveSingleton():
         TYPE_INFORMATION_REPLY=129
         last_packet_time=None
         try: 
-            event_pktconn=get.threading_Event()
+            event_pktconn=GET.threading_Event()
             callback_function=lambda: timeout_timing_covertchannel(event_pktconn)
-            timer_timing_CC=get.timer(None,callback_function) 
+            timer_timing_CC=GET.timer(None,callback_function) 
             filter= f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_dst.compressed}" 
-            if istype.ipaddress(ip_src): 
+            if IS_TYPE.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
         except Exception as e:
             raise Exception(f"Exception: {e}") 
@@ -1908,12 +1959,12 @@ class ReceiveSingleton():
                 #,"store":True 
                 ,"iface":interface
             } 
-            sniffer,pkt_timer=mysniffer.sniff_packet(
+            sniffer,pkt_timer=SNIFFER.sniff_packet(
                 args
-                ,timeout_time=None
-                ,event=event_pktconn
+                ,None
+                ,lambda: SNIFFER.template_timeout(event_pktconn)
             ) 
-            threadevent.wait(event_pktconn)   
+            THREADING_EVENT.wait(event_pktconn)   
             str_data=""
             for integer in timing_data:
                 str_data+=format(integer, f'0{numero_bit}b') 
@@ -1925,8 +1976,8 @@ class ReceiveSingleton():
                 data+=chr(int_data)  
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        mysniffer.stop(sniffer)
-        if mytimer.stop(pkt_timer): 
+        SNIFFER.stop(sniffer)
+        if TIMER.stop(pkt_timer): 
             joined="".join(timing_data)
             cleaned="".join(x for x in joined if x in string.printable)
             final_data.append(cleaned) 
@@ -1996,3 +2047,5 @@ class AttackType():
         )
 
 
+def final_attemp():
+    pass
