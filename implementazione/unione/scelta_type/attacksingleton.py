@@ -1,14 +1,10 @@
-import sys 
-import datetime
-import time
-import os
-import ipaddress
-import string 
+import sys, datetime, time, os, ipaddress, string, random
 from mymethods import *  
 
 from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
 from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
-from scapy.all import get_if_hwaddr, sendp, sr1, sniff, send, srp1
+from scapy.all import get_if_hwaddr, sendp, sr1, sniff, send, srp1 
+from scapy.all import *
 
 #----------------------------------------------------------------------- 
 def timeout_timing_covertchannel(event_pktconn): 
@@ -603,6 +599,51 @@ class SendSingleton():
         print(f"[STOP] Inviando byte di stop {stop_value} dopo {stop_delay}") 
         time.sleep(stop_delay)  # opzionale, per separarlo dal resto 
         pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
+        #print(f"Sending {pkt.summary()}") 
+        sendp(pkt, verbose=1, iface=interface) 
+    
+    def ipv4_timing_channel_8bit_noise(data:bytes=None, ip_dst:ipaddress=None, rumore:int=2, min_delay:int=1, max_delay:int=30, stop_value: int = 255, seed:int=4582): 
+        if not (IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(rumore) and IS_TYPE.integer(min_delay) and IS_TYPE.integer(max_delay) and IS_TYPE.integer(stop_value) and IS_TYPE.integer(seed)):
+            raise Exception("test_timing_channel8bit: Argomenti non validi") 
+        if min_delay<=0: 
+            raise Exception(f"test_timing_channel8bit: Valore minimo non accettato: {min_delay}")
+        if max_delay<=min_delay: 
+            raise Exception(f"test_timing_channel8bit: Il valore masismo non può essere minore di quello minimo") 
+        if not (0<=stop_value <=255): 
+            raise Exception(f"test_timing_channel8bit: Valore stop value non corretto: {stop_value}") 
+        #Il rumore serve per non mandare sempre con lo stesso intervallo di tempo. 
+        #tuttavia andrà aggiunto al minimo e al massimo per evitare errori nel calcolo del delay
+        min_delay+=rumore
+        max_delay+=rumore
+        #Nel caso non si voglia mettere il rumore scelto nel payload chi ricevere deve avere lo stesso seed 
+        random.seed(seed) 
+        
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower() 
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"MAC di destinazione: {target_mac}")
+        print(f"Interfaccia per destinazione: {interface}") 
+
+        random_delay=random.randint(-rumore, rumore)
+        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / Raw(load=(0).to_bytes(signed=True)) 
+        sendp(pkt, verbose=1, iface=interface) 
+        for byte in data:   
+            delay=min_delay+(byte/255)*(max_delay-min_delay)
+            print(f"Delay:{chr(byte)} {byte}\t{delay}") 
+            random_delay=random.randint(-rumore, rumore)  
+            print("Delay:", delay,"Random delay:", random_delay, delay+random_delay)
+            delay=delay+random_delay
+            time.sleep(delay) 
+            
+            pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / Raw(load=random_delay.to_bytes(signed=True)) 
+            #print(f"Sending {pkt.summary()}") 
+            sendp(pkt, verbose=1, iface=interface) 
+        stop_delay = min_delay + (stop_value / 255) * (max_delay - min_delay)
+        random_delay=random.randint(-rumore, rumore) 
+        print(f"[STOP] Inviando byte di stop {stop_value} dopo {stop_delay}") 
+        stop_delay=stop_delay+random_delay
+        print(f"[STOP] Inviando byte di stop {stop_value} dopo {stop_delay}") 
+        time.sleep(stop_delay)  # opzionale, per separarlo dal resto 
+        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / Raw(load=random_delay.to_bytes(signed=True))  
         #print(f"Sending {pkt.summary()}") 
         sendp(pkt, verbose=1, iface=interface)
     
@@ -1804,8 +1845,68 @@ class ReceiveSingleton():
         received_data="".join(x for x in received_data) 
         print(f"Dati ricevuti: {received_data}") 
         print(f"Tempo di esecuzione: {end_time-start_time}") 
+    
+    def ipv4_timing_channel_8bit_noise(ip_dst:ipaddress=None, rumore:int=2, min_delay:int=1, max_delay:int=30, stop_value: int = 255, seed:int=4582): 
+        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(rumore) and IS_TYPE.integer(min_delay) and IS_TYPE.integer(max_delay) and IS_TYPE.integer(stop_value) and IS_TYPE.integer(seed)):
+            raise Exception("test_timing_channel8bit: Argomenti non validi") 
+        if min_delay<=0: 
+            raise Exception(f"test_timing_channel8bit: Valore minimo non accettato: {min_delay}")
+        if max_delay<=min_delay: 
+            raise Exception(f"test_timing_channel8bit: Il valore masismo non può essere minore di quello minimo") 
+        if not (0<=stop_value <=255): 
+            raise Exception(f"test_timing_channel8bit: Valore stop value non corretto: {stop_value}") 
+        min_delay+=rumore
+        max_delay+=rumore
+        
+        start_time=end_time=None 
+        current_time=previous_time=None 
+        stop_flag={"value":False} 
+        received_data=[] 
+        random.seed(seed) 
 
+        def decode_byte(delay): 
+            #(byte/255)=(delay-min_delay)/(max_delay-min_delay) 
+            frazione = (delay - min_delay) / (max_delay - min_delay) 
+            byte=int(round(frazione*255)) 
+            byte = max(0, min(255, byte))
+            return byte 
+        
+        def callback_timing_channel8bit(pkt): 
+            nonlocal current_time, previous_time, start_time, end_time 
+            if pkt.haslayer("ICMP") and pkt.haslayer("Raw") and (pkt[ICMP].type==8 or pkt[ICMP].type==0): 
+                #current_time=datetime.datetime.now() 
+                #current_time=time.perf_counter() 
+                current_time=pkt.time 
+                if previous_time is None:
+                    start_time= previous_time = current_time 
+                    return 
+                random_delay = int.from_bytes(pkt[Raw].load, byteorder='big', signed=True)
+                #random_delay = random.randint(-rumore, rumore)
+                delay=(current_time-previous_time)-random_delay
+                print("This Delay:", delay,"Random delay:", random_delay, "Send Delay" ,delay-random_delay)
+                byte=decode_byte(delay) 
+                print(f"Delta:{delay}\tByte:{byte} Char:{chr(byte)}") 
+                received_data.append(chr(byte))
 
+                previous_time=current_time
+                 
+                if byte==stop_value: 
+                    stop_flag["value"]=True 
+                    end_time=pkt.time 
+        
+        def stop_filter(pkt): 
+            return stop_flag["value"] 
+        
+        print("In ascolto dei pacchetti ICMP...")
+        sniff(
+            filter=f"icmp and dst host {ip_dst.compressed}" 
+            ,prn=callback_timing_channel8bit 
+            ,store=False 
+            ,stop_filter=stop_filter 
+        )  
+        received_data="".join(x for x in received_data) 
+        print(f"Dati ricevuti: {received_data}") 
+        print(f"Tempo di esecuzione: {end_time-start_time}") 
 
     #--------------------- 
     def ipv6_information_request(ip_host:ipaddress.IPv6Address, final_data:list=[], ip_src:ipaddress.IPv6Address=None):
