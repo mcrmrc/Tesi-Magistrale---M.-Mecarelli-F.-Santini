@@ -91,158 +91,75 @@ In generale il canale è incorporato in operazioni di sistema legittime per pote
 
 
 
-\subsection{Implementazione} 
-%Cos'è un covert Channel ICMP
+\subsection{Implementazione}  
 In un Covert Channel ICMP verranno utilizzati messaggi ICMP (di solito richieste e risposte Eco) per nascondere 
 i dati all'interno di campi che normalmente vengono ignorati o non monitorati. 
-Il canale sarà possibile siccome il protocollo ICMP (Internet Control Message Protocol) consente agli attaccanti di trasferire dati aggirando le politiche di sicurezza (e.g i firewall) ed eludendo il rilevamento.
+Il canale sarà possibile siccome il protocollo ICMP (Internet Control Message Protocol) consente agli attaccanti di trasferire dati 
+aggirando le politiche di sicurezza ed eludendo il rilevamento.
+Ciò è possibile siccome è un protocollo che viene utilizzato, in sinergia con il protocollo IP, per la diagnostica della rete, 
+per la segnalazione di errori, per ottenere informazioni tramite la messagistica di controllo e per la risoluzione dei problemi nelle reti. 
+Permette quindi di informare il mittente sui problemi di rete %Segnalazione errori %(ad esempio, destinazione non raggiungibile, perdita di pacchetti) 
+, aiutare nella risoluzione dei problemi di rete %Diagnostica di rete %utilizzando strumenti come ping e traceroute 
+e gestisce la congestione della rete oltre gli aggiornamenti di routing (in alcuni casi) %Messaggistica di controllo
+%Opera a livello rete (livello 3 modello ISO/OSI). 
+\vspace{2ex} \newline 
 %Molti firewall e dispositivi di sicurezza consentono il traffico ICMP per la diagnostica della rete.
 %I pacchetti ICMP possono trasportare dati (payload) nascosti senza destare sospetti.
 %I sistemi di sicurezza tradizionali si concentrano sul traffico TCP/UDP, trascurando ICMP.
-Questo perchè è un protocollo utilizzato in sinergia con il protocollo IP, per la diagnostica della rete, per la segnalazione di errori, 
-per ottenere informazioni e la messagistica di controllo e per la risoluzione dei problemi nelle reti. 
-Opera a livello rete (livello 3 modello ISO/OSI). 
-%\textbf{Segnalazione errori}: informa il mittente sui problemi di rete (ad esempio, destinazione non raggiungibile, perdita di pacchetti).
-%\textbf{Diagnostica di rete}: aiuta nella risoluzione dei problemi di rete utilizzando strumenti come ping e traceroute.
-%\textbf{Messaggistica di controllo}: gestisce la congestione della rete e gli aggiornamenti di routing in alcuni casi.
-%Aiuta i dispositivi (come i router e gli host) a comunicare, gestire e risolvere i 
-%problemi della rete ma al contrario di TCP o UDP non è utilizzato per la trasmissione di dati. 
-%Proprio per questo che viene utilizzato per il monitoraggio dello stato di una rete e per 
-%la risoluzione dei problemi che avvengono in essa. 
-%A differenza di altri protocolli (eg TCP/IP, UDP,\dots) non è utilizzato per la trasmissione di dati e di conseguenza non stabilirà una connessione e non presenterà un numero di porta specifico. 
-%Si avrà quindi una comunicazione Stateless e Connectionless che può avvenire senza specificare alcun tipo di porta. 
-\vspace{2ex} \newline 
-%I principali strumenti di rete che utilizzano il protocolllo ICMP sono: 
-%\begin{enumerate}
-%    \item Ping (Richiesta Echo ICMP e Risposta Echo) 
-%    \vspace{1ex} \newline 
-%    Il comando \textbf{ping}, invia pacchetti ICMP Echo Request per testare la connettività.
-%    \begin{itemize}
-%        \item Invia delle richieste Eco ICMP a una destinazione per verificare la connettività.
-%        \item Se l'host è raggiungibile, risponde con un ICMP Echo Reply.
-%    \end{itemize} 
-%    \item \textbf{Ping}: tramite lo scambio di Echo Reqeuste e Echo Reply fra due macchine, testa la connettività fra di loro. 
-%    L'host mittente, per verificare la connesisone con il dispositivo di destinazione, invia una richieste Echo. 
-%    Ciò porterà l'host interessato, se raggiungibile, a rispondere con una Echo Reply.  
-%    \item Traceroute (tracert su Windows, traceroute su Linux/macOS) 
-%    \vspace{1ex} \newline 
-%    Il comando \textbf{traceroute}, utilizza messaggi ICMP Time Exceeded per mappare il percorso dei pacchetti.
-%    \begin{itemize}
-%        \item Tramite i messaggi ICMP Time Exceeded traccia il percorso che i pacchetti seguono attraverso una rete
-%        \item Il valore TTL (Time-To-Live) viene incrementato per determinare ciascun router lungo il percorso.
-%    \end{itemize}
-%    \item \textbf{Traceroute}: permette di trovare il percorso che i pacchetti seguono per una determinata destinazione. 
-%    Ciò viene effettuato tramite l'utilizzo dei messaggi di tipo Time Exceeded; 
-%    il quale verrà mandato allo scadere del TTL (time to live) del pacchetto. 
-%    Infatti, per poter mappare l'intero percorso e quindi i router presenti in esso, il campo verrà incrementato progressivamente.  
-%    \item Scoperta del percorso MTU (PMTUD) 
-%    \vspace{1ex} \newline 
-%    La \textbf{PMTUD}, utilizza messaggi ICMP Fragmentation Needed per ottimizzare le dimensioni dei pacchetti. 
-%    Ovvero per trovare la dimensione ottimale del pacchetto per un percorso di rete. 
-    %\item \textbf{PMTUD}: Scoperta del percorso MTU che utilizza messaggi ICMP Fragmentation Needed per ottimizzare le dimensioni dei pacchetti. 
-    %La \textbf{PMTUD}, utilizza messaggi ICMP Fragmentation Needed per ottimizzare le dimensioni dei pacchetti. 
-    %Ovvero per trovare la dimensione ottimale del pacchetto per un percorso di rete.
-    %Ovvero per trovare la dimensione ottimale del pacchetto per un percorso di rete. 
-    %\item[] ICMP in IPv6 (ICMPv6) ICMPv6 extends ICMP functionality for IPv6 networks, including:
-    %\item Neighbor Discovery Protocol (NDP) – Replaces ARP for IPv6 
-    %\item Router Advertisements & Solicitation – Helps configure IPv6 addresses. 
-    %\item MLD (Multicast Listener Discovery) – Manages multicast group memberships
-%\end{enumerate} 
-% ICMP in IPv6 (ICMPv6)
-% ICMPv6 extends ICMP functionality for IPv6 networks, including:
-%\begin{itemize}
-%    \item Neighbor Discovery Protocol (NDP) – Replaces ARP for IPv6 
-%    \item Router Advertisements & Solicitation – Helps configure IPv6 addresses. 
-%    \item MLD (Multicast Listener Discovery) – Manages multicast group memberships
-%\end{itemize} 
-Principalmente la risorsa condivisa, e manipolata, saranno i pacchetti ICMP e i dati verranno codificati all'interno dei campi presenti. 
+Sebbene sa essenziale per la diagnostica di rete e la segnalazione degli errori, può essere comunque utilizzato in 
+modo improprio per degli attacchi o per la ricognizione della rete (network reconnaissance). 
+%Gli aggressori possono utilizzare ICMP per attacchi DDoS, di ricognizione, di esfiltrazione di dati o di covert channel.
+%Le regole del firewall e la limitazione della velocità aiutano a bilanciare usabilità e sicurezza. 
+%Data la sua necessita per la diagnostica di rete e la segnalazione degli errori, 
+%può essere utilizzato in modo improprio per mettere a segno degli attacchi o per studiare la rete (ricognizione della rete). %network reconnaissance 
+%Siccome ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza. 
+Questi messaggi verranno usati per creare una comunicazione fra una vittima e il suo attaccante, 
+in cui potrebbero essere presenti in caso dei proxy intermedi. 
+\vspace{3ex} \newline
+Nei seguenti capitoli verrà illustrato come può essere sfruttato per la creazione di un Covert Channel.   
+%un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta. 
+%L'attacco opera al di fuori degli usuali meccanismi di comunicazioni %Inoltre sfruttando vulnerabilità o comportamenti non previsti nei sistemi,  
+%e per questo risulta difficile da rilevare e/o identificare. 
+%Sia dagli amministratori che dai tipici strumenti di monitoraggio. 
+%Infine, siccome qualsiasi risorsa condivisa può essere utilizzata per la sua creazione, può esistere in qualunque sistema. 
+Principalmente le risorse condivise, e manipolate, saranno i pacchetti ICMP e i dati verranno codificati all'interno dei campi presenti. 
 %Il mittente manipola una risorsa di sistema condivisa (osservabile dal destinatario) per codificare i dati segreti (eg tramite il tempo o la memoria).  
-Siccome ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza. 
-Questi messaggi verranno usati per creare una comunicazione fra una vittima e il suo attaccante, in cui potrebbero essere presenti in caso dei proxy intermedi. 
 %\textbf{Codifica dei dati}: gli aggressori incorporano messaggi nascosti all'interno di pacchetti ICMP, come richieste di Eco (ping) o risposte di Eco.
 %\textbf{Evasione del firewall}: poiché ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza.
 %\textbf{Comunicazione furtiva}: malware e botnet utilizzano poi ICMP per comunicare segretamente con un attaccante remoto.
-Altre codifiche, che non includono l'insserimento di onfromazioni nei campi, saranno quelle 
-relative alla distanza di tempo oppure alla tipologia di messaggio ricevuto. 
+Altre codifiche, che non includono l'insserimento di onfromazioni nei campi, saranno quelle relative alla distanza di tempo 
+oppure alla tipologia di messaggio ricevuto. 
 Nel primo caso in base alla distanz adi tempo fra un pacchetto e l'altro, viene codificato l'informazione. 
 Nel secondo caso la codifica dei dati verrà associata alla particlare tipologia di messaggio ricevuto.
 
 
 
+%Nelle prossime pagine, si analizzeranno le varie tipologie di messaggi 
+%(divise in \textbf{Messaggi di errore} \footnote{segnalano problemi nella comunicazione di rete} e \textbf{Messaggi informativi} \footnote{utilizzati per scopi diagnostici e di controllo})
+%che il protocollo può mandare per definire un canale di comunicazione nascosto per uno scambio di informaizoni (non consentito). 
 
-
-
-
-
-
-
-
-Sebbene sa essenziale per la diagnostica di rete e la segnalazione degli errori, può essere utilizzato in 
-modo improprio per degli attacchi o per la ricognizione della rete (network reconnaissance). 
-%Gli aggressori possono utilizzare ICMP per attacchi DDoS, di ricognizione, di esfiltrazione di dati o di covert channel.
-%Le regole del firewall e la limitazione della velocità aiutano a bilanciare usabilità e sicurezza. 
-%Data la sua necessita per la diagnostica di rete e la segnalazione degli errori, 
-%può essere utilizzato in modo improprio per mettere a segno degli attacchi o per studiare la rete (ricognizione della rete). %network reconnaissance
-\vspace{3ex} \newline
-Nei seguenti capitoli verrà illustrato come può essere sfruttato per la creazione di un Covert Channel:  
-un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta. 
-L'attacco opera al di fuori degli usuali meccanismi di comunicazioni %Inoltre sfruttando vulnerabilità o comportamenti non previsti nei sistemi,  
-e per questo risulta difficile da rilevare e/o identificare. 
-%Sia dagli amministratori che dai tipici strumenti di monitoraggio. 
-Infine, siccome qualsiasi risorsa condivisa può essere utilizzata per la sua creazione, può esistere in qualunque sistema. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\subsection{Principali categorie di Covert Channel} 
+\subsubsection{Categorie di Covert Channel implementate}  
 \begin{itemize}
-    \item Covert Channel Timing (Temporizzazione)
-    \item Covert Channel Storage (Archiviazione)c
-    \item Covert Channel Behavioral (Comportamentali) 
+    \item Timing Covert Channel (Temporizzazione): \newline 
+    %I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (un umano o un processo) di acquisire informazioni attraverso il cambiamento del tempo di rispostadi una risorsa. 
+    Sfruttano gli intervalli di tempo o l'ordine degli eventi per codificare le informazioni (e.g. ritardi fra i pacchetti di rete,\dots). 
+    Qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo. 
+    \item Storage Covert Channel (Archiviazione): \newline 
+    Implicano la scrittura di dati su un'area di memoria condivisa accessibile da entrambi i processi. 
+    I veicoli saranno tutte quelle risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e 
+    la lettura (diretta o indiretta) da parte di un altro.Un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
+    %Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
+    %\begin{esempio}
+    %    Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
+    %    oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
+    %\end{esempio}
+    %\vspace{1ex} \noindent
+    %Coinvolgono quindi la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi (e.g attributi del file, i bit di memoria, gli stati della cache,\dots).
+    %Di conseguenza, i veicoli sono tutte le risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e la lettura (diretta o indiretta) da parte di un altro.
+    \item Behavioral Covert Channel (Comportamento): \newline 
+    I canali nascosti comportamentali operano trasmettendo dati in base all'avvenimento di diversi eventi. 
+    %di processi, sistemi e applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli. 
 \end{itemize}
-\subsubsection{Covert Channel Timing (Temporizzazione)}
-I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (un umano o unj processo) di acquisire 
-informazioni attraverso il cambiamento del tempo di rispostadi una risorsa. 
-Sfruttando gli intervalli di tempo o l'ordine degli eventi per codificare informazioni (e.g. ritardi fra i pacchetti di rete,\dots); 
-qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo.
 
 
-\subsubsection{Covert Channel Storage (Archiviazione)}
-Nei covert channel di archiviazione un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
-Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
-\begin{esempio}
-    Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
-    oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
-\end{esempio}
-\vspace{1ex} \noindent
-Coinvolgono quindi la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi (e.g attributi del file, i bit di memoria, gli stati della cache,\dots).
-Di conseguenza, i veicoli sono tutte le risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e la lettura (diretta o indiretta) da parte di un altro.
-%
-\subsubsection{Covert Channel Behavioral (Comportamentali)}
-I canali nascosti comportamentali operano trasmettendo dati in base all'assegnazione di diversi eventi 
-di processi, sistemi e applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli. 
+
