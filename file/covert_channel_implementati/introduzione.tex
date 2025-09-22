@@ -1,47 +1,248 @@
 Un \textbf{Covert Channel} è un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta.  
 %Ciò avverrà fra processi e/o entità comunicanti senza che vengano rivelati ed evitando (se non violando) le normali politiche di sicurezza. 
 Solitamente operano al di fuori degli usuali meccanismi di comunicazioni sfruttando vulnerabilità o comportamenti non previsti nei sistemi. 
-Ciò permette di non generare segnali di un uso improprio del sistema; 
-inoltre nascondendosi all'interno dei normali processi del sistema, sono difficili da rilevare e/o identificare. 
-La loro esistenza quindi rappresenterà un problema; 
-che spesso rimane non notato dagli amministratori o dai tipici strumenti di monitoraggio. 
-Qualsiasi risorsa condivisa può essere utilizzata come canale nascosto ed 
-è per questo i Covert Channel possono esistere in qualunque sistema. 
+%Non usando i normali protocolli e/o canali di comunicazione (es network sockets, emails) 
+%ciò gli permette di non generare segnali di un uso improprio del sistema. 
+Ciò gli permette di non generare segnali di un uso improprio del sistema ed inoltre, 
+nascondendosi all'interno dei normali processi del sistema, sono difficili da rilevare e/o identificare. 
+La loro esistenza quindi rappresenterà un problema che spesso rimane non notato dagli amministratori o dai tipici strumenti di monitoraggio. 
+Da notare inoltre che qualsiasi risorsa condivisa può essere utilizzata come canale nascosto. 
+Questo permetterà ai Covert Channel di esistere in qualsiasi sistema. 
+%In aggiunta, qualsiasi risorsa condivisa può essere utilizzata per la creazione di un canale nascosto, 
+%e di conseguenza possono esistere in qualunque sistema. 
 %Questi attacchi sono un problema significativo in tutti quegli ambienti dove una fuoriuscita di informazioni può avere conseguenze gravi (es ambienti militari, governativi,\dots).  
 %Siccome l'suo imporprio che si fà di queste risorse: porta alla fuoriuscita (o scambio) dei dati. 
-\vspace{2ex} \newline 
-Tipicamente il \textbf{mittente} (Covert Transmitter) è l'entita che codifica e trasmette le informazioni; 
-%Il mittente manipola una risorsa di sistema condivisa (osservabile dal destinatario)  per codificare i dati segreti (eg tramite il tempo o la memoria). 
-mentre il \textbf{Destinatario} (Covert Listener) è l'entità che rileva e decifra l'informazione segreta dalla risorsa condivisa. 
-%il destinatario monitora la risorsa condivisa per rilevare, ricostruire e decifrare i dati trasmessi. 
-E nel nostro caso codificheremo i dati o dentro i campi presenti nel protocollo ICMP oppure tramite la distanza di tempo fra un pacchetto è un altro. 
-Normalmente la macchina obbiettivo è protetta da misure di sicurezza (e.g firewall, IDS,\dots)
 \vspace{2ex} \newline  
 %\textbf{Stealthiness} (furtività)
-Tramite un covert channel si devono poter aggirare i controlli in maniera nascosta. 
-Se si vuole quindi implementare un Covert Channel bisogna renderlo il più \textbf{furtivo} possibile; 
-così da non attirare principalmente le attenzioni degli amministratori e secondariamnete quelle degli strumenti utilizzati per il rilevamento degli attacchi. 
-\vspace{2ex} \newline 
-Inoltre il canale avrà il bisogno di poter inviare le informazioni; 
-quindi un \textbf{throughput} (definito come $\frac{dati}{tempo}$) consistente permetterà di scambiare un maggior numero di informazioni. 
-Tuttavia se la capacità di trasmissione risultasse anomala o eccessiva potrebbe essere rilevata. 
-Questo perchè potrebbe andare in conflitto con le risorse legittime eseguite nel sistema. 
-L'\textbf{uso delle risorse} dovrà essere proporzionato. 
-Quindi se la lunghezza di banda (Bandwith) risultasse limitata; 
-più dati il canale trasmette per un determinato intervallo di tempo, maggiore sarà il rischio che venga scoperto
-\vspace{2ex} \newline
-Sfruttando servizi e/o risorse già presenti nel sistema, si potrebbe alterare il loro funzionamento (che chiameremo \textbf{rumore}). 
-L'alterazione del comportamento della risorsa o del servizio sfruttato potrebbe attirare l'attenzione da parte degli amministratori.
-Uno dei maggiori problemi nell'implementazione di un canale nascosto è proprio questo: l'uso eccessivo delle risorse. 
+Siccome un covert channel deve poter aggirare i controlli in maniera nascosta;  
+avrà bisogno di alcune caratteristiche. 
+tuttavia, uno dei maggiori problemi nell'implementazione di un canale nascosto è l'uso eccessivo delle risorse. 
 La necessità cardine, è quella di riuscire a trasmettere informazioni mantenendo conforme lo stato del sistema; 
-così da rendersi \textbf{indistinguibili} dalla risorsa sfruttata e di conseguenza invisibili ai sistemi di monitoraggio. 
+così da rendere il canale \textbf{indistinguibile} rispetto alle altre risorse presenti nel sistema. 
+dalla risorsa sfruttata e di conseguenza invisibili ai sistemi di monitoraggio. 
 In generale il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
 %(e.g carico della CPU, accesso alla memoria, traffico della rete, metadati del file systema). 
-\vspace{2ex} \newline
-Per evitare la presenza dei Covert Channel, bisogna quindi prestare attenzione all'\textbf{uso involontario delle risorse} 
-ed evitare che esse possano essere usate (in maniere non previste) per la comunicazione. %(e.g memoria condivisa, uso della CPU, attributi dei file)
-Questo perchè, permetterebbero lo scambio non non autorizzato di informazioni; 
-potenzialmente violando le politiche di sicurezza; 
-nelle quali i principali requisiti sono: la confidenzialità dei dati, l'integrità di quest'ultimi o la disponibilità delle risorse e/o servizi. 
-Di conseguenza un metodo per la \textbf{rilevazione delle violazioni} delle politiche di sicurezza, risulta necessaria. 
+%
+%    Di solilto si sfruttano servizi e/o risorse già presenti e quindi non sospette; 
+%    uno dei maggiori problemi nell'implementazione di un canale nascosto è il “rumore” che potrebbe attirare l'attenzione 
+%    da parte degli amministratori (es. se si sfruttano eccessivamente le risorse). 
+%    La necessità è quella di riuscire a trasmette attraverso un canale nascosto mantenendo conforme e inalterato il 
+%    funzionamento della risorsa utilizzata così da rendersi “indistinguibili” dalla risorsa autorizzata e di 
+%    conseguenza invisibili ai sistemi di monitoraggio.
+%    Per evitare la rilevazione, il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
+%    (e.g carico della CPU, accesso alla memoria, traffico della rete, metadati del file systema). 
+%\vspace{2ex} \newline
+%Per evitare la presenza dei Covert Channel, bisogna quindi prestare attenzione all'\textbf{uso involontario delle risorse} 
+%ed evitare che esse possano essere usate (in maniere non previste) per la comunicazione. %(e.g memoria condivisa, uso della CPU, attributi dei file)
+%Questo perchè, permetterebbero lo scambio non non autorizzato di informazioni; 
+%potenzialmente violando le politiche di sicurezza; 
+%nelle quali i principali requisiti sono: la confidenzialità dei dati, l'integrità di quest'ultimi o la disponibilità delle risorse e/o servizi. 
+%Di conseguenza un metodo per la \textbf{rilevazione delle violazioni} delle politiche di sicurezza, risulta necessaria. 
+\vspace{1ex} \newline
+\begin{center} 
+\begin{longtable}{|p{0.4\textwidth}|p{0.4\textwidth}|} 
+    \hline
+    \textbf{Caratteristica} & \textbf{Descrizione} \\
+    \hline
+    Furtività & 
+        Evitare di attirare le attenzioni sia degli amministratori che degli strumenti utilizzati per il rilevamento degli attacchi. 
+        %Si devono poter aggirare i controlli in maniera nascosta.
+    \\
+    \hline 
+    Capacità di trasmissione &
+        Espressa in termini di \textbf{throughput} ($\frac{dati}{tempo}$). 
+        Più dati il canale trasmette per un determinato intervallo di tempo, maggiore sarà il rischio che venga scoperto 
+        siccome potrebbe rendere anomalo il funzionamento delle altre risorse.
+        %e un valore maggiore permetterà di scambiare un maggior numero di informazioni. 
+        %Tuttavia se la trasmissione risultasse anomala o eccessiva, potrebbe essere rilevata siccome un eccessivo carico di informazioni, 
+        %potrebbe rendere anomalo il funzionamento delle risorse.
+        %Quindi se la lunghezza di banda (Bandwith) risultasse limitata;  
+        %Quindi il throughput è inversamente correlato alla segretezza di un canale: 
+        %più dati un canale trasmette in un determinato periodo di tempo, maggiore è il rischio che il canale venga scoperto
+    \\
+    \hline
+    Uso delle risorse &
+        Un uso delle risorse improprio o sproporzionato aumenta il rischio di essere individuati. 
+        Siccome il canale potrebbe andare in conflitto con le risorse legittime presenti nel sistema. 
+        %I Covert channels sfruttano le risorse del sistema (e.g memoria cxondivisa, uso della CPU, attributi dei file) 
+        %in maniere non previste per la comunicazione. 
+    \\
+    \hline
+    Rumore &
+        Sfruttando servizi e/o risorse già presenti nel sistema, si potrebbe alterare il loro funzionamento. 
+        L'alterazione del comportamento della risorsa o del servizio sfruttato potrebbe attirare l'attenzione da parte degli amministratori. 
+    \\
+    \hline
+    Indistinguibilità & 
+        Si ha la necessità di riuscire a trasmette i dati sempre mantenendo conforme e inalterato il 
+        funzionamento della risorsa utilizzata. 
+        L'obbietivo è quello di rendersi indistinguibili dalla risorsa autorizzata e di conseguenza invisibili ai sistemi di monitoraggio.
+    \\
+    \hline
+    %Violazione delle politiche di sicurezza &
+    %    Permettono lo scambio non autorizzato di informazioni, potenzialmente violando 
+    %    i requisiti di confidenzialità, di integrità o quelli di disponibilità.  
+    %\\
+    %\hline 
+\caption{Caratterisitche di un Covert Channel} 
+\label{tabella:caratteristiche:covert:channel} 
+\end{longtable} 
+\end{center}   
 
+
+
+\subsection{Implementazione} 
+%Cos'è un covert Channel ICMP
+In un Covert Channel ICMP verranno utilizzati messaggi ICMP (di solito richieste e risposte Eco) per nascondere 
+i dati all'interno di campi che normalmente vengono ignorati o non monitorati. 
+Il canale sarà possibile siccome il protocollo ICMP (Internet Control Message Protocol) consente agli attaccanti di trasferire dati aggirando le politiche di sicurezza (e.g i firewall) ed eludendo il rilevamento.
+%Molti firewall e dispositivi di sicurezza consentono il traffico ICMP per la diagnostica della rete.
+%I pacchetti ICMP possono trasportare dati (payload) nascosti senza destare sospetti.
+%I sistemi di sicurezza tradizionali si concentrano sul traffico TCP/UDP, trascurando ICMP.
+Questo perchè è un protocollo utilizzato in sinergia con il protocollo IP, per la diagnostica della rete, per la segnalazione di errori, 
+per ottenere informazioni e la messagistica di controllo e per la risoluzione dei problemi nelle reti. 
+Opera a livello rete (livello 3 modello ISO/OSI). 
+%\textbf{Segnalazione errori}: informa il mittente sui problemi di rete (ad esempio, destinazione non raggiungibile, perdita di pacchetti).
+%\textbf{Diagnostica di rete}: aiuta nella risoluzione dei problemi di rete utilizzando strumenti come ping e traceroute.
+%\textbf{Messaggistica di controllo}: gestisce la congestione della rete e gli aggiornamenti di routing in alcuni casi.
+%Aiuta i dispositivi (come i router e gli host) a comunicare, gestire e risolvere i 
+%problemi della rete ma al contrario di TCP o UDP non è utilizzato per la trasmissione di dati. 
+%Proprio per questo che viene utilizzato per il monitoraggio dello stato di una rete e per 
+%la risoluzione dei problemi che avvengono in essa. 
+%A differenza di altri protocolli (eg TCP/IP, UDP,\dots) non è utilizzato per la trasmissione di dati e di conseguenza non stabilirà una connessione e non presenterà un numero di porta specifico. 
+%Si avrà quindi una comunicazione Stateless e Connectionless che può avvenire senza specificare alcun tipo di porta. 
+\vspace{2ex} \newline 
+%I principali strumenti di rete che utilizzano il protocolllo ICMP sono: 
+%\begin{enumerate}
+%    \item Ping (Richiesta Echo ICMP e Risposta Echo) 
+%    \vspace{1ex} \newline 
+%    Il comando \textbf{ping}, invia pacchetti ICMP Echo Request per testare la connettività.
+%    \begin{itemize}
+%        \item Invia delle richieste Eco ICMP a una destinazione per verificare la connettività.
+%        \item Se l'host è raggiungibile, risponde con un ICMP Echo Reply.
+%    \end{itemize} 
+%    \item \textbf{Ping}: tramite lo scambio di Echo Reqeuste e Echo Reply fra due macchine, testa la connettività fra di loro. 
+%    L'host mittente, per verificare la connesisone con il dispositivo di destinazione, invia una richieste Echo. 
+%    Ciò porterà l'host interessato, se raggiungibile, a rispondere con una Echo Reply.  
+%    \item Traceroute (tracert su Windows, traceroute su Linux/macOS) 
+%    \vspace{1ex} \newline 
+%    Il comando \textbf{traceroute}, utilizza messaggi ICMP Time Exceeded per mappare il percorso dei pacchetti.
+%    \begin{itemize}
+%        \item Tramite i messaggi ICMP Time Exceeded traccia il percorso che i pacchetti seguono attraverso una rete
+%        \item Il valore TTL (Time-To-Live) viene incrementato per determinare ciascun router lungo il percorso.
+%    \end{itemize}
+%    \item \textbf{Traceroute}: permette di trovare il percorso che i pacchetti seguono per una determinata destinazione. 
+%    Ciò viene effettuato tramite l'utilizzo dei messaggi di tipo Time Exceeded; 
+%    il quale verrà mandato allo scadere del TTL (time to live) del pacchetto. 
+%    Infatti, per poter mappare l'intero percorso e quindi i router presenti in esso, il campo verrà incrementato progressivamente.  
+%    \item Scoperta del percorso MTU (PMTUD) 
+%    \vspace{1ex} \newline 
+%    La \textbf{PMTUD}, utilizza messaggi ICMP Fragmentation Needed per ottimizzare le dimensioni dei pacchetti. 
+%    Ovvero per trovare la dimensione ottimale del pacchetto per un percorso di rete. 
+    %\item \textbf{PMTUD}: Scoperta del percorso MTU che utilizza messaggi ICMP Fragmentation Needed per ottimizzare le dimensioni dei pacchetti. 
+    %La \textbf{PMTUD}, utilizza messaggi ICMP Fragmentation Needed per ottimizzare le dimensioni dei pacchetti. 
+    %Ovvero per trovare la dimensione ottimale del pacchetto per un percorso di rete.
+    %Ovvero per trovare la dimensione ottimale del pacchetto per un percorso di rete. 
+    %\item[] ICMP in IPv6 (ICMPv6) ICMPv6 extends ICMP functionality for IPv6 networks, including:
+    %\item Neighbor Discovery Protocol (NDP) – Replaces ARP for IPv6 
+    %\item Router Advertisements & Solicitation – Helps configure IPv6 addresses. 
+    %\item MLD (Multicast Listener Discovery) – Manages multicast group memberships
+%\end{enumerate} 
+% ICMP in IPv6 (ICMPv6)
+% ICMPv6 extends ICMP functionality for IPv6 networks, including:
+%\begin{itemize}
+%    \item Neighbor Discovery Protocol (NDP) – Replaces ARP for IPv6 
+%    \item Router Advertisements & Solicitation – Helps configure IPv6 addresses. 
+%    \item MLD (Multicast Listener Discovery) – Manages multicast group memberships
+%\end{itemize} 
+Principalmente la risorsa condivisa, e manipolata, saranno i pacchetti ICMP e i dati verranno codificati all'interno dei campi presenti. 
+%Il mittente manipola una risorsa di sistema condivisa (osservabile dal destinatario) per codificare i dati segreti (eg tramite il tempo o la memoria).  
+Siccome ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza. 
+Questi messaggi verranno usati per creare una comunicazione fra una vittima e il suo attaccante, in cui potrebbero essere presenti in caso dei proxy intermedi. 
+%\textbf{Codifica dei dati}: gli aggressori incorporano messaggi nascosti all'interno di pacchetti ICMP, come richieste di Eco (ping) o risposte di Eco.
+%\textbf{Evasione del firewall}: poiché ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza.
+%\textbf{Comunicazione furtiva}: malware e botnet utilizzano poi ICMP per comunicare segretamente con un attaccante remoto.
+Altre codifiche, che non includono l'insserimento di onfromazioni nei campi, saranno quelle 
+relative alla distanza di tempo oppure alla tipologia di messaggio ricevuto. 
+Nel primo caso in base alla distanz adi tempo fra un pacchetto e l'altro, viene codificato l'informazione. 
+Nel secondo caso la codifica dei dati verrà associata alla particlare tipologia di messaggio ricevuto.
+
+
+
+
+
+
+
+
+
+
+
+Sebbene sa essenziale per la diagnostica di rete e la segnalazione degli errori, può essere utilizzato in 
+modo improprio per degli attacchi o per la ricognizione della rete (network reconnaissance). 
+%Gli aggressori possono utilizzare ICMP per attacchi DDoS, di ricognizione, di esfiltrazione di dati o di covert channel.
+%Le regole del firewall e la limitazione della velocità aiutano a bilanciare usabilità e sicurezza. 
+%Data la sua necessita per la diagnostica di rete e la segnalazione degli errori, 
+%può essere utilizzato in modo improprio per mettere a segno degli attacchi o per studiare la rete (ricognizione della rete). %network reconnaissance
+\vspace{3ex} \newline
+Nei seguenti capitoli verrà illustrato come può essere sfruttato per la creazione di un Covert Channel:  
+un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta. 
+L'attacco opera al di fuori degli usuali meccanismi di comunicazioni %Inoltre sfruttando vulnerabilità o comportamenti non previsti nei sistemi,  
+e per questo risulta difficile da rilevare e/o identificare. 
+%Sia dagli amministratori che dai tipici strumenti di monitoraggio. 
+Infine, siccome qualsiasi risorsa condivisa può essere utilizzata per la sua creazione, può esistere in qualunque sistema. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Principali categorie di Covert Channel} 
+\begin{itemize}
+    \item Covert Channel Timing (Temporizzazione)
+    \item Covert Channel Storage (Archiviazione)c
+    \item Covert Channel Behavioral (Comportamentali) 
+\end{itemize}
+\subsubsection{Covert Channel Timing (Temporizzazione)}
+I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (un umano o unj processo) di acquisire 
+informazioni attraverso il cambiamento del tempo di rispostadi una risorsa. 
+Sfruttando gli intervalli di tempo o l'ordine degli eventi per codificare informazioni (e.g. ritardi fra i pacchetti di rete,\dots); 
+qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo.
+
+
+\subsubsection{Covert Channel Storage (Archiviazione)}
+Nei covert channel di archiviazione un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
+Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
+\begin{esempio}
+    Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
+    oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
+\end{esempio}
+\vspace{1ex} \noindent
+Coinvolgono quindi la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi (e.g attributi del file, i bit di memoria, gli stati della cache,\dots).
+Di conseguenza, i veicoli sono tutte le risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e la lettura (diretta o indiretta) da parte di un altro.
+%
+\subsubsection{Covert Channel Behavioral (Comportamentali)}
+I canali nascosti comportamentali operano trasmettendo dati in base all'assegnazione di diversi eventi 
+di processi, sistemi e applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli. 
