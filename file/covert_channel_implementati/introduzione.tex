@@ -162,4 +162,503 @@ Nel secondo caso la codifica dei dati verrà associata alla particlare tipologia
 \end{itemize}
 
 
+\subsection{Struttura di un pacchetto ICMP} 
+I messaggi ICMP vengono inviati utilizzando l'intestazione IP di base. 
+In essi i primi venti byte indicano l'intestazione IP mentre il primo ottetto, della porzione dati del datagramma, riguarda l'intestazione ICMP. 
+%Salvo diverso avviso nelle singole descrizioni del formato, 
+%i valori dei campi dell'intestazione internet sono i seguenti: 
+%\begin{itemize} 
+%    \item Versione 4 
+%    \item IHL: lunghezza dell'intestazione internet in parole da 32 bit. 
+%    \item Tipo di Servizio 0 
+%    \item Lunghezza Totale: lunghezza dell'intestazione internet e dei dati in ottetti. 
+%    \item Identificazione, Flag, Offset del frammento (utilizzato nella frammentazione dei pacchetti). 
+%    \item Tempo di vita in secondi; poiché questo campo viene decrementato in ciascun dispositivo in cui il 
+%    datagramma viene elaborato, il valore in questo campo dovrebbe essere almeno grande quanto il numero di 
+%    gateway che questo datagramma attraverserà. 
+%    \item Protocollo ICMP = 1
+%    \item Checksum dell'intestazione: Il complemento a 16 bit della somma del complemento a uno di tutte le 
+%    parole a 16 bit nell'intestazione. Per calcolarlo, il campo di checksum deve essere zero. 
+%    Questo checksum potrebbe essere sostituito in futuro.
+%    \item Indirizzo di origine. L'indirizzo del gateway o dell'host che compone il messaggio ICMP.
+%    Se non diversamente specificato, può trattarsi di uno qualsiasi degli indirizzi di un gateway.
+%    \item Indirizzo di destinazione L'indirizzo del gateway o dell'host a cui deve essere inviato il messaggio.
+%\end{itemize} 
+I campi relativa al protocollo ICMP sono i seguenti:
+\begin{itemize}
+%    \item \textbf{Intestazione IP}: primi 20 ottetti di un pacchetto ICMP. 
+    \item \textbf{Tipo}: Identifica il tipo di messaggio (ad esempio, Echo Request, Destinazione irraggiungibile). 
+    In base al valore di questo campo verrà determinato il formato dei rimanenti dati. 
+    \item \textbf{Codice}: Fornisce dettagli aggiuntivi sul tipo di messaggio.
+    \item \textbf{Checksum}: Garantisce l'integrità dei dati.  
+    %Checksum: è il complemento a 16 bit del complemento a uno relativo alla somma del messaggio ICMP 
+    %(che inizia con il campo Type). Verrà calcolato se il campo è zero.  
+    \item \textbf{Dati}: Opzionale, può contenere parte del pacchetto IP originale che ha causato l'errore. 
+    %Internet Header + 64 bits of Data Datagram: 
+    %Questi dati vengono utilizzati dall'host per accoppiare il messaggio di errore al processo appropriato. 
+    %Se un protocollo di livello superiore utilizza numeri di porta, si presume che siano nei primi 64 bit dei dati del datagramma originale. 
+    %\footnote{L'\textit{intestazione IP} può variare dai 20 byte ai 40 byte} 
+\end{itemize}
+\vspace{2ex} 
+Nell'intestazione, nel caso si usi il protocolllo ICMP, il campo \textit{protocol} avrà valore 1
+%Qualsiasi campo etichettato come "non utilizzato" è riservato per future estensioni e deve essere zero quando 
+%inviato, ma i destinatari non dovrebbero utilizzare questi campi (eccetto per includerli nel checksum).  
+\begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=0.7\textwidth]{./img/ICMP-packet-structure.png}
+    \captionof{figure}{Struttura pachhetto ICMP/IP} 
+\end{minipage} 
+\newline
+I messaggi ICMP sono classificati o come messaggi di errore o come messaggi informativi
+\vspace{1ex} 
+\begin{itemize}
+    \item \textbf{Messaggi di errore} - Segnalano problemi nella comunicazione di rete.
+    %(Destination Unreachable, source Quench, Redirect Message,Time Excedeed, Parameter Problem, Packet too Big)
+    \item \textbf{Messaggi informativi} - Utilizzati per scopi diagnostici e di controllo. 
+    %(Echo Request, Timestamp Request, information Request)
+\end{itemize}  
+%\textbf{Messaggi di Errore}
+%\begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|p{0.4\linewidth}|}
+%    \hline 
+%   \textbf{Type} & \textbf{Code} & \textbf{Meaning} \\
+%    \hline
+%    3 & 0-5 & Destination Unreachable (e.g., net, host, port, \dots) \\
+%    \hline 
+%    4 & 0 & Source Quench (indica la congestione nella rete) \\
+%    \hline 
+%    5 & 0-3 & Redirect Message (suggerisce strada migliore) \\
+%    \hline 
+%    11 & 0-1 & Time Exceeded (TTL scaduto, \dots) \\
+%    \hline 
+%    12 & 0-1 & Parameter Problem (intestazione IP non valida) \\ 
+%    \hline 
+%\end{tabular}
+%\captionof{table}{ICMP v4 messaggi di errore} 
+%\label{table:icmpv4:errormessage}
+%
+%\begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|p{0.4\linewidth}|}
+%    \hline 
+%    \textbf{Type} & \textbf{Code} & \textbf{Meaning} \\
+%    \hline
+%    1 & 0-6 & Destination Unreachable (e.g., net, host, port, \dots) \\
+%    \hline 
+%    2 & 0 & Packet Too Big  (indica la congestione nella rete) \\ 
+%    \hline 
+%    3 & 0-1 & Time Exceeded (TTL scaduto, \dots) \\
+%    \hline 
+%    4 & 0-2 & Parameter Problem (intestazione IP non valida) \\ 
+%    \hline 
+%\end{tabular}
+%\captionof{table}{ICMP v6 messaggi di errore} 
+%\label{table:icmpv6:errormessage}
+%
+%\textbf{Messaggi di Informazione} 
+%\begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|p{0.4\linewidth}|}
+%    \hline 
+%    Type & Code & Meaning \\
+%    \hline 
+%    128 & 0 & Echo Request Message: invia dati a un destinatario (e.g. ping)\\
+%    \hline 
+%    129 & 0 & Echo Reply Message: replica i dati ricevuti mandandoli al mittente (e.g risposta a ping)\\
+%    \hline  
+%\end{tabular} 
+%\captionof{table}{ICMP v6 messaggi di informazione}
+%\label{table:icmpv6:infomessage}
+%
+%\begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|p{0.4\linewidth}|}
+%    \hline 
+%    Type & Code & Meaning \\
+%    \hline 
+%    8 & 0 & Echo Request Message: invia dati a un destinatario (e.g. ping)\\
+%    \hline 
+%    0 & 0 & Echo Reply Message: replica i dati ricevuti mandandoli al mittente (e.g risposta a ping)\\
+%    \hline 
+%    13 & 0 & Timestamp Request Message (invia un timestamp a un destinatario)\\
+%    \hline 
+%    14 & 0 & Timestamp Reply Message (replica i il timestamp ricevuta al mittente)\\
+%    \hline 
+%    15 & 0 & Information request message (invia un timestamp a un destinatario)\\
+%    \hline 
+%    16 & 0 & Information Reply message (replica i il timestamp ricevuta al mittente)\\
+%    \hline 
+%    %9 & 0 & Router Advertisement & Routers announce themselves to hosts. \\
+%    %\hline
+%    %10 & 0 & Router Solicitation & Hosts request router advertisements. \\
+%    %\hline 
+%\end{tabular} 
+%\captionof{table}{ICMP v4 messaggi di informazione}
+%\label{table:icmpv4:infomessage}
+%\end{minipage}  
+
+
+%Come le tipologie di messaggio verranno sfruttate
+%Stabilito cos'è un Covert channel e lo scopo del protocollo ICMP; 
+%verrà indicato come le tipologie di messaggi presenti verranno sfruttate per esfiltrare dati fra due entità comunicanti.  
+\subsubsection{Destination Unreachable Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Destination Unreachable}, 
+viene usata quando la rete specificata (nel campo relativo alla destinazione di un datagram) è irraggiungibile. 
+Di conseguenza il gateway potrà inviare questa tipologia di messaggio all'host mittente del pacchetto. 
+\vspace{1ex} \newline 
+Altri possibili caso potranno essere: l'host è irraggiungibile, 
+il protocollo indicato o la porta di destinazione specificati non sono attivi, 
+il pachcetto deve venrire frammetnato per poterlo inoltrare ad un gateway, 
+\dots
+%\vspace{1ex} \newline 
+%Di seguito i codici associati ai possibili casi:  
+%\begin{itemize}
+%    \item \textbf{0} = net unreachable 
+%    \item \textbf{1} = host unreachable  
+%    \item \textbf{2} = protocol unreachable  
+%    \item \textbf{3} = port unreachable  
+%    \item \textbf{4} = fragmentation needed and DF set  
+%    \item \textbf{5} = source route failed 
+%\end{itemize} 
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=3 (1B)} & \bitbox{8}{Code=0-5 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32}{Unused (4B)} \\
+    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
+\end{bytefield}  
+
+
+\subsubsection{Time Exceeded Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Time Exceeded}, 
+viene usata quando il gateway che elabora un pacchetto trova che il suo TTL (tempo di vita) è zero. 
+Di conseguenza il gateway dovrà scartare il datagramma e potrà poi notificare l'host sorgente della cosa tramite questa tipologia di messaggio. 
+\vspace{1ex} \newline 
+Altri possibili caso potranno essere: un host che riassembla un datagramma frammentato, non riesce a completare 
+il riassemblaggio a causa di frammenti mancanti entro il proprio limite di tempo. 
+%\vspace{1ex} \newline 
+%Di seguito i codici associati ai possibili casi: 
+%\begin{itemize}
+%    \item \textbf{0} = TTL scaduto durante il transito 
+%    \item \textbf{1} = tempo di riassemblaggio dei frammenti scaduto 
+%\end{itemize} 
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=11 (1B)} & \bitbox{8}{Code=0-1 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32}{Unused (4B)} \\
+    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
+\end{bytefield} 
+
+
+
+\subsubsection{Parameter Problem Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Parameter Problem}, 
+viene usata quando il gateway che elabora un pacchetto  trova un problema con i parametri dell'intestazione in modo tale da non poter completare l'elaborazione del datagramma. 
+In questo caso dovrà scartare il datagramma e potrà notificare l'host sorgente della cosa tramite questa tipologia di messaggio. 
+\vspace{1ex} \newline 
+Una potenziale sorgente di tale problema è rappresentata da argomenti non corretti in un'opzione. 
+E questo messaggio viene inviato solo se l'errore ha causato lo scarto del pacchetto. 
+%\vspace{1ex} \newline 
+%Di seguito i codici associati ai possibili casi: 
+%\begin{itemize}
+%    \item \textbf{0} = TTL scaduto durante il transito 
+%    \item \textbf{1} = tempo di riassemblaggio dei frammenti scaduto 
+%\end{itemize}
+%I codici in rosso sono quelli ricevibili da un gateway mentre quelli blu potranno essere ricevuti da un host.  
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=12 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{8}{Pointer (1B)} & \bitbox{24}{Unused (3B)} \\
+    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
+\end{bytefield}  
+\vspace{1ex} \newline  
+Il puntatore identifica l'ottetto nell'intestazione originale del datagramma in cui è 
+stato rilevato l'errore (può trovarsi nel mezzo di un'opzione). 
+%Ad esempio, 1 indica che c'è qualcosa di sbagliato con il Tipo di Servizio, e (se sono presenti opzioni) 20 indica che 
+%c'è qualcosa di sbagliato con il codice di tipo della prima opzione.  
+
+
+
+\subsubsection{Source Quench Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Source Quench}, viene usata quando il gateway gateway scarta un pacchetto;  
+in questo caso potrà inviare un messaggio di Source Quench all'host Internet mittente. 
+Un gateway può scartare un pacchetto se non ha lo spazio necessario nel buffer 
+per mantenere in coda i pacchetti che dovranno essere inoltrati alla rete successiva; 
+la quale dovrà far parte della rotta per la rete di destinazione. 
+%per l'uscita verso la rete successiva nella rotta per la rete di destinazione. 
+Il gateway può inviare un messaggio di attenuazione della sorgente per ogni messaggio che scarta. 
+\vspace{1ex} \newline 
+Un host di destinazione può inviare un messaggio di Source Quench anche nel caso in cui i datagrammi arrivino troppo velocemente per essere elaborati.
+Ciò indicherà una richiesta da parte dell'host destinatario all'host mittente, di ridurre la velocità con cui si stanno inviando i pacchetti nel traffico. 
+Al suo ricevimento, l'host sorgente dovrà ridurre la velocità sino a quando non riceverà più messaggi Source Quench dal gateway.
+L'host mittente potrà successivamente aumentare gradualmente la velocità con cui sta inviando i pacchetti fino a quando non riceverà nuovamente questi messaggi.
+\vspace{1ex} \newline 
+Il gateway o l'host può inoltre inviare il messaggio di Source Quench anche quando si avvicina al limite di capacità; 
+piuttosto che aspettare e lasciare che questa capacità venga superata. 
+Questo porterà al vantaggio che il pacchetto che ha attivato il messaggio potrebbe essere consegnato; 
+mentre nel caso precedente non vi era abbastanza spazio per poterlo memorizzare (siccome la coda è piena). 
+%\vspace{1ex} \newline 
+%Di seguito i codici associati ai possibili casi: 
+%\begin{itemize}
+%    \item \textbf{0} = TTL scaduto durante il transito 
+%    \item \textbf{1} = tempo di riassemblaggio dei frammenti scaduto 
+%\end{itemize}
+%I codici in rosso sono quelli ricevibili da un gateway mentre quelli blu potranno essere ricevuti da un host.  
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=4 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32}{Unused (4B)} \\
+    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
+\end{bytefield}  
+
+
+
+\subsubsection{Redirect Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Redirect}, indica un messaggio di reindirizzamento a un host.  
+Il gateway manda questo tipo di messaggio nelle seguenti situazioni: 
+\begin{itemize}
+    \item Un gateway (G1) riceve un pacchetto (X) da un host su una rete a cui è collegato. 
+    Successivamente controlla la sua tabella di routing e ottiene l'indirizzo del gateway successivo (G2). 
+    Questo secondo gateway sarà sulla rotta verso la rete di destinazione del datagramma X. 
+    \item Se G2 e il mittente del datagramma si trovano sulla stessa rete, viene inviato un messaggio di reindirizzamento all'host sorgente. 
+    Ciò consiglia all'host di inviare il traffico direttamente al gateway G2, poiché rappresenta un percorso migliore per la destinazione.
+    %\item Il gateway inoltra i dati del datagramma originale alla sua destinazione Internet.
+\end{itemize}
+Se nell'itestazione IP è presente l'opzione \textit{IP Source Route}, il messaggio ri reindirzzamento non viene inviato; 
+anche se sia presente un percorso migliore per raggiungere la destinazione. 
+\vspace{1ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=5 (1B)} & \bitbox{8}{Code=0-3 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32}{Gateway Internet Address (4B)} \\
+    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
+\end{bytefield}
+\vspace{1ex} \newline 
+Nel campo \textit{Gateway Internet Address} verrà indicato l'indirizzo del gateway a cui dovrà essere inviato il traffico. 
+%per la rete di destinazione; specificata dai dati del datagramma originale, nel campo destinazione.  
+
+
+
+\subsubsection{Echo Request or Echo Reply Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Echo}, viene usata per ricevere indietro una risposta da un host. 
+\vspace{1ex} \newline 
+I dati ricevuti nel messaggio di Echo, devono essere restituiti nel messaggio di risposta. 
+Inoltre i'identificatore e il numero di sequenza possono essere utilizzati dal 
+mittente per facilitare l'abbinamento delle risposte con le richieste.
+%Ad esempio, l'identificatore potrebbe essere utilizzato come una porta in TCP o UDP per identificare una 
+%sessione e il numero di sequenza potrebbe essere incrementato a ogni richiesta di eco inviata.
+Chi risponde alla richiesta Echo, restituisce gli stessi valori nella risposta. 
+\vspace{2ex} \newline 
+Per creare un messaggio di risposta, gli indirizzi di origine e di destinazione vengono semplicemente invertiti,
+il codice da 8 viene modificato in 0 e il checksum viene ricalcolato. 
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=8 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} \\
+    \bitbox{32}{Data ... ($\geq$ 0B)} 
+\end{bytefield}  
+\vspace{1ex} \newline 
+I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
+
+
+
+\subsubsection{Timestamp or Timestamp Reply Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Timestamp}, viene usata per ricevere indietro una risposta da un host. 
+\vspace{1ex} \newline 
+L'identificatore e il numero di sequenza possono essere utilizzati dal mittente del pacchetto per facilitare l'abbinamento delle risposte con le richieste.
+%Ad esempio, l'identificatore potrebbe essere utilizzato come una porta in TCP o UDP per identificare una sessione e il numero di sequenza potrebbe essere incrementato a ogni richiesta inviata.
+%La destinazione restituisce gli stessi valori nella risposta. 
+Inoltre i dati ricevuti nel messaggio di richiesta, vengono restituiti in quello di risposta insieme a dei timestamp aggiuntivi. 
+Il timestamp è pari a 32 bit e indica i millisecondi che sono passati dalla mezzanotte UT.
+%Un utilizzo di questi timestamp è descritto da Mills [5].
+\vspace{1ex} \newline 
+Se l'ora non è disponibile in millisecondi o non può essere fornita rispetto alla mezzanotte UT, 
+è possibile inserire qualsiasi ora in un timestamp, a condizione che anche il bit di ordine superiore del 
+timestamp sia impostato per indicare questo valore non standard. 
+\vspace{1ex} \newline  
+In un messaggio di risposta, l'indirizzo della sorgente sarà la destinazione. 
+Quindi per poter creare un messaggio di risposta timestamp, gli indirizzi di sorgente e destinazione vengono semplicemente invertiti, il codice di tipo viene modificato in 14 e il checksum viene ricalcolato.
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=13 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} \\ 
+    \bitbox{32}{Originate Timestamp (4B)} \\
+    \bitbox{32}{Receive Timestamp (4B)} \\
+    \bitbox{32}{Transmit Timestamp (4B)} \\
+    \bitbox{32}{Data ... ($\geq$ 0B)} 
+\end{bytefield}
+\vspace{1ex} \newline 
+I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
+I campi relativi ai timestamp indicheranno: 
+il tempo in cui il mittente ha toccato il messaggio per l'ultima volta prima di inviarlo, 
+il tempo in cui il destinatario ha toccato per la prima volta il messaggio (alla ricezione) e 
+il tempo in cui il destinatario ha toccato il messaggio per l'ultima volta prima di inviarlo. 
+
+
+
+
+\subsubsection{Information Request or Information Reply Message (ICMPv4)} 
+Nel protocollo \textbf{ICMPv4} la tipologia di messaggio \textit{Information}, viene usata per consentire a un host di scoprire il numero della rete in cui si trova. 
+E quindi per capire se si trova nella stesse rete dell'host che risponde. 
+L'identificatore e il numero di sequenza possono essere utilizzati dal mittente del pacchetto per facilitare l'abbinamento delle risposte con le richieste.
+\vspace{1ex} \newline 
+Questo messaggio può essere inviato con la rete sorgente nel campo mittente e 
+la destinazione nell'intstazione IP pari a zero (ciò significa "questa" rete). 
+Tuttavia l'intestazione IP presente nel messaggio di risposta dovrà essere inviata con gli indirizzi IP completamente specificati.
+\vspace{2ex} \newline 
+Per creare un messaggio di risposta, gli indirizzi di origine e di destinazione vengono invertiti,
+il codice da 15 viene modificato in 16 e il checksum viene ricalcolato. 
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=15 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} 
+\end{bytefield} 
+\vspace{1ex} \newline 
+I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
+
+
+
+\subsubsection{Destination Unreachable Message (ICMPv6)} 
+Nel protocollo \textbf{ICMPv6} la tipologia di messaggio \textit{Destination Unreachable}, 
+viene generato da un router (o dal livello IPv6 nel nodo di origine) in risposta a un pacchetto che non può essere recapitato 
+(alla sua destinazione) per motivi diversi dalla congestione. 
+Un messaggio ICMPv6 non verrà (e non dovrà) generato se un pacchetto viene scartato a causa della congestione del traffico. 
+\vspace{1ex} \newline  
+Un nodo che riceve un messaggio ICMPv6 \textit{Destination Unreachable} deve notificare la cosa al 
+processo di livello superiore (se il processo in questione può essere identificato).
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8} {Type=1 (1B)} & \bitbox{8}{Code=0-6 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32} {Unused (4B)} \\
+    \bitbox{32} {As much of invoking packet as possible without} \\
+    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
+\end{bytefield} 
+%IPv6 richiede che ogni link su internet abbia un MTU di 1280 ottetti o più. 
+%Su ogni link che non può portare pacchetti da 1280 ottetti in un solo pezzo, 
+%debbono essere previste frammentazione e riassemblaggio specifici al link, ad un livello inferiore ad IPv6. 
+%Questo significa che in questo caso la frammentazione avviene a livello link layer, 
+%non viene in nessun modo gestita da IPv6 (a livello rete) ed è del tutto trasparente.
+\vspace{1ex} \newline 
+Il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
+Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
+%\href{https://www.rfc-editor.org/rfc/rfc2460#section-5}{\textbf{1280 bytes}}. 
+%\footnote{\textbf{MTU}=maximum transmission unit ovvero il massimo carico possibile} 
+%\footnote{L'\textit{intestazione IP} contiene al minimo 40 byte} 
+
+
+
+\subsubsection{Packet Too Big Message (ICMPv6)} 
+Nel protocollo \textbf{ICMPv6} la tipologia di messaggio \textit{Packet Too Big}, 
+viene generato da un router in risposta a un pacchetto che non può inoltrare perché esso è più grande dell'MTU del collegamento in uscita.
+Le informazioni contenute in questo messaggio vengono utilizzate come parte del processo di \href{https://www.rfc-editor.org/rfc/rfc4443#ref-PMTU}{Path MTU Discovery}.
+%Originating a Packet Too Big Message makes an exception to one of the rules as to when to originate an ICMPv6 error message.  
+%Unlike other messages, it is sent in response to a packet received with an IPv6 multicast destination address, or with a link-layer multicast or link-layer broadcast address. 
+Un nodo che riceve un messaggio ICMPv6 \textit{Packet Too Big} deve notificare la cosa al 
+processo di livello superiore (se il processo in questione può essere identificato). 
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8} {Type=2 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32} {MTU (4B)} \\
+    \bitbox{32} {As much of invoking packet as possible without} \\
+    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
+\end{bytefield} 
+\vspace{1ex} \newline 
+Il cmapo \textit{MTU} indica la massima unità di trasmissione del collegamento del salto successivo. 
+Mentre il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
+Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
+
+
+
+\subsubsection{Time Exceeded Message (ICMPv6)} 
+Nel protocollo \textbf{ICMPv6} la tipologia di messaggio \textit{Time Exceeded}, 
+viene generato se un router riceve un pacchetto con un limite di hop pari a zero,  
+o se un router decrementa il limite di hop di un pacchetto a zero. 
+In questi casi si dovrà scartare il pacchetto e inviare al mittente un messaggio \textit{Time Exceeded} con codice 0. 
+Ciò indica un loop nel routing o un valore iniziale della quantità di hop possibili troppo basso.
+Un messaggio \textit{Time Exceeded} con codice 1 invece viene utilizzato per segnalare il timeout nel riassemblaggio dei frammenti. 
+\vspace{1ex} \newline  
+Un nodo che riceve un messaggio ICMPv6 \textit{Time Exceeded} deve notificare la cosa al 
+processo di livello superiore (se il processo in questione può essere identificato).
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8} {Type=3 (1B)} & \bitbox{8}{Code=0-1 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32} {Unused (4B)} \\
+    \bitbox{32} {As much of invoking packet as possible without} \\
+    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
+\end{bytefield}  
+\vspace{1ex} \newline 
+Il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
+Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
+
+
+
+\subsubsection{Parameter Problem Message (ICMPv6)} 
+Nel protocollo \textbf{ICMPv6} la tipologia di messaggio \textit{Parameter Problem}, 
+viene generato se un nodo che elabora un pacchetto, rileva un problema con un campo nell'intestazione IPv6 o 
+nelle intestazioni di estensione tale da impedirgli di completare l'elaborazione di esso. 
+Di conseguenza deve scartare il pacchetto e inviare un messaggio ICMPv6 Parameter Problem alla sorgente del pacchetto, indicando il tipo e la posizione del problema. 
+\vspace{1ex} \newline  
+Un nodo che riceve un messaggio ICMPv6 \textit{Parameter Problem} deve notificare la cosa al processo di livello superiore (se il processo in questione può essere identificato).
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    \bitheader{0-31} \\
+    \bitbox{8} {Type=4 (1B)} & \bitbox{8}{Code=0-2 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{32} {Pointer (4B)} \\
+    \bitbox{32} {As much of invoking packet as possible without} \\
+    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
+\end{bytefield} 
+\vspace{1ex} \newline 
+Il campo \textit{Pointer} identifica l'ottetto, nell'intestazione del pacchetto originale, in cui è stato rilevato l'errore. 
+Mentre il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
+Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
+
+
+
+\subsubsection{Echo Request or Echo Reply Message (ICMPv6)} 
+Nel protocollo \textbf{ICMPv6} la tipologia di messaggio \textit{Echo}, viene usata per ricevere indietro una risposta da un host. 
+In questi casi, una \textit{Echo Reply} dovrebbe essere inviata in risposta alla messaggio di \textit{Echo Request}. 
+E non vi è alcuna limitazione alla quantità di dati inseribili nei messaggi \textit{Echo}. 
+\vspace{1ex} \newline 
+I dati ricevuti dall \textit{Echo Request}, dovranno essere restituiti nel messaggio di risposta integralmente e senza modifiche. 
+Inoltre i'identificatore e il numero di sequenza possono essere utilizzati dal 
+mittente per facilitare l'abbinamento delle risposte con le richieste.
+%Ad esempio, l'identificatore potrebbe essere utilizzato come una porta in TCP o UDP per identificare una 
+%sessione e il numero di sequenza potrebbe essere incrementato a ogni richiesta di eco inviata.
+Inoltre nel messaggio di \textit{Echo Reply}, l'indirizzo sorgente deve essere lo stesso dell'indirizzo di destinazione presente nel messaggio di \textit{Echo Request}.
+\vspace{1ex} \newline 
+Per creare un messaggio di risposta, gli indirizzi di origine e di destinazione vengono semplicemente invertiti,
+il codice da 128 viene modificato in 129 e il checksum viene ricalcolato. 
+In aggiunta, ogni nodo deve implementare una funzione di risposta ai messaggi \textit{Echo ICMPv6} così che 
+quando riceve delle richieste Echo, generi le relative risposte. 
+\vspace{2ex} \newline
+%A node SHOULD also implement an application-layer interface for originating Echo Requests and receiving Echo Replies, for diagnostic purposes.
+%E inoltre, un nodo dovrebbe implementare un'interfaccia a livello applicazione per poter generare Richieste Echo e ricevere Risposte Echo, a fini diagnostici.
+I messaggi \textit{Echo Request} possono essere passati ai processi che ricevono i messaggi \textit{ICMP}. 
+Identica cosa i messaggi di \textit{Echo Reply}. 
+Essi devono essere trasmessi al processo che ha originato il messaggio di richiesta. 
+Inoltre un messaggio di risposta, può essere trasmesso a processi che non hanno originato il messaggio \textit{Echo Request}. 
+\vspace{2ex} \newline 
+\begin{bytefield}[bitwidth=1.1em]{32} 
+    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type=128 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
+    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} \\
+    \bitbox{32}{Data ... ($\geq$ 0B)} 
+\end{bytefield} 
+\vspace{1ex} \newline  
+I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
+
 
