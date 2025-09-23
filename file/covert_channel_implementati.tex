@@ -1,24 +1,4 @@
-\import{./covert_channel_implementati}{introduzione} \newpage   
-
-
-\subsubsection*{Categorie di Covert Channel}  
-\begin{itemize} 
-    \item Storage Covert Channel (Archiviazione): \newline 
-    Implicano la scrittura di dati su un'area di memoria condivisa accessibile da entrambi i processi. 
-    I veicoli saranno tutte quelle risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e 
-    la lettura (diretta o indiretta) da parte di un altro.Un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
-    %Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
-    %\begin{esempio}
-    %    Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
-    %    oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
-    %\end{esempio}
-    %\vspace{1ex} \noindent
-    %Coinvolgono quindi la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi (e.g attributi del file, i bit di memoria, gli stati della cache,\dots).
-    %Di conseguenza, i veicoli sono tutte le risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e la lettura (diretta o indiretta) da parte di un altro.
-    \item Behavioral Covert Channel (Comportamento): \newline 
-    I canali nascosti comportamentali operano trasmettendo dati in base all'avvenimento di diversi eventi. 
-    %di processi, sistemi e applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli. 
-\end{itemize} 
+\import{./covert_channel_implementati}{introduzione} \newpage    
 
 \subsection{Implementazione di Timing Covert Channel} %(Temporizzazione)
 \import{./covert_channel_implementati}{timing_covert_channel}  
@@ -26,11 +6,11 @@
 \subsection{Storage Covert Channel}
 \import{./covert_channel_implementati}{storage_covert_channel}  
 
-%\subsection{Behavioral Covert Channel}
-%\import{./covert_channel_implementati}{behavioral_covert_channel} 
+\subsection{Behavioral Covert Channel}
+\import{./covert_channel_implementati}{behavioral_covert_channel} 
 
 
-\subsection{Struttura della comunicazione fra le entità} 
+\section{Struttura della comunicazione fra le entità} 
 \import{./covert_channel_implementati}{struttura_comunicazione}  
 %\import{./implementazione}{introduzione} \newpage    
 
