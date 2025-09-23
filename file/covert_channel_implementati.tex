@@ -1,12 +1,8 @@
 \import{./covert_channel_implementati}{introduzione} \newpage   
 
-\subsection{Timing Covert Channel}
-\subsubsection*{Categorie di Covert Channel implementate}  
-\begin{itemize}
-    \item Timing Covert Channel (Temporizzazione): \newline 
-    %I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (un umano o un processo) di acquisire informazioni attraverso il cambiamento del tempo di rispostadi una risorsa. 
-    Sfruttano gli intervalli di tempo o l'ordine degli eventi per codificare le informazioni (e.g. ritardi fra i pacchetti di rete,\dots). 
-    Qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo. 
+
+\subsubsection*{Categorie di Covert Channel}  
+\begin{itemize} 
     \item Storage Covert Channel (Archiviazione): \newline 
     Implicano la scrittura di dati su un'area di memoria condivisa accessibile da entrambi i processi. 
     I veicoli saranno tutte quelle risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e 
@@ -22,9 +18,9 @@
     \item Behavioral Covert Channel (Comportamento): \newline 
     I canali nascosti comportamentali operano trasmettendo dati in base all'avvenimento di diversi eventi. 
     %di processi, sistemi e applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli. 
-\end{itemize}
+\end{itemize} 
 
-
+\subsection{Implementazione di Timing Covert Channel} %(Temporizzazione)
 \import{./covert_channel_implementati}{timing_covert_channel}  
 
 \subsection{Storage Covert Channel}

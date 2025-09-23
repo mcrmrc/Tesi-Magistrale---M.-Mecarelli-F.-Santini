@@ -8,100 +8,149 @@
 %    \end{esempio}
 %\href{https://www.youtube.com/watch?v=QIvsmQQ6vu8}{Video Esempio} 
 
+
+%I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (un umano o un processo) di acquisire informazioni attraverso il cambiamento del tempo di rispostadi una risorsa. 
+Sfruttano gli intervalli di tempo o l'ordine degli eventi per codificare le informazioni (e.g. ritardi fra i pacchetti di rete,\dots). 
+Qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo. 
+\vspace{1ex} \newline
+Per implementarli sarà quindi presente un metodo di codifica, usato dal mittente, che ricaverà il tempo associato ad un dato e poi aspetterà tale intervallo di tempo. 
+Per esempio se al dato binario 1001 fosse associato il tempo 3, il programma prima leggerà il dato e poi aspetterà tre secondi. 
+\vspace{1ex} \newline
+\begin{lstlisting} [language=Python, showspaces=false, showstringspaces=false, showtabs=false]
+with open("path","r) as read_file:
+    for data in read_file.read(): 
+        delay=getDelay(data)
+        wait(delay)
+\end{lstlisting}
+\captionof{lstlisting}{Pseudocodice di un Timing Covert Channel}
+\label{lstlisting:pseudocodice:timingChannel:code} 
+\vspace{3ex} 
+Invece per ricevere le informazioni, il destinatario rimane in attesa dei pacchetti che gli verranno inviati. 
+Successivamente ricaverà l'intervallo di tempo fra il pacchetto precedente e quello corrente e poi ricaverà il valore associato. 
+Per esempio se l'intervallo di tempo risultassedi 6 secondi, il destinatario controllerà a chi è associato tale tempo (in questo caso diciamo il dato binario 1101). 
+\vspace{1ex} \newline
+\begin{lstlisting} [language=Python, showspaces=false, showstringspaces=false, showtabs=false]
+tempoPrecedente=None 
+def wait_packet(pacchetto): 
+    if not tempoPrecedente: 
+        tempoCorrente=pacchetto.time
+        tempoPrecedente=pacchetto.time
+        return
+    tempoCorrente=pacchetto.time 
+    deltaTempo=tempoCorrente-tempoPrecedente
+    data=getData(deltaTempo) 
+    tempoPrecedente= tempoCorrente 
+\end{lstlisting}
+\captionof{lstlisting}{Pseudocodice di un Timing Covert Channel}
+\label{lstlisting:pseudocodice:timingChannel:decode}
+
 \subsubsection{Covert Channel Temporale tramite pacchetti ICMP Echo} 
-In questo caso si definisce un Covert Channel Temporale inviando pacchetti ICMP (di tipo Echo) in intervalli specifici. 
-Tramite la differenza fra il tempo precedente e il tempo di ircezione del nuovo pacchetto; 
-l'attaccante riuscirà a codificare un bit (o coppie di bit) mentre la vittima riuscirà a decodificare il bit (o la coppia di bit) associato all'intervallo. 
-\vspace{1ex} \newline 
-La formula per calcolare i tempi associati alle codifiche dei bit è la seguente: \newline
+%In questo caso si definisce un Covert Channel Temporale inviando pacchetti ICMP (di tipo Echo) in intervalli specifici. 
+%Tramite la differenza fra il tempo precedente e il tempo di ircezione del nuovo pacchetto; 
+%l'attaccante riuscirà a codificare un bit (o coppie di bit) mentre la vittima riuscirà a decodificare il bit (o la coppia di bit) associato all'intervallo. 
+%\vspace{1ex} \newline 
+Siccome deve essere presente una maniera per codificare e decodificare i tempi associati ai dati, 
+si è definita in un primo momento la seguente funzione:
+%La formula per calcolare i tempi associati alle codifiche dei bit è la seguente: \newline
 \begin{equation}
     \text{tempo\_base}+\text{index}*(2*\text{distanza\_tempi})
 \end{equation}
 \label{equation:tempi:timingCC}
-In essa il \textbf{tempo di base} indica il minimo dei secondi da aspettare per ogni tempo possibile. 
-L'indice indicherà l'indice associato alla codifica e siccome si trattano bit, corrisponderà all'intero rappresentato dalla coppia di bit (eg 101=5). 
-Invece la distanza è la differenza minima di tempo che tutti i tempi calcoalti dovranno avere. 
-\vspace{1ex} \newline 
-Siccome RITA riesce ad individuare gli schemi temporali calcolati, si è definito un range così da poter mandare tempi randomici e non costanti. 
-Ora la codifica di una coppia di bit, non è più definita da un singolo, costante intervallo di tempo, ma da un range di intervalli temporali. 
-Quindi se si volesse mandare il codice \textit{01}, non si aspetteranno più \textit{7} secondi, ma un tempo randomico che appartiene al range range $[5,9]$. 
 %\begin{lstlisting}
 %DISTANZA_TEMPI=2 #sec 
 %TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(2**2)] #00, 01, 10, 11 
 %TEMPO_BYTE=0*60 #minuti
 %\end{lstlisting} 
 %\captionof{lstlisting}{heading} 
-%Si definisce un \textbf{tempo di base} di \textit{3 secondi} e una \textbf{distanza} minima che tutti i tempi dovranno avere. In questo caso si è deciso che la distanza sia di almeno \textit{2 secondi}. 
+%Si definisce un \textbf{tempo di base} di \textit{3 secondi} e una \textbf{distanza} minima che tutti i tempi dovranno avere. 
+%In questo caso si è deciso che la distanza sia di almeno \textit{2 secondi}. 
+Il \textbf{tempo di base} indica il minimo dei secondi da aspettare per ogni tempo possibile. 
+e l'indice indicherà l'indicizzazione associata alla codifica del dato. 
+%Siccome si trattano bit, corrisponderà all'intero rappresentato dalla coppia di bit (eg 101=5). 
+Invece la distanza è la differenza minima di tempo che tutti i tempi calcoalti dovranno avere; 
+il suo scopo è quello di non avere due tempi che si sovrappongano, siccome in quei casi il dato potrebbe essere decodificato erroneamente.  
 \vspace{1ex} \newline 
-Inoltre si è pensato di introdurre anche un tempo (in minuti) che definirà quanto aspettare una volta che si è mandato un byte. 
-Ciò potrà essere usato se lo scambio di informazioni risultasse prolungato; 
-infatti un numero elevato e continuo di pacchetti potrebbe risultare anomalo. 
-\vspace{3ex} \newline 
-Il dato da inviare (di qualunque tipo esso sia) dovrà essere convertito in una lista di byte, dalla quale estrarremo i singoli bit da mandare. 
-\vspace{3ex} \newline 
-Dopodichè avverrò la comunicazione vera e propria. 
-Si manderà un pacchetto per indicare al destinatario l'inizio della comunicazione e impostare così il tempo di inizio. 
-Se non si determina questo tempo, il destinatario non riuscirà a calcoalre l'intervallo di tempo fra il tempo di arrivo del pacchetto corrente e di quello del pacchetto precedente. 
-Di conseguenza non si riuscirà a decodificare il primo bit. 
+Quindi, siccome si sta lavorando a livello di bit, dal dato %da inviare (di qualunque tipo esso sia) 
+%dovrà essere convertito in una lista di byte, dalla quale 
+estrarremo i singoli bit che poi manderemo, codificandoli tramite l'intervallo di tempo associato. 
+Nel frattempo il destinatario rimarrà in ascolto e all'arrivo di un pacchetto calcolerà l'intervallo di tempo trascorso e 
+ricaverà il dato associato ad esso. 
+\vspace{1ex} \newline
+\textbf{NB} all'inizio si manderà un pacchetto per indicare al destinatario l'inizio della comunicazione. 
+Questo serve e impostare il tempo di inizio; 
+se non lo si determina, il destinatario all'inizio non riuscirà a calcoalre l'intervallo di tempo fra il pacchetto corrente e quello precedente. 
+E quindi non si riuscirà a decodificare il primo bit. 
 %Dopodichè si manda un pacchetto per inizializzare il tempo del ricevente e si procede con il ciclo. 
-Successivamente si itererà l'intera lista contenente i singoli bit e si aspetterà il tempo associato. 
-\begin{center}
-    \begin{tabular}{|c|c|c|}
-        \hline
-        \textbf{Num bit} & \textbf{IPv4} & \textbf{IPv6} \\ 
-        \hline
-        1 & 8:33  & 14:46 \\ 
-        \hline
-        2 & 7:20  & 12:08 \\ 
-        \hline
-        4 & 12:00 & 22:20 \\ 
-        \hline
-    \end{tabular} 
-    \captionof{table}{Tempi di esecuzione del Timing Channel}
-    \label{table:tempi:esecuzione:timingCC}
-\end{center}
-\vspace{1ex} 
-L'unica differenza presente nella versione (del Timing Channel) che utilizza il protocollo IPV6, 
-è la struttura del pacchetto. 
-Si aggiungerà un livello \textit{Ether} in cui si specifica l'indirizzo MAC di destinazione e l'indirizzo MAC sorgente. 
-Inoltre nel livello \textit{IPv6} bisognerà definire lo ScopeId dell'indirizzo di destinazione; 
-ciò verrà fatto specificanto nel campo non solo l'indirizzo IP di destinazione, 
-ma anche l'interfaccia per poter raggiungerlo. 
-%Un livello \textit{Raw} contenente solo il testo '\textit{Hello Neighbour}'. 
+%Successivamente si itererà l'intera lista contenente i singoli bit e si aspetterà il tempo associato. 
+%\vspace{4ex} \newline 
+%Questo metodo di codifica risulterà poco pratico. 
+%come si può vedere dalla tabella, risulterà maggiormente conveniente mandare un numero minore di dati siccome una codifica maggiore richeiderà un tempo maggiore. 
+%Alla fine risulterà che conviene di più inviare 2 bit rispetto che 4 bit. 
+%Tuttavia il numero di bit inviatirisulterà non sufficente. 
+%\begin{center}
+%    \begin{tabular}{|c|c|c|}
+%        \hline
+%        \textbf{Num bit} & \textbf{IPv4} & \textbf{IPv6} \\ 
+%        \hline
+%        1 & 8:33  & 14:46 \\ 
+%        \hline
+%        2 & 7:20  & 12:08 \\ 
+%        \hline
+%        4 & 12:00 & 22:20 \\ 
+%        \hline
+%    \end{tabular} 
+%    \captionof{table}{Tempi di esecuzione del Timing Channel}
+%    \label{table:tempi:esecuzione:timingCC}
+%\end{center} 
 
 \subsubsection{Timing Channel a 8 bit} 
 Uno sviluppo effettuato è stato l'amplamento dei bit trasportabili. 
 Siccome la quantità di dati risulta non congrua alla quantità di tempo speso; 
 si è sviluppato l'approccio presente in ICMP Exfill. 
 In esso viene mandato l'intero byte e il tempo da aspettare è determinato da esso. 
-Questo percè il byte, rappresentante il carattere, può essere letto come un numero intero. 
-\vspace{1ex} \newline 
-Da queso approccio si è cercato di ridurre la quantità di tempo necessaria per mandare i dati. 
-Inizialmente si è optato per sottrarre al numero ricavato un certo valore. 
-Il valore in questione era 31 siccome i caratteri stampabili vanno da 32 sino a 127. 
-Ma anche qui l'ostacolo era la presenta di caratteri speciali che così sarebbero stati tagliati fuori. 
-Di conseguenza caratteri speciali come \\n o \\t non sarebbero potuti essere inviati. 
-\vspace{1ex} \newline 
-La soluzione finale è stata raggiunta tramite il calcolo del delay in questo modo: 
+Il byte rappresentante il carattere, verrà quindi letto come un numero intero ed usato per determinar il tempo di delay. 
+Successivamente si è cercato di ridurre la quantità di tempo necessaria per mandare i dati. 
+%Inizialmente si è optato per sottrarre al numero ricavato un certo valore. 
+%Il valore in questione era 31 siccome i caratteri stampabili vanno da 32 sino a 127. 
+%Ma anche qui l'ostacolo era la presenta di caratteri speciali che così sarebbero stati tagliati fuori. 
+%Di conseguenza caratteri speciali come \\n o \\t non sarebbero potuti essere inviati. 
+La nuova funzione cercerà di normalizzare il tempo associato al dato fra un valore minimo e uno massimo. 
+%Tramite questa funzione il range dei possibili delay è stato ristretto a due valori precisi e definiti: min\_delay e max\_delay. 
 \begin{center}
     $\text{min\_delay}+(\text{byte}/255)*(\text{max\_delay}-\text{min\_delay})$
 \end{center}
-Tramite questa funzione il range dei possibili delay è stato ristretto a due valori precisi e definiti: min\_delay e max\_delay. 
-E questo ha permesso l'invio di 72 byte in circa 13/14 minuti. 
+Questo permetterà di inviare un magigore numero di informazioni in un tempo minore.
+%E questo ha permesso l'invio di 72 byte in circa 13/14 minuti. 
 Il lato negativo è una maggiore possibilità di errore: se il computer che riceve i dati subisce un delay, 
-la possibilità di decodificare il carattere sbagliato è magigore rispetto ai metodi illustrati precedentemente. 
+la possibilità di decodificare il carattere sbagliato è maggiore rispetto ai metodi che implementavano una distanz adi sicurezza. 
 %\vspace{1ex} \newline 
 %Lo sviluppo di un ulteriore Timing Channel che possa inviare 2 bytes sarebbe difficile. 
 %e al momento è possiibile farlo riducendo il massimo tempo di attesa. 
 
 \subsubsection{Timing Channel con tempi casuali} 
-La versione a 8 bit precedente, è stata sviluppata ulteriormente aggiungnedo del rumore al tempo che si aspetta fra ogni pacchetto. 
-Invece di aspettare un tempo costante per qualsiasi carattere; 
-si definisce un range in cui il tempo, associato al carattere può variare. 
+La versione a 8 bit è stata sviluppata ulteriormente inserendo del rumore al tempo  di delay che si aspetta fra ogni pacchetto. 
+Quindi invece di aspettare un tempo costante per lo stesso carattere; 
+si definisce un range di tempo associato in cui il carattere può variare. 
 Per poter sincronizzare il mittente e il destinatario, su quanto tempo si è aggiunto o sottratto a quello di base, 
-si sono sviluppater due strade. 
-La prima è creando un numero randomico e sincronizzare le due entità tramite un seed condiviso; 
-un lato negativo è che se i numeri non combaciano, perchè un'entità ha effettuato un numero maggiore o minore di estrazioni, 
-non potrà essere ricodificato il carattere appropriato. 
+si sono sviluppate due strade. 
+La prima è creando un numero randomico e sincronizzare le due entità tramite un seed condiviso. 
+Il lato negativo è che se i numeri non combaciano, perchè un'entità ha effettuato un numero maggiore o minore di estrazioni, 
+il dato associato non potrà essere ricavato in modo appropriato. 
 Il secondo approccio è di mettere il delay randomico aggiunto nel pacchetto stesso o direttamente nel payload o tramite uno dei campi, 
 per esempio il campo identifier. 
+\vspace{4ex} \newline
+Siccome gli IDS riescono ad individuare gli schemi temporali, si è definito un range così da poter mandare tempi randomici e non costanti. 
+Ora la codifica di un byte, non è più definito da un singolo, costante intervallo di tempo, ma da un range di intervalli temporali. 
+Quindi se si volesse mandare il dato \textit{c}, non si aspetteranno più \textit{7} secondi, 
+ma un tempo randomico appartenente al range range $[5,9]$ (supponendo un range di 2 secondi). 
+Inoltre si è pensato di introdurre anche un tempo (in minuti) che definirà quanto aspettare una volta che si è mandato una certa quantità di byte. 
+Ciò potrà essere usato se lo scambio di informazioni risultasse prolungato; 
+un numero elevato e continuo di pacchetti potrebbe risultare anomalo.  
+%\vspace{1ex} 
+%L'unica differenza presente nella versione (del Timing Channel) che utilizza il protocollo IPV6, 
+%è la struttura del pacchetto. 
+%Si aggiungerà un livello \textit{Ether} in cui si specifica l'indirizzo MAC di destinazione e l'indirizzo MAC sorgente. 
+5Inoltre nel livello \textit{IPv6} bisognerà definire lo ScopeId dell'indirizzo di destinazione; 
+%ciò verrà fatto specificanto nel campo non solo l'indirizzo IP di destinazione, 
+%ma anche l'interfaccia per poter raggiungerlo. 
+%Un livello \textit{Raw} contenente solo il testo '\textit{Hello Neighbour}'. 
