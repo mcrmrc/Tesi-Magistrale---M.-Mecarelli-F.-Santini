@@ -427,7 +427,10 @@ class CALC():
         :param data: The data to calculate the checksum for (as bytes).
         :return: The checksum as an integer.
         """
-        checksum = 0
+        checksum = 0 
+        # Handle odd-length data
+        if len(data) % 2 != 0:
+            data += b"\x00"
         # Process the data in 16-bit chunks 
         for i in range(0, len(data), 2):
             # Combine two bytes into one 16-bit word
@@ -441,7 +444,19 @@ class CALC():
         # One's complement of the result
         checksum = ~checksum & 0xFFFF
         print(f"\tThe checksum of {data} is {checksum}")
-        return checksum
+        return checksum 
+    
+    def checksumV2(data):
+        checksum = 0 
+        # Handle odd-length data
+        if len(data) % 2 != 0:
+            data += b"\x00" 
+        # Calculate checksum
+        for i in range(0, len(data), 2):
+            checksum += (data[i] << 8) + data[i+1] 
+        checksum = (checksum >> 16) + (checksum & 0xffff)
+        checksum += checksum >> 16 
+        return (~checksum) & 0xffff
     
     def gateway(ip_dst=None):
         ip_reg_pattern=r"\d+\.\d+\.\d+\.\d+" 
@@ -641,7 +656,7 @@ class IP_INTERFACE():
         comando_mac=f"Get-NetNeighbor -IPAddress {ip_address.compressed} "\
             "| Where-Object {$_.State -eq 'Reachable' -or $_.State -eq 'Stale'} "\
             "| Select-Object -First 1 -ExpandProperty LinkLayerAddress " #\ "| Format-Table State, LinkLayerAddress"
-        #print(f"Eseguo comando: {comando_mac}")
+        print(f"Ricavo MAc address: {comando_mac}")
         process=subprocess.run(
             ["powershell","-Command", comando_mac]
             ,capture_output=True
@@ -667,7 +682,7 @@ class IP_INTERFACE():
             else:
                 raise Exception(f"get_mac_address: IP version not supported {ip_address.version}")
             comando_mac=f"(Get-NetAdapter -InterfaceIndex {comando_interfaccia}).MacAddress"
-            #print("Comando",comando_mac) 
+            print("Ricavo MAC address",comando_mac) 
             process=subprocess.run(
                 ["powershell","-Command", comando_mac]
                 ,capture_output=True
@@ -1006,7 +1021,7 @@ class SNIFFER():
                     return True
                 print("Sniffer ancora vivo")
             else: 
-                raise Exception("Lo sniffer non era in esecuzione")
+                print("Lo sniffer non era in esecuzione")
             return False  
         raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}") 
 
@@ -1038,9 +1053,12 @@ class SNIFFER():
             raise Exception("send_packet: Argomenti non validi") 
         if not icmp_id or not IS_TYPE.integer(icmp_seq): 
             icmp_id=CALC.checksum(data) 
-        pkt = IP(dst=ip_dst.compressed, src=IP_INTERFACE.find_local_IP()[0])/ICMP(id=icmp_id,seq=icmp_seq) / data  
+        target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+        interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+        print(f"Interfaccia per destinazione: {interface}")
+        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP(id=icmp_id,seq=icmp_seq) / data 
         print(f"Sending {pkt.summary()}") 
-        send(pkt, verbose=1, iface=IP_INTERFACE.iface_from_IP(ip_dst)[0]) 
+        sendp(pkt, verbose=1, iface=interface) 
 
 #------------------------
 class TIMER(): 
@@ -1049,8 +1067,9 @@ class TIMER():
             if timer.is_alive(): 
                 print("Fermo il timer",end="  ")
                 timer.cancel()  
-                if not timer.is_alive():
-                    print("timer fermato correttamente")
+                print(f"Timer fermato? {timer.is_alive()}")
+                if not timer.is_alive(): 
+                    print("Timer fermato correttamente")
                     return True
                 print("Timer ancora in esecuzione")
             else: 
