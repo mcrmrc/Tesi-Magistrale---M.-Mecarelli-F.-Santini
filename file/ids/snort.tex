@@ -1,0 +1,152 @@
+\subsection{Installazione}
+Prima dell'installazione sono state necessarie l'installazione di alcune dipendenze. 
+Lista dei paccheti richiesti: 
+cmake to build from source
+The Snort 3 libdaq for packet IO
+dnet for network utility functions
+flex >= 2.6.0 for JavaScript syntax parsing
+g++ >= 5 or other C++14 compiler
+hwloc for CPU affinity management
+LuaJIT for configuration and scripting
+OpenSSL for SHA and MD5 file signatures, the protected_content rule option, and SSL service detection
+pcap for tcpdump style logging
+pcre for regular expression pattern matching
+pkgconfig to locate build dependencies
+zlib for decompression 
+
+sudo apt update
+sudo apt install -y cmake build-essential libpcap-dev libpcre3-dev \
+    libdumbnet-dev bison flex zlib1g-dev liblzma-dev openssl libssl-dev \
+    pkg-config 
+sudo apt install -y \
+    build-essential \
+    cmake \
+    libpcap-dev \
+    libpcre3-dev \
+    libdnet-dev \
+    zlib1g-dev \
+    libdumbnet-dev \
+    bison \
+    flex \
+    liblzma-dev \
+    pkg-config \
+    libssl-dev \
+    libnghttp2-dev \
+    libevent-dev
+%libdnet-dev was renamed → it’s now called libdumbnet-dev
+sudo apt install -y \
+    build-essential \
+    cmake \
+    libpcap-dev \
+    libpcre3-dev \
+    libdumbnet-dev \
+    zlib1g-dev \
+    bison \
+    flex \
+    liblzma-dev \
+    pkg-config \
+    libssl-dev \
+    libnghttp2-dev \
+    libevent-dev
+sudo apt install cmake flex bison libpcap-dev libpcre3-dev libdnet-dev libhwloc-dev liblua5.3-dev libssl-dev
+sudo apt install -y libhwloc-dev 
+sudo apt install -y luajit libluajit-5.1-dev
+sudo apt install -y build-essential git wget curl cmake pkg-config autoconf automake libtool flex bison g++
+sudo apt install -y libpcap-dev libdumbnet-dev
+sudo apt install -y libpcre3-dev zlib1g-dev libssl-dev
+sudo apt install -y libhwloc-dev
+sudo apt install -y luajit libluajit-5.1-dev
+sudo apt install -y libpcre2-dev
+
+
+
+Una volta intallate quelle non presenti installiamo SnLibDAQort cosi:
+cd ~
+git clone https://github.com/snort3/libdaq.git
+cd libdaq
+./bootstrap
+./configure --prefix=/usr/local/lib/daq\_s3 
+sudo make
+sudo make install
+
+# Create the config file pointing to your libdaq libraries 
+#Create the ld.so.conf.d file (if not already)
+echo "/usr/local/lib/daq_s3/lib/" | sudo tee /etc/ld.so.conf.d/libdaq3.conf
+
+Dopo averlo installato eseguiamo \textbf{ldconfig} per configurare il linker dinamico del runtime building del sistema (ystem's dynamic linker run-time bindings). 
+sudo ldconfig
+
+You should now see entries like libdaq.so.
+ldconfig -p | grep daq
+
+
+Se si è installato DAQ  in una posizione non atandard. 
+Si deve prima dirlo al sistema dove troavare la libreria. 
+cat /etc/ld.so.conf.d/libdaq3.conf
+    /usr/local/lib/daq_s3/lib/
+
+
+Installazione di Snort: 
+git clone https://github.com/snort3/snort3.git 
+
+Si può scegliere di instalalrtlo nella cartella di defautl del sistema o si può specificare di installarlo da un altra parte. 
+Si è scelta la prima opzione. 
+Se la libreria LibDAQ  è stata installata in una posizione non standard, si deve includere gli argomenti 
+--with-daq-libraries e --with-daq-includes e impostarli in modo prorpio. 
+
+%export my\_path=/path/to/snorty
+%mkdir -p $my\_path 
+%./configure\_cmake.sh --prefix=$my\_path 
+
+cd snort3 
+./configure_cmake.sh \backslash
+    --with-daq-includes=/usr/local/lib/daq_s3/include/ \backslash
+    --with-daq-libraries=/usr/local/lib/daq_s3/lib/ 
+cd build
+sudo make -j \$(nproc)
+sudo make install
+
+Per vedere se tutto và bene si esegue 'snort -V' per verificare l'installazione. 
+/usr/local/snort/bin/snort -V
+
+
+
+Verifichiamo che l'installaizone ha i DAQ appropriati
+\$my_path/bin/snort --daq-list
+    Available DAQ modules:
+    afpacket(v7): live inline multi unpriv
+     Variables:
+      buffer_size_mb <arg> - Packet buffer space to allocate in megabytes
+      debug - Enable debugging output to stdout
+      fanout_type <arg> - Fanout loadbalancing method
+      fanout_flag <arg> - Fanout loadbalancing option
+      use_tx_ring - Use memory-mapped TX ring
+
+Se si riceve No available DAQ modules (provare ad aggiugnere le cartelle con --daq-dir). 
+Specificare poi --daq-dir. 
+\$my_path/bin/snort --daq-dir /usr/local/lib/daq_s3/lib/daq --daq-list
+
+Se questo è il caso si può creare un alias per il comando snort così da non specificare --daq-dir ogni volta: 
+alias snort='/path/to/bin/snort --daq-dir /usr/local/lib/daq\_s3/lib/daq'
+
+
+
+
+ls -l /usr/local/snort/bin/snort %You should see the executable there. 
+/usr/local/snort/bin/snort -V %to run Snort 3 
+%source ~/.bashrc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
