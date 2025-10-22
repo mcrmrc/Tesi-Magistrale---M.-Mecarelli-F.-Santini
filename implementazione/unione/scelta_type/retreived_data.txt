@@ -1,0 +1,23 @@
+
+Tipologia: 11 Codice: 0
+Tipologia: 3 Codice: 2
+ipv4_time_exceeded 
+ipv4_destination_unreachable
+
+1st message: (11, 0) 2nd message: (3, 4)
+Tipologia: 11 Codice: 0
+Tipologia: 3 Codice: 4
+ipv4_time_exceeded 
+ipv4_destination_unreachable
+
+1st message: (11, 0) 2nd message: (11, 0)
+Tipologia: 11 Codice: 0
+Tipologia: 11 Codice: 0
+ipv4_time_exceeded 
+ipv4_time_exceeded
+.
+Sent 1 packets.
+
+Len 7 Index 6
+Char g Byte 103 Delay 14.71372549019608
+Raggiunta massima lunghezza del messaggio

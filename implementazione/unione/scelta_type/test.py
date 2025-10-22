@@ -234,7 +234,42 @@ def test_1st_last_4bit():
         print("Ultimi 4 bit:", index& 0b00001111)
         print("")  
 
+#----------------------------------------------- 
+def get_tipologia_byte(): 
+    #Ritorna un dizionario in cui si associa ad una tipologia di messaggio ICMP i byte trasportabili
+    return {
+        15:2, 16:2 #information
+        ,13:5,14:5 #timestamp
+        ,8:2, 0:2 #echo
+        ,5:4 #redirect
+        ,4:8 #quench
+        ,12:7 #problem
+        ,11:6 #time_exceeded
+        ,3:8 #destination_unreachable
+    } 
 #-----------------------------------------------
+
+
+
+def send_data(tipologia:int=None, codice:int=None, data:bytes=None, ip_dst:ipaddress=None): 
+    if not(IS_TYPE.integer(tipologia) and IS_TYPE.integer(codice) and IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)): 
+        raise Exception("send_data: Argomenti non corretti") 
+    return
+    match tipologia: 
+        case 15: 
+            print("ipv4_information_reply")
+        case 16: print("ipv4_information_reply")
+        case 13: print("ipv4_timestamp_reply")
+        case 14: print("ipv4_timestamp_reply")
+        case 8: print("ipv4_echo_reply")
+        case 0: print("ipv4_echo_reply")
+        case 5: print("ipv4_redirect")
+        case 4: print("ipv4_source_quench")
+        case 12: print("ipv4_parameter_problem")
+        case 11: print("ipv4_time_exceeded")
+        case 3: print("ipv4_destination_unreachable")  
+    return 
+
 def get_1st_last_4bit(numero:int):
     #Da un byte ricava i primi 4 bit e gli ultimi 4 bit 
     if not IS_TYPE.integer(numero):
@@ -255,263 +290,548 @@ def get_lista_codici():
         ,80#, 0 #echo request/reply
         ,130#, 140 #timestamp request/reply
         ,150#, 160 #info request/reply
-    ]
+    ] 
 
-
-def get_codice_bit():
-    #Ritorna il dizionario in cui si associa ad un codice  (con codice=tipologia+coddice ICMP) l'intero associato 
-    codice_bit={}
+def get_tipologia_codice(elemento=None): 
     lista_codici=get_lista_codici()
-    #Associo ad ogni intero da 0 sino a 16 il proprio messaggio ICMP
-    for index in range(0,len(lista_codici)):
-        #print("Coppia:\t",index, lista_codici[index])
-        codice_bit.update({lista_codici[index]:index})
-    return codice_bit 
 
-def get_bit_codice():
-    #Ritorna il dizionario in cui si associa a un intero il codice associato (con codice=tipologia+coddice ICMP)
-    bit_codice={}
-    lista_codici=get_lista_codici()
-    #Associo ad ogni intero da 0 sino a 16 il proprio messaggio ICMP
-    for index in range(0,len(lista_codici)):
-        #print("Coppia:\t",index, lista_codici[index])
-        bit_codice.update({index:lista_codici[index]})
-    return bit_codice 
+    def get_tipologia_codice_str(stringa:str=None): 
+        #Data una stringa ritorna la tipologia di messaggio ICMP e il codice relativo
+        if not IS_TYPE.string(stringa):
+            #print("Argomento non corretto") 
+            return None,None
+        if not re.match(r"^[0-9]{2,3}$",stringa): 
+            #print(f"Stringa non valida {stringa}")  
+            return None,None
+        nonlocal lista_codici
+        if int(stringa) not in lista_codici: 
+            #print(f"Codice stringa non valido: {stringa}")
+            return None,None
+        #print("Stringa passata:", stringa) 
+        codice= stringa.lower().strip()[-1]
+        tipologia= stringa.lower().strip()[:-1] 
+        #print("Codice:", codice, "Tipologia:", tipologia)
+        return int(tipologia), int(codice) 
 
+    def get_tipologia_codice_int(numero:int=None): 
+        #Dato un intero ritorna la tipologia di messaggio ICMP e il codice relativo
+        if not IS_TYPE.integer(numero):
+            #print("Argomento non corretto") 
+            return None,None 
+        nonlocal lista_codici
+        if numero not in lista_codici: 
+            #print(f"Intero non valido: {numero}")
+            return None,None
+        #print("Intero passato:", numero) 
+        codice= numero%10
+        tipologia= numero//10
+        #print("Codice:", codice, "Tipologia:", tipologia)
+        return tipologia, codice 
+    
+    if IS_TYPE.string(elemento): 
+        return get_tipologia_codice_str(elemento) 
+    elif IS_TYPE.integer(elemento): 
+        return get_tipologia_codice_int(elemento) 
+    else: 
+        #print(f"Elemento passatto non è ne una stringa ne un intero: {elemento}")
+        return None, None
 
-def get_tipologia_codice_str(stringa:str=None): 
-    #Data una stringa ritorna la tipologia di messaggio ICMP e il codice relativo
-    if not IS_TYPE.string(stringa):
-        print("Argomento non corretto") 
-        return None,None
-    if not re.match(r"^[0-9]{2,3}$",stringa): 
-        print(f"Stringa non valida {stringa}")  
-        return None,None
-    lista_codici=get_lista_codici() 
-    if int(stringa) not in lista_codici: 
-        print(f"Codice stringa non valido: {stringa}")
-        return None,None
-    print("Stringa passata:", stringa) 
-    codice= stringa.lower().strip()[-1]
-    tipologia= stringa.lower().strip()[:-1] 
-    print("Codice:", codice, "Tipologia:", tipologia)
-    return tipologia, codice 
+def get_dict_bit_codice():
+    def get_codice_bit():
+        #Ritorna il dizionario in cui si associa ad un codice  (con codice=tipologia+coddice ICMP) l'intero associato 
+        codice_bit={}
+        lista_codici=get_lista_codici()
+        #Associo ad ogni intero da 0 sino a 16 il proprio messaggio ICMP
+        for index in range(0,len(lista_codici)):
+            #print("Coppia:\t",index, lista_codici[index])
+            if lista_codici[index]==80: 
+                codice_bit.update({80:index}) 
+            elif lista_codici[index]==130:
+                codice_bit.update({140:index}) 
+            elif lista_codici[index]==150:
+                codice_bit.update({160:index}) 
+            codice_bit.update({lista_codici[index]:index})
+        return codice_bit 
 
-def get_tipologia_codice_int(numero:int=None): 
-    #Dato un intero ritorna la tipologia di messaggio ICMP e il codice relativo
-    if not IS_TYPE.integer(numero):
-        print("Argomento non corretto") 
-        return None,None 
-    lista_codici=get_lista_codici() 
-    if numero not in lista_codici: 
-        print(f"Codice non valido: {numero}")
-        return None,None
-    print("Codice passato:", numero) 
-    codice= numero%10
-    tipologia= numero//10
-    print("Codice:", codice, "Tipologia:", tipologia)
-    return tipologia, codice
-
-
-def get_tipologia_byte(): 
-    #Ritorna un dizionario in cui si associa ad una tipologi di messaggio ICMP i byte trasportabili
-    return {
-        15:2, 16:2 #information
-        ,13:5,14:5 #timestamp
-        ,8:2, 0:2 #echo
-        ,5:4 #redirect
-        ,4:8 #quench
-        ,12:7 #problem
-        ,11:6 #time_exceeded
-        ,3:8 #destination_unreachable
-    }
-
-def send_data(tipologia:int=None, data:str=None, ip_dst:ipaddress=None): 
-    if not(IS_TYPE.integer(tipologia) and IS_TYPE.string(data) and IS_TYPE.ipaddress(ip_dst)): 
-        raise Exception("send_data: Argomenti non corretti") 
-    data=data.encode() 
-    match tipologia: 
-        case 15: print("ipv4_information_reply")
-        case 16: print("ipv4_information_reply")
-        case 13: print("ipv4_timestamp_reply")
-        case 14: print("ipv4_timestamp_reply")
-        case 8: print("ipv4_echo_reply")
-        case 0: print("ipv4_echo_reply")
-        case 5: print("ipv4_redirect")
-        case 4: print("ipv4_source_quench")
-        case 12: print("ipv4_parameter_problem")
-        case 11: print("ipv4_time_exceeded")
-        case 3: print("ipv4_destination_unreachable")
-    return
-    match tipologia: 
-        case 15: SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst)  
-        case 16: SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst) 
-        case 13: SendSingleton.ipv4_timestamp_reply(data=data, ip_dst=ip_dst) 
-        case 14: SendSingleton.ipv4_timestamp_reply(data=data, ip_dst=ip_dst) 
-        case 8: SendSingleton.ipv4_echo_reply(data=data, ip_dst=ip_dst) 
-        case 0: SendSingleton.ipv4_echo_reply(data=data, ip_dst=ip_dst) 
-        case 5: SendSingleton.ipv4_redirect(data=data, ip_dst=ip_dst) 
-        case 4: SendSingleton.ipv4_source_quench(data=data, ip_dst=ip_dst) 
-        case 12: SendSingleton.ipv4_parameter_problem(data=data, ip_dst=ip_dst) 
-        case 11: SendSingleton.ipv4_time_exceeded(data=data, ip_dst=ip_dst) 
-        case 3: SendSingleton.ipv4_destination_unreachable(data=data, ip_dst=ip_dst) 
+    def get_bit_codice():
+        #Ritorna il dizionario in cui si associa a un intero il codice associato (con codice=tipologia+coddice ICMP)
+        bit_codice={}
+        lista_codici=get_lista_codici()
+        #Associo ad ogni intero da 0 sino a 16 il proprio messaggio ICMP
+        for index in range(0,len(lista_codici)):
+            #print("Coppia:\t",index, lista_codici[index])
+            if lista_codici[index]==80: 
+                bit_codice.update({index:0}) 
+            elif lista_codici[index]==130:
+                bit_codice.update({index:140})
+            elif lista_codici[index]==150:
+                bit_codice.update({index:160})
+            bit_codice.update({index:lista_codici[index]})
+        return bit_codice 
+    
+    return get_bit_codice(), get_codice_bit()
 
 
 
-def test_timing_channel8bit(data:bytes=None, ip_dst:ipaddress=None, stop_value: int = 255): 
-    if not (IS_TYPE.ipaddress(ip_dst)):
+def receive_test_hybrid_channel(ip_dst:ipaddress=None, ip_src:ipaddress=None): 
+    def get_packet_data(pkt): 
+        if not pkt or not pkt.haslayer("ICMP"):
+            return ""
+        tipologia=pkt["ICMP"].type 
+        testo=""
+        match tipologia: 
+            case 15|16: 
+                print("ipv4_information_reply") 
+                icmp_id=pkt[ICMP].id
+                byte1 = (icmp_id >> 8) & 0xFF 
+                byte2 = icmp_id & 0xFF 
+                testo=chr(byte1)+chr(byte2)
+                #print(f"Callback received: {byte1} / {chr(byte1)}") 
+                #print(f"Callback received: {byte2} / {chr(byte2)}") 
+                #print("Testo pacchetto:",testo)
+                #return testo
+            case 13|14: 
+                print("ipv4_timestamp_reply")  
+                icmp_id=pkt[ICMP].id
+                byte1 = (icmp_id >> 8) & 0xFF 
+                byte2 = icmp_id & 0xFF  
+                testo=chr(byte1)+chr(byte2)
+                #print(f"Callback received: {byte1} / {chr(byte1)}") 
+                #print(f"Callback received: {byte2} / {chr(byte2)}") 
+                #print("Testo pacchetto:",testo)
+                
+                icmp_ts_ori=str(pkt[ICMP].ts_ori)[-3:] 
+                icmp_ts_rx=str(pkt[ICMP].ts_rx)[-3:] 
+                icmp_ts_tx=str(pkt[ICMP].ts_tx)[-3:] 
+                testo=testo+chr(int(icmp_ts_ori))+chr(int(icmp_ts_rx))+chr(int(icmp_ts_tx))
+                #print(f"Callback received: {icmp_ts_ori} / {chr(int(icmp_ts_ori))}") 
+                #print(f"Callback received: {icmp_ts_rx} / {chr(int(icmp_ts_rx))}") 
+                #print(f"Callback received: {icmp_ts_tx} / {chr(int(icmp_ts_tx))}") 
+                #print("Testo pacchetto:",testo) 
+                #return testo
+            case 8|0: 
+                print("ipv4_echo_reply") 
+                icmp_id=pkt[ICMP].id
+                byte1 = (icmp_id >> 8) & 0xFF 
+                byte2 = icmp_id & 0xFF 
+                testo=chr(byte1)+chr(byte2)
+                #print(f"Callback received: {byte1} / {chr(byte1)}") 
+                #print(f"Callback received: {byte2} / {chr(byte2)}") 
+                #print("Testo pacchetto:",testo) 
+                #return testo
+            case 5: 
+                print("ipv4_redirect") 
+                if pkt.haslayer(IPerror) and pkt.haslayer(ICMPerror): 
+                    #inner_ip = IP(pkt[Raw].load) 
+                    inner_ip=pkt[IPerror] #ICMPerror 
+                    icmp_ip_length=inner_ip.len
+                    icmp_icmp_id=inner_ip[ICMPerror].id 
+                    testo=icmp_ip_length.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')+icmp_icmp_id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00') 
+                    #print("Testo pacchetto:",testo) 
+                else:print(pkt.lastlayer())
+                #return testo 
+            case 4: 
+                print("ipv4_source_quench") 
+                if pkt.haslayer(IPerror) and pkt.haslayer(ICMPerror): 
+                    #inner_ip = IP(pkt[Raw].load) 
+                    inner_ip=pkt[IPerror] #ICMPerror 
+                    testo= pkt[ICMP].reserved.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00') #1 byte ByteField
+                    testo= testo+pkt[ICMP].length.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00') #1 byte ByteField
+                    testo= testo+pkt[ICMP].nexthopmtu.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00') #2byte ShortField 
+                    #print("Testo pacchetto:",testo) 
+                else:print(pkt.lastlayer())
+                #return testo
+            case 12: 
+                print("ipv4_parameter_problem") 
+                if pkt.haslayer(IPerror) and pkt.haslayer(ICMPerror): 
+                    #inner_ip = IP(pkt[Raw].load) 
+                    inner_ip=pkt[IPerror] #ICMPerror 
+                    testo=pkt[ICMP].ptr.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')
+                    testo=testo+pkt[ICMP].unused.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00') 
+                    testo=testo+inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')
+                    test=testo+inner_ip[ICMPerror].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')  
+                    #print("Testo pacchetto:",testo) 
+                else:print(pkt.lastlayer())
+                #return testo
+            case 11: 
+                print("ipv4_time_exceeded") 
+                if pkt.haslayer(IPerror) and pkt.haslayer(ICMPerror): 
+                    #inner_ip = IP(pkt[Raw].load) 
+                    inner_ip=pkt[IPerror] #ICMPerror
+                    try: 
+                        testo= pkt[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00') #1 byte ByteField
+                    except Exception as e:
+                        print("ipv4_time_exceeded Eccezione: ",e)
+                        testo= pkt[ICMP].reserved.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00') #1 byte ByteField
+                        testo= testo+pkt[ICMP].length.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00') #1 byte ByteField
+                        testo= testo+pkt[ICMP].nexthopmtu.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00') #2byte ShortField 
+
+                    testo=testo+inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00') 
+                    testo=testo+inner_ip[ICMPerror].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00') 
+                    #print("Testo pacchetto:",testo) 
+                else:print(pkt.lastlayer())
+                #return data
+            case 3: 
+                print("ipv4_destination_unreachable") 
+                if pkt.haslayer(IPerror) and pkt.haslayer(ICMPerror): 
+                    inner_ip=pkt[IPerror] #ICMPerror
+                    testo= pkt[ICMP].reserved.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00') #1 byte ByteField
+                    testo= testo+pkt[ICMP].length.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00') #1 byte ByteField
+                    testo= testo+pkt[ICMP].nexthopmtu.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00') #2byte ShortField 
+
+                    testo=testo+inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')
+                    testo=testo+inner_ip[ICMPerror].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')  
+                else:print(pkt.lastlayer()) 
+        print("Testo pacchetto:",testo) 
+        return testo 
+
+    if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src)):
         raise Exception("test_timing_channel8bit: Argomenti non validi") 
-    if not IS_TYPE.bytes(data): 
-        data="echo 'Ciao'".encode()
-    #old_time=current_time=datetime.datetime.now()
-    old_time=current_time=time.perf_counter()
-    min_sec_delay=1 #originale 0
-    max_sec_delay=30 #originale 255
+    rumore:int=2 
+    min_delay=1+rumore 
+    max_delay=30+rumore
+    stop_value= 255
+    seed=4582 
+    _, codice_bit=get_dict_bit_codice()
+    if min_delay<=0: 
+        raise Exception(f"test_timing_channel8bit: Valore minimo non accettato: {min_delay}")
+    if max_delay<=min_delay: 
+        raise Exception(f"test_timing_channel8bit: Il valore masismo non può essere minore di quello minimo") 
+    if not (0<=stop_value <=255): 
+        raise Exception(f"test_timing_channel8bit: Valore stop value non corretto: {stop_value}") 
+     
+    start_time=end_time=current_time=previous_time=None 
+    stop_flag={"value":False} 
+    received_data=[] 
+    received_packet=0
+    previous_type=None 
+    
+    target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower() 
+    interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+    #print(f"MAC di destinazione: {target_mac}")
+    #print(f"Interfaccia per destinazione: {interface}") 
 
-    target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
-    interface=IP_INTERFACE.iface_from_IP(ip_dst)
-
-    pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
-    sendp(pkt, verbose=1, iface=interface)
-    for byte in data: 
-        current_time=time.perf_counter()
-        print(f"Current time: {current_time}")
-
-        delay=min_sec_delay+(byte/255)*(max_sec_delay-min_sec_delay)
-        print(f"Delay :{byte}\t{delay}\n")
-        #print(f"Data: {byte}\t{byte-31}\t{type(byte)}\n") 
-        time.sleep(delay) 
-         
-        print(f"Interfaccia per destinazione: {interface}")
-        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
-        print(f"Sending {pkt.summary()}") 
-        sendp(pkt, verbose=1, iface=interface)
-
-        old_time=current_time 
-        current_time=time.perf_counter()
-        print(f"Current time: {current_time}")
-        print(f"Time difference: {current_time-old_time}\n") 
-    stop_delay = min_sec_delay + (stop_value / 255) * (max_sec_delay - min_sec_delay)
-    print(f"[STOP] Inviando byte di stop {stop_value} dopo {stop_delay}") 
-    time.sleep(stop_delay)  # opzionale, per separarlo dal resto 
-    pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
-    print(f"Sending {pkt.summary()}") 
-    sendp(pkt, verbose=1, iface=interface)
-
-data="Dato mandato dal computer di Marco per testare un timing channel a 8 bit".encode()
-ip_dst=ipaddress.ip_address("192.168.1.17") 
-test_timing_channel8bit(data, ip_dst)
-
-def test_receive_timing_channel8bit(ip_dst:ipaddress=None, stop_value=255): 
-    if not(istype.ipaddress(ip_dst)): 
-        raise Exception("Argomenti non validi")
-    min_sec_delay=1 #originale 0
-    max_sec_delay=30 #originale 255
-    previous_time=None 
-    stop_flag={"value":False}
-    start_time=end_time=None
-    received_data=[]
-
-    def decode_byte(delay):
-        #(byte/255)=(delay-min_sec_delay)/(max_sec_delay-min_sec_delay)
-        ratio = (delay - min_sec_delay) / (max_sec_delay - min_sec_delay)
-        byte=int(round(ratio*255)) 
+    def decode_byte(delay): 
+        #(byte/255)=(delay-min_delay)/(max_delay-min_delay) 
+        frazione = (delay - min_delay) / (max_delay - min_delay) 
+        byte=int(round(frazione*255)) 
+        byte = max(0, min(255, byte))
         return byte 
     
-    def callback_timing_channel8bit(pkt):
-        nonlocal previous_time, start_time, end_time 
-        if ICMP in pkt and (pkt[ICMP].type==8 or pkt[ICMP].type==0): 
-            #current_time=datetime.datetime.now() 
-            current_time=time.perf_counter()
-            if previous_time is not None: 
-                delta=(current_time-previous_time).total_seconds() 
-                byte=decode_byte(delta) 
-                print(f"Delta:{delta} -> Byte:{byte} Char:{chr(byte)}") 
-                received_data.append(chr(byte)) 
-                if byte==stop_value:
-                    stop_flag["value"]=True
-                    end_time=pkt.time
-            else: start_time=pkt.time
-            previous_time=current_time 
-    
+    def callback_timing_channel8bit(pkt): 
+        nonlocal current_time, previous_time, start_time, end_time, received_packet, previous_type
+        if pkt.haslayer("ICMP"): 
+            if pkt["ICMP"].type==15 and not start_time: 
+                print("Init\t", "Type:",pkt["ICMP"].type," Start:",start_time) 
+                current_time=previous_time=start_time=pkt.time  
+                return
+            elif pkt["ICMP"].type==15 and start_time: 
+                print("End\t", "Type:",pkt["ICMP"].type," Start:",start_time) 
+                end_time=pkt.time 
+                stop_flag["value"]=True 
+                return
+            #else: print("Ricevendo i dati") 
+            received_packet=(received_packet+1)%2 
+            if received_packet==1: 
+                try: 
+                    #print("Primo pacchetto:",received_packet)
+                    previous_type=pkt[ICMP].type*10+pkt[ICMP].code 
+                    #print("Previous type:",previous_type)
+                    random_delay=0 
+                    current_time=pkt.time 
+                    delay=(current_time-previous_time)-random_delay 
+                    byte=decode_byte(delay) 
+                    received_data.append(chr(byte)) 
+                    previous_time=current_time 
+                    #print("This Delay:", delay,"Random delay:", random_delay, "Send Delay" ,delay-random_delay) 
+                    #print(f"Delta:{delay}\tByte:{byte} Char:{chr(byte)}") 
+                    #print("Current time:", current_time, "Previous Type:",previous_time) 
+                except Exception as e: 
+                    print("1 Eccezione:",e)
+            elif received_packet==0: 
+                try: 
+                    #print("Secondo pacchetto:",received_packet) 
+                    current_type=pkt[ICMP].type*10+pkt[ICMP].code 
+                    previous_bit=codice_bit[previous_type] 
+                    current_bit=codice_bit[current_type] 
+                    #primi_4=(numero& 0b11110000)>>4
+                    #ultimi_4=numero& 0b00001111 
+                    type_byte=(previous_bit<<4)+current_bit
+                    list_len=len(received_data)-1
+                    prev_value=received_data[list_len] 
+                    #print("previous Value:",prev_value)
+                    #print("Prev list:", received_data) 
+                    received_data[list_len]=chr(type_byte)
+                    received_data.append(prev_value) 
+                    #print("Prev list:", received_data) 
+                    
+                    #print("Previous Type: ", previous_type," Byte: ",previous_bit) 
+                    #print("Current Type: ",current_type, " Byte: ", current_bit) 
+                    #print("Intero:",type_byte, "Char:",chr(type_byte))
+                except Exception as e: 
+                    print("2 Eccezione:",e) 
+            try:
+                received_data.append(get_packet_data(pkt)) 
+            except Exception as e: 
+                print("3 Eccezione:",e)
+                
     def stop_filter(pkt): 
-        return stop_flag["value"]
-    
+        return stop_flag["value"] 
+
     print("In ascolto dei pacchetti ICMP...")
     sniff(
-        filter=f"icmp and dst host {ip_dst.compressed}"
-        ,prn=callback_timing_channel8bit
-        ,store=False
-        ,stop_filter=stop_filter
-    ) 
+        filter=f"icmp and src host {ip_src.compressed} and dst host {ip_dst.compressed}" 
+        ,prn=callback_timing_channel8bit 
+        ,store=False 
+        ,stop_filter=stop_filter 
+    )  
+    print("Dati ricevuti:",received_data)
+    received_data="".join(x for x in received_data) 
     print(f"Dati ricevuti: {received_data}") 
-    received_data="".join(x for x in received_data)
-    print(f"Dati ricevuti: {received_data}")
-    print(f"Tempo di esecuzione: {end_time-start_time}")
+    print("Tempo init:",start_time, "Tempo end:",end_time, "Delta:")
+    print(f"Tempo di esecuzione: {end_time-start_time}") 
+    pass 
 
-#test_receive_timing_channel8bit(ip_dst)
 
-def test_hybrid_channel(message:bytes=None):
-    if not message or not IS_TYPE.bytes(message):
-        raise Exception("test_hybrid_channel: Argomento non corretto")
-    min_sec_delay=1 #originale 0
-    max_sec_delay=25 #originale 255
-    codice_bit=get_codice_bit()
-    print("Codici bit: ", codice_bit)
+
+def send_test_hybrid_channel(message:bytes=None, ip_dst:ipaddress=None):
+    def get_packet(tipologia:int=None, codice:int=None, data:bytes=None, ip_dst:ipaddress=None): 
+        if not (IS_TYPE.integer(tipologia) and IS_TYPE.integer(tipologia) and IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)):
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+        nonlocal target_mac
+        pkt=None
+        match tipologia: 
+            case 15|16: 
+                print("ipv4_information_reply") 
+                TYPE_INFORMATION_REQUEST=15
+                TYPE_INFORMATION_REPLY=16
+                if len(data)==2:  
+                    icmp_id=(data[0]<<8)+data[1] 
+                elif len(data)==1: 
+                    icmp_id=(data[0]<<8) 
+                else: return None
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_INFORMATION_REPLY, code=codice, id=icmp_id) 
+                return pkt
+            case 13|14: 
+                print("ipv4_timestamp_reply") 
+                TYPE_TIMESTAMP_REQUEST=13 
+                TYPE_TIMESTAMP_REPLY=14 
+                if len(data)>5: 
+                    return None
+                try:
+                    icmp_id=icmp_id=(data[0]<<8)+data[1]  
+                except IndexError as e: 
+                    icmp_id=(data[0]<<8)
+                current_time=datetime.datetime.now(datetime.timezone.utc) 
+                midnight = current_time.replace(hour=0, minute=0, second=0, microsecond=0) 
+
+                data_pkt=int.from_bytes(data[2:3]) *10**3
+                current_time=current_time.replace(microsecond=data_pkt)
+                icmp_ts_ori=int((current_time - midnight).total_seconds() * 1000) 
+
+                data_pkt=int.from_bytes(data[3:4]) *10**3
+                if current_time.second+1<60:
+                    current_time=current_time.replace(second=current_time.second+1, microsecond=data_pkt)
+                else:
+                    current_time=current_time.replace(minute=current_time.minute+1,second=(current_time.second+1)%60, microsecond=data_pkt)
+                icmp_ts_rx=int((current_time - midnight).total_seconds() * 1000) 
+
+                data_pkt=int.from_bytes(data[4:5]) *10**3
+                if current_time.second+1<60:
+                    current_time=current_time.replace(second=current_time.second+1, microsecond=data_pkt)
+                else:
+                    current_time=current_time.replace(minute=current_time.minute+1,second=(current_time.second+1)%60, microsecond=data_pkt)
+                icmp_ts_tx=int((current_time - midnight).total_seconds() * 1000) 
+
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(
+                    type=TYPE_TIMESTAMP_REPLY, code=codice 
+                    ,id=icmp_id
+                    ,ts_ori=icmp_ts_ori
+                    ,ts_rx=icmp_ts_rx
+                    ,ts_tx=icmp_ts_tx
+                ) 
+                return pkt
+            case 8|0: 
+                print("ipv4_echo_reply") 
+                TYPE_ECHO_REQUEST=8
+                TYPE_ECHO_REPLY=0 
+                if len(data)==2:  
+                    icmp_id=(data[0]<<8)+data[1] 
+                elif len(data)==1: 
+                    icmp_id=(data[0]<<8) 
+                else: return None 
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_ECHO_REPLY,id=icmp_id) 
+                return pkt
+            case 5: 
+                print("ipv4_redirect") 
+                TYPE_REDIRECT=5
+                if len(data)>4: 
+                    return None 
+                dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[0:+2])) / ICMP(id=int.from_bytes(data[2:4]))
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=TYPE_REDIRECT, code=codice)/Raw(load=bytes(dummy_ip)[:28]) 
+                return pkt
+            case 4: 
+                print("ipv4_source_quench") 
+                TYPE_SOURCE_QUENCH=4 
+                if len(data)>8: 
+                    return None 
+                dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[4:6])) / ICMP(id=int.from_bytes(data[6:8]))
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
+                    ICMP(type=TYPE_SOURCE_QUENCH, code=codice)/\
+                    Raw(load=bytes(dummy_ip)[:28]) 
+                pkt[ICMP].reserved = int.from_bytes(data[0:1]) #1 byte ByteField
+                pkt[ICMP].length = int.from_bytes(data[1:2]) #1 byte ByteField
+                pkt[ICMP].nexthopmtu = int.from_bytes(data[2:4]) #2byte ShortField 
+                return pkt
+            case 12: 
+                print("ipv4_parameter_problem") 
+                TYPE_PARAMETER_PROBLEM=12 
+                if len(data)>7: 
+                    return None 
+                dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[3:5])) / \
+                    ICMP(id=int.from_bytes(data[5:7]))
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
+                    ICMP(type=TYPE_PARAMETER_PROBLEM, code=codice, ptr=int(data[0]) ,unused=int.from_bytes(data[1:3]) )/\
+                    Raw(load=bytes(dummy_ip)[:28]) 
+                pkt.show2()
+                hexdump(pkt)
+                return pkt
+            case 11: 
+                print("ipv4_time_exceeded") 
+                TYPE_TIME_EXCEEDED=11 
+                if len(data)>8: 
+                    return None 
+                dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[2:4])) / \
+                    ICMP(id=int.from_bytes(data[4:6]))
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
+                    ICMP(type=TYPE_TIME_EXCEEDED, code=codice, unused=int.from_bytes(data[0:2]) )/\
+                    Raw(load=bytes(dummy_ip)[:28]) 
+                pkt[ICMP].reserved = int.from_bytes(data[0:1]) #1 byte ByteField
+                pkt[ICMP].length = int.from_bytes(data[1:2]) #1 byte ByteField
+                pkt[ICMP].nexthopmtu = int.from_bytes(data[2:4]) #2byte ShortField 
+                return pkt
+            case 3: 
+                print("ipv4_destination_unreachable") 
+                TYPE_DESTINATION_UNREACHABLE=3  
+                if len(data)>8: 
+                    return None  
+                dummy_ip=IP(src=ip_dst.compressed, dst="8.8.8.8", len=int.from_bytes(data[4:6])) / \
+                    ICMP(id=int.from_bytes(data[6:8]))
+                pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
+                    ICMP(type=TYPE_DESTINATION_UNREACHABLE, code=codice)/\
+                    Raw(load=bytes(dummy_ip)[:28]) 
+                pkt[ICMP].reserved = int.from_bytes(data[0:1]) #1 byte ByteField
+                pkt[ICMP].length = int.from_bytes(data[1:2]) #1 byte ByteField
+                pkt[ICMP].nexthopmtu = int.from_bytes(data[2:4]) #2byte ShortField 
+                #pkt.show() 
+                #pkt.show2()
+                #hexdump(pkt)
+                return pkt 
+        return pkt
+
+    if not (IS_TYPE.bytes(message) and IS_TYPE.ipaddress(ip_dst)):
+            raise Exception("test_timing_channel8bit: Argomenti non validi") 
+    rumore:int=2 
+    min_delay=1+rumore 
+    max_delay=30+rumore 
+    stop_value=255 
+    seed=4582 
+    if min_delay<=0: 
+        raise Exception(f"test_timing_channel8bit: Valore minimo non accettato: {min_delay}")
+    if max_delay<=min_delay: 
+        raise Exception(f"test_timing_channel8bit: Il valore masismo non può essere minore di quello minimo") 
+    if not (0<=stop_value <=255): 
+        raise Exception(f"test_timing_channel8bit: Valore stop value non corretto: {stop_value}") 
+    
+    target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower() 
+    interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+    #print(f"MAC di destinazione: {target_mac}")
+    #print(f"Interfaccia per destinazione: {interface}") 
+
+    bit_codice ,_=get_dict_bit_codice() 
+    #print("Codici bit: ", codice_bit, "\nBit codice: ",bit_codice) 
+    #print("Bit codice: ",bit_codice)
+    tipologia_byte=get_tipologia_byte() 
+    #print("dict tipologia-byte:",tipologia_byte) 
+    #print("\n")
+
+    tipologia, codice=get_tipologia_codice(bit_codice[16]) 
+    pkt_init= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=tipologia, code=codice)
+    pkt_init.summary()
+    sendp(pkt_init, verbose=1, iface=interface)  
 
     index=0
-    while index< len(message): 
-        #Byte 1 - timing channel 
-        delay=min_sec_delay+(message[index]/255)*(max_sec_delay-min_sec_delay) 
-        print(f"Delay :{index}\t{delay}\t{delay.total_seconds()}\n")
-        time.sleep(delay)
-        fine_dati=index+1
+    while index < len(message): 
+        #print("Len", len(message), "Index", index) 
+        #1st Byte - Delay time - Indicato da 1 byte 
+        byte=message[index+0]
+        delay=min_delay+(byte/255)*(max_delay-min_delay)
+        print("+++++Timing\t",chr(byte), "Byte", byte,"Delay", delay) 
+        time.sleep(delay) 
+        index+=1
 
-        #Byte 2 - Codice ICMP 
-        if not (index+1 < len(message)):
-            print("Fine messaggio")
-            return
-        codice=message[index+1]
-        primi_4bit=(codice& 0b11110000)>>4
-        ultimi_4bit=codice& 0b00001111
-        print("Primi 4 bit:", primi_4bit, "Ultimi 4 bit:", ultimi_4bit) 
-        print("Codice ICMP da inviare:", codice_bit[primi_4bit], codice_bit[ultimi_4bit]) 
-        prima_tipologia, primo_codice=get_tipologia_codice(codice_bit[primi_4bit])
-        seconda_tipologia, secondo_codice=get_tipologia_codice(codice_bit[ultimi_4bit])
-        print("Primi bit messaggio ICMP :", prima_tipologia, primo_codice)
-        print("Ultimi bit messaggio ICMP:", seconda_tipologia, secondo_codice) 
-        fine_dati+=1
+        #2nd Byte - tipologia di messaggi inviati - Indicato da 1 byte 
+        try: 
+            primi_4bit, ultimi_4bit=get_1st_last_4bit(message[index]) 
+            primo_messaggio=get_tipologia_codice(bit_codice[primi_4bit] )
+            secondo_messaggio=get_tipologia_codice(bit_codice[ultimi_4bit]) 
+            print("+++++Tipologia\t", chr(message[index]), "Byte", message[index]) 
+            #print("First 4 bit", primi_4bit, "1st message:",primo_messaggio, "2nd message:",secondo_messaggio) 
+            #print("Last 4 bit", ultimi_4bit, "2nd message:",secondo_messaggio) 
+        except IndexError as e: 
+            #print("Raggiunta massima lunghezza del messaggio") 
+            #TODO mandare un pacchetto comunque per indicare la cosa. Deltermine della comunicazione
+            #TODO usare in caso tipologia inutilizzata siccome erano 17 e log_2(17)=4.08
+            break
+        index+=1
+        
+        for tipologia, codice in [primo_messaggio, secondo_messaggio]:
+           # print("Tipologia:",tipologia, "Codice:",codice) 
+            num_byte=tipologia_byte[tipologia] 
+            send_data(tipologia, codice, message, ip_dst)  
+            #print("Byte necessari: ",num_byte) 
+            if index>=len(message): 
+                #print("L'indice supera la lunghezza della stringa") 
+                break 
+            try: 
+                data=message[index:index+num_byte]
+                print("+++Messaggio\t",data) 
+                pkt=get_packet(tipologia, codice, data, ip_dst)
+                pkt.summary() 
+            except Exception as e: 
+                print("3 Eccezione:",e) 
+                #pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() #/ Raw(load=random_delay.to_bytes(signed=True))
+                #pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=tipologia, code=codice)  
+                #pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=tipologia, code=codice)  
+            if tipologia==3: 
+                print("Tipologia è 2")
+                #pkt.show2()
+                #hexdump(pkt)
+            sendp(pkt, verbose=1, iface=interface) 
+            index+=num_byte
 
-        #Invio pacchetto ICMP in base alla tipologia e al codice
-        tipologia_byte=get_tipologia_byte()
-        byte_primibit=tipologia_byte.get(prima_tipologia)
-        byte_ultimibit=tipologia_byte.get(seconda_tipologia)
-        print("Byte messaggio primi bit", byte_primibit) 
-        print("Byte messaggio ultimi bit", byte_ultimibit) 
-        inizio_dati=fine_dati #con fine_dati=index+2
-        fine_dati=index+2+byte_primibit
-        sotto_dati=message[inizio_dati:fine_dati]
-        print("Primi dati:", sotto_dati)
-        inizio_dati=fine_dati
-        fine_dati=inizio_dati+byte_ultimibit
-        sotto_dati=message[inizio_dati:fine_dati]
-        print("Ultimi dati:", sotto_dati)
-
-        index=fine_dati
+        print("") 
+    
+    tipologia, codice=get_tipologia_codice(bit_codice[16]) 
+    pkt_end= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/ICMP(type=tipologia, code=codice)
+    pkt_end.summary()
+    sendp(pkt_end, verbose=1, iface=interface) 
 
 
+ip_dst=ipaddress.ip_address("192.168.1.11") 
+ip_dst=ipaddress.ip_address("192.168.1.17") 
 
+ip_src=ipaddress.ip_address("192.168.1.11") 
 
+data=("Dato mandato dal computer di Marco per testare un timing channel a 8 bit"*1).encode() 
+#data=("abcdefg"*7).encode() 
+print("Data", data) 
 
+send_test_hybrid_channel(data, ip_dst) 
+#receive_test_hybrid_channel(ip_dst, ip_src) 
 
+#SendSingleton.ipv4_destination_unreachable(data, ip_dst)
 
+#snort() { sudo /usr/local/snort/bin/snort --daq-dir /usr/local/lib/daq_s3/lib/daq "$@" }
 
-
-
-
-
-
-
-
-
-
+#source ~/.bashrc
