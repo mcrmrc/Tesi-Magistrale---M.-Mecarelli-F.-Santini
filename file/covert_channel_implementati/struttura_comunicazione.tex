@@ -1,27 +1,51 @@
 Le entita coinvolte sono l'attaccante, il proxy e la vittima. 
-\vspace{1ex} \newline 
-Il primo avrà bisogno di un file di configurazione nel quale viene definito l'indirizzo IP della vittima, il metodo di attacco e i proxy utilizzabili per farlo. 
-%e il comando da eseguire. 
-Definisce il comando che la vittima deve eseguiree dovo averlo inoltrato, tramite i proxy, aspetta i dati relativi ad esso. 
-\vspace{1ex} \newline
-Il proxy ha bisongo di sapere qual'è l'indirizzo IP dell'attaccante. 
-Questo perchè deve potersi connettere ad esso ed ottenere oltre all'indirizzo IP della vittima anche il comando da inviare. 
-Stabilisce una connesisone sia con l'attaccante che con la vittima e si occupa princiaplemnte di inoltrare i dati che le due entità si inviano. 
-\vspace{1ex} \newline 
-L'ultima entità, la vittima, aspetta le connessioni da uno o più proxy e una volta ricevuto il comanda, rimanda i dati ricavati dalla sua esecuzione. 
-\vspace{2ex} \newline 
-Il flusso di come avviene la comunicazione fra le entità è definito dal diagramma. 
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+    \hline
+    \textbf{Entità} & \textbf{Descrizione} \\
+    \hline
+    Attaccante &  
+    %Il primo avrà bisogno di 
+    Carica un file di configurazione nel quale viene definito l'indirizzo IP della vittima, 
+    il metodo di attacco e i proxy utilizzabili per farlo. 
+    %e il comando da eseguire. 
+    Inoltre inserirà il comando che la vittima dovrà eseguire o il dato che gli si vuole mandare.  
+    %dovo averlo inoltrato, tramite i proxy, aspetta i dati relativi ad esso. 
+    Nel caso l'attaccante utilizzasse dei proxy, aspettera da essi i dati che la vittima ha restituito. 
+    \\ 
+    \hline 
+    Proxy &  
+    Ha bisongo di sapere qual'è l'indirizzo IP dell'attaccante. 
+    %Questo perchè 
+    Deve potersi connettere ad esso ed ottenere l'indirizzo IP della vittima e il comando da inoltrare. 
+    Una volta stabilita una connesisone sia con l'attaccante che con la vittima; 
+    si occuperà di inoltrare i dati che le due entità si inviano. 
+    \\
+    \hline 
+    Vittima &  
+    Aspetta le connessioni o dall'attaccante o dai proxy se vengonoutilizzati. 
+    Dopodichè aspetterà un comando (o un dato). 
+    Nel primo caso lo eseguirà e invierà i dati ricavati dall'esecuzione. 
+    \\
+    \hline  
+\caption{Entita presenti nell'attacco} 
+\label{tabella:attacco:entitaPresenti} 
+\end{longtable} 
+\end{center} 
+\vspace{2ex}  
+Il flusso di come avviene la comunicazione fra le entità è definito dal diagramma seguente. 
+Il canale di comunicazione che il proxy e l'attaccante protrano avere dipende dall'affidabilità del proxy. 
+Nel caso si reputi il proxy insicuro, si potrà utilizare una comunicazione tramite ICMP (ovvero la stessa che il proxy avrà con la vittima) 
+altrimenti si potra usare il protocollo TCP; che permetterà una comunicazione maggiormente stabile. 
 \begin{center} 
     \includegraphics[width=0.9\textwidth]{../img/implementazione/diagramma_struttura_entita.jpg} 
     \captionof{figure}{Diagramma del flusso di comunicazione fra le entita}
     \label{fig:covertchannel:struttura:2} 
 \end{center}  
-\vspace{2ex}  
-Il canale di comunicazione che il proxy e l'attaccante protrano avere dipende dall'affidabilità del proxy. 
-Nel caso si reputi il proxy insicuro, si potrà utilizare una comunicazione tramite ICMP (ovvero la stessa che il proxy avrà con la vittima) 
-altrimenti si potra usare il protocollo TCP; che permetterà una comunicazione maggiormente stabile. 
-\vspace{1ex} \newline 
 Per la comunicazione l'attaccante potrà usare uno o più proxy per comunicare con la vittima. 
+Il caso standard sarà quello rappresentato nella figura tuttavià sarà possibile, per l'attaccante, comunicare direttamente con la vittima. 
+In questo caso l'entità proxy non verrà utilizzata ed alcune funzioni presenti in essa verranno eseguite 
+dall'attaccante (e.g connettersi alla vittima) e quindi l'entità proxy potrà essere vista come l'entità attaccante. 
 \begin{center} 
     \includegraphics[width=0.7\textwidth]{../img/implementazione/struttura attacker.proxy.victim 2.jpg} 
     \captionof{figure}{Struttura delle entità presenti e come dialogano}
@@ -31,30 +55,31 @@ Per la comunicazione l'attaccante potrà usare uno o più proxy per comunicare c
 %    \includegraphics[width=0.4\textwidth]{../img/implementazione/struttura attacker.proxy.victim 3.jpg} 
 %    \captionof{figure}{Diagramma delle entità presenti}
 %    \label{fig:covertchannel:struttura:1} 
-%\end{center}   
-Il caso standard sarà quello rappresentato nella figura tuttavià sarà possibile, per l'attaccante, comunicare direttamente con la vittima. 
-In questo caso l'entità proxy non verrà utilizzata ed alcune funzioni presenti in essa verranno eseguite dall'attaccante (e.g connettersi alla vittima). 
-E quindi l'entità proxy potrà essere vista come l'entità attaccante. 
-
- 
-
+%\end{center} 
 
 \subsection{Struttura dell'attaccante} 
-Quando si esegue il programma, tramite linea di comando, devono essere passati degli argomenti; 
-in particolare verrà utilizzato un parser per rilevare se è stato inserito un path per il file di configuraizone da analizzare. 
-In questo file JSON si specificherà l'indirizzo IP della vittima, la metodologia di attacco e la lista dei proxy a cui ci si vuole connettere. 
-Un ulteriore dato che si ricaverà è l'indirizzo IP dell'host stesso. 
+%Quando si esegue il programma, tramite linea di comando, devono essere passati degli argomenti; 
+%in particolare verrà utilizzato 
+Tramite un parser rilevare se nella linea di comando, è stato inserito un path per il file di configuraizone 
+da caricare. 
+In questo file JSON viene specificato l'indirizzo IP della vittima, la metodologia di attacco e 
+la lista dei proxy a cui ci si vuole connettere. 
+%Un ulteriore dato che si ricaverà è l'indirizzo IP dell'host stesso. 
 \vspace{1ex} \newline 
-Dopodichè ci si connette ai proxy definiti nella lista precedente per verificare quali sono disponibili. 
-Un proxy si può ritenere disponibile se è connesso sia all'attaccante che alla vititma. 
-Quindi si creeerà un socket per ogni proxy connettendosi all'indirizzo e alla porta in cui si sono messi in ascolto 
-e tramite esso, si invia un messaggio di conferma. 
-Questo messaggio specificherà l'indirizzo IP della vittima e la metodologia di attacco scelta. 
-Successivamente rimarrà inattesa del messaggio in cui il conferma la connessione con l'attaccante. 
-Il contentuto sarà l'indirizzo IP della vittima ricevuto oltre che all'indirizzo IP del proxy stesso. 
-Infine rimane in attesa che il proxy invii un aggiornamento sul suo stato di coneessione con la vittima. 
-Se il risultato delle seguenti operazioni risulterà positivo, il proxy verrà considerato disponibile altrimenti verrà consdiderato 
-non disponibile e di conseguenza scartato (questo significherà che verrà rimosso dalla lista dei proxy connessi). 
+Dopodichè per ogni proxy specificato 
+%ci si connette ai proxy definiti nella lista precedente per 
+verificare quali sono disponibili; 
+un proxy si può ritenere disponibile se è connesso sia all'attaccante che alla vititma. 
+%Quindi si creeerà un socket per ogni proxy connettendosi all'indirizzo e alla porta in cui si sono messi 
+%in ascolto e tramite esso, si invia un messaggio di conferma. 
+Quindi si connette al socket in cui il proxy è in ascolto e gli invierà un messaggio in cui specifica
+%Questo messaggio specificherà 
+l'indirizzo IP della vittima e la metodologia di attacco scelta.  
+Successivamente rimarrà inattesa che il proxy confermi la connessione con la vittima. 
+%Il contentuto sarà l'indirizzo IP della vittima ricevuto oltre che all'indirizzo IP del proxy stesso. 
+%Infine rimane in attesa che il proxy invii un aggiornamento sul suo stato di coneessione con la vittima. 
+%Se il risultato delle seguenti operazioni risulterà positivo, il proxy verrà considerato disponibile altrimenti verrà consdiderato 
+%non disponibile e di conseguenza scartato (questo significherà che verrà rimosso dalla lista dei proxy connessi). 
 %
 %WAIT PROXY UPDATE:
 %Eseguito su ogni thread. 
@@ -63,12 +88,14 @@ non disponibile e di conseguenza scartato (questo significherà che verrà rimos
 %se la conferma aspettata non combacia co nquiella ricevuta il proxy viene scartato e il socjket chiuso. 
 %Nel messaggio di conferma il proxy indica se è connesso alla vititma. 
 \vspace{2ex} \newline 
-Prima di inviare il comando, l'attaccante prima definirà un thread per ogni proxy. 
+Prima di inviare il comando, l'attaccante definirà un thread per ogni proxy. 
 Il codice eseguito nei thread si occuperà di ricevere i dati che il proxy inoltrerà. 
-Fatti partire i thread; si inserirà e poi si invierà tramite un proxy, il comando alla vittima. 
-Ai restanti proxy verrà notificato di ascoltare direttamente i dati. 
-Dopodichè si aspetta che i thread ricevano i dati e una volta ricevuti li si riordina così da ricavare il messaggio. 
-Finito ciò si reimposteranno le variabili necessarie e se voluto il ciclo continua (tramite l'inserimento di un altro comando). 
+Dopodichè si inserirà e si invierà il comando alla vittima. 
+%Ai restanti proxy verrà notificato di ascoltare direttamente i dati. 
+%Dopodichè si aspetta che i thread ricevano i dati e 
+Una volta ricevuti tutti i dati, inoltrati dai proxy, li si riordina così da ricavare il messaggio. 
+Finito ciò si reimposteranno le variabili necessarie e se voluto il ciclo continua 
+(tramite l'inserimento di un altro comando). 
 Altrimenti si può decidere di interrompere la comunicazione e in quel caso i proxy ne verranno aggiornati. 
 %
 %WAIT DATA FROM PROXY 

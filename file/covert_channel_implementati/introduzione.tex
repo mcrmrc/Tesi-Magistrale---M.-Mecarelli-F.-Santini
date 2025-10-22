@@ -5,22 +5,27 @@ Solitamente operano al di fuori degli usuali meccanismi di comunicazioni sfrutta
 %ciò gli permette di non generare segnali di un uso improprio del sistema. 
 Ciò gli permette di non generare segnali di un uso improprio del sistema ed inoltre, 
 nascondendosi all'interno dei normali processi del sistema, sono difficili da rilevare e/o identificare. 
-La loro esistenza quindi rappresenterà un problema che spesso rimane non notato dagli amministratori o dai tipici strumenti di monitoraggio. 
-Da notare inoltre che qualsiasi risorsa condivisa può essere utilizzata come canale nascosto. 
+\vspace{1ex} \newline  
+%Da notare inoltre che 
+Qualsiasi risorsa condivisa può essere utilizzata come canale nascosto. 
 Questo permetterà ai Covert Channel di esistere in qualsiasi sistema. 
 %In aggiunta, qualsiasi risorsa condivisa può essere utilizzata per la creazione di un canale nascosto, 
 %e di conseguenza possono esistere in qualunque sistema. 
+E per questo la loro esistenza rappresenta un problema che spesso rimane non notato. %dagli amministratori o dai tipici strumenti di monitoraggio. 
 %Questi attacchi sono un problema significativo in tutti quegli ambienti dove una fuoriuscita di informazioni può avere conseguenze gravi (es ambienti militari, governativi,\dots).  
 %Siccome l'suo imporprio che si fà di queste risorse: porta alla fuoriuscita (o scambio) dei dati. 
 \vspace{2ex} \newline  
 %\textbf{Stealthiness} (furtività)
-Siccome un covert channel deve poter aggirare i controlli in maniera nascosta;  
-avrà bisogno di alcune caratteristiche. 
-tuttavia, uno dei maggiori problemi nell'implementazione di un canale nascosto è l'uso eccessivo delle risorse. 
-La necessità cardine, è quella di riuscire a trasmettere informazioni mantenendo conforme lo stato del sistema; 
-così da rendere il canale \textbf{indistinguibile} rispetto alle altre risorse presenti nel sistema. 
-dalla risorsa sfruttata e di conseguenza invisibili ai sistemi di monitoraggio. 
-In generale il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
+%Siccome un covert channel deve poter aggirare i controlli in maniera nascosta dovrà avere alcune caratteristiche. 
+%Tuttavia, uno dei maggiori problemi nell'implementazione di un canale nascosto è l'uso eccessivo delle risorse. 
+%La necessità cardine, 
+Un Covert Channel possiede determinate caratterisitche. 
+L'\textbf{indistinguibilità} è la principale; è estremamente importante riuscire a trasmettere informazioni mantenendo conforme lo stato del sistema. 
+L'obbiettivo è rendere il canale indistinguibile rispetto alle altre risorse presenti nel sistema così da risultare invisibili ai sistemi di monitoraggio. 
+%Fra queste, la proprietà maggiormente importante è quella di riuscire a trasmettere informazioni mantenendo conforme lo stato del sistema; 
+%così da rendere il canale \textbf{indistinguibile} rispetto alle altre risorse presenti nel sistema e di conseguenza invisibili ai sistemi di monitoraggio. 
+%dalla risorsa sfruttata e di conseguenza invisibili ai sistemi di monitoraggio. 
+%In generale il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
 %(e.g carico della CPU, accesso alla memoria, traffico della rete, metadati del file systema). 
 %
 %    Di solilto si sfruttano servizi e/o risorse già presenti e quindi non sospette; 
@@ -44,12 +49,12 @@ In generale il canale è incorporato in operazioni di sistema legittime per pote
     \hline
     \textbf{Caratteristica} & \textbf{Descrizione} \\
     \hline
-    Furtività & 
+    \textbf{Furtività} & 
         Evitare di attirare le attenzioni sia degli amministratori che degli strumenti utilizzati per il rilevamento degli attacchi. 
         %Si devono poter aggirare i controlli in maniera nascosta.
     \\
     \hline 
-    Capacità di trasmissione &
+    \textbf{Capacità di trasmissione} &
         Espressa in termini di \textbf{throughput} ($\frac{dati}{tempo}$). 
         Più dati il canale trasmette per un determinato intervallo di tempo, maggiore sarà il rischio che venga scoperto 
         siccome potrebbe rendere anomalo il funzionamento delle altre risorse.
@@ -61,23 +66,23 @@ In generale il canale è incorporato in operazioni di sistema legittime per pote
         %più dati un canale trasmette in un determinato periodo di tempo, maggiore è il rischio che il canale venga scoperto
     \\
     \hline
-    Uso delle risorse &
+    \textbf{Uso delle risorse} &
         Un uso delle risorse improprio o sproporzionato aumenta il rischio di essere individuati. 
         Siccome il canale potrebbe andare in conflitto con le risorse legittime presenti nel sistema. 
         %I Covert channels sfruttano le risorse del sistema (e.g memoria cxondivisa, uso della CPU, attributi dei file) 
         %in maniere non previste per la comunicazione. 
     \\
     \hline
-    Rumore &
+    \textbf{Rumore} &
         Sfruttando servizi e/o risorse già presenti nel sistema, si potrebbe alterare il loro funzionamento. 
         L'alterazione del comportamento della risorsa o del servizio sfruttato potrebbe attirare l'attenzione da parte degli amministratori. 
     \\
     \hline
-    Indistinguibilità & 
+    \textbf{Indistinguibilità} & 
         Si ha la necessità di riuscire a trasmette i dati sempre mantenendo conforme e inalterato il 
         funzionamento della risorsa utilizzata. 
         L'obbietivo è quello di rendersi indistinguibili dalla risorsa autorizzata e di conseguenza invisibili ai sistemi di monitoraggio.
-    \\
+    \\ 
     \hline
     %Violazione delle politiche di sicurezza &
     %    Permettono lo scambio non autorizzato di informazioni, potenzialmente violando 
@@ -87,424 +92,29 @@ In generale il canale è incorporato in operazioni di sistema legittime per pote
 \caption{Caratterisitche di un Covert Channel} 
 \label{tabella:caratteristiche:covert:channel} 
 \end{longtable} 
-\end{center}   
-
-
-
-\subsection{Implementazione}  
-In un Covert Channel ICMP verranno utilizzati messaggi ICMP (di solito richieste e risposte Eco) per nascondere 
-i dati all'interno di campi che normalmente vengono ignorati o non monitorati. 
-Il canale sarà possibile siccome il protocollo ICMP (Internet Control Message Protocol) consente agli attaccanti di trasferire dati 
-aggirando le politiche di sicurezza ed eludendo il rilevamento.
-Ciò è possibile siccome è un protocollo che viene utilizzato, in sinergia con il protocollo IP, per la diagnostica della rete, 
-per la segnalazione di errori, per ottenere informazioni tramite la messagistica di controllo e per la risoluzione dei problemi nelle reti. 
-Permette quindi di informare il mittente sui problemi di rete %Segnalazione errori %(ad esempio, destinazione non raggiungibile, perdita di pacchetti) 
-, aiutare nella risoluzione dei problemi di rete %Diagnostica di rete %utilizzando strumenti come ping e traceroute 
-e gestisce la congestione della rete oltre gli aggiornamenti di routing (in alcuni casi) %Messaggistica di controllo
-%Opera a livello rete (livello 3 modello ISO/OSI). 
-\vspace{2ex} \newline 
-%Molti firewall e dispositivi di sicurezza consentono il traffico ICMP per la diagnostica della rete.
-%I pacchetti ICMP possono trasportare dati (payload) nascosti senza destare sospetti.
-%I sistemi di sicurezza tradizionali si concentrano sul traffico TCP/UDP, trascurando ICMP.
-Sebbene sa essenziale per la diagnostica di rete e la segnalazione degli errori, può essere comunque utilizzato in 
-modo improprio per degli attacchi o per la ricognizione della rete (network reconnaissance). 
-%Gli aggressori possono utilizzare ICMP per attacchi DDoS, di ricognizione, di esfiltrazione di dati o di covert channel.
-%Le regole del firewall e la limitazione della velocità aiutano a bilanciare usabilità e sicurezza. 
-%Data la sua necessita per la diagnostica di rete e la segnalazione degli errori, 
-%può essere utilizzato in modo improprio per mettere a segno degli attacchi o per studiare la rete (ricognizione della rete). %network reconnaissance 
-%Siccome ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza. 
-Questi messaggi verranno usati per creare una comunicazione fra una vittima e il suo attaccante, 
-in cui potrebbero essere presenti in caso dei proxy intermedi. 
-\vspace{3ex} \newline
-Nei seguenti capitoli verrà illustrato come può essere sfruttato per la creazione di un Covert Channel.   
+\end{center} 
+%\vspace{2ex} %\newline
+Nei seguenti capitoli verrà illustrato come è stato implementato.  
+%come può essere sfruttato per la creazione di un Covert Channel.   
 %un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta. 
 %L'attacco opera al di fuori degli usuali meccanismi di comunicazioni %Inoltre sfruttando vulnerabilità o comportamenti non previsti nei sistemi,  
 %e per questo risulta difficile da rilevare e/o identificare. 
 %Sia dagli amministratori che dai tipici strumenti di monitoraggio. 
 %Infine, siccome qualsiasi risorsa condivisa può essere utilizzata per la sua creazione, può esistere in qualunque sistema. 
 Principalmente le risorse condivise, e manipolate, saranno i pacchetti ICMP e i dati verranno codificati all'interno dei campi presenti. 
+%I messaggi verranno poi usati per creare una comunicazione fra una vittima e il suo attaccante, 
+%in cui potrebbero essere presenti in caso dei proxy intermedi. 
 %Il mittente manipola una risorsa di sistema condivisa (osservabile dal destinatario) per codificare i dati segreti (eg tramite il tempo o la memoria).  
 %\textbf{Codifica dei dati}: gli aggressori incorporano messaggi nascosti all'interno di pacchetti ICMP, come richieste di Eco (ping) o risposte di Eco.
 %\textbf{Evasione del firewall}: poiché ICMP è spesso consentito nei firewall, gli aggressori lo utilizzano per aggirare le politiche di sicurezza.
 %\textbf{Comunicazione furtiva}: malware e botnet utilizzano poi ICMP per comunicare segretamente con un attaccante remoto.
-Altre codifiche, che non includono l'insserimento di onfromazioni nei campi, saranno quelle relative alla distanza di tempo 
-oppure alla tipologia di messaggio ricevuto. 
-Nel primo caso in base alla distanz adi tempo fra un pacchetto e l'altro, viene codificato l'informazione. 
-Nel secondo caso la codifica dei dati verrà associata alla particlare tipologia di messaggio ricevuto.
-
+Altre metodologie sfrutteranno gli intervalli di tempo fra un pacchetto e il successivo
+oppure la tipologia di messaggio ICMP ricevuto. 
+%Nel primo caso in base alla distanze di tempo fra un pacchetto e l'altro, viene codificato l'informazione. 
+%Nel secondo caso la codifica dei dati verrà associata alla particolare tipologia di messaggio ricevuto. 
 
 
 %Nelle prossime pagine, si analizzeranno le varie tipologie di messaggi 
 %(divise in \textbf{Messaggi di errore} \footnote{segnalano problemi nella comunicazione di rete} e \textbf{Messaggi informativi} \footnote{utilizzati per scopi diagnostici e di controllo})
 %che il protocollo può mandare per definire un canale di comunicazione nascosto per uno scambio di informaizoni (non consentito). 
-
-
-
-
-\subsection{Struttura di un pacchetto ICMP} 
-I messaggi ICMP vengono inviati utilizzando l'intestazione IP di base. 
-In essi i primi venti byte indicano l'intestazione IP mentre il primo ottetto, della porzione dati del datagramma, riguarda l'intestazione ICMP. 
-I campi relativa al protocollo ICMP sono i seguenti:
-\begin{itemize} 
-    \item \textbf{Tipo}: Identifica il tipo di messaggio (ad esempio, Echo Request, Destinazione irraggiungibile). 
-    In base al valore di questo campo verrà determinato il formato dei rimanenti dati. 
-    \item \textbf{Codice}: Fornisce dettagli aggiuntivi sul tipo di messaggio.
-    \item \textbf{Checksum}: complemento a 16 bit relativo alla somma del messaggio ICMP. Garantisce l'integrità dei dati. 
-    \item \textbf{Dati}: Opzionale, può contenere parte del pacchetto IP originale che ha causato l'errore. 
-\end{itemize} 
-Nell'intestazione, nel caso si usi il protocolllo ICMP, il campo \textit{protocol} avrà valore 1
-%Qualsiasi campo etichettato come "non utilizzato" è riservato per future estensioni e deve essere zero quando 
-%inviato, ma i destinatari non dovrebbero utilizzare questi campi (eccetto per includerli nel checksum).  
-\begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=0.7\textwidth]{./img/ICMP-packet-structure.png}
-    \captionof{figure}{Struttura pacchetto ICMPv4/IPv4} 
-\end{minipage} 
-\vspace{1ex} \newline
-I messaggi presenti in ICMP sono classificati o come messaggi di errore o come messaggi informativi. 
-I primi segnalano problemi nella comunicazione di rete %(Destination Unreachable, source Quench, Redirect Message,Time Excedeed, Parameter Problem, Packet too Big) 
-mentre i secondi vengono utilizzati per scopi diagnostici e di controllo. %(Echo Request, Timestamp Request, information Request) 
-Di seguito la struttura delle varie tipolgie. 
-
-\subsubsection{Destination Unreachable} 
-Un messaggio \textit{Destination Unreachable}, viene inviato quando la rete specificata 
-(nel campo di destinazione) è irraggiungibile. E quindi il pacchetto non può essere recapitato. 
-%risposta a un pacchetto che non può essere recapitato (alla sua destinazione) per motivi diversi dalla congestione. 
-%Di conseguenza il gateway potrà inviare questa tipologia di messaggio all'host mittente del pacchetto. 
-Altri possibili casi per cui verrà inviato è se l'host è irraggiungibile o se il protocollo indicato o 
-la porta di destinazione specificati non sono attivi.  
-%il pachcetto deve venrire frammetnato per poterlo inoltrare ad un gateway, \dots 
-Il messaggio non verrà (e non dovrà essere) generato se un pacchetto viene scartato a causa della congestione del traffico. 
-Inoltre un nodo che riceve un messaggio \textit{Destination Unreachable} deve notificare l'evento al 
-processo di livello superiore (se il processo in questione può essere identificato).
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline 
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=3 (1B)} & \bitbox{8}{Code=0-5 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32}{Unused (4B)} \\
-    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
-\end{bytefield} 
-\vspace{1ex} \newline 
-Il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
-al processo appropriato. Se un protocollo di livello superiore utilizza numeri di porta, si presume che 
-siano nei primi 64 bit dei dati del datagramma originale. 
-%\footnote{L'\textit{intestazione IP} può variare dai 20 byte ai 40 byte} 
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv6} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8} {Type=1 (1B)} & \bitbox{8}{Code=0-6 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32} {Unused (4B)} \\
-    \bitbox{32} {As much of invoking packet as possible without} \\
-    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
-\end{bytefield} 
-%IPv6 richiede che ogni link su internet abbia un MTU di 1280 ottetti o più. 
-%Su ogni link che non può portare pacchetti da 1280 ottetti in un solo pezzo, 
-%debbono essere previste frammentazione e riassemblaggio specifici al link, ad un livello inferiore ad IPv6. 
-%Questo significa che in questo caso la frammentazione avviene a livello link layer, 
-%non viene in nessun modo gestita da IPv6 (a livello rete) ed è del tutto trasparente.
-\vspace{1ex} \newline 
-Il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
-Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
-%\href{https://www.rfc-editor.org/rfc/rfc2460#section-5}{\textbf{1280 bytes}}. 
-%\footnote{\textbf{MTU}=maximum transmission unit ovvero il massimo carico possibile} 
-%\footnote{L'\textit{intestazione IP} contiene al minimo 40 byte} 
-
-
-\subsubsection{Time Exceeded} 
-Questa tipologia di messaggio viene usata quando il gateway che elabora un pacchetto trova che il suo TTL 
-(tempo di vita) è zero. 
-%generato se un router riceve un pacchetto con un limite di hop pari a zero,  
-%o se un router decrementa il limite di hop di un pacchetto a zero. 
-In questi casi il gateway scarterà il datagramma e notificiherà l'host sorgente della cosa. 
-Ciò indica un loop nel routing o un valore iniziale della quantità di hop possibili troppo basso.
-Altri casi possibili in cui questo messaggio può avvenire è quando un host che riassembla un datagramma frammentato
-, non riesce a completare il riassemblaggio a causa di frammenti mancanti entro il proprio limite di tempo.  
-%codice 1 invece viene utilizzato per segnalare il timeout nel riassemblaggio dei frammenti.
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=11 (1B)} & \bitbox{8}{Code=0-1 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32}{Unused (4B)} \\
-    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
-\end{bytefield} 
-\vspace{1ex} \newline 
-Il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
-al processo appropriato. Se un protocollo di livello superiore utilizza numeri di porta, si presume che 
-siano nei primi 64 bit dei dati del datagramma originale. 
-%\footnote{L'\textit{intestazione IP} può variare dai 20 byte ai 40 byte} 
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv6} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline 
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8} {Type=3 (1B)} & \bitbox{8}{Code=0-1 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32} {Unused (4B)} \\
-    \bitbox{32} {As much of invoking packet as possible without} \\
-    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
-\end{bytefield}  
-\vspace{1ex} \newline 
-Il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
-Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
-
-
-\subsubsection{Parameter Problem } 
-Viene usata quando il gateway che elabora un pacchetto  trova un problema con i parametri dell'intestazione 
-in modo tale da non poter completare l'elaborazione del datagramma. 
-In questo caso dovrà scartare il datagramma e potrà notificare l'host sorgente della cosa indicando il tipo e la posizione del problema. 
-%generato se un nodo che elabora un pacchetto, rileva un problema con un campo nell'intestazione IPv6 o 
-%nelle intestazioni di estensione tale da impedirgli di completare l'elaborazione di esso. 
-%Una potenziale sorgente di tale problema è rappresentata da argomenti non corretti in un'opzione. 
-IL messaggio viene inviato solo se l'errore ha causato lo scarto del pacchetto.  
-\vspace{1ex} \newline  
-Il puntatore identifica l'ottetto nell'intestazione del pacchetto originale in cui è 
-stato rilevato l'errore (può trovarsi nel mezzo di un'opzione). 
-%Ad esempio, 1 indica che c'è qualcosa di sbagliato con il Tipo di Servizio, e (se sono presenti opzioni) 20 indica che 
-%c'è qualcosa di sbagliato con il codice di tipo della prima opzione.  
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=12 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{8}{Pointer (1B)} & \bitbox{24}{Unused (3B)} \\
-    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
-\end{bytefield}  
-\vspace{1ex} \newline 
-Il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
-al processo appropriato. Se un protocollo di livello superiore utilizza numeri di porta, si presume che 
-siano nei primi 64 bit dei dati del datagramma originale. 
-%\footnote{L'\textit{intestazione IP} può variare dai 20 byte ai 40 byte} 
-\vspace{1ex} \newline 
-Nel protocollo \textbf{ICMPv6} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline 
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    \bitheader{0-31} \\
-    \bitbox{8} {Type=4 (1B)} & \bitbox{8}{Code=0-2 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32} {Pointer (4B)} \\
-    \bitbox{32} {As much of invoking packet as possible without} \\
-    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
-\end{bytefield} 
-\vspace{1ex} \newline 
-Il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
-Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
-
-
-\subsubsection{Source Quench} 
-Questa tipologia viene usata quando il gateway gateway scarta un pacchetto. 
-In questo caso invierà un messaggio di Source Quench all'host mittente. 
-Una motivazione per cui un gateway può scartare un pacchetto è se non ha lo spazio necessario nel buffer 
-per mantenere in coda i pacchetti; che dovranno essere inoltrati alla rete successiva, 
-la quale farà parte della rotta per la rete di destinazione. 
-%per l'uscita verso la rete successiva nella rotta per la rete di destinazione. 
-%Il gateway può inviare un messaggio per ogni messaggio che scarta.  
-Inoltre un host di destinazione può inviare un messaggio di questo tipo, 
-anche nel caso in cui i datagrammi arrivino troppo velocemente per poter essere elaborati.
-Ciò indicherà una richiesta 
-%da parte dell'host destinatario all'host mittente, 
-di ridurre la velocità di invio dei pacchetti nel traffico. 
-%Al suo ricevimento, l'host sorgente dovrà ridurre la velocità sino a quando non riceverà più messaggi Source Quench dal gateway.
-%L'host mittente potrà successivamente aumentare gradualmente la velocità con 
-%cui sta inviando i pacchetti fino a quando non riceverà nuovamente questi messaggi.
-%\vspace{1ex} \newline 
-%Di solito il gateway o l'host invia il messaggio di Source Quench quando si avvicina al limite di capacità; 
-%piuttosto che aspettare e lasciare che questa capacità venga superata. 
-%Questo porterà al vantaggio che il pacchetto che ha attivato il messaggio potrebbe essere consegnato; 
-%mentre nel caso precedente non vi era abbastanza spazio per poterlo memorizzare (siccome la coda era piena).  
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=4 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32}{Unused (4B)} \\
-    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
-\end{bytefield}  
-\vspace{1ex} \newline 
-Il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
-al processo appropriato. Se un protocollo di livello superiore utilizza numeri di porta, si presume che 
-siano nei primi 64 bit dei dati del datagramma originale. 
-%\footnote{L'\textit{intestazione IP} può variare dai 20 byte ai 40 byte} 
-
-
-\subsubsection{Redirect} 
-La tipologia \textit{Redirect} indica un messaggio di reindirizzamento a un host.  
-Il gateway manda questo tipo di messaggio se, dopo aver controllato la sua tabella di routing, 
-trova che esiste un gateway migliore che si trova sulla sua stessa rete. 
-Questo secondo gateway rappresenterà un percorso migliore per la destinazione. 
-%Il gateway manda questo tipo di messaggio nelle seguenti situazioni: 
-%\begin{itemize}
-%    \item Un gateway (G1) riceve un pacchetto (X) da un host su una rete a cui è collegato. 
-%    Successivamente dalla sua tabella di routing ottiene l'indirizzo del gateway successivo (G2). 
-%    %Questo secondo gateway sarà sulla rotta verso la rete di destinazione del datagramma X. 
-%    \item Se G2 e il mittente del datagramma si trovano sulla stessa rete, 
-%    viene inviato un messaggio di reindirizzamento all'host sorgente. 
-%    Ciò consiglia all'host di inviare il traffico direttamente al gateway G2, 
-%    poiché rappresenta un percorso migliore per la destinazione.
-%    %\item Il gateway inoltra i dati del datagramma originale alla sua destinazione Internet.
-%\end{itemize}
-Se nell'itestazione IP è presente l'opzione \textit{IP Source Route}, 
-il messaggio di reindirzzamento non verrà inviato 
-anche se è presente un percorso migliore. %per raggiungere la destinazione. 
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline 
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=5 (1B)} & \bitbox{8}{Code=0-3 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32}{Gateway Internet Address (4B)} \\
-    \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
-\end{bytefield}
-\vspace{1ex} \newline 
-Nel campo \textit{Gateway Internet Address} verrà indicato l'indirizzo del nuovo gateway a cui dovrà essere 
-inviato il traffico per la rete di destinazione (specificata nel campo di destinazione del datagram originale). 
-\vspace{1ex} \newline 
-Il campo \textit{Internet Header} viene utilizzato dall'host per accoppiare il messaggio di errore 
-al processo appropriato. Se un protocollo di livello superiore utilizza numeri di porta, si presume che 
-siano nei primi 64 bit dei dati del datagramma originale. 
-%\footnote{L'\textit{intestazione IP} può variare dai 20 byte ai 40 byte} 
-
-
-\subsubsection{Echo Request / Echo Reply} 
-Un messaggio \textit{Echo}, viene usato per ricevere indietro una risposta da un host. 
-Si inviano dei dati tramite una Echo Request, e questi'ultimi dovranno essere restituiti in un messaggio di risposta. 
-Questo perchè chi risponde dovrà restituire gli stessi valori ricevuti nel messaggio integralmente e senza modifiche. 
-%I dati ricevuti dovranno essere restituiti nel messaggio di risposta integralmente e senza modifiche. 
-Il mittente può inserire nel campo del payload quanti dati desidera, a patto che risultino minori di 65.000 bytes. 
-Questo perchè nell'intestazione IP, il campo relativo alla lunghezza totale del pacchetto è composto da 16 bit.
-%Il mittente non ha alcuna limitazione sulla quantità di dati inseribili nei messaggi \textit{Echo} 
-Sempre nel messaggio, i campi identificatore e numero di sequenza possono essere utilizzati dal mittente per facilitare l'abbinamento delle risposte con le richieste.
-%Ad esempio, l'identificatore potrebbe essere utilizzato come una porta in TCP o UDP per identificare una 
-%sessione e il numero di sequenza potrebbe essere incrementato a ogni richiesta di eco inviata. 
-%Per creare un messaggio di risposta, gli indirizzi di origine e di destinazione vengono semplicemente invertiti,
-%il codice da 8 viene modificato in 0 e il checksum viene ricalcolato. 
-%Per creare un messaggio di risposta, gli indirizzi di origine e di destinazione vengono semplicemente invertiti,
-%il codice da 128 viene modificato in 129 e il checksum viene ricalcolato. 
-%In aggiunta, ogni nodo deve implementare una funzione di risposta ai messaggi \textit{Echo ICMPv6} così che 
-%quando riceve delle richieste Echo, generi le relative risposte. 
-%A node SHOULD also implement an application-layer interface for originating Echo Requests and receiving Echo Replies, for diagnostic purposes.
-%E inoltre, un nodo dovrebbe implementare un'interfaccia a livello applicazione per poter generare Richieste Echo e ricevere Risposte Echo, a fini diagnostici. 
-\vspace{1ex} \newline
-\textbf{NB} Una limitazione inferiore sui dati potrà essere definità dalla massima capacità di trasporto dei collegamenti. 
-Nel caso la dimensione del messaggio la superasse, il pacchetto dovrà essere frammentato. 
-In media questo valore si attesta sui 1400 bytes. 
-%Da un sito \href{URL}{https://learningnetwork.cisco.com/s/article/Understanding-the-ICMP-Protocol-with-Wireshark-in-Real-Time} 
-%in cui questo problema è stato analizzato, si è ricavato che in media la MTU di un canale è 1400 bytes. 
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=8 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} \\
-    \bitbox{32}{Data ... ($\geq$ 0B)} 
-\end{bytefield}  
-%\vspace{1ex} \newline 
-%I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
-\vspace{1ex} \newline 
-Nel protocollo \textbf{ICMPv6} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline 
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=128 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} \\
-    \bitbox{32}{Data ... ($\geq$ 0B)} 
-\end{bytefield} 
-%\vspace{1ex} \newline  
-%I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
-
-
-\subsubsection{Timestamp Request / Timestamp Reply} 
-Viene usata per ricevere indietro una risposta da un host. 
-I dati ricevuti nel messaggio di richiesta, vengono restituiti in quello di risposta insieme a dei timestamp aggiuntivi. 
-%Un utilizzo di questi timestamp è descritto da Mills [5].
-Il timestamp è pari a 32 bit e indica i millisecondi che sono passati dalla mezzanotte UT.
-%Se l'ora non è disponibile in millisecondi o non può essere fornita rispetto alla mezzanotte UT, 
-%è possibile inserire qualsiasi ora in un timestamp, a condizione che anche il bit di ordine superiore del 
-%timestamp sia impostato per indicare questo valore non standard. 
-L'identificatore e il numero di sequenza possono essere utilizzati dal mittente del pacchetto per facilitare l'abbinamento delle risposte con le richieste.
-%Ad esempio, l'identificatore potrebbe essere utilizzato come una porta in TCP o UDP per identificare una sessione e il numero di sequenza potrebbe essere incrementato a ogni richiesta inviata.
-%La destinazione restituisce gli stessi valori nella risposta. 
-Mentre i campi relativi ai timestamp indicheranno rispettivamente: 
-il tempo in cui il mittente ha toccato il messaggio per l'ultima volta prima di inviarlo, 
-il tempo in cui il destinatario ha toccato per la prima volta il messaggio (alla ricezione) e 
-il tempo in cui il destinatario ha toccato il messaggio per l'ultima volta prima di inviarlo.
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=13 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} \\ 
-    \bitbox{32}{Originate Timestamp (4B)} \\
-    \bitbox{32}{Receive Timestamp (4B)} \\
-    \bitbox{32}{Transmit Timestamp (4B)} \\
-    \bitbox{32}{Data ... ($\geq$ 0B)} 
-\end{bytefield}
-%\vspace{1ex} \newline 
-%I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
-
-
-\subsubsection{Information Request / Information Reply} 
-La tipologia \textit{Information} viene usata per consentire di scoprire il numero della rete in cui un host si trova. 
-Serve quindi per capire se si trova nella stesse rete dell'host che risponde. 
-Sebbene il messaggio può essere inviato con 
-%la rete sorgente nel campo mittente e 
-la destinazione nell'intestazione IP pari a zero (ciò significa "questa" rete); 
-l'intestazione IP presente nel messaggio di risposta dovrà essere inviata con gli indirizzi IP completamente specificati.
-%Per creare un messaggio di risposta, gli indirizzi di origine e di destinazione vengono invertiti,
-%il codice da 15 viene modificato in 16 e il checksum viene ricalcolato. 
-L'identificatore e il numero di sequenza possono essere utilizzati dal mittente del pacchetto per facilitare l'abbinamento delle risposte con le richieste.
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8}{Type=15 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{16}{Identifier (2B)} && \bitbox{16}{Sequence Number (2B)} 
-\end{bytefield} 
-%\vspace{1ex} \newline 
-%I campi \textit{Identifier} e \textit{Sequence Number} servono per facilitare la corrispondenza tra le richieste Echo e le Risposte Echo (possono essere zero). 
-
-
-\subsubsection{Packet Too Big} 
-Un messaggio \textit{Packet Too Big} viene generato da un router in risposta a un pacchetto che 
-non può inoltrare perché è più grande dell'MTU del collegamento in uscita.
-%Le informazioni contenute in questo messaggio vengono utilizzate come parte del processo di Path MTU Discovery
-%\href{https://www.rfc-editor.org/rfc/rfc4443#ref-PMTU}{Path MTU Discovery}.
-%Originating a Packet Too Big Message makes an exception to one of the rules as to when to originate an ICMPv6 error message.  
-%Unlike other messages, it is sent in response to a packet received with an IPv6 multicast destination address, or with a link-layer multicast or link-layer broadcast address. 
-Un nodo che riceve un messaggio \textit{ICMPv6 Packet Too Big} deve notificare la cosa al 
-processo di livello superiore (se il processo in questione può essere identificato). 
-Il campo \textit{MTU} indica la massima unità di trasmissione del collegamento nel salto successivo. 
-Mentre il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) 
-debba essere inclusa. Il tutto senza eccedere il \textit{IPv6 MTU} il cui valore di default equivale a 1280 bytes. 
-\vspace{2ex} \newline 
-Nel protocollo \textbf{ICMPv6} il pacchetto è strutturato in questo modo: 
-\vspace{1ex} \newline
-\begin{bytefield}[bitwidth=1.1em]{32} 
-    %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
-    \bitheader{0-31} \\
-    \bitbox{8} {Type=2 (1B)} & \bitbox{8}{Code=0 (1B)} & \bitbox{16}{Checksum (2B)} \\
-    \bitbox{32} {MTU (4B)} \\
-    \bitbox{32} {As much of invoking packet as possible without} \\
-    \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0B)} 
-\end{bytefield} 
-\vspace{1ex} \newline  
 
