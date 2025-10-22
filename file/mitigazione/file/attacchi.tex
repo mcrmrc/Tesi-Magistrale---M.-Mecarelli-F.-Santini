@@ -78,3 +78,73 @@ Questi attacchi manipolano la tempistica o le prestazioni del sistema per trasme
     \end{tabular}
     \captionof{table}{Menzione a degli attacchi Covert Channel}
 \end{minipage}
+
+
+
+
+
+
+
+\subsection*{Attacchi} 
+\subsubsection*{Icmp Flood (Ping Flood)}
+Limitare la velocità del traffico ICMP su firewall e router.
+Disattivare le richieste di eco ICMP dalle reti esterne se non necessarie. 
+Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare le richieste di ping eccessive.
+
+
+\subsubsection*{Attacco Smurf} 
+Disabilitare le richieste di broadcast ICMP sui router (nessuna trasmissione diretta IP)
+Implementare filtri in ingresso per bloccare i pacchetti con indirizzi di origine falsificati. 
+Utilizzare le regole del firewall per bloccare il traffico ICMP non necessario.
+
+
+\subsubsection*{Ping della morte (attacco storico)} 
+I sistemi moderni rifiutano i pacchetti di dimensioni eccessive.
+Applicare aggiornamenti e patch di sistema per prevenire questa vulnerabilità.
+
+
+\subsubsection*{ICMP Unreachable Flood}
+Configurare limiti di velocità per i messaggi di errore ICMP.
+Implementare regole firewall per eliminare il traffico ICMP eccessivo
+
+
+\subsubsection*{ICMP Ping Sweep}
+Blocca le richieste ICMP Echo da fonti esterne. 
+Utilizzare sistemi di prevenzione delle intrusioni (IPS) per rilevare e bloccare attività di scansione sospette.
+
+
+\subsubsection*{Attacco Timestamp ICMP}
+Disattivare le richieste di timestamp ICMP su firewall e router.
+Utilizzare protocolli di sincronizzazione temporale (NTP) con autenticazione anziché query orarie basate su ICMP.
+
+
+\subsubsection*{Attacco Timestamp ICMP}
+Disattivare le richieste di timestamp ICMP su firewall e router.
+Utilizzare protocolli di sincronizzazione temporale (NTP) con autenticazione anziché query orarie basate su ICMP.
+
+
+\subsubsection*{Attacco ICMP che maschera l'indirizzo}
+Disattivare le risposte ICMP Address Mask a meno che non siano necessarie per le operazioni di rete.
+Utilizzare i firewall per filtrare il traffico ICMP proveniente da fonti non attendibili.
+
+
+\subsubsection{Attacchi ICMP Tunneling e Covert Channel}
+Ispezione approfondita dei pacchetti (DPI) per rilevare ICMP Tunneling. 
+Blocca le richieste/risposte di ICMP Echo da reti non attendibili.
+Monitorare il traffico di rete per individuare modelli ICMP insoliti.
+
+
+\subsubsection*{Esfiltrazione ICMP (furto di dati tramite ICMP)}
+Monitorare e registrare il traffico ICMP per rilevare attività anomale.
+Utilizzare i firewall per limitare il traffico ICMP solo ai dispositivi necessari.
+Utilizzare soluzioni DLP (Data Loss Prevention) per rilevare i tentativi di esfiltrazione.
+
+
+\subsubsection*{ICMP Covert Channels}
+Monitorare il traffico ICMP per individuare modelli di utilizzo insoliti.
+Utilizzare i sistemi di rilevamento delle intrusioni di rete (NIDS) per rilevare Covert Channel.
+Limitare la comunicazione ICMP tra reti interne ed esterne.
+
+
+\subsubsection*{Attacco di reindirizzamento ICMP}
+Disabilitare il reindirizzamento ICMP.
