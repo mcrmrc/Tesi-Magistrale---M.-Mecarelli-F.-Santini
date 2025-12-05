@@ -4,13 +4,10 @@
 \usepackage{hyperref}
 
 %\usepackage[english]{babel}
-%\usepackage[italian]{babel}
+\usepackage[italian]{babel}
 
 \usepackage{pgfplots}
-\pgfplotsset{compat=1.18}
-
-%\usepackage[english]{babel}
-\usepackage[italian]{babel}
+\pgfplotsset{compat=1.18} 
 
 %pacchetti matematica
 \usepackage{amsmath}
@@ -60,6 +57,7 @@
 \usepackage[square,numbers]{natbib}
 
 \usepackage{changepage} 
+\usepackage{xtab} 
 
 \newtheorem{definizione}{Definizione}[section]
 
@@ -141,7 +139,7 @@
 
 \definecolor{blu_dmi}{HTML}{002e62}
 
-\usepackage{showframe}
+%\usepackage{showframe}
 \begin{document}
     \input{frontmatter}
     %\input{dedica}
@@ -149,31 +147,53 @@
     % Opzionale
     % \input{sommario}
 \tableofcontents \newpage
-\lstlistoflistings \newpage
-\listoffigures \newpage
+%\lstlistoflistings \newpage
+%\listoffigures \newpage
 
-\section{Parte 1 - Introduzione} \addcontentsline{toc}{section}{\protect\numberline{}Introduzione}  
-\import{./file}{introduzione} %\newpage 
-%
-\subsection{Strumenti Utilizzati}
-\import{./file}{tools} \newpage  
-%
-\section{Parte 2 - Covert Channel implementati} \addcontentsline{toc}{section}{\protect\numberline{}Covert Channel implementati}  
-\import{./file}{covert_channel_implementati} \newpage 
-%Per ognuno di essi, dove possibile, si effettuerà una richiesta alla vittima; prima partendo da un comando leggero (e.g \textbf{pwd}) per poi passare a comandi sempre più difficili e quindi maggiormente rilevabili (e.g \textbf{cd /path; ls -l} oppure \textbf{cat ./file\_grande}, \dots)
+%\section{Prima Parte} \addcontentsline{toc}{section}{\protect\numberline{}Introduzione}  
+\section{Background} 
+\import{main_background}{icmp} 
+\import{main_background}{covert} 
+\newpage 
 
+\section{Strumenti Utilizzati}
+\import{}{main_strumenti} \newpage   
+
+\section{Implementazione} 
+\import{main_implementazione}{introduzione} 
+\subsection{Struttura della comunicazione fra le entità} 
+\import{main_implementazione}{struttura_comunicazione}  
+\subsection{Implementazione del Timing Covert Channel}
+\import{main_implementazione}{icmp_timing} 
+\subsection{Implementazione del Storage Covert Channel} 
+\import{main_implementazione}{icmp_storage} 
+\subsection{Implementazione del Behavioural Covert Channel} 
+\import{main_implementazione}{icmp_behave} 
+\subsection{Implementazione di un Hybrid Covert Channel} 
+\import{main_implementazione}{icmp_hybrid} 
+\newpage  
+%\import{./file}{covert_channel_implementati} \newpage 
+%Per ognuno di essi, dove possibile, si effettuerà una richiesta alla vittima; 
+%prima partendo da un comando leggero (e.g \textbf{pwd}) per poi passare a comandi 
+%sempre più difficili e quindi maggiormente rilevabili (e.g \textbf{cd /path; ls -l} 
+%oppure \textbf{cat ./file\_grande}, \dots)
 %
-\section*{Parte 3 - Test e Risultati} \addcontentsline{toc}{section}{\protect\numberline{}Test e Risultati}  
-\import{./file}{RITA} \newpage 
+\section{Test e Risultati} 
+\import{}{main_test} \newpage  
+%\import{./file}{RITA} \newpage 
 %
-%\section*{Parte 4 - Mitigazioni} \addcontentsline{toc}{section}{\protect\numberline{}Mitigazioni}  
+%\section*{Quarta Parte} \addcontentsline{toc}{section}{\protect\numberline{}Mitigazioni}  
 %\import{./file}{mitigazione} \newpage 
-%\import{./mitigazione/file}{pratiche} 
-%\import{./mitigazione/file}{strategie} 
-%\import{./mitigazione/file}{covertchannel_strategie} 
 
-\appendix
+
+%\appendix
 %\import{./file/appendix}{ } \newpage  
+
+\bibliographystyle{plainnat}
+% Opzionale
+%\listoffigures
+%\listoftables
+\bibliography{bibliografia}
 
 
 \end{document}

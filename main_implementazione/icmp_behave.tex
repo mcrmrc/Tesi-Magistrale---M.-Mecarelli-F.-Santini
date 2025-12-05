@@ -1,0 +1,134 @@
+In questo caso l'evento che si osserverà, e che indicherà il dato trasmesso, è la tipologia ed il 
+codice del messaggio ICMP arrivato. 
+%Siccome oltre alla tipologia si potrà variare il codice inviato; 
+\vspace{1ex} \newline 
+Seguendo questo approccio, la quantità totale di eventi possibili risulta 17 [Figura \ref{fig:behaveCC:eventi:mappatura}]. 
+Quindi ogni messaggio permetterà di codificare 4 bit alla volta (siccome $\log_216=4$). 
+Siccome un evento (tipologia,codice) rimane inutilizzato; verrà sfruttato per indicare l'inizio 
+e la terminazione dell'esfiltrazione dei dati. 
+\vspace{1ex} \newline
+\begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{./img/ICMP_behaveCC/behavioural_channel_1.png}
+    \captionof{figure}{Schema Hybrid Channel \cite{francesco_santini}} 
+    \label{fig:behaveCC:eventi:mappatura}
+\end{minipage}  
+\vspace{1ex} \newline 
+Siccome un singolo evento può trasmettere solo 4 bit, ogni byte che si vuole inviare dovrà essere diviso in due parti. 
+La divisione viene fatta mascherando il byte [Figura \ref{fig:behaveCC:eventi:estrazionebit}]. 
+Questi  primi quattro bit ricavati, così come gli ultimi quattro bit ricavati, determineranno la 
+tipologia (oltre al codice) del messaggio che verrà inviato.   
+\begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{./img/ICMP_behaveCC/estrazione_bit_orizzontale.png}
+    \captionof{figure}{Divisione del byte} 
+    \label{fig:behaveCC:eventi:estrazionebit}
+\end{minipage}   
+\vspace{2ex} \newline
+Il destinatario, per ricavare i dati, monitora il traffico di rete e controllerà le tipologie di 
+messaggi ICMP ricevuti; per ognuno di essi, prende la coppia (Tipologia, Codice) e da questa 
+ricaverà i quatttro bit associati.  
+%invece si metterà in ascolto nel traffico di rete di un messaggio \textit{Information Request} 
+%proveniente dall'attaccante. 
+%Una volta ricevuto, memorizzerà le tipologie di messaggi ICMP provenienti dalla sorgente e 
+%ogni volta ricava il byte associato alla coppia di messaggi ottenuta. 
+%Infine quando rileverà ancora un pacchetto \textit{Information Request} smetterà di monitorare la rete. 
+
+\subsubsection{Tipologie di messaggi deprecati \cite{icmp_deprecated} \cite{rfc6918_deprecated_types} \cite{rfc6633_sourcequench}} 
+Un problema di questa possibile implementazione, sono le tipologie deprecate dei messaggi. 
+Questi messaggi potranno comunque essere inviati ma le linee guide indicano ai router di ignorarli e all'host 
+utente di non mandarli. %Un effetto collaterale potrà quindi essere la non ricezione dei messaggi 
+%senza che la cosa venga scoperta una volta che si cerca di ricostruire il dato esfiltrato. 
+%This document does not modify the security properties of the ICMPv4 message types being deprecated.  
+%However, formally deprecating these message types serves as a basis for, e.g., filtering these packets. \cite{rfc6633_sourcequench}
+\vspace{1ex} \newline 
+L'uso di tipologie deprecate renderà il canale meno legittimo e più facile da individuare. 
+Traffico di questo tipo inoltre sarà visto con sospetto e non è assicurata la ricezione dei messaggi. 
+%Deprecated types = less likely to be used legitimately, so unusual traffic with those types is suspicious 
+%(which is relevant for covert channels).
+%
+%Network devices (routers, firewalls) may not expect or properly process deprecated types, increasing 
+%risk/residual side-effects for covert use. 
+%
+%Filtering or blocking deprecated types reduces attack surface but you must weigh this with legitimate traffic 
+%needs (especially for older hosts/networks).
+%
+%Because some deprecated types are still recognized in code or by older devices, they might leak information 
+%(fingerprinting) or behave differently — a potential covert channel vector or detection point.
+%
+%Just because a type is deprecated doesn’t guarantee it’s never used — there may be legacy systems still 
+%sending/responding. So filtering must be tested carefully.
+%
+%Overblocking (e.g., all ICMP) may break diagnostic/troubleshooting functions — an important risk if you operate 
+%in an environment where ICMP matters.
+%
+%Covert channel detection based purely on unusual ICMP types may generate false positives (or false negatives) — 
+%so you’ll want behavioural/contextual checks (source, destination, rate, payload size).
+%
+%Router behaviour for deprecated types may vary by vendor; undocumented implementation-specific behaviours may exist.
+
+
+\subsubsection*{Source Quench} 
+Il messaggio ICMP Source Quench (tipo 4, codice 0) era concepito come meccanismo per il controllo della congestione.
+%The Host Requirements RFC [RFC1122] stated that hosts MUST react to ICMP Source Quench messages by slowing 
+%transmission on the connection, and further added that the RECOMMENDED procedure was to put the corresponding 
+%connection in the slow-start phase of TCP's congestion control algorithm [RFC5681].
+Tuttavia, data la sua inefficacia per la congestione, la generazione di questi messaggi da parte dei router è 
+stata formalmente deprecata dal 1995. %\cite{rfc1812}. 
+%[RFC1812] noted that research suggested that ICMP Source Quench was an ineffective (and unfair) antidote for 
+%congestion, and formally deprecated the generation of ICMP Source Quench messages by routers,stating that 
+%routers SHOULD NOT send ICMP Source Quench messages in response to congestion.
+Per questo la maggior parte delle implementazioni TCP ignorano silenziosamente i messaggi ICMP Source Quench. 
+Infatti TCP implementa i propri meccanismi di controllo della congestione (che non dipendono dai messaggi ICMP Source Quench).
+%But the reaction to ICMP Source Quench messages in transport protocols has never been formally deprecated. 
+%The rationale for these specification updates is as follows: 
+%\begin{itemize}
+%    \item Processing of ICMP Source Quench messages by routers has been deprecated for nearly 17 years [RFC1812]. 
+%    \item Virtually all popular host implementations have removed support for ICMP Source Quench messages since (at least) 2005 [RFC5927]. 
+%    \item Widespread deployment of ICMP filtering makes it impossible to rely on ICMP Source Quench messages for congestion control. 
+%    \item The IETF has moved away from ICMP Source Quench messages for congestion control (e.g., note the development of Explicit 
+%    Congestion Notification (ECN) [RFC3168] and the fact that ICMPv6 [RFC4443] does not even specify a Source Quench message). 
+%    ICMP Source Quench messages are not normally seen in the deployed Internet and were considered rare 
+%    at least as far back as 1994 [Floyd1994]. 
+%\end{itemize}  
+%
+%[RFC5927] discussed the use of ICMP Source Quench messages for performing "blind throughput-reduction" attacks, 
+%and noted that most TCP implementations silently ignore ICMP Source Quench messages.
+%
+\vspace{1ex} \newline 
+Quindi, siccome la reazione a questi messaggi nei protocolli di trasporto non è mai stata formalmente deprecata, 
+la IETF (Internet Engineering Task Force) ha aggiornato le linee guida riguardo il messaggio Source Quench in questo modo: 
+%RFC 1122 \cite{rfc1122} \footnote{riguarda i protocolli a livello di comunicazione (link layer, IP layer, transport layer)}, 
+%RFC 1812 \cite{} \footnote{rfc1812} \footnote{definisce i requisiti per i dispositivi che eseguono la funzione di network layer forwarding} 
+%This memo defines and discusses requirements for devices that perform the network layer forwarding function of the Internet protocol suite.
+\begin{itemize}
+    \item Un host \textbf{NON DEVE inviare} dei messaggi di questo tipo. 
+    Se viene ricevuto un messaggio di questo tipo, \textbf{PUÒ ignorarlo} (silenziosamente). 
+    \item Un router \textbf{DEVE ignorare} tutti i messaggi ICMP Source Quench ricevuti. 
+    Inoltre \textbf{NON DOVR\uppercase{à} inviare} messaggi ICMP Source Quench in risposta a una congestione. 
+    \item Se un protocollo di trasporto riceve un messaggio Source Quench, \textbf{DEVE essere ignorato/scartato} silenziosamente. 
+    \item Host, gateway e firewall DEVONO scartare silenziosamente i pacchetti ICMP Source Quench 
+    ricevuti e \textbf{DOVREBBERO registrare} la cosa come un errore di sicurezza con almeno i seguenti dettagli 
+    (indirizzo IP sorgente, indirizzo IP di destinazione, tipo di messaggio ICMP, data/ora in cui il pacchetto 
+    è stato visualizzato). 
+\end{itemize}  
+%The consensus of the TSV WG was that 
+%There are no valid reasons for a host to generate or react to an ICMP Source Quench message in the current Internet.  
+Nell'Internet attuale, non ci sono ragioni per cui un host debba generare o reagire a un messaggio ICMP Source 
+Quench %nell'attuale Internet. 
+(o perchè un router debba reagire). %ai messaggi ICMP Source Quench.
+%The recommendation that a sender "MUST NOT" send an ICMP Source Quench message is because there is no known valid reason for a host to generate this message. 
+%The only known impact of a sender ignoring this requirement is that it may necessarily consume network and endpoint resources. 
+L'unico motivo per cui un utente ignori questo requisito, è per poter consumare le risorse di rete. %e di endpoint.
+I messagg ICMP Source Quench potrebbero essere infatti sfruttati per eseguire attacchi "blind throughput-reduction". 
+Le linee guida indicano di ignorare silenziosamente questi messaggi; questo eliminerà il vettore di attacco. 
+\vspace{1ex} \newline
+%The TSV WG is not aware of any mechanism that requires processing of these messages and therefore expects other 
+%transports to follow the recommendations in Section 3.  
+%Note that since generation of ICMP Source Quench messages has been deprecated for many years, and since this 
+%document additionally deprecates reaction to ICMP Source Quench messages by IETF-specified transports, future applications cannot expect to receive these messages. 
+Inoltre, siccome la generazione e la reazione ai messaggi ICMP Source Quench è stata deprecata, le applicazioni 
+non dovranno aspettarsi di ricevere questi messaggi. 
+
+\subsubsection*{Information Request/Reply} 
+\uppercase{è} stato deprecato siccome meccanismi come il DHCP \cite{rfc2131_DHCP}, lo hanno sostituito per la configurazione dell'host
