@@ -1,0 +1,263 @@
+%Zeek sites
+%https://kifarunix.com/analyze-network-traffic-using-zeek/ 
+%https://medium.com/@Mohamed-Medhat/zeek-commands-sheet-cheat-de4358bd277a 
+%https://docs.zeek.org/en/master/logs/conn.html
+%   %https://gist.github.com/donovanrodriguez/a6cb54c1e1a525a2810f3eb2b8b7ffaa
+%   %https://community.zeek.org/t/icmp-not-in-conn-log/4990 
+%   %https://github.com/zeek/zeek/issues/3915
+%https://docs.zeek.org/en/current/install.html
+
+%Una volta configurato, si è proceduto a testare se RITA fosse in grado di rilevare i Covert Channel implementati. 
+Per potr verificare se RITA fosse in grado di rilevare i Covert Channel implementati, 
+si sono effettuati diversi test. 
+RITA ha analizzato i log di Zeek generati usando la sua configurazione di default. 
+%\vspace{2ex} \newline
+%Nel primo si è usato un documento dal quale è stato esfiltrato il testo. 
+%Il testo è stato ricavato 
+%tramite il modulo \textit{PdfReader} della libreria \textbf{pypdf}. 
+%Per ogni pagina si è quindi estratto il testo in essa e lo si è poi esfiltrato 
+%tramite i Covert Channel implementati.
+\vspace{1ex} \newline 
+%Il file contiene delle linee guida sull'utilizzo e la conservazione delle password. 
+%\uppercase{è} un file di diciannove pagine la cui dimensione è 3.5 MB. 
+%La prima riga è con i risultati di default, l'altra con la configurazione modificata 
+Nel \textbf{primo test} si è esfiltrato un file di testo contenente una quantità di dati pari a \textbf{37 KB}.
+%In totale la \textbf{quantità di dati mandati} sono 37201 bytes che sono all'incirca \textbf{37 KB} 
+Inoltre fra l'invio di un pacchetto e quello successivo si ha un \textbf{delay} in media di \textbf{2 secondi}. 
+%L'invio di questi dati è stato interato per quattro volte. 
+\vspace{2ex} \newline  
+Dai risultati [Tabella \ref{tab:test1:rita_icmp:rilevati}] si ricava che alla maggior parte dei Covert Channel 
+viene assegnata una gravità bassa e un tasso di beaconing dello 0\%. 
+Ciò significa che l'esfiltrazione non ha destato sospetti, sebbene lo scambio di dati sia stato comunque rilevato. 
+I motivi della gravità bassa sono dati dalla qunatità bassa di dati esfiltrati mentre il livello di beaconing è 
+derivato dal fatto che la richiesta dei dati (e il loro invio) è stata fatta poche volte. 
+\vspace{1ex} \newline
+Fra questi test, un eccezzione è il \textit{Covert Channel Ibrido} nel quale risulta un tasso di beacon del 
+85.4\% e un alto tasso di gravità. 
+\vspace{1ex} \newline
+Un ulteriore eccezzione è il \textit{Covert Channel Echo} che utilizza i campi del messaggio ed il payload. 
+Non risulta alcun dato perchè il tempo è stato troppo breve. %(30 secondi). 
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline
+    \textbf{Covert Channel} & \multicolumn{3}{c|}{\textbf{Analisi di RITA}} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    \cline{2-4}
+    \multicolumn{1}{c|}{} & Beacon & Tempo connessione & Gravità \\ \hline 
+    Information Reply & 0.0\% & 1h 26m 32s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 26m 32s & Nessuna \\ \hline 
+    Timestamp Reply & 0.0\% & 1h 25m 53s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 25 53s & Nessuna \\ \hline 
+    Redirect & 0.0\% & 1h 25m 28s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 25m 28s & Nessuna \\ \hline  
+    Source Quench & 0.0\% & 1h 26m 28s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 26m 28s & Nessuna \\ \hline  
+    Parameter Problem & 0.0\% & 1h 23m 51s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 23m 51s & Nessuna \\ \hline  
+    Time Exceeded & 0.0\% & 1h 24m 46s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 24m 46s & Nessuna \\ \hline  
+    Destination Unreachable & 0.0\% & 1h 23m 51s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 23m 51s & Nessuna \\ \hline  
+    Echo solo campi & 0.0\% & 1h 25m 23s& Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 25m 23s & Nessuna \\ \hline  
+    Echo solo payload & 0.0\% & 1h 9m 17s & Low \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 9m 17s & Nessuna \\ \hline 
+    Echo campi+payload & \multicolumn{3}{c|}{no items} \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 34m 45s & Nessuna \\ \hline    
+    Ibrido & 85.4\% & 15h 7m 40s & High \\ \hline 
+    %\multicolumn{1}{c|}{} & 75.1\% & 15h 7m 40s & High \\ \hline  
+\caption{Invio di 37 KB una volta sola} 
+\label{tab:test1:rita_icmp:rilevati} 
+\end{longtable} 
+\end{center} 
+Nel \textbf{secondo test} si si inviano due file. 
+Il primo contiene un quantità di dati pari a \textbf{37 KB} %(37201 bytes = 37.201 KB) %Testo AG:
+mentre il secondo contiene \textbf{216 KB}. %(215639 bytes=215.639 KB) %Testo main: 
+Il test è stato fatto siccome il precedente mandava solo un singolo file; 
+quando normalmente un attaccante cercerebbe di esfiltrarne un numero maggiore. 
+In quest testi ci si è serviti solo dei Covert Channel ICMP Echo; 
+principalmente perchè ripsetto al test precedente davano risutlati migliori rispetto agli altri. 
+Inoltre le Echo Request/Reply sono i messaggi ICMP più comuni e utilizzati. 
+\vspace{2ex} \newline 
+I risultati [Tabella \ref{tab:test2:rita_icmp:rilevati}] sono che il Covert Channel che utilizza solo i campi 
+per l'esfiltrazione ha dei dati di esecuzione elevati rispetto agli altri. 
+Di conseguenza RITA gli assegnata una gravità alta sebbene il tasso di beaconing è relativamente contenuto. 
+Invece il Covert Channel che sfrutta solamente il payload ha una gravita media ma dei tempi di comunicazioni simili a quelli precedenti. 
+Infine il Covert Channel che utilizza sia i campi che il payload risulta il migliore: ha una gravità media tuttavia 
+il suo tempo di esecuzione e notevolemnte minore rispetto a quello delli altri due. 
+Tuttavia fra i tre, ha il tasso di beaconinmg maggiore. 
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline
+    \textbf{Covert Channel} & \multicolumn{3}{c|}{\textbf{Analisi di RITA}} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    \cline{2-4}
+    \multicolumn{1}{c|}{} & Beacon & Tempo connessione & Gravità \\ \hline 
+    Echo solo campi & 12.20\% & 9h 30m 34s & High \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 25m 23s & Nessuna \\ \hline 
+    Echo solo payload & 10.7\% & 7h 42m 49s & Medium \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 1h 9m 17s & Nessuna \\ \hline 
+    Echo campi+payload & 19.6\% & 4h 30m 44s & Medium \\ \hline 
+    %\multicolumn{1}{c|}{} & 0.0\% & 34m 45s & Nessuna \\ \hline 
+\caption{Invio di 37KB e poi 216KB} 
+\label{tab:test2:rita_icmp:rilevati} 
+\end{longtable} 
+\end{center} 
+Nel \textbf{terzo test} si sono mandati \textbf{1.5 MB} di dati senza delay, \textbf{3 MB} di dati senza delay 
+e entrambi i dati precedenti senza delay (\textbf{4.5 MB}). 
+Il Covert Channel utilizzato è quello che utilizza l'ICMP Echo sia con i campi che con il payload.
+%1550958 bytes = 1.5 MB
+%3715385 bytes = 3.7 MB
+\vspace{1ex} \newline
+Il risultato [Tabella \ref{tab:test3:rita_icmp:rilevati}] è che non vi è alcuna voce nel database di RITA riguardante lo scambio di messaggi. 
+Ciò può risultare positivo, siccome RITA non ha rilevato anomalie apparenti, tuttavia mandare una 
+notevole quantità di dati in un canale viene notata.  
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline
+    \textbf{Covert Channel} & \multicolumn{3}{c|}{\textbf{Analisi di RITA}} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    \cline{2-4}
+    \multicolumn{1}{c|}{} & Beacon & Tempo connessione & Gravità \\ \hline 
+    1.5 MB no delay & \multicolumn{3}{c|}{No items} \\ \hline  %Solo password file senza delay
+    3 MB no delay & \multicolumn{3}{c|}{No items} \\ \hline %Solo main file senza delya
+    1.5+3 MB no delay & \multicolumn{3}{c|}{No items}  \\ \hline %Main e password senza delay
+\caption{Invio di grandi dati} 
+\label{tab:test3:rita_icmp:rilevati} 
+\end{longtable} 
+\end{center} 
+Nel \textbf{quarto test} si inviano i dati, la cui quantità risulterà di \textbf{1.5 MB}, tramite dei delay. 
+Nel primo caso si dividono i dati in blocchi da al massimo 16KB, e poi si aspettano 3 minuti prima di inviare un altro blocco. 
+Nel secondo caso invece si manda l'intero documento e poi si aspetta un ora pima si mandare ulteriori documenti. 
+\vspace{2ex} \newline 
+I risultati [Tabella \ref{tab:test4:rita_icmp:rilevati}] sono che nel primo caso RITA rileva un tasso di 
+beaconing del 97.7\% ed una gravità alta. 
+Ciò è dovuto al fatto che i dati sono stati mandati in blocchi regolari e con un delay quasi costante. 
+Nel secondo caso invece RITA non rileva nulla, sebbene si sia mandata una grande quantità di dati, probabilmente 
+perchè il tempo di attesa è stato abbastanza lungo. 
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline
+    \textbf{Covert Channel} & \multicolumn{3}{c|}{\textbf{Analisi di RITA}} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    \cline{2-4}
+    \multicolumn{1}{c|}{} & Beacon & Tempo connessione & Gravità \\ \hline 
+    
+    \hline 
+    1.5 MB +3 min delay & 97.70\% & 47s & High \\ \hline 
+    1.5 MB +wait 1 hour & 9.10\% & 3m 0s & None \\ \hline 
+\caption{Invio di grandi dati con del delay} 
+\label{tab:test4:rita_icmp:rilevati} 
+\end{longtable} 
+\end{center}  
+%Secondo test con AG: 3715385 bytes si manfda il file letto come bytes
+%Secondo test con main: 1550958 bytes si manfda il file letto come bytes
+%
+%1550958/4096=379 blocchi
+%
+%379*5=1895 minuti=31 ore
+%
+%1550958/8192=190
+%190*5=950 minuti=15 ore 
+%
+%1550958/16384=95
+%95*5=475 minuti=7 ore
+%95*3=285 minuti=4.75 ore
+
+\subsection{Secondi test} 
+In questi test si vuole vedere come rita risponde a delle possibili variazioni che sono: 
+\begin{itemize}
+    \item La quantità di dati inviati. In questo caso saranno 1KB, 10KB, 100KB, 1MB. 
+    \item I campi usati dal Covert Channel. In quest caso si usa il CC che sfrutta il protocollo ICMP Echo; 
+    le variazioni si baseranno sull'utilizzo o meno del campo Identifier o del payload. 
+    Nel caso si utilizzasse il payload, quest'ultimo potrà contenere una quantià di dati fissa o variabile per ogni pacchetto. 
+    \item Il delay fra i blocchi di dati. I dati verranno suddivisi in blocchi aventi una certa dimensione (e.g 100KB); 
+    si può decidere se avere un delay fra l'invio di un blocco e il successivo oppure un invio sequenziale. 
+    \item Tempo di attesa prima di un nuovo invio. Una volta che si sono inviati tutti i dati ci potrà essere un tempo di riposo 
+    prima di poter inviare nuovamente altri dati. Questo tempo sarà variabile (e.g 1 ora, 30 minuti) e 
+    dipenderà dalla quantità di dati esfiltrati (e.g 100KB, 1MB) 
+    \item Il mittente del messaggio. Può essere un singolo mittente che invierà tutti i pacchetti oppure si potrà 
+    falsificare il campo ed inserire valori diversi; così da far sembrare che il pacco sia stato spedito da un altro host. 
+\end{itemize} 
+
+\subsubsection{Singolo invio di dati} 
+In questa tipologia di test; i dati sono stati mandati una singola volta. 
+I dati sono divisi in blocchi da 1024 bytes ($\approx\text{1KB}$). 
+Invece il tempo di delay, fra un blocco e il successivo, sarà uniforme fra 1 secondo e 15 secondi. 
+\vspace{1ex} \newline 
+Nella tabella [Tabella \ref{tab:testRita:icmpEcho:soloCampi} ] vengono riportate le etichette assegnate da RITA. 
+Un valore \textit{None} equivale a dire che RITA ha inserito nel database la comunicazione ma che non gli ha 
+assegnato alcun'etichetta. Invece \textit{NP} vuol dire che la comunicazione non è presente nel database creato da RITA. 
+\begin{center} 
+\begin{longtable}{|c|c|c|c|c|c|} 
+    \hline
+    \textbf{Covert Channel} & \multicolumn{4}{c|}{\textbf{Quantità dei dati}} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    \cline{2-5}
+    \multicolumn{1}{c|}{} & 1 KB & 10 KB & 100 KB & 1 MB \\ \hline 
+    \hline 
+    Campo ID & NP & NP & NP & NP \\ \hline 
+    Campo ID + delay & NP & NP & NP & Low \\ \hline 
+    \hline
+    Campo ID + payload fisso & NP & NP & NP & NP \\ \hline 
+    Campo ID + payload fisso + delay & NP & NP & NP & Low \\ \hline 
+    \hline
+    Payload fisso & NP & NP & NP & NP \\ \hline  
+    Payload fisso + delay & NP & NP & NP & Low \\ \hline  
+    \hline
+    Payload randomimco & NP & NP & NP & None \\ \hline 
+    Payload randomimco + delay & NP & NP & NP & Low \\ \hline 
+\caption{Test tramite i Covert Channel ICMP Echo} 
+\label{tab:testRita:icmpEcho:soloCampi} 
+\end{longtable}  
+\end{center}  
+
+\subsubsection{Molteplici invii dei dati} 
+In questi test si invierà per tre volte lo stesso dato [Tabella \ref{tab:testRita:icmpEcho:payload:moltepliciTest:variabili}]. 
+Ciascun test varierà per la dimensione del dato inviato (in questo caso solo 1MB e 100KB), al tempo di attesa fra 
+il riinvio del dato (ch può essere 1 ora, 30 minuti, 15 minuti), se usare ildelay fra un bloccho di dati e il 
+successivo ed infine se si falsifica il mittente o no. 
+%In questo test si usano i concetti etti prima ma rifacendo i test tre volte. Per vedere quale sia migliore. 
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \multicolumn{4}{c}{payload FISSO 1MB DELAY} \\ \hline 
+    \hline 
+    payloadFISSO 1MB-DELAY 1Hx3 TRUEmitt & 10h 3m 6s & Medium & 14.7\% \\ \hline %12:03:40
+    payloadFISSO 1MB-DELAY 30Mx3 TRUEmitt & 10h 4m 51s & Medium & 37.9\% \\ \hline  %11:05:27 
+    payloadFISSO 1MB-DELAY 15Mx3 TRUEmitt & 10h 9m 20s  & Medium & 0\% \\ \hline %10:40:08 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \multicolumn{4}{c}{payload FISSO 1MB NO DELAY} \\ \hline 
+    payloadFISSO 1MB-NODELAY 1Hx3 TRUEmitt & NP & NP & NP \\ \hline %1:01:18 
+    payloadFISSO 1MB-NODELAY 30Mx3 TRUEmitt & NP & NP & NP \\ \hline 
+    payloadFISSO 1MB-NODELAY 15Mx3 TRUEmitt & NP & NP & NP \\ \hline 
+    \multicolumn{4}{c}{payload FISSO 100KB NO DELAY} \\ \hline  
+    payloadFISSO 100KB-NODELAY 30Mx3 TRUEmitt & NP & NP & NP \\ \hline
+    payloadFISSO 100KB-NODELAY 15Mx3 TRUEmitt & NP & NP & NP \\ \hline %0:30:19
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \multicolumn{4}{c}{payload RANDOM 1MB DELAY} \\ \hline  
+    payloadRANDOM 1MB DELAY 1Hx3 TRUEmitt & 36246 sec & Medium & 0\% \\ \hline
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \multicolumn{4}{c}{payload RANDOM 1MB NO DELAY} \\ \hline  
+    payloadRANDOM-1MB-NODELAY-30Mx3-TRUEmitt & NP & NP & NP \\ \hline
+    payloadRANDOM-1MB-NODELAY-15Mx3-TRUEmitt & NP & NP & NP \\ \hline
+    
+    \caption{Test tramite Covert Channel ICMP Echo} 
+\label{tab:testRita:icmpEcho:payload:moltepliciTest:variabili} 
+\end{longtable} 
+\end{center}  
+
+
+
