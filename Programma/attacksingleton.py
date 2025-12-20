@@ -1509,19 +1509,23 @@ class ReceiveSingleton:
             nonlocal stop_flag
             return stop_flag["value"] 
         def callback(pkt): 
-            print("Pacchetto ricevuto: ", pkt.summary()) 
-            #TYPE_ECHO_REQUEST=8
-            #TYPE_ECHO_REPLY=0 
             nonlocal self, stop_flag
+            print("Pacchetto ricevuto: ", pkt.summary())  
             if pkt.haslayer("ICMP") and pkt.haslayer("Raw") and (pkt["ICMP"].type==8 or pkt["ICMP"].type==0): 
                 if pkt[ICMP].id==23 and MSG.START_SOURCES.value.encode() in pkt["Raw"].load: 
                     if MSG.END_SOURCES.value.encode() in pkt["Raw"].load: 
                         stop_flag["value"]=True 
-                    IPsources=pkt["Raw"].load.decode().replace(MSG.START_SOURCES.value,"").replace(MSG.END_SOURCES.value,"").strip().split(";") 
+                    IPsources=pkt["Raw"].load.decode()
+                    IPsources=IPsources.replace(MSG.START_SOURCES.value,"")
+                    IPsources=IPsources.replace(MSG.END_SOURCES.value,"")
+                    IPsources=IPsources.strip().split(";") 
                     for x in IPsources: 
                         try:
                             ipSRC=ipaddress.ip_address(x)
-                            self.host_attivi.append(ipSRC) if ipSRC.version==self.ip_dst.version else print("IP versione non corretta: ",self.ip_dst.version," ", ipSRC)
+                            if ipSRC.version==self.ip_dst.version: 
+                                self.host_attivi.append(ipSRC) 
+                            else: 
+                                print("IP versione non corretta: ",self.ip_dst.version," ", ipSRC)
                         except Exception as e:
                             print("Errore nell'aggiunta degli host attivi: ", e)
             elif pkt.haslayer("Padding"):
@@ -1953,14 +1957,9 @@ class ReceiveSingleton:
         
         def wait(self): 
             def get_filter():
-                nonlocal self 
-                filter= f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM}) and dst {self.ip_dst.compressed}" 
-                if self.host_attivi and IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}" 
-                else: print("No need to listen for the source")
-                return filter 
+                nonlocal self  
                 filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})"
+                filter=filter+f" and (icmp[0]=={TYPE_PARAMETER_PROBLEM})"
                 filter=filter+f" and dst {self.ip_dst.compressed}"
                 if IS_TYPE.list(self.host_attivi): 
                     filter+=f" and ("
@@ -2117,7 +2116,7 @@ class ReceiveSingleton:
         def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None):
             if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.list(host_attivi)): 
                 raise Exception("Argomenti non validi") 
-            if len(host_attivi)>=0 or not IS_TYPE.ipaddress(host_attivi[0]):
+            if len(host_attivi)<=0 or not IS_TYPE.ipaddress(host_attivi[0]):
                 raise Exception("List degli host attivi non valida")
             self.event_pktconn=GET.threading_Event() 
             try:  
@@ -2130,14 +2129,9 @@ class ReceiveSingleton:
         
         def wait(self): 
             def get_filter():
-                nonlocal self, TYPE_DESTINATION_UNREACHABLE
-                filter= f"icmp and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {self.ip_dst.compressed}"
-                if self.host_attivi and IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}"
-                else: print("No need to listen for the source")
-                return filter 
+                nonlocal self, TYPE_DESTINATION_UNREACHABLE 
                 filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})"
+                filter=filter+f" and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE})"
                 filter=filter+f" and dst {self.ip_dst.compressed}"
                 if IS_TYPE.list(self.host_attivi): 
                     filter+=f" and ("
@@ -2154,8 +2148,8 @@ class ReceiveSingleton:
                 nonlocal self
                 TYPE_DESTINATION_UNREACHABLE=3 
                 print(packet.summary)
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):  
-                    inner_ip = IP(packet[Raw].load) 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==TYPE_DESTINATION_UNREACHABLE and packet.haslayer(ICMPerror):  
+                    inner_ip = IP(packet[ICMPerror].load) 
                     if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
                         THREADING_EVENT.set(self.event_pktconn)
                         return 
