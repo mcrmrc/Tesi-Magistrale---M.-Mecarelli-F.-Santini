@@ -1,2 +1,5 @@
 cd D:\Tesi Magistrale\
 git subtree push --prefix=_TesiMagistrale-bella repoPubblica main
+
+cd "D:/Tesi Magistrale/";
+git subtree pull --prefix=_TesiMagistrale-bella repoPubblica main --squash

