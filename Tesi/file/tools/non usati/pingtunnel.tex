@@ -1,0 +1,40 @@
+%https://github.com/esrrhs/pingtunnel
+%https://esrrhs.github.io/pingtunnel/
+%https://oilandfisharchive.github.io/posts/pingtunnel-icmp-tunnel.html
+%https://securityonline.info/pingtunnel-advertises-tcp-udp-socks5-traffic-as-icmp-traffic-for-forwarding/ 
+%https://www.cs.uit.no/~daniels/PingTunnel/
+%https://github.com/esrrhs/pingtunnel
+%https://packagehub.suse.com/packages/pingtunnel/
+%https://sshssltunnel.com/how-to-use-pingtunnel-on-windows/
+%https://github.com/sanecz/pingtunnel
+%https://github.com/emtunc/PingTunnel
+%
+
+\section{pingtunnel}
+\textbf{Install server}
+First prepare a server with a public IP, such as EC2 on AWS, assuming the domain name or public IP is www.yourserver.com
+Download the corresponding installation package from releases, such as pingtunnel_linux64.zip, then decompress and execute with root privileges
+“-key” parameter is int type, only supports numbers between 0-2147483647
+
+\textbf{Install the client}
+Download the corresponding installation package from releases, such as pingtunnel_windows64.zip, and decompress it
+Then run with administrator privileges. The commands corresponding to different forwarding functions are as follows.
+If you see a log of ping pong, the connection is normal
+“-key” parameter is int type, only supports numbers between 0-2147483647
+\begin{itemize}
+    \item Forward sock5: pingtunnel.exe -type client -l :4455 -s www.yourserver.com -sock5 1
+    \item Forward tcp: pingtunnel.exe -type client -l :4455 -s www.yourserver.com -t www.yourserver.com:4455 -tcp 1
+    \item Forward udp: pingtunnel.exe -type client -l :4455 -s www.yourserver.com -t www.yourserver.com:4455
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+

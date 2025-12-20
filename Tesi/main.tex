@@ -1,0 +1,262 @@
+\documentclass[a4paper,12 pt]{article}
+\usepackage{latexsym}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+
+%\usepackage[english]{babel}
+\usepackage[italian]{babel}
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18} 
+
+%pacchetti matematica
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{stackengine} 
+\usepackage{algpseudocode}
+\usepackage{caption} 
+\usepackage{minted}
+
+\usepackage{graphicx} 
+
+\usepackage[table,xcdraw, dvipsnames]{xcolor}
+\usepackage{longtable}
+\usepackage{setspace} 
+
+\usepackage{listings}
+\usepackage{import}
+\usepackage[normalem]{ulem}
+
+\usepackage{bytefield} 
+
+\usepackage[table,xcdraw]{xcolor} 
+
+\usepackage{url}
+
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\newcommand\myworries[1]{\textcolor{red}{#1}}
+
+\usepackage{enumitem}
+\usepackage{float} 
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage{todonotes}
+\usepackage{amsmath, amssymb}
+\usepackage{placeins} 
+ 
+\usepackage{array}
+\usepackage{booktabs} 
+\usepackage{pifont}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\cmark}{\ding{51}} 
+
+\usepackage[square,numbers]{natbib}
+
+\usepackage{changepage} 
+\usepackage{xtab} 
+
+\newtheorem{definizione}{Definizione}[section]
+
+\newtheorem{teorema}{Theorem}[section] 
+\newtheorem{lemma}{Lemma}[teorema] %[section]  
+\newtheorem{corollario}{Corollary}[teorema] %[section]
+
+\newtheorem{lemm}{Lemma}[section]
+\newtheorem{teorem}{Teorema}[lemm] 
+\newtheorem{proposizione}{Proposizione}[lemm] %[section] 
+\newtheorem{corollari}{Corollario} [lemm] 
+\newtheorem{esempi}{Esempio} [lemm]
+
+\newtheorem{dimostrazione}{Dimostrazione}[section]
+
+\newtheorem{esempio}{Esempio}[section]
+
+\newtheorem{dimostrazioneT}{Dimostrazione}[teorema]
+\newtheorem{dimostrazioneL}{Dimostrazione}[lemma]
+\newtheorem{dimostrazioneP}{Dimostrazione}[proposizione]
+\newtheorem{dimostrazioneC}{Dimostrazione}[corollario]
+
+\newtheorem{esempioT}{Esempio}[teorema]
+\newtheorem{esempioL}{Esempio}[lemma]
+\newtheorem{esempioP}{Esempio}[proposizione]
+\newtheorem{esempioC}{Esempio}[corollario]   
+
+\newcommand{\cvd}{\begin{flushright}$\Box$\end{flushright}}
+\newcommand{\tr}{{\rm Tr}\;}
+\newcommand{\eq}{\begin{equation}}
+\newcommand{\feq}{\end{equation}}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+ 
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+% package italiano
+%
+% Opzionale
+%
+%\renewcommand{\contentsname}{Sommario}
+%\renewcommand{\listfigurename}{List of Figures}
+%\renewcommand{\listtablename}{List of Tables}
+%\renewcommand{\bibname}{Bibliografia}
+%\renewcommand{\indexname}{Indice}
+%\renewcommand{\figurename}{Figura}
+%\renewcommand{\tablename}{Tavola}
+%\renewcommand{\partname}{Parte}
+%\renewcommand{\chaptername}{Capitolo}
+%\renewcommand{\appendixname}{Appendice}
+%\renewcommand{\abstractname}{Abstract}
+%\renewcommand{\footnotesize}{\scriptsize}
+%\renewcommand{\today}{\ifcase\month\or
+%  Gennaio\or Febbraio\or Marzo\or Aprile\or Maggio\or Giugno\or
+%  Luglio\or Agosto\or Settembre\or Ottobre\or Novembre\or Dicembre\fi
+%  \space\number\day, \number\year}
+
+% package formato
+\pagestyle{plain}
+%\setlength{\topmargin}{0.0in}
+%\setlength{\headheight}{0.2in}
+%\setlength{\headsep}{0.0in}
+%\setlength{\footskip}{0.5in}
+%\setlength{\textheight}{8.3in}
+\setlength{\textwidth}{6in}
+\setlength{\oddsidemargin}{0.2in}
+\setlength{\evensidemargin}{0.2in}
+\setlength{\parindent}{0.2 in}
+\onehalfspacing
+
+
+\def\cent{\centerline}
+\def\vs{\vskip 10 pt plus 1 pt}
+\def\bs{\bf}
+\def\grad{\vec{\nabla}}
+\def\gradx{\vec{\nabla}_x}
+\def\epsilon{\varepsilon} 
+
+\definecolor{blu_dmi}{HTML}{002e62}
+
+%\usepackage{showframe}
+\begin{document}
+    \input{frontmatter}
+    %\input{dedica}
+    
+    % Opzionale
+    % \input{sommario}
+\tableofcontents \newpage
+%\lstlistoflistings \newpage
+%\listoffigures \newpage
+
+%\section{Prima Parte} \addcontentsline{toc}{section}{\protect\numberline{}Introduzione}  
+\section{Background} 
+\import{main_background}{icmp} 
+\import{main_background}{covert} 
+\newpage 
+
+\section{Strumenti Utilizzati}
+\import{}{main_strumenti} \newpage   
+
+\section{Implementazione \cite{repoGITHUB}} 
+\import{main_implementazione}{introduzione} 
+\subsection{Struttura della comunicazione fra le entità} 
+\import{main_implementazione}{struttura_comunicazione}  
+\subsection{Implementazione del Timing Covert Channel}
+\import{main_implementazione}{icmp_timing} 
+\subsection{Implementazione del Storage Covert Channel} 
+\import{main_implementazione}{icmp_storage} 
+\subsection{Implementazione del Behavioural Covert Channel} 
+\import{main_implementazione}{icmp_behave} 
+\subsection{Implementazione di un Hybrid Covert Channel} 
+\import{main_implementazione}{icmp_hybrid} 
+\newpage  
+%\import{./file}{covert_channel_implementati} \newpage 
+%Per ognuno di essi, dove possibile, si effettuerà una richiesta alla vittima; 
+%prima partendo da un comando leggero (e.g \textbf{pwd}) per poi passare a comandi 
+%sempre più difficili e quindi maggiormente rilevabili (e.g \textbf{cd /path; ls -l} 
+%oppure \textbf{cat ./file\_grande}, \dots)
+%
+\section{Test e Risultati} 
+\import{}{main_test} \newpage  
+%\import{./file}{RITA} \newpage 
+%
+%\section*{Quarta Parte} \addcontentsline{toc}{section}{\protect\numberline{}Mitigazioni}  
+%\import{./file}{mitigazione} \newpage 
+
+
+%\appendix
+%\import{./file/appendix}{ } \newpage  
+
+\bibliographystyle{plainnat}
+% Opzionale
+%\listoffigures
+%\listoftables
+\bibliography{bibliografia}
+
+
+\end{document}
+
+%https://github.com/io22m007/ICMP-Tunnel
+%https://thecybersecurityman.com/2018/03/01/covert-channels-how-insiders-abuse-tcp-ip-to-create-covert-channels/
+%https://www.pentesting.org/hidden-data-transfer/
+%https://www.sciencedirect.com/org/science/article/pii/S1546221821001703
+%https://www.ictsecuritymagazine.com/articoli/covert-channel-canali-segreti-per-comunicare-in-maniera-non-convenzionale/
+%https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/backdoor-at-the-end-of-the-icmp-tunnel/
+%https://cted.cybbh.io/tech-college/cttsb/cctc/net/Net/Modules/08_SSH_Tunneling_and_Covert_Channels/fg.html#832-network-analysis
+
+
+%https://www.cynet.com/attack-techniques-hands-on/how-hackers-use-icmp-tunneling-to-own-your-network/
+
+%https://www.ionos.it/digitalguide/server/know-how/che-cose-il-protocollo-icmp-e-come-funziona/
+%https://networkengineering.stackexchange.com/questions/58137/how-to-use-icmp-to-send-message
+%https://info.support.huawei.com/hedex/api/pages/EDOC1100277644/AEM10221/03/resources/command/yunshan/ICMPSECURITY_SEND(PP4OM).html
+
+%https://github.com/tdeebswihart/scapy-tools/blob/master/icmpsend
+
+
+%https://github.com/maddie/go-ping/blob/master/README.md
+%https://github.com/maddie/go-ping
+
+
+%https://github.com/io22m007/ICMP-Tunnel
+
+%https://www.cynet.com/attack-techniques-hands-on/how-hackers-use-icmp-tunneling-to-own-your-network/
+
+%https://www.extrahop.com/blog/detect-and-stop-icmp-tunneling
+%https://latest.gost.run/en/tutorials/icmp/
+
+%https://www.hackingarticles.in/command-and-control-tunnelling-via-icmp/
+%https://www.bordergate.co.uk/icmp-tunneling/
+%https://www.extrahop.com/blog/detect-and-stop-icmp-tunneling
+%https://hackaday.com/2009/08/21/tunneling-ip-traffic-over-icmp/
+%https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/backdoor-at-the-end-of-the-icmp-tunnel/
+%https://noxenius.medium.com/icmpdoor-how-i-used-an-icmp-reverse-shell-12814ca1b0e7
+%https://medium.com/@nganbarle/icmpdoor-building-an-icmp-reverse-shell-in-python-3-c9b38a12013d
+%https://www.ids-sax2.com/understanding-and-implementing-an-icmp-backdoor-using-python-a-step-by-step-guide/
+%https://www.trustwave.com/en-us/resources/blogs/spiderlabs-blog/backdoor-at-the-end-of-the-icmp-tunnel/
+%https://zeltser.com/reverse-icmp-shell/
+%https://medium.com/@s12deff/bypass-firewall-with-icmp-reverse-shell-2018437eeb37
+%https://www.infosecinstitute.com/resources/hacking/icmp-reverse-shell/
+%https://pentestlab.blog/tag/icmpsh/
+%https://www.cynet.com/attack-techniques-hands-on/how-hackers-use-icmp-tunneling-to-own-your-network/
+%
+
+
+%https://www.cs.uit.no/~daniels/PingTunnel/
+
+%https://github.com/secdev/awesome-scapy
+%https://github.com/medTrigui/Scapy-Scripts
+%https://github.com/0xbharath/scapy-scripts
+%https://scapy.readthedocs.io/en/latest/usage.html
+%https://python.plainenglish.io/python-basics-packet-crafting-with-scapy-b3e4ea5c8111
+%https://thepythoncode.com/topic/scapy
+%https://innocentmichael.org/blog/build-your-own-custom-dynamic-firewall-with-python-and-scapy/
+%https://www.endpointdev.com/blog/2015/04/raw-packet-manipulation-with-scapy/
+%https://github.com/daemoneye/scapy-scripts
+
+
+%https://www.bing.com/search?q=Icmpsend%2FIcmpsendd&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOTIGCAEQRRg6qAIAsAIA&FORM=ANCMS9&PC=U531
+
+

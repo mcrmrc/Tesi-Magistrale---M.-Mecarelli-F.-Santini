@@ -1,0 +1,49 @@
+%\import{./icmp}{attacchi} 
+
+%https://it.wikipedia.org/wiki/Internet_Control_Message_Protocol
+%https://www.geeksforgeeks.org/internet-control-message-protocol-icmp/
+%https://www.ionos.it/digitalguide/server/know-how/che-cose-il-protocollo-icmp-e-come-funziona/
+%https://aws.amazon.com/it/what-is/icmp/
+%https://www.fortinet.com/it/resources/cyberglossary/internet-control-message-protocol-icmp
+%https://www.mio-ip.eu/networking/il-protocollo-icmp-internet-control-message-protocol/
+%https://www.cloudflare.com/learning/ddos/glossary/internet-control-message-protocol-icmp/
+%https://infodoc.altervista.org/sistemi-e-reti/protocollo-icmp/
+%https://techwatch.de/it/blog/comprendere-ICMP-esplorando-lo-scopo-e-la-funzione-del-protocollo-ICMP/
+%https://www.enterprisenetworkingplanet.com/standards-protocols/what-is-icmp/
+
+
+%https://en.wikipedia.org/wiki/Internet_Control_Message_Protocol
+%https://en.wikipedia.org/wiki/Network_layer
+%https://en.wikipedia.org/wiki/OSI_model
+%https://en.wikipedia.org/wiki/Transport_layer
+%https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
+%https://en.wikipedia.org/wiki/IPv4#Header
+%https://www.bing.com/search?q=RFC+792&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOTIGCAEQRRg8MgYIAhBFGDyoAgCwAgA&FORM=ANCMS9&PC=U531
+%https://www.bing.com/search?q=iso+model+layers&qs=SS&pq=iso+model&sc=12-9&cvid=F6DEC9381FD4460397D591BD79A47D88&FORM=QBRE&sp=1&ghc=1&lq=0&ntref=1
+%https://www.geeksforgeeks.org/open-systems-interconnection-model-osi/
+%https://www.bing.com/search?pglt=299&q=osi+model+layers&cvid=431c4db56490489b9a2fd044eaa09905&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOTIGCAEQABhAMgYIAhAAGEAyBggDEAAYQDIGCAQQABhAMgYIBRAAGEAyBggGEAAYQDIGCAcQABhAMgYICBAAGEDSAQgyNTg0ajBqMagCCLACAQ&FORM=ANNTA1&PC=U531
+
+
+%\begin{enumerate}
+    %\item Bypassing Captive Portals: Many public Wi-Fi use Captive Portals to authenticate users, i.e. after connecting to the Wi-Fi the user is redirected to a webpage that requires a login. icmptunnel can be used to bypass such authentications in transport/application layers.
+    %\item Bypassing firewalls: Firewalls are set up in various networks to block certain type of traffic. icmptunnel can be used to bypass such firewall rules. Obfuscating the data payload can also be helpful to bypass some firewalls.
+%\end{enumerate}
+
+
+
+%L’ICMP è progettato per fornire feedback su problemi di comunicazione di una rete TCP/IP. 
+%L’ ICMP si affida al supporto di base dell’IP come parte di protocollo di livello superiore. 
+%A causa di questa dipendenza, sia ICMPv4 che ICMPv6 esistono per entrambe le versioni di IP. 
+%Applicazioni come ad es. traceroute e ping utilizzano i messaggi ICMP per raccogliere informazioni e diagnosticare eventuali 
+%problemi di rete. 
+%\vspace{1ex} \newline
+%I canali nascosti spesso sfruttano per i propri flussi di informazioni, alcune caratteristiche tecniche incorporate nelle reti 
+%IEEE 802, caratteristiche che normalmente non vengono “viste” a livello di rete più alto perché considerate di servizio.
+%\vspace{1ex} \newline
+%L’idea di utilizzare l’ICMP come canale nascosto è quindi quella di sfruttare una comunicazione standard con un protocollo inferiore 
+%rispetto a TCP o UDP. Questo avrà un “ingombro” ridotto in tutto il traffico di rete e potrà passare inosservato agli amministratori 
+%di rete e agli analizzatori di traffico, in quanto, come detto, normalmente è utilizzato per la diagnostica e manutenzione della rete 
+%e degli host connessi, non per il trasporto dati, quindi difficilmente bloccato da policy di sicurezza.
+%Questo rende il protocollo ICMP un canale nascosto decisamente praticabile, l’uso di campi dati o payload all’interno di determinati 
+%messaggi ICMP permette di incorporare il messaggio del canale nascosto facilmente e trasforma paradossalmente l’ICMP stesso in un 
+%canale nascosto. Questi semplici fattori consentono all’ICMP di essere di fatto un traffico invisibile, vediamo un esempio. 

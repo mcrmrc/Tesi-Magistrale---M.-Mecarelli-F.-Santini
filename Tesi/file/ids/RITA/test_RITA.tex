@@ -1,0 +1,446 @@
+%Zeek sites
+%https://kifarunix.com/analyze-network-traffic-using-zeek/ 
+%https://medium.com/@Mohamed-Medhat/zeek-commands-sheet-cheat-de4358bd277a 
+%https://docs.zeek.org/en/master/logs/conn.html
+%   %https://gist.github.com/donovanrodriguez/a6cb54c1e1a525a2810f3eb2b8b7ffaa
+%   %https://community.zeek.org/t/icmp-not-in-conn-log/4990 
+%   %https://github.com/zeek/zeek/issues/3915
+%https://docs.zeek.org/en/current/install.html
+
+In questi test a delle saranno presenti delle variazioni che sono: 
+\begin{itemize}
+    \item La quantità di dati inviati. In questo caso saranno 1KB, 10KB, 100KB, 1MB. 
+    \item I campi usati dal Covert Channel. In quest caso si usa il CC che sfrutta il protocollo ICMP Echo; 
+    le variazioni si baseranno sull'utilizzo o meno del campo Identifier o del payload. 
+    Nel caso si utilizzasse il payload, quest'ultimo potrà contenere una quantià di dati fissa o variabile per ogni pacchetto. 
+    \item Il delay fra i blocchi di dati. I dati verranno suddivisi in blocchi aventi una certa dimensione (e.g 100KB); 
+    si può decidere se avere un delay fra l'invio di un blocco e il successivo oppure un invio sequenziale. 
+    \item Tempo di attesa prima di un nuovo invio. Una volta che si sono inviati tutti i dati ci potrà essere un tempo di riposo 
+    prima di poter inviare nuovamente altri dati. Questo tempo sarà variabile (e.g 1 ora, 30 minuti) e 
+    dipenderà dalla quantità di dati esfiltrati (e.g 100KB, 1MB) 
+    \item Il mittente del messaggio. Può essere un singolo mittente che invierà tutti i pacchetti oppure si potrà 
+    falsificare il campo ed inserire valori diversi; così da far sembrare che il pacco sia stato spedito da un altro host. 
+\end{itemize} 
+L'obbiettivo è determinare come RITA risponde alle comunicazioni con queste caratteristiche. 
+Il Covert Channel utilizzato durante la fase di test è quello basato sul protocollo ICMP Echo. 
+
+\subsubsection{Singolo invio di dati} 
+In questa tipologia di test; i dati sono stati mandati una singola volta. 
+I dati sono divisi in blocchi da 1024 bytes ($\approx\text{1KB}$). 
+Invece il tempo di delay, fra un blocco e il successivo, sarà uniforme fra 1 secondo e 15 secondi. 
+\vspace{1ex} \newline 
+Nella tabella [Tabella \ref{tab:testRita:icmpEcho:soloCampi} ] vengono riportate le etichette assegnate da RITA ad ogni comunicazione. 
+In particolare si è utilizzato un Covert Channel che invia dati tramite ICMP Echo Request; 
+in cui può utilizzare determinati campi del messaggio. 
+\begin{itemize}
+    \item[] Un valore \textbf{None} equivale a dire che RITA ha inserito nel database la 
+    comunicazione ma che non gli ha assegnato alcun'etichetta. 
+    \item[] Invece \textbf{Non presente}  (o \textbf{NP}) vuol dire che la comunicazione non è presente nel 
+    database creato da RITA. 
+    \item[] Infine \textbf{Low}, \textbf{Medium} e \textbf{High} sono le etichette assegnate da 
+    RITA sulla gravità della comunicazione
+\end{itemize}
+\begin{center} 
+\begin{longtable}{|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|} 
+    \hline
+    \textbf{Covert Channel} & \multicolumn{4}{c|}{\textbf{Quantità dei dati}} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    \cline{2-5}
+    \multicolumn{1}{c|}{} & 1 KB & 10 KB & 100 KB & 1 MB \\ \hline 
+    \hline 
+    Campo ID & Non presente & Non presente & Non presente & Non presente \\ \hline 
+    Campo ID + delay & Non presente & Non presente & Non presente & Low \\ \hline 
+    \hline
+    Campo ID + payload fisso & Non presente & Non presente & Non presente & Non presente \\ \hline 
+    Campo ID + payload fisso + delay & Non presente & Non presente & Non presente & Low \\ \hline 
+    \hline
+    Payload fisso & Non presente & Non presente & Non presente & Non presente \\ \hline  
+    Payload fisso + delay & Non presente & Non presente & Non presente & Low \\ \hline  
+    \hline
+    Payload randomico & Non presente & Non presente & Non presente & None \\ \hline 
+    Payload randomico + delay & Non presente & Non presente & Non presente & Low \\ \hline 
+\caption{Test tramite un Covert Channel ICMP Echo} 
+\label{tab:testRita:icmpEcho} 
+\end{longtable}  
+\end{center} 
+I risultati non mostrano una presenza di un Covert Channel siccome i dati sono stati mandati una singola volta nella giornata. 
+Un successivo step è l'invio degli stessi dati molteplici volte. 
+
+\subsubsection{Molteplici invii dei dati} 
+In questi test si invierà per tre volte lo stesso dato variando alcune condizioni di invio. 
+Le condizioni chepotranno variare fra i vari test possono essere: 
+\begin{itemize}
+    \item[] La \textbf{dimensione del dato inviato}. In questo i valori possibili sono 1MB e 100KB. 
+    \item[] Il \textbf{tempo di attesa} dopo il quale si può di ritornare ade sfilatrare i dati. I possibili tempi possono essere 1 ora, 30 minuti, 15 minuti. 
+    \item[] Se usare un \textbf{delay fra un bloccho di dati e il successivo}. Nel caso affermativo si invierà un blocco di 1KB e poi si aspettà 
+    fra i 2 ed i 15 secondi; dopodichè si manda il successivo blocco da 1KB. Nel caso negativo si invieranno i dati sequenzialmente, senza pause.
+    \item[] Se \textbf{falsificare il mittente o no}. In questo caso i pacchetti non avranno l'IP della machcina vittima ma un indirizzo preso da 
+    un pool di indirizzi IP. Questa pool può contenere o gli indirizzi IP degli host attivi in quel momento sulla rete locale oppure gli 
+    indirizzi IP non utilizzati nella rete; e quindi non associati ad alcun host fisico. 
+\end{itemize} 
+Siccome nei testi il Covert Channel esfiltrerà i dati tramite messaggi ICMP Echo; i dati verranno inseriti nel payload. 
+Quest'ultimo, rispetto al campo Identifier, riesce a contenere una quantità magigore di dati e questo porterebbe a meno pacchetti inviati. 
+Infatti, se il canale venisse rilevato tramite l'utilizzo del payload, sicuramente verrà rilevato utilizzando solo il campo Identifier 
+(siccome quest'ultimo ha una capacità ridotta rispetto al campo payload). 
+%Infatti, sebbene il campo Identifier risulti maggiormente discreto (siccome i dati non sono immediatamente visibili), la scarsa capacità 
+%risulterebbe in un maggior numero di pacchetti inviati. 
+%E siccome si cercheranno di inviare grandi quantità di dati (e.g 1MB); l'uso del campo Identifier risulterebbe inefficace; 
+%al contrario se invece si volessero esfiltrare piccole quantità di dati. 
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payload FISSO 1MB DELAY}} \\ \noalign{\vskip 2ex}
+    %\cline{2-3} 
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline
+    \noalign{\vskip 2ex}
+    \hline  
+    Pausa di un ora e mittente reale & 10h 3m 6s & Medium & 14.7\% \\ \hline 
+    Pausa di 30 minuti e mittente reale & 10h 4m 51s & Medium & 37.9\% \\ \hline 
+    Pausa di 15 minuti e mittente reale & 10h 9m 20s  & Medium & 0\% \\ \hline  
+    \noalign{\vskip 5ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & 6h 52m 26s & Low & 0.0\% \\ \hline 
+    \multicolumn{1}{c|}{} & 6h 52m 11s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 52m 8s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 52m 6s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 50m 48s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 50m 32s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 50m 11s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 50m 8s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 49m 21s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 49m 12s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 45m 56s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 34m 58s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 32m 57s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 17m 12s & None & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 15m 51s & None & 0.0\% \\ \hline 
+    %
+    Pausa di 30 minuti e mittenti falsificati & 6h 50m 55s & Medium & 13.5\% \\ \hline 
+    \multicolumn{1}{c|}{} & 6h 50m 14s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 50m 4s & Low & 0.0\% \\ \cline{2-4} 
+    \multicolumn{1}{c|}{} & 6h 50m 1s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 49m 58s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 49m 49s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 49m 26s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 49m 14s & Low & 30.7\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 6h 48m 51s & Low & 35.1\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 30m 22s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 0h 0m 57s & None & 65.1\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 19m 41s & None & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 18m 48s & None & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 18m 48s & None & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 11m 39s & None & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 11m 36s & None & 0.0\% \\ \hline 
+    %
+    Pausa di 15 minuti e mittenti falsificati & 4h 47m 22s  & Low & 15.8\% \\ \hline 
+    \multicolumn{1}{c|}{} & 4h 47m 14s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 47m 14s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 47m 10s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 46m 59s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 46m 50s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 46m 5s & Low & 26.9\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 45m 54s & Low & 30.7\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 32m 10s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 4h 31m 10s & Low & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 31m 59s & Low & 0.0\% \\ \cline{2-4} 
+    \multicolumn{1}{c|}{} & 2h 31m 56s & None & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 2h 15m 11s & None & 0.0\% \\ \cline{2-4}
+    \multicolumn{1}{c|}{} & 0h 0m 35s & None & 52.8\% \\ \cline{2-4} 
+\caption{Test con payload fisso, 1MB di dati e un delay durante l'invio} 
+\label{tab:testRita:icmpEcho:payloadFISSO:1MB:DELAY} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payload FISSO 1MB NO DELAY}} \\ \noalign{\vskip 2ex}
+    %\cline{2-3} 
+    \hline 
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline
+    \noalign{\vskip 2ex}
+    \hline  
+    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
+    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline 
+    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline 
+    \noalign{\vskip 5ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati \footnote{il dato si riferisce ad una connessione TCP} & 0h 1m 5s & None & 33\% \\ \hline 
+    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline 
+    Pausa di 15 minuti e mittenti falsificati & NP & NP & NP \\ \hline 
+    \caption{Test con payload fisso, 1MB di dati e nessun delay durante l'invio} 
+\label{tab:testRita:icmpEcho:payloadFISSO:1MB:NODELAY} 
+\end{longtable} 
+\end{center}  
+% 
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payload FISSO 100KB DELAY}} \\
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    \hline  
+    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
+    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline 
+    Pausa di 15 minuti e mittente reale \footnote{il dato si riferisce ad una connessione TCP} & 0h 0m 3s & High & 100\% \\ \hline 
+    \noalign{\vskip 5ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & 0h 39m 42s & None & 30.4\% \\ \hline    
+    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline  
+    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline 
+    \caption{Test con payload fisso, 100KB di dati e un delay durante l'invio} 
+\label{tab:testRita:icmpEcho:payloadFISSO:100KB:DELAY} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payload FISSO 100KB NO DELAY}} \\ 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline 
+    Pausa di un ora e mittente reale \footnote{il dato si riferisce ad una connessione TCP} & 0h 0m 1s & High & 100\% \\ \hline 
+    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline
+    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline %0:30:19 
+    \noalign{\vskip 5ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & NP & NP & NP \\ \hline    
+    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline  
+    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline  
+    \caption{Test con payload fisso, 100KB di dati e nessun delay durante l'invio}  
+\label{tab:testRita:icmpEcho:payloadFISSO:100KB:NODELAY} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payload RANDOM 1MB DELAY}} \\ 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline  
+    Pausa di un ora e mittente reale & 10h 4m 6s & Medium & 0\% \\ \hline 
+    Pausa di 30 minuti e mittente reale & Low & 6h 49m 12s & 25\% \\ \hline  
+    %Pausa di 15 minuti e mittente reale & aaa  & aaa & aaa \\ \hline  
+    \noalign{\vskip 5ex} 
+    \multicolumn{4}{c}{I mittenti falsificati provengono da un pool di indirizzi IP attivi nella rete locale} \\
+    \noalign{\vskip 2ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & 6h 52m 13s & Low & \% \\ \hline  
+        \multicolumn{1}{c|}{} & 6h 52m 13s & Low & \% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 52m 4s & Low & \% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 51m 58s & Low & \% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 51m 53s & Low & \% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 51m 46s & Low & \% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 6h 51m 40s & Low & \% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 51m 21s & Low & 38.5\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 51m 12s & Low & 32.8\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 51m 0s & Low & 38.1\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 50m 48s & Low & 28.8\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 50m 41s & Low & 27.6\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 50m 33s & Low & 0\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 4h 34m 37s & Low & 0\% \\ \cline{2-4} 
+    Pausa di 30 minuti e mittenti falsificati & 6h 43m 16s & Low & 0\% \\ \hline 
+        \multicolumn{1}{c|}{} & 6h 43m 16s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 43m 16s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 43m 14s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 43m 11s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 43m 9s & Low & 0\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 6h 43m 2s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 42m 56s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 4h 31m 14s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 4h 31m 6s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 4h 25m 1s & Low & 0\% \\ \cline{2-4}  
+    Pausa di 15 minuti e mittenti falsificati & 6h 47m 1s  & Low & 0.4\% \\ \hline  
+        \multicolumn{1}{c|}{} & 6h 47m 1s & Low & 0.395\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 47m 1s & Low & 0.384\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 46m 58s & Low & 0.395\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 46m 52s & Low & 0.399\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 6h 46m 49s & Low & 0.394\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 46m 48s & Low & 0.4\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 46m 47s & Low & 0.402\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 6h 46m 42s & Low & 0.399\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 4h 30m 53s & Low & 0\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 4h 40m 16s & Low & 0\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 4h 29m 4s & Low & 0\% \\ \cline{2-4} 
+    \noalign{\vskip 5ex} 
+    \multicolumn{4}{c}{I mittenti falsificati provengono da un pool di indirizzi IP non assegnati nella rete locale} \\ 
+    \noalign{\vskip 2ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & 1h 3m 15s & Low & 79\% \\ \hline  
+        \multicolumn{1}{c|}{} & 1h 12m 6s & Low & 79\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 15m 53s & Low & 78.5\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 8m 0s & Low & 78.5\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 59m 58s & Low & 78.2\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 4m 20s & Low & 77.9\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 6m 33s & Low & 77.8\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 15m 39s & Low & 77.6\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 10m 51s & Low & 77.5\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 1m 21s & Low & 77.4\% \\ \cline{2-4}  
+        \multicolumn{1}{c|}{} & 1h 7m 51s & Low & 77.3 \% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 55m 52s & Low & 77.2\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 0m 39s & Low & 77.2\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 56m 11s & Low & 77.1\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 58m 13s & Low & 76.8\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 11m 32s & Low & 76.3\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 1m 24s & Low & 76.3\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 58m 12s & Low & 76.2\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 55m 57s & Low & 76.1\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 59m 11s & Low & 76\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 7m 16s & Low & 76\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 59m 10s & Low & 76\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 1m 25s & Low & 76\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 0m 28s & Low & 75.9\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 0m 7s & Low & 75.8\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 59m 36s & Low & 75.6\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 6m 20s & Low & 75.5\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 56m 23s & Low & 75.5\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 2m 11s & Low & 75.5\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 3m 24s & Low & 75.5\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 55m 5s & Low & 75.4\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 55m 45s & Low & 75.4\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 0m 47s & Low &  75.3\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 4m 9s & Low & 75.2\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 58m 10s & Low & 74.9\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 3m 13s & Low & 74.9\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 56m 28s & Low & 74.8\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 0h 58m 22s & Low & 74.6\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 22m 13s & Low & 74.6\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 58m 28s & Low & 74.4\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 14m 30s & Low & 74.3\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 10m 42s & Low & 74.2\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 11m 28s & Low & 73.9\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 8m 6s & Low & 73.4\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 1m 45s & Low & 73.4\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 0h 56m 26s & Low & 73.4\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 5m 41s & Low & 73.3\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 7m 25s & Low &  73.2\% \\ \cline{2-4} 
+        \multicolumn{1}{c|}{} & 1h 4m 26s & Low & 73.2\% \\ \cline{2-4}
+        \multicolumn{1}{c|}{} & 1h 9m 4s & Low & 72.9\% \\ \cline{2-4} 
+\caption{Test con payload randomico, 1MB di dati e un delay durante l'invio} 
+\label{tab:testRita:icmpEcho:payloadRANDOM:1MB:DELAY} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payload RANDOM 1MB NO DELAY}} \\
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline  
+    Pausa di un ora e mittente reale \footnote{il dato si riferisce ad una connessione TCP} & 0h 0m 3s & High & 100\% \\ \hline 
+    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline
+    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline
+    \noalign{\vskip 5ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & 0h 0m 3s & High & 100\% \\ \hline    
+    Pausa di 30 minuti e mittenti falsificati & 0h 0m 1s & High & 100\% \\ \hline  
+    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline  
+    \caption{Test con payload randomico, 1MB di dati e nessun delay durante l'invio} 
+\label{tab:testRita:icmpEcho:payloadRANDOM:1MB:NO DELAY} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payloadRANDOM-100KB-DELAY}} \\
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline  
+    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
+    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline
+    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline
+    \noalign{\vskip 5ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & NP & NP & NP \\ \hline    
+    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline  
+    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline  
+    \caption{Test con payload randomico, 100KB di dati e un delay durante l'invio} 
+\label{tab:testRita:icmpEcho:payloadRANDOM-100KB-DELAY} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+    \multicolumn{4}{c}{\textbf{payloadRANDOM-100KB-NODELAY}} \\
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline
+    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+    \hline 
+    \noalign{\vskip 2ex}
+    %\cline{2-3}
+    \hline  
+    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
+    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline
+    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline
+    \noalign{\vskip 5ex} 
+    \hline  
+    %\cline{2-3} 
+    Pausa di un ora e mittenti falsificati & NP & NP & NP \\ \hline    
+    Pausa di 30 minuti e mittenti falsificati & 0h 0m 14s & None & 28.3\% \\ \hline  
+    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline  
+    \caption{Test con payload randomico, 100KB di dati e nessun delay durante l'invio} 
+\label{tab:testRita:icmpEcho:payloadRANDOM-100KB-NODELAY} 
+\end{longtable} 
+\end{center}  
+%
+Dai risultati ricaviamo che l'utilizzo di un singolo mittente per l'esfiltrazione dei dati comporta un'elevata probabilità di essere 
+rilevati da parte di strumenti come RITA. 
+Nella tabella [Tabella.\ref{tab:testRita:icmpEcho:payloadFISSO:1MB:DELAY}] si può notare che, con qualunque periodo di pausa, l'etichetta 
+assegnata risulta in una gravitamedia con un tasso di beaconing che si abbassa man mano che il tempo di pausa tra un nuovo invio cresce 
+\footnote{Per il test che aspetta solo 15 minuti RITA riporta un tasso di beaconing dello 0\%. Dato ritenuto non plausibile siccome negli altri test associa un tasso del 37.9\% e del 14.7\%}. 
+\vspace{2ex} \newline 
+Invece tramite l'utilizzo di mittenti falsificati [Tabella.\ref{tab:testRita:icmpEcho:payloadFISSO:1MB:DELAY}], si nota come l'etichetta 
+assegnata risulta sempre "Low" con tassi di beaconing bassi. Ciò indica che l'uso di indirizzi IP falsificati aiuta a mitigare il rischio 
+di rilevamento. 
+%specialmente quando si utilizzano pause lunghe tra un invio e l'altro. Infatti, in tutti i test condotti con 
+%mittente reale, le connessioni più lunghe sono state etichettate come "High" o "Medium", con punteggi di Beacon 
+%Score molto elevati, indicando una forte probabilità di attività sospetta.
+\vspace{1ex} \newline
+Inoltre si nota che l'implementazione dei mittenti falsificati non è ottimale, siccome per ogni pacchetto si sceglie un 
+mittente diverso presente nel pool. Un implementazione in cui per ogni blocco si utilizza un singolo mittente scelto dal pool, risulterebbe 
+maggiormente efficiente e meno rilevabile.  
+\vspace{4ex} \newline 
+Per quanto riguarda la presenza o meno di un delay fra l'invio di un blocco di porzione di dati e l'altro, non si nota che nessun test 
+viene rilevato da RITA. Questo significa che RITA, analizzando i log creati da Zeek, non ha inserito nel suo database la comunicazione. 
+Ciò può essere dovuto al fatto che il traffico generato risulti veloce e che quindi la soglia di rilevamento risulti bassa. 
+Tuttavia, l'assenza di un delay, comporta un maggior utilizzo della banda di rete che porta alla creazione di rumore da parte del Covert Channel. 
+Siccome il traffico potrebbe ostruire il normale flusso di rete. 
+
+
+
+
+
