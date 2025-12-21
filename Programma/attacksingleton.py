@@ -186,10 +186,10 @@ class SendSingleton:
         block_size=1024 #bytes (1KB) 
         for i in range(0, len(data), block_size): 
             try:
-                sender.send_data(data[i:i+block_size]) 
                 if useDelay: 
                     print("Waiting...")
                     time.sleep(random.uniform(1.0,15.0)) 
+                sender.send_data(data[i:i+block_size]) 
             except Exception as e: 
                 print("send data IPV4: ",e)  
 
@@ -276,10 +276,10 @@ class SendSingleton:
                     self.ipv4_echo_payload(data)
                 case AttackType.ipv4_echo_campi_payload: 
                     self.ipv4_echo_campi_payload(data)
-                case AttackType.ipv4_timestamp_reply: 
-                    self.ipv4_timestamp_reply(data)
-                case AttackType.ipv4_information_reply: 
-                    self.ipv4_information_reply(data)
+                case AttackType.ipv4_timestamp: 
+                    self.ipv4_timestamp(data)
+                case AttackType.ipv4_information: 
+                    self.ipv4_information(data)
                 case AttackType.ipv4_timing_channel_8bit: 
                     self.ipv4_timing_channel_8bit(data)
                 case AttackType.ipv4_timing_channel_8bit_noise: 
@@ -766,7 +766,7 @@ class SendSingleton:
             #pkt.show()
             sendp(pkt, verbose=1, iface=self.interface) 
 
-        def ipv4_timestamp_reply(self, data:bytes=None): 
+        def ipv4_timestamp(self, data:bytes=None): 
             if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(self.ip_dst):
                 raise Exception(f"Argoemnti non corretti")
             if self.ip_dst.version!=4:
@@ -829,7 +829,7 @@ class SendSingleton:
             #pkt.show()
             sendp(pkt, verbose=1, iface=self.interface) 
 
-        def ipv4_information_reply(self, data:bytes=None): 
+        def ipv4_information(self, data:bytes=None): 
             if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(self.ip_dst):
                 raise Exception(f"Argomenti non corretti")
             if self.ip_dst.version!=4:
@@ -1547,19 +1547,27 @@ class ReceiveSingleton:
                     return self.IPV4_TIMESTAMP(self.ip_dst, self.ip_src)
                 case AttackType.ipv4_redirect: 
                     return self.IPV4_REDIRECT(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_source_quench: 
+                case AttackType.ipv4_source_quench | AttackType.ipv4_source_quench_unused: 
                     return self.IPV4_SOURCE_QUENCH(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_parameter_problem: 
+                case AttackType.ipv4_parameter_problem | AttackType.ipv4_parameter_problem_unused: 
                     return self.IPV4_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_time_exceeded: 
-                    return self.IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_destination_unreachable: 
+                case AttackType.ipv4_time_exceeded | AttackType.ipv4_time_exceeded_unused: 
+                    return self.IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi) 
+                case AttackType.ipv4_destination_unreachable | AttackType.ipv4_destination_unreachable_unused: 
                     return self.IPV4_DESTINATION_UNRECHABLE(self.ip_dst, self.host_attivi)
+                case AttackType.ipv4_echo_campi: 
+                    raise Exception()
+                case AttackType.ipv4_echo_payload: 
+                    raise Exception()
+                case AttackType.ipv4_echo_campi_payload: 
+                    raise Exception() 
+                case AttackType.ipv4_echo_random_payload: 
+                    raise Exception()
                 case AttackType.ipv4_timing_channel_8bit: 
                     return self.IPV4_TIMING_8BIT(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_timing_channel_8bit_noise: 
                     return self.IPV4_TIMING_8BIT_NOISE(self.ip_dst, self.host_attivi) 
-                case _: raise Exception(f"Tipologia non conosciuta: {self.attacco}") 
+                case _: raise Exception(f"ReceiveSingleton.wait_data.match_IPv4: Tipologia non conosciuta: {self.attacco}") 
         def match_IPv6(): 
             nonlocal self 
             match self.attacco: 
@@ -1575,7 +1583,8 @@ class ReceiveSingleton:
                     return self.IPV6_DESTINTION_UNREACHABLE(self.ip_dst, self.host_attivi)
                 case _: raise Exception(f"Tipologia non conosciuta: {self.attacco}") 
 
-        wait_host_attivi() if not self.host_attivi or len(self.host_attivi)<0 else None
+        wait_host_attivi() if IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<0 else None
+        print("Host attivi trovati: ", self.host_attivi)
         if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.enum(self.attacco) and IS_TYPE.list(self.host_attivi)): 
             raise Exception(f"Argomenti non corretti") 
         if len(self.host_attivi)<=0: raise Exception("IP degli host attivi non presenti: ",self.host_attivi) 
@@ -2018,7 +2027,7 @@ class ReceiveSingleton:
                 return True 
             return False  
 
-    class IPV4_TIME_EXCEEDED: #FUNZIONA BENE SIA SENZA CHE CON CAMPO UNUSED?
+    class IPV4_TIME_EXCEEDED: 
         event_pktconn=None
         ip_dst=None
         host_attivi=None
@@ -2026,10 +2035,10 @@ class ReceiveSingleton:
         data=None
 
         def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
+            if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.list(host_attivi)): 
+                raise Exception("Argomenti non validi") 
+            if len(host_attivi)<=0 or not IS_TYPE.ipaddress(host_attivi[0]):
+                raise Exception("List degli host attivi non valida") 
             self.event_pktconn=GET.threading_Event() 
             try:  
                 self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
@@ -2041,14 +2050,9 @@ class ReceiveSingleton:
         
         def wait(self): 
             def get_filter():
-                nonlocal self 
-                filter= f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED}) and dst {self.ip_dst.compressed}" 
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}"
-                else: print("No need to listen for the source")
-                return filter 
+                nonlocal self  
                 filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})"
+                filter=filter+f" and (icmp[0]=={TYPE_TIME_EXCEEDED})"
                 filter=filter+f" and dst {self.ip_dst.compressed}"
                 if IS_TYPE.list(self.host_attivi): 
                     filter+=f" and ("
@@ -2062,22 +2066,24 @@ class ReceiveSingleton:
                 print("FILTRO: ", filter)
                 return filter
             def callback(packet):  
-                nonlocal self
-                TYPE_TIME_EXCEEDED=11 
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
+                nonlocal self, TYPE_TIME_EXCEEDED 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==TYPE_TIME_EXCEEDED: 
                     #print(f"Callbak 'v4_parameter_problem' arrived packet: {packet.summary()}")
-                    inner_ip = IP(packet[Raw].load)
-                    if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
+                    if not packet.haslayer(ICMPerror) or (packet[ICMPerror].id==0 and packet[ICMPerror].seq==1): 
                         THREADING_EVENT.set(self.event_pktconn)
-                        return  
-                    self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))
-                    #
-                    self.data.append(inner_ip[IP].len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[IP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[IP].ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    #
-                    self.data.append(inner_ip[ICMP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[ICMP].seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))                   
+                        return 
+                    #self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    raw = bytes(packet[ICMP])
+                    unused = int.from_bytes(raw[4:8], byteorder="big") 
+                    #print("UNUSED: ", unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    self.data.append(unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))
+                    if inner_ip:=packet.getlayer(IPerror): 
+                        self.data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    if inner_ip:=packet.getlayer(ICMPerror): 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))                  
             #---------------------------------------------------
             if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
                 raise Exception(f"Argoementi non corretti")  
@@ -2085,7 +2091,7 @@ class ReceiveSingleton:
             args={
                     "filter": get_filter()
                     #,"count":1 
-                    ,"prn":  callback()
+                    ,"prn":  callback
                     #,"store":True 
                     ,"iface":self.interface
             } 
@@ -2106,7 +2112,7 @@ class ReceiveSingleton:
                 return True 
             return False  
 
-    class IPV4_DESTINATION_UNRECHABLE: #FUNZIONA BENE SIA SENZA CHE CON CAMPO UNUSED?
+    class IPV4_DESTINATION_UNRECHABLE: 
         event_pktconn=None
         ip_dst=None
         host_attivi=None
@@ -2145,22 +2151,24 @@ class ReceiveSingleton:
                 print("FILTRO: ", filter)
                 return filter
             def callback(packet): 
-                nonlocal self
-                TYPE_DESTINATION_UNREACHABLE=3 
-                print(packet.summary)
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==TYPE_DESTINATION_UNREACHABLE and packet.haslayer(ICMPerror):  
-                    inner_ip = IP(packet[ICMPerror].load) 
-                    if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
+                nonlocal self, TYPE_DESTINATION_UNREACHABLE  
+                #packet.show()
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==TYPE_DESTINATION_UNREACHABLE:  
+                    if not packet.haslayer(ICMPerror) or (packet[ICMPerror].id==0 and packet[ICMPerror].seq==1): 
                         THREADING_EVENT.set(self.event_pktconn)
                         return 
-                    self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))
-                    #
-                    self.data.append(inner_ip[IP].len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[IP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[IP].ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    #
-                    self.data.append(inner_ip[ICMP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[ICMP].seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    #self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    raw = bytes(packet[ICMP])
+                    unused = int.from_bytes(raw[4:8], byteorder="big") 
+                    #print("UNUSED: ", unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    self.data.append(unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))
+                    if inner_ip:=packet.getlayer(IPerror): 
+                        self.data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    if inner_ip:=packet.getlayer(ICMPerror): 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))                     
             #---------------------------------------------------
             if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
                 raise Exception(f"Argomenti non corretti") 
@@ -2181,7 +2189,7 @@ class ReceiveSingleton:
             except Exception as e:
                 raise Exception(f"wait_conn_from_attacker: {e}")
             THREADING_EVENT.wait(self.event_pktconn)  
-            SNIFFER.stop(sniffer)
+            SNIFFER.stop(sniffer) 
             if TIMER.stop(pkt_timer):  
                 joined="".join(self.data)
                 cleaned="".join(x for x in joined if x in string.printable)
@@ -3197,9 +3205,7 @@ class AttackType(Enum):
     ipv4_information=13
     ipv4_timing_channel_8bit=14
     ipv4_timing_channel_8bit_noise=15 
-    ipv4_echo_random_payload=16
-    ipv4_timestamp_reply=17
-    ipv4_information_reply=18
+    ipv4_echo_random_payload=16  
 
     ipv6_information=20
     ipv6_parameter_problem=21

@@ -7,6 +7,14 @@ import time
 import math
 from pypdf import PdfReader 
 
+qazwsx=ReceiveSingleton("ipv4_time_exceeded")
+data=qazwsx.wait_data()  
+print("test DATA output: ",data) 
+print("test DATA replace: ",data.replace("BORGOGNA","")) 
+print("test DATA len: ",len(data)) 
+exit(0)
+
+
 destinazione=ipaddress.ip_address("192.168.1.151") 
 tempo_inizio=datetime.datetime.now() 
 sleep_time=10*60 #15 min
@@ -28,12 +36,6 @@ for index in range(ripetizioni):
         non_blocking_sleep(sleep_time) 
 exit(0)
 
-qazwsx=ReceiveSingleton("ipv4_information", True)
-data=qazwsx.wait_data()  
-print("DATA: ",data) 
-print("DATA: ",data.replace("BORGOGNA","")) 
-print("LENGTH: ",len(data)) 
-exit(0)
 
 
 data="echo 'Ciao'".encode() 
