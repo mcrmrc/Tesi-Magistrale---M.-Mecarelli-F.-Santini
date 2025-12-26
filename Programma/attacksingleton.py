@@ -2182,6 +2182,9 @@ class ReceiveSingleton:
                     byte2 = icmp_id & 0xFF 
                     self.data.extend([chr(byte1),chr(byte2)]) 
             return callback 
+        
+        def wait(self, type_list:list[int]=None): 
+            super().wait(type_list) 
 
     class IPV6_PARAMETER_PROBLEM(IPVx_): 
         TYPE_PARAMETER_PROBLEM=4
@@ -2325,12 +2328,7 @@ class ReceiveSingleton:
                 raise Exception("Numero di bit non valido")
             super().__init__(ip_dst, host_attivi)
             self.callback_function=lambda: self.timeout_timer_callback()
-            self.timer=GET.timer(None,self.callback_function) 
-        
-        
-        
-        def wait(self, type_list:list[int]=None):      
-            super().wait(type_list)  
+            self.timer=GET.timer(None,self.callback_function)  
         
         def get_callback(self): 
             if self.numero_bit<=0: 
@@ -2367,6 +2365,9 @@ class ReceiveSingleton:
                     self.timer.start()
             return callback
         
+        def wait(self, type_list:list[int]=None):      
+            super().wait(type_list)  
+
         def wait_ipv6_timing_cc(self, ): 
             str_data=""
             for integer in self.data:
