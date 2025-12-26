@@ -5,11 +5,8 @@ from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
 from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
 from scapy.all import get_if_hwaddr, sendp, sr1, sniff, send, srp1 
 from scapy.all import * 
-from enum import Enum
-
-
-
-#-----------------------------------------------------------------------  
+from enum import Enum 
+from abc import ABC, abstractmethod
 
 def TODELETE_get_filter_attack_from_function(self,function_name:str=None, ip_dst=None, checksum=None): 
     if not isinstance(function_name,str) or not IS_TYPE.ipaddress(ip_dst) or not IS_TYPE.integer(checksum): 
@@ -141,11 +138,11 @@ def get_filter_connection_from_function(function_name:str=None, ip_src=None, che
         #        return aaa
         #    else: print(f"Caso non contemplato: {ip_src.version}") 
 
-#-----------------------------------------------------------------------
+
 class SendSingleton: 
     class SenderEnum(Enum): 
         TRUE_SENDER=1
-        FAKE_SENDER_ACTIVE=2
+        FAKE_SENDER_ACTIVE=2 
         FAKE_SENDER_INACTIVE=3
         FAKE_SENDER_BOTH=4
 
@@ -1555,14 +1552,8 @@ class ReceiveSingleton:
                     return self.IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi) 
                 case AttackType.ipv4_destination_unreachable | AttackType.ipv4_destination_unreachable_unused: 
                     return self.IPV4_DESTINATION_UNRECHABLE(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_echo_campi: 
-                    raise Exception()
-                case AttackType.ipv4_echo_payload: 
-                    raise Exception()
-                case AttackType.ipv4_echo_campi_payload: 
-                    raise Exception() 
-                case AttackType.ipv4_echo_random_payload: 
-                    raise Exception()
+                case AttackType.ipv4_echo_campi|AttackType.ipv4_echo_payload|AttackType.ipv4_echo_campi_payload|AttackType.ipv4_echo_random_payload: 
+                    return self.IPV4_ECHO(self.ip_dst, self.host_attivi, self.attacco)
                 case AttackType.ipv4_timing_channel_8bit: 
                     return self.IPV4_TIMING_8BIT(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_timing_channel_8bit_noise: 
@@ -1583,7 +1574,8 @@ class ReceiveSingleton:
                     return self.IPV6_DESTINTION_UNREACHABLE(self.ip_dst, self.host_attivi)
                 case _: raise Exception(f"Tipologia non conosciuta: {self.attacco}") 
 
-        wait_host_attivi() if IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<0 else None
+        #wait_host_attivi() if IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<0 else None
+        self.host_attivi=[ipaddress.ip_address("192.168.1.13")] 
         print("Host attivi trovati: ", self.host_attivi)
         if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.enum(self.attacco) and IS_TYPE.list(self.host_attivi)): 
             raise Exception(f"Argomenti non corretti") 
@@ -1598,64 +1590,106 @@ class ReceiveSingleton:
             raise Exception(f"IP version non conosciuta: {self.ip_dst.version}") 
         return None
     
-    class IPV4_INFORMATION: 
+    class IPVx_: 
         event_pktconn=None
         ip_dst=None
         host_attivi=None
-        interface=None
-        data=None
+        interface=None 
+        data=None 
+        stop_flag={"value":False} 
 
         def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None):
-            if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.list(host_attivi)):  
-                raise Exception("Argomenti non validi")
-            self.event_pktconn=GET.threading_Event() 
+            if not IS_TYPE.ipaddress(ip_dst) :   
+                raise Exception("IP di destinazione non corretto") 
+            if not IS_TYPE.list(host_attivi) or len(host_attivi)<=0 or any( not IS_TYPE.ipaddress(ip_host) for ip_host in host_attivi):
+                raise Exception("Lista degli indiirzzi host non valida")
             try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface 
+                self.interface=NETWORK.DEFAULT_INTERFACE().default_iface 
             except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
+                raise Exception(f"IPV4_: {e}") 
+            self.event_pktconn=GET.threading_Event() 
             self.data=[]
             self.ip_dst=ip_dst
             self.host_attivi=host_attivi 
-
-        def wait(self): 
-            def get_filter():
-                nonlocal self, TYPE_INFORMATION_REQUEST, TYPE_INFORMATION_REPLY
-                filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})"
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                #print("FILTRO: ", filter)
-                return filter
-            def callback(packet): 
+        
+        def get_stop_filter(self): 
+            def stop_filter(pkt): 
                 nonlocal self
-                if packet.haslayer(IP) and packet.haslayer(ICMP):   
-                    if packet[ICMP].id==0 and packet[ICMP].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
-                        return
-                    icmp_id=packet[ICMP].id
-                    byte1 = (icmp_id >> 8) & 0xFF 
-                    byte2 = icmp_id & 0xFF  
-                    self.data.extend([chr(byte1),chr(byte2)]) 
-                    #print(f"Callback received: {byte1} / {byte2}")
-                    #print(f"Callback received: {chr(byte1)} / {chr(byte2)}")
-            #--------------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"wait_ipv4_information: Argomenti non corretti")  
-            TYPE_INFORMATION_REQUEST=15 
-            TYPE_INFORMATION_REPLY=16 
+                return self.stop_flag["value"] 
+            return stop_filter 
+
+        def timeout_timer_callback(self): 
+            #THREADING_EVENT.set(self.event_pktconn) 
+            self.stop_flag["value"]=True  
+        
+        @staticmethod
+        def get_filter(type_list:list[int]=None, ip_dst:ipaddress.IPv4Address=None, host_attivi:list[ipaddress.IPv4Address]=None): 
+            filter="icmp" 
+            if IS_TYPE.list(type_list) and len(type_list)>0 and all(IS_TYPE.integer(type) for type in type_list):
+                filter=filter+f" and ("
+                for index in range(len(type_list)): 
+                    if index>0:  filter=filter+f" or icmp[0]=={type_list[index]} "
+                    else: filter=filter+f" icmp[0]=={type_list[index]} "
+                filter=filter+f" )"
+            else: print("get_filter: type_list non valida-> ",type_list) 
+            if IS_TYPE.ipaddress(ip_dst): 
+                filter=filter+f" and dst {ip_dst.compressed}" 
+            else: print("get_filter: ip_dst non valido-> ",ip_dst)
+            if IS_TYPE.list(host_attivi) and len(host_attivi)>0: 
+                filter+=f" and ("
+                for index in range(len(host_attivi)): 
+                    if IS_TYPE.ipaddress(host_attivi[index]): 
+                        if index>0:  filter+=f" or src {host_attivi[index].compressed} "
+                        else: filter+=f" src {host_attivi[index].compressed}"
+                    else: print(f"get_filter: host non valido {host_attivi[index]}")
+                filter+=f")"
+            else: print("get_filter: host_attivi list non valida-> ",host_attivi)
+            print("FILTRO: ", filter)
+            return filter
+
+        @abstractmethod 
+        def get_callback(self):
+            raise NotImplementedError(f"Non si è sovrascritto il metodo get_callback: {self.__class__.__name__}")
+
+        def wait(self, type_list:list[int]=None):  
+            if not IS_TYPE.ipaddress(self.ip_dst): 
+                raise Exception(f"IPV4_: indirizzo destinazione non valido")  
+            if not IS_TYPE.list(self.data): 
+                raise Exception(f"IPV4_: lista dati non valida") 
+            if not IS_TYPE.list(type_list): 
+                raise Exception(f"IPV4_: lista tipologie non valida")  
+            print("In ascolto dei pacchetti...")
+            sniff(
+                filter=self.get_filter(
+                    type_list,
+                    self.ip_dst, 
+                    self.host_attivi
+                )
+                ,prn=self.get_callback 
+                ,store=False 
+                ,stop_filter=self.get_stop_filter 
+            )  
+            #self.data="".join(x for x in self.data)  
+            joined="".join(self.data) 
+            cleaned="".join(x for x in joined if x in string.printable) 
+            self.data=cleaned
+
+        def _old_wait(self, type_list:list[int]=None): 
+            if not IS_TYPE.ipaddress(self.ip_dst): 
+                raise Exception(f"IPV4_: indirizzo destinazione non valido")  
+            if not IS_TYPE.list(self.data): 
+                raise Exception(f"IPV4_: lista dati non valida") 
+            if not IS_TYPE.list(type_list): 
+                raise Exception(f"IPV4_: lista tipologie non valida") 
             try: 
                 args={
-                    "filter": get_filter()
+                    "filter": self.get_filter(
+                        type_list,
+                        self.ip_dst, 
+                        self.host_attivi
+                    )
                     #,"count":1 
-                    ,"prn": callback 
+                    ,"prn": self.get_callback()
                     #,"store":True 
                     ,"iface":self.interface
                 }
@@ -1663,9 +1697,9 @@ class ReceiveSingleton:
                     args
                     ,None 
                     ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
+                )  
             except Exception as e:
-                raise Exception(f"wait_ipv4_information Eccezione: {e}")
+                raise Exception(f"{self.__class__.__name__} wait: {e}")
             try: 
                 THREADING_EVENT.wait(self.event_pktconn) 
                 SNIFFER.stop(sniffer)
@@ -1676,401 +1710,148 @@ class ReceiveSingleton:
                     return True 
                 return False 
             except Exception as e:
-                raise Exception(f"wait_ipv4_information Eccezione: {e}")
-        
-    class IPV4_TIMESTAMP: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
+                raise Exception(f"IPV4_.wait: {e}")
 
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.list(host_attivi)): 
-                raise Exception("Argomenti non validi")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
+    class IPV4_INFORMATION(IPVx_): 
+        TYPE_INFORMATION_REQUEST=15 
+        TYPE_INFORMATION_REPLY=16 
 
-        def wait(self): 
-            def get_filter():
-                nonlocal self, TYPE_TIMESTAMP_REQUEST, TYPE_TIMESTAMP_REPLY
-                filter="icmp" 
-                filter=filter+f" and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY})"
-                filter=filter+f" and dst {self.ip_dst.compressed}" 
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                return filter 
+        def get_callback(self):
             def callback(packet): 
-                nonlocal self
-                if packet.haslayer(IP) and packet.haslayer(ICMP):  
+                nonlocal self 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and (packet[ICMP].type==self.TYPE_INFORMATION_REQUEST or packet[ICMP].type==self.TYPE_INFORMATION_REPLY): 
                     if packet[ICMP].id==0 and packet[ICMP].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
+                        #THREADING_EVENT.set(self.event_pktconn)
+                        self.stop_flag["value"]=True 
+                        return 
+                    icmp_id=packet[ICMP].id
+                    byte1 = (icmp_id >> 8) & 0xFF 
+                    byte2 = icmp_id & 0xFF  
+                    self.data.extend([chr(byte1),chr(byte2)]) 
+                    #print(f"Callback received: {byte1} / {byte2}")
+                    #print(f"Callback received: {chr(byte1)} / {chr(byte2)}")
+            return callback
+
+        def wait(self):
+            super().wait([self.TYPE_INFORMATION_REQUEST, self.TYPE_INFORMATION_REPLY])
+        
+    class IPV4_TIMESTAMP(IPVx_):  
+        TYPE_TIMESTAMP_REQUEST=13
+        TYPE_TIMESTAMP_REPLY=14  
+        
+        def get_callback(self): 
+            def callback(packet): 
+                nonlocal self 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and (packet[ICMP].type==self.TYPE_TIMESTAMP_REQUEST or packet[ICMP].type==self.TYPE_TIMESTAMP_REPLY):  
+                    if packet[ICMP].id==0 and packet[ICMP].seq==1: 
+                        #THREADING_EVENT.set(self.event_pktconn)
+                        self.stop_flag["value"]=True 
                         return
                     icmp_id=packet[ICMP].id
                     byte1 = (icmp_id >> 8) & 0xFF 
                     byte2 = icmp_id & 0xFF  
                     self.data.extend([chr(byte1),chr(byte2)]) 
-                
+                    #
                     icmp_ts_ori=str(packet[ICMP].ts_ori)[-3:]  
                     icmp_ts_rx=str(packet[ICMP].ts_rx)[-3:]  
                     icmp_ts_tx=str(packet[ICMP].ts_tx)[-3:] 
-
                     self.data.extend([chr(int(icmp_ts_ori)),chr(int(icmp_ts_rx)), chr(int(icmp_ts_tx))]) 
-            #---------------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_host) and IS_TYPE.list(self.data)): 
-                raise Exception(f"ipv4_timestamp_request: Argomenti non corretti") 
-            TYPE_TIMESTAMP_REQUEST=13
-            TYPE_TIMESTAMP_REPLY=14  
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": callback
-                    #,"store":True 
-                    ,"iface":self.interface
-                }
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            THREADING_EVENT.wait(self.event_pktconn) 
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned 
-                return True 
-            return False  
+            return callback
+
+        def wait(self):
+            super().wait([self.TYPE_TIMESTAMP_REQUEST, self.TYPE_TIMESTAMP_REPLY])  
     
-    class IPV4_REDIRECT:
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
+    class IPV4_REDIRECT(IPVx_):  
+        TYPE_REDIRECT=5  
 
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-
-        def wait(self): 
-            def get_filter():
-                nonlocal self, TYPE_REDIRECT
-                filter="icmp" 
-                filter= f"icmp and (icmp[0]=={TYPE_REDIRECT}) and dst {self.ip_dst.compressed}" 
-                if self.host_attivi and IS_TYPE.ipaddress(self.host_attivi):
-                    filter+=f" and src {self.host_attivi.compressed}"
-                else: print("No need to listen for the source")
-                return filter
-                filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})"
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                print("FILTRO: ", filter)
-                return filter
-            def callback(packet): 
-                nonlocal self, TYPE_REDIRECT
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw) : 
-                    inner_ip = IP(packet[Raw].load) 
-                    if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
-                        return  
-                    elif not inner_ip: 
-                        print("Pacchetto non ha livello IP error\t",packet.summary())  
-                    self.data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip.ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    #
-                    self.data.append(inner_ip[ICMP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[ICMP].seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))   
-            #---------------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"ipv4_redirect: Argomenti non corretti") 
-            redirect_data=[] 
-            TYPE_REDIRECT=5  
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": callback()
-                    #,"store":True 
-                    ,"iface":self.interface
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned 
-                return True 
-            return False  
-
-    class IPV4_SOURCE_QUENCH: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
-
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-
-        def wait(self): 
-            def get_filter():
-                nonlocal self, TYPE_SOURCE_QUENCH             
-                filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_SOURCE_QUENCH})"
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                print("FILTRO: ", filter)
-                return filter 
-                filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY})"
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                print("FILTRO: ", filter)
-                return filter
+        def get_callback(self): 
             def callback(packet): 
                 nonlocal self 
-                TYPE_SOURCE_QUENCH=4 
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):  
-                    inner_ip = IP(packet[Raw].load)
-                    if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==self.TYPE_REDIRECT:  
+                    if not packet.haslayer(ICMPerror) or (packet[ICMPerror].id==0 and packet[ICMPerror].seq==1): 
+                        #THREADING_EVENT.set(self.event_pktconn)
+                        self.stop_flag["value"]=True 
                         return 
-                    self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))  
-                    #
-                    self.data.append(inner_ip.len.to_bytes(2,"big").decode())  
-                    self.data.append(inner_ip.id.to_bytes(2,"big").decode())  
-                    self.data.append(inner_ip.ttl.to_bytes(2,"big").decode())  
-                    #
-                    self.data.append(inner_ip[ICMP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[ICMP].seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-            #---------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"Argoemnti non corretti") 
-            source_quench_data=[] 
-            TYPE_SOURCE_QUENCH=4 
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": callback()
-                    #,"store":True 
-                    ,"iface":self.interface
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned  
-                return True 
-            return False  
+                    if inner_ip:=packet.getlayer(IPerror): 
+                        self.data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    if inner_ip:=packet.getlayer(ICMPerror): 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))         
+            return callback
 
-    class IPV4_PARAMETER_PROBLEM: #FUNZIONA BENE SIA SENZA CHE CON CAMPO UNUSED?
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
+        def wait(self):
+            super().wait([self.TYPE_REDIRECT]) 
 
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-        
-        def wait(self): 
-            def get_filter():
-                nonlocal self  
-                filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_PARAMETER_PROBLEM})"
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                print("FILTRO: ", filter)
-                return filter
-            def callback(packet):  
-                nonlocal self
-                TYPE_PARAMETER_PROBLEM=12 
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
-                    #print(f"Callbak 'v4_parameter_problem' arrived packet: {packet.summary()}")
-                    inner_ip = IP(packet[Raw].load)
-                    if inner_ip[ICMP].id==0 and inner_ip[ICMP].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
-                        return  
+    class IPV4_SOURCE_QUENCH(IPVx_): 
+        TYPE_SOURCE_QUENCH=4 
+
+        def get_callback(self): 
+            def callback(packet): 
+                nonlocal self 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==self.TYPE_SOURCE_QUENCH:  
+                    if not packet.haslayer(ICMPerror) or (packet[ICMPerror].id==0 and packet[ICMPerror].seq==1): 
+                        #THREADING_EVENT.set(self.event_pktconn)
+                        self.stop_flag["value"]=True 
+                        return 
+                    #self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    raw = bytes(packet[ICMP])
+                    unused = int.from_bytes(raw[4:8], byteorder="big") 
+                    #print("UNUSED: ", unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    self.data.append(unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))
+                    if inner_ip:=packet.getlayer(IPerror): 
+                        self.data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    if inner_ip:=packet.getlayer(ICMPerror): 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))       
+            return callback
+
+        def wait(self):
+            super().wait([self.TYPE_REDIRECT]) 
+
+    class IPV4_PARAMETER_PROBLEM(IPVx_): 
+        TYPE_PARAMETER_PROBLEM=12
+
+        def get_callback(self): 
+            def callback(packet): 
+                nonlocal self 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==self.TYPE_PARAMETER_PROBLEM:  
+                    if not packet.haslayer(ICMPerror) or (packet[ICMPerror].id==0 and packet[ICMPerror].seq==1): 
+                        #THREADING_EVENT.set(self.event_pktconn)
+                        self.stop_flag["value"]=True 
+                        return 
                     self.data.append(packet[ICMP].ptr.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00'))
-                    self.data.append(packet[ICMP].unused.to_bytes(3,"big").decode().lstrip('\x00').rstrip('\x00'))
-                    #
-                    self.data.append(inner_ip[IP].len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[IP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[IP].ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    #
-                    self.data.append(inner_ip[ICMP].id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
-                    self.data.append(inner_ip[ICMP].seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))                                 
-            #---------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"Argomenti non corretti") 
-            TYPE_PARAMETER_PROBLEM=12 
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": callback
-                    #,"store":True 
-                    ,"iface":self.interface
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                )   
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer):    
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned 
-                return True 
-            return False  
-
-    class IPV4_TIME_EXCEEDED: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
-
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.list(host_attivi)): 
-                raise Exception("Argomenti non validi") 
-            if len(host_attivi)<=0 or not IS_TYPE.ipaddress(host_attivi[0]):
-                raise Exception("List degli host attivi non valida") 
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi  
+                    #self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    raw = bytes(packet[ICMP])
+                    unused = int.from_bytes(raw[4:8], byteorder="big") 
+                    #print("UNUSED: ", unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    self.data.append(unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00'))
+                    if inner_ip:=packet.getlayer(IPerror): 
+                        self.data.append(inner_ip.len.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.ttl.to_bytes(1,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                    if inner_ip:=packet.getlayer(ICMPerror): 
+                        self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
+                        self.data.append(inner_ip.seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))                   
+            return callback
         
-        def wait(self): 
-            def get_filter():
-                nonlocal self  
-                filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_TIME_EXCEEDED})"
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                print("FILTRO: ", filter)
-                return filter
+        def wait(self):
+            super().wait([self.TYPE_PARAMETER_PROBLEM]) 
+
+    class IPV4_TIME_EXCEEDED(IPVx_):  
+        TYPE_TIME_EXCEEDED=11 
+
+        def get_callback(self): 
             def callback(packet):  
-                nonlocal self, TYPE_TIME_EXCEEDED 
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==TYPE_TIME_EXCEEDED: 
+                nonlocal self 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==self.TYPE_TIME_EXCEEDED: 
                     #print(f"Callbak 'v4_parameter_problem' arrived packet: {packet.summary()}")
                     if not packet.haslayer(ICMPerror) or (packet[ICMPerror].id==0 and packet[ICMPerror].seq==1): 
-                        THREADING_EVENT.set(self.event_pktconn)
+                        #THREADING_EVENT.set(self.event_pktconn)
+                        self.stop_flag["value"]=True 
                         return 
                     #self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
                     raw = bytes(packet[ICMP])
@@ -2084,78 +1865,22 @@ class ReceiveSingleton:
                     if inner_ip:=packet.getlayer(ICMPerror): 
                         self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
                         self.data.append(inner_ip.seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))                  
-            #---------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"Argoementi non corretti")  
-            TYPE_TIME_EXCEEDED=11 
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn":  callback
-                    #,"store":True 
-                    ,"iface":self.interface
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e: 
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned  
-                return True 
-            return False  
+            return callback
 
-    class IPV4_DESTINATION_UNRECHABLE: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
+        def wait(self):
+            super().wait([self.TYPE_TIME_EXCEEDED])  
 
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None):
-            if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.list(host_attivi)): 
-                raise Exception("Argomenti non validi") 
-            if len(host_attivi)<=0 or not IS_TYPE.ipaddress(host_attivi[0]):
-                raise Exception("List degli host attivi non valida")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-        
-        def wait(self): 
-            def get_filter():
-                nonlocal self, TYPE_DESTINATION_UNREACHABLE 
-                filter="icmp"
-                filter=filter+f" and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE})"
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                print("FILTRO: ", filter)
-                return filter
+    class IPV4_DESTINATION_UNRECHABLE(IPVx_): 
+        TYPE_DESTINATION_UNREACHABLE=3 
+
+        def get_callback(self): 
             def callback(packet): 
-                nonlocal self, TYPE_DESTINATION_UNREACHABLE  
+                nonlocal self 
                 #packet.show()
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==TYPE_DESTINATION_UNREACHABLE:  
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet[ICMP].type==self.TYPE_DESTINATION_UNREACHABLE:  
                     if not packet.haslayer(ICMPerror) or (packet[ICMPerror].id==0 and packet[ICMPerror].seq==1): 
-                        THREADING_EVENT.set(self.event_pktconn)
+                        #THREADING_EVENT.set(self.event_pktconn) 
+                        self.stop_flag["value"]=True 
                         return 
                     #self.data.append(packet[ICMP].unused.to_bytes(4,"big").decode().lstrip('\x00').rstrip('\x00')) 
                     raw = bytes(packet[ICMP])
@@ -2169,218 +1894,102 @@ class ReceiveSingleton:
                     if inner_ip:=packet.getlayer(ICMPerror): 
                         self.data.append(inner_ip.id.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00')) 
                         self.data.append(inner_ip.seq.to_bytes(2,"big").decode().lstrip('\x00').rstrip('\x00'))                     
-            #---------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"Argomenti non corretti") 
-            TYPE_DESTINATION_UNREACHABLE=3 
-            args={
-                    "filter": get_filter() 
-                    #,"count":1 
-                    ,"prn": callback
-                    #,"store":True 
-                    ,"iface":self.interface 
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            THREADING_EVENT.wait(self.event_pktconn)  
-            SNIFFER.stop(sniffer) 
-            if TIMER.stop(pkt_timer):  
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned  
-                return True 
-            return False  
-    
-    class IPV4_ECHO: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None   
+            return callback
+
+        def wait(self):
+            super().wait([self.TYPE_TIME_EXCEEDED])  
+            
+    class IPV4_ECHO(IPVx_): 
+        TYPE_ECHO_REQUEST=8 
+        TYPE_ECHO_REPLY=0 
+        variante:Enum=None 
         
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-
-        def wait(self): 
-            def get_filter():
-                nonlocal self, TYPE_ECHO_REQUEST, TYPE_ECHO_REPLY
-                filter="icmp" 
-                filter= f" and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) " 
-                filter=filter+f" and dst {self.ip_dst.compressed}"
-                if IS_TYPE.list(self.host_attivi): 
-                    filter+=f" and ("
-                    for IPindex in range(len(self.host_attivi)): 
-                        if IS_TYPE.ipaddress(self.host_attivi[IPindex]): 
-                            if IPindex>0: 
-                                filter+=" or "
-                            filter+=f" src {self.host_attivi[IPindex].compressed}"
-                    filter+=f")"
-                else: print("No need to listen for the source")
-                return filter  
+        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None, variante:Enum=None): 
+            if not isinstance(variante, AttackType): 
+                raise Exception("IPV4_ECHO: Enum variante non valida") 
+            self.variante=variante 
+            super().__init__(ip_dst, host_attivi) 
+        
+        def get_callback(self): 
             def callback(packet): 
-                nonlocal self, TYPE_ECHO_REQUEST, TYPE_ECHO_REPLY
-                if packet.haslayer(IP) and packet.haslayer(ICMP): 
+                nonlocal self  
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and (packet[ICMP].type==self.TYPE_ECHO_REQUEST or packet[ICMP].type==self.TYPE_ECHO_REPLY): 
                     if packet[ICMP].id==0 and packet[ICMP].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
-                        return                           
-                    icmp_id=packet[ICMP].id
-                    byte1 = (icmp_id >> 8) & 0xFF 
-                    byte2 = icmp_id & 0xFF 
-                    self.data.append(chr(byte1)+chr(byte2)) 
-                    if packet.haslayer(Raw) : 
-                        self.data.append(packet[Raw].load.decode()) 
-                    else: print("Pacchetto non ha livello IP error\t",packet.summary())
-            #---------------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"ipv4_redirect: Argomenti non corretti") 
-            TYPE_ECHO_REQUEST=8
-            TYPE_ECHO_REPLY=0
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": callback
-                    #,"store":True 
-                    ,"iface":self.interface
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned 
-                return True 
-            return False  
+                        #THREADING_EVENT.set(self.event_pktconn) 
+                        self.stop_flag["value"]=True 
+                        return 
+                    if self.variante.name==AttackType.ipv4_echo_payload.name or self.variante.name==AttackType.ipv4_echo_campi_payload.name: 
+                        if packet.haslayer(Raw):  
+                            self.data.append(packet[Raw].load.decode()) 
+                        else: print("Payload non presente: ",packet.summary()) 
+                    if self.variante.name==AttackType.ipv4_echo_campi.name or self.variante.name==AttackType.ipv4_echo_campi_payload.name: 
+                        icmp_id=packet[ICMP].id
+                        byte1 = (icmp_id >> 8) & 0xFF 
+                        byte2 = icmp_id & 0xFF  
+                        self.data.append(chr(byte1)+chr(byte2)) 
+            return callback
+        
+        def wait(self):
+            super().wait([self.TYPE_ECHO_REQUEST, self.TYPE_ECHO_REPLY])  
 
-    #SINO A QUI 
-    class IPV4_TIMING: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
+    class IPV4_TIMING(IPVx_):  
         timeout_callback=None
         timer=None 
+        TYPE_ECHO_REQUEST=8
+        TYPE_ECHO_REPLY=0 
+        last_packet_time=None 
+        numero_bit=0
 
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-            self.timeout_timer_callback=self.timeout_timer_callback() 
+        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None, numero_bit:int=0): 
+            if not IS_TYPE.integer(numero_bit) or numero_bit<=0: 
+                raise Exception("IPV4_TIMING: numero di bit non valido-> ",numero_bit) 
+            super().__init__(ip_dst, host_attivi) 
+            self.numero_bit=numero_bit
+            self.timeout_timer_callback=self.timeout_timer_callback()  
         
-        def timeout_timer_callback(self): 
-            THREADING_EVENT.set(self.event_pktconn)
-            return 
-        
-        def return_calback(self, timing_data=[],previous_time=None, numero_bit=0 ): 
-            if numero_bit<=0: 
-                return None 
+        def get_callback(self):  
             DISTANZA_TEMPI=2 #sec
             dict_tempi={}
-            dict_tempi.update( [("TEMPO_"+str(index), 3+index*2*DISTANZA_TEMPI)  for index in range(2**numero_bit)])
+            dict_tempi.update( [("TEMPO_"+str(index), 3+index*2*DISTANZA_TEMPI)  for index in range(2**self.numero_bit)])
             dict_bit={ }
-            dict_bit.update([ ("TEMPO_"+str(index), index)  for index in range(2**numero_bit) ])  
+            dict_bit.update([ ("TEMPO_"+str(index), index)  for index in range(2**self.numero_bit) ])  
 
             MINUTE_TIME=0*60+30 #minuti
             MAX_TIME=max([value for _,value in dict_tempi.items()])+5 
         
             def callback(packet):
-                nonlocal previous_time, timing_data
+                nonlocal self 
                 nonlocal MAX_TIME, MINUTE_TIME  
-                if previous_time is None: 
-                    previous_time=packet.time 
+                if self.last_packet_time is None: 
+                    self.last_packet_time=packet.time 
                     self.timer.cancel()
                     self.timer=GET.timer(MAX_TIME, self.timeout_timer_callback) 
                     self.timer.start() 
                     return  
                 if packet.time is not None: 
-                    delta_time=packet.time-previous_time   
+                    delta_time=packet.time-self.last_packet_time   
                     arr=arr=[(key, abs(delta_time-value)) for key,value in dict_tempi.items()] 
                     min_value=min([y for _,y in arr]) 
                     min_indices = [i for i, v in enumerate(arr) if v[1] == min_value] 
-                    timing_data.append(dict_bit.get(arr[min_indices[0]][0]))
-                    previous_time=packet.time
+                    self.data.append(dict_bit.get(arr[min_indices[0]][0]))
+                    self.last_packet_time=packet.time
                     self.timer.cancel() 
-                    if len(timing_data)%8==0: 
+                    if len(self.data)%8==0: 
                         self.timer=GET.timer(MINUTE_TIME,self.timeout_timer_callback) 
                     else:
                         self.timer=GET.timer(MAX_TIME,self.timeout_timer_callback) 
                     self.timer.start()
             return callback
         
-        def ipv4_timing_cc(self, numero_bit=0): 
-            def get_filter():
-                nonlocal self 
-                filter=f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) and dst {self.ip_dst.compressed}"
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}" 
-                else: print("No need to listen for the source")
-                return filter 
-            def callback(packet):  
-                pass                 
-            #---------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.list(self.data)): 
-                raise Exception(f"ipv4_timing_cc: Argoemnti non corretti")
-            if numero_bit<=0:
-                raise Exception("ipv4_timing_cc: Numero di bit passato non valido") 
-            interface= NETWORK.DEFAULT_INTERFACE().default_iface 
-            TYPE_ECHO_REQUEST=8
-            TYPE_ECHO_REPLY=0 
-            last_packet_time=None 
-            args={
-                    "filter": get_filter() 
-                    #,"count":1 
-                    ,"prn":  self.return_calback(
-                        self.data
-                        ,last_packet_time
-                        ,numero_bit
-                    )
-                    #,"store":True 
-                    ,"iface":interface
-            }  
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                )  
+        def wait(self, type_list:list[int]=None): 
+            super().wait(type_list)  
+
+        def ipv4_timing_cc(self):  
+            try:  
                 THREADING_EVENT.wait(self.event_pktconn) 
                 str_data=""
                 for integer in self.timing_data:
-                    str_data+=format(integer, f'0{numero_bit}b') 
+                    str_data+=format(integer, f'0{self.numero_bit}b') 
                 raw_data="" 
                 for index in range(0, len(str_data), 8):
                     int_data=0
@@ -2388,71 +1997,28 @@ class ReceiveSingleton:
                         int_data=int_data<<1|int(bit)
                     raw_data+=chr(int_data) 
             except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer):  
+                raise Exception(f"wait_conn_from_attacker: {e}") 
+            if True:  
                 joined="".join(raw_data)
                 cleaned="".join(x for x in joined if x in string.printable)
                 self.data=cleaned  
                 return True 
             return False
 
-    class IPV4_TIMING_8BIT: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
+    class IPV4_TIMING_8BIT(IPVx_): 
         timeout_callback=None
         timer=None 
         min_delay=None 
         max_delay=None 
         stop_value=None 
+        start_time=end_time=previous_time=None
 
-        def __init__(self, ip_dst:ipaddress.IPv4Address=None, host_attivi:ipaddress.IPv4Address=None, min_delay:int=1, max_delay:int=30, stop_value: int = 255):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-            self.timeout_timer_callback=self.timeout_timer_callback() 
-            self.min_delay=min_delay 
-            self.max_delay=max_delay 
-            self.stop_value=stop_value
-        
-        def wait(self): 
-            def decode_byte(delay): 
-                #(byte/255)=(delay-min_delay)/(max_delay-min_delay) 
-                frazione = (delay - self.min_delay) / (self.max_delay - self.min_delay) 
-                byte=int(round(frazione*255)) 
-                return byte  
-            def callback_timing_channel8bit(pkt): 
-                nonlocal previous_time, start_time, end_time 
-                if pkt.haslayer("ICMP") and (pkt[ICMP].type==8 or pkt[ICMP].type==0): 
-                    #current_time=datetime.datetime.now() 
-                    #current_time=time.perf_counter() 
-                    current_time=pkt.time 
-                    if previous_time is not None: 
-                        delta=(current_time-previous_time) 
-                    byte=decode_byte(delta) 
-                    print(f"Delta:{delta}\tByte:{byte} Char:{chr(byte)}") 
-                    received_data.append(chr(byte)) 
-                    if byte==self.stop_value: 
-                        stop_flag["value"]=True 
-                        end_time=pkt.time 
-                    else: start_time=pkt.time 
-                    previous_time=current_time 
-            def stop_filter(pkt): 
-                return stop_flag["value"] 
-            #---------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.integer(self.min_delay) and IS_TYPE.integer(self.max_delay) and IS_TYPE.integer(self.stop_value)):
+        def __init__(self, ip_dst:ipaddress.IPv4Address=None, host_attivi:ipaddress.IPv4Address=None, min_delay:int=1, max_delay:int=30, stop_value: int = 255): 
+            if not IS_TYPE.integer(self.min_delay): 
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if  not IS_TYPE.integer(self.max_delay): 
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if not IS_TYPE.integer(self.stop_value):
                 raise Exception("test_timing_channel8bit: Argomenti non validi") 
             if self.min_delay<=0: 
                 raise Exception("Valori negativi o nulli non sono accettati")
@@ -2460,132 +2026,145 @@ class ReceiveSingleton:
                 raise Exception("Il vlaore masismo non può essere minore di quello minimo") 
             if not (0<=self.stop_value <=255): 
                 raise Exception("Valore stop value non corretto")
-            start_time=end_time=previous_time=None 
-            stop_flag={"value":False} 
-            print("In ascolto dei pacchetti ICMP...")
-            sniff(
-                filter=f"icmp and dst host {self.ip_dst.compressed}" 
-                ,prn=callback_timing_channel8bit 
-                ,store=False 
-                ,stop_filter=stop_filter 
-            )  
-            received_data="".join(x for x in received_data) 
-            print(f"Tempo di esecuzione: {end_time-start_time}") 
+            super().__init__(ip_dst, host_attivi)
+            self.timeout_timer_callback=self.timeout_timer_callback() 
+            self.min_delay=min_delay 
+            self.max_delay=max_delay 
+            self.stop_value=stop_value  
         
-    class IPV4_TIMING_8BIT_NOISE: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None
+        def get_callback(self): 
+            def decode_byte(delay): 
+                #(byte/255)=(delay-min_delay)/(max_delay-min_delay) 
+                frazione = (delay - self.min_delay) / (self.max_delay - self.min_delay) 
+                byte=int(round(frazione*255)) 
+                return byte 
+            def callback(pkt): 
+                nonlocal self 
+                if pkt.haslayer(ICMP) and (pkt[ICMP].type==8 or pkt[ICMP].type==0): 
+                    #current_time=datetime.datetime.now() 
+                    #current_time=time.perf_counter() 
+                    current_time=pkt.time 
+                    if self.previous_time is not None: 
+                        delta=(current_time-self.previous_time) 
+                    byte=decode_byte(delta) 
+                    print(f"Delta:{delta}\tByte:{byte} Char:{chr(byte)}") 
+                    self.data.append(chr(byte)) 
+                    if byte==self.stop_value: 
+                        self.stop_flag["value"]=True 
+                        self.end_time=pkt.time 
+                    else: self.start_time=pkt.time 
+                    self.previous_time=current_time 
+            return callback 
+        
+        def wait(self, type_list:list[int]=None):  
+            if not IS_TYPE.integer(self.min_delay): 
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if  not IS_TYPE.integer(self.max_delay): 
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if not IS_TYPE.integer(self.stop_value):
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if self.min_delay<=0: 
+                raise Exception("Valori negativi o nulli non sono accettati")
+            if self.max_delay<=self.min_delay: 
+                raise Exception("Il vlaore masismo non può essere minore di quello minimo") 
+            if not (0<=self.stop_value <=255): 
+                raise Exception("Valore stop value non corretto")
+            super().wait(type_list)
+        
+    class IPV4_TIMING_8BIT_NOISE(IPVx_):  
         timeout_callback=None
         timer=None 
         min_delay=None 
         max_delay=None 
         stop_value=None 
         rumore=None 
-        seed=None
+        seed=None 
+        start_time=end_time=None 
+        current_time=previous_time=None 
 
         def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None, min_delay:int=1, max_delay:int=30, stop_value: int = 255, rumore:int=2, seed:int=4582):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if self.host_attivi and not IS_TYPE.ipaddress(self.host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
+            if not IS_TYPE.integer(self.min_delay): 
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if  not IS_TYPE.integer(self.max_delay): 
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if not IS_TYPE.integer(self.stop_value):
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if self.min_delay<=0: 
+                raise Exception("Valori negativi o nulli non sono accettati")
+            if self.max_delay<=self.min_delay: 
+                raise Exception("Il vlaore masismo non può essere minore di quello minimo") 
+            if not (0<=self.stop_value <=255): 
+                raise Exception("Valore stop value non corretto")
             self.timeout_timer_callback=self.timeout_timer_callback() 
             self.min_delay=min_delay 
             self.max_delay=max_delay 
             self.stop_value=stop_value 
             self.rumore=rumore
-            self.seed=seed
-        
-        def wait(self): 
+            min_delay+=self.rumore
+            max_delay+=self.rumore
+            self.seed=seed 
+            random.seed(self.seed) 
+
+        def get_callback(self): 
             def decode_byte(delay): 
+                nonlocal self
                 #(byte/255)=(delay-min_delay)/(max_delay-min_delay) 
-                frazione = (delay - min_delay) / (max_delay - min_delay) 
+                frazione = (delay - self.min_delay) / (self.max_delay - self.min_delay) 
                 byte=int(round(frazione*255)) 
                 byte = max(0, min(255, byte))
                 return byte 
-            def callback_timing_channel8bit(pkt): 
-                nonlocal current_time, previous_time, start_time, end_time 
+            def callback(pkt): 
+                nonlocal self 
                 if pkt.haslayer("ICMP") and pkt.haslayer("Raw") and (pkt[ICMP].type==8 or pkt[ICMP].type==0): 
-                    #current_time=datetime.datetime.now() 
-                    #current_time=time.perf_counter() 
-                    current_time=pkt.time 
-                    if previous_time is None:
-                        start_time= previous_time = current_time 
+                    #self.current_time=datetime.datetime.now() 
+                    #self.current_time=time.perf_counter() 
+                    self.current_time=pkt.time 
+                    if self.previous_time is None:
+                        self.start_time= self.previous_time = self.current_time 
                     return 
                     random_delay = int.from_bytes(pkt[Raw].load, byteorder='big', signed=True)
                     #random_delay = random.randint(-rumore, rumore)
-                    delay=(current_time-previous_time)-random_delay
+                    delay=(self.current_time-self.previous_time)-random_delay
                     print("This Delay:", delay,"Random delay:", random_delay, "Send Delay" ,delay-random_delay)
                     byte=decode_byte(delay) 
                     print(f"Delta:{delay}\tByte:{byte} Char:{chr(byte)}") 
                     received_data.append(chr(byte))
 
-                    previous_time=current_time
+                    self.previous_time=self.current_time
                     
                     if byte==stop_value: 
                         stop_flag["value"]=True 
-                    end_time=pkt.time 
-            def stop_filter(pkt): 
-                return stop_flag["value"] 
-            #---------------------------------------------------
-            if not (IS_TYPE.ipaddress(self.ip_dst) and IS_TYPE.integer(self.rumore) and IS_TYPE.integer(self.min_delay) and IS_TYPE.integer(self.max_delay) and IS_TYPE.integer(self.stop_value) and IS_TYPE.integer(self.seed)):
+                    self.end_time=pkt.time 
+            return callback
+        
+        def wait(self, type_list:list[int]=None): 
+            if not IS_TYPE.ipaddress(self.ip_dst):
                 raise Exception("test_timing_channel8bit: Argomenti non validi") 
-            if min_delay<=0: 
+            if not IS_TYPE.integer(self.rumore) :
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if not IS_TYPE.integer(self.min_delay) :
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if not IS_TYPE.integer(self.max_delay) :
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if not IS_TYPE.integer(self.stop_value) :
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if not IS_TYPE.integer(self.seed):
+                raise Exception("test_timing_channel8bit: Argomenti non validi") 
+            if self.min_delay<=0: 
                 raise Exception(f"test_timing_channel8bit: Valore minimo non accettato: {min_delay}")
-            if max_delay<=min_delay: 
+            if self.max_delay<=self.min_delay: 
                 raise Exception(f"test_timing_channel8bit: Il valore masismo non può essere minore di quello minimo") 
             if not (0<=self.stop_value <=255): 
                 raise Exception(f"test_timing_channel8bit: Valore stop value non corretto: {self.stop_value}") 
-            min_delay+=self.rumore
-            max_delay+=self.rumore
-
-            start_time=end_time=None 
-            current_time=previous_time=None 
-            stop_flag={"value":False}  
-            random.seed(self.seed)                 
-            print("In ascolto dei pacchetti ICMP...")
-            sniff(
-                filter=f"icmp and dst host {self.ip_dst.compressed}" 
-                ,prn=callback_timing_channel8bit 
-                ,store=False 
-                ,stop_filter=stop_filter 
-            )  
-            received_data="".join(x for x in received_data) 
-            print(f"Tempo di esecuzione: {end_time-start_time}") 
+            super().wait(type_list)
     
-    
-    class IPV6_INFORMATION_REQUEST: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None 
-
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi
-
-        def return_calback(self):
+    class IPV6_INFORMATION_REQUEST(IPVx_):  
+        TYPE_INFORMATION_REQUEST=128 
+        TYPE_INFORMATION_REPLY=129 
+        
+        def get_callback(self): 
+            #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
+            #print("IP_GOOGLE: ",ip_google) 
             def callback(packet): 
                 nonlocal self
                 if packet.haslayer(IPv6) and (packet.haslayer(ICMPv6EchoReply) or packet.haslayer(ICMPv6EchoRequest)):  
@@ -2595,7 +2174,8 @@ class ReceiveSingleton:
                         else None
                     ) 
                     if packet[icmp_echo_type].id==0 and packet[icmp_echo_type].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
+                        #THREADING_EVENT.set(self.event_pktconn) 
+                        self.stop_flag["value"]=True 
                         return
                     icmp_id=packet[icmp_echo_type].id
                     byte1 = (icmp_id >> 8) & 0xFF 
@@ -2603,83 +2183,10 @@ class ReceiveSingleton:
                     self.data.extend([chr(byte1),chr(byte2)]) 
             return callback 
 
-        def wait(self): 
-            def get_filter():
-                nonlocal self, TYPE_INFORMATION_REQUEST, TYPE_INFORMATION_REPLY
-                filter= f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {self.ip_dst.compressed}"
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}" 
-                return filter 
-            def callback(packet): 
-                nonlocal self
-                if packet.haslayer(IPv6) and (packet.haslayer(ICMPv6EchoReply) or packet.haslayer(ICMPv6EchoRequest)):  
-                    icmp_echo_type=(
-                        "ICMPv6EchoReply" if packet.haslayer(ICMPv6EchoReply) 
-                        else "ICMPv6EchoRequest" if packet.haslayer(ICMPv6EchoRequest) 
-                        else None
-                    ) 
-                    if packet[icmp_echo_type].id==0 and packet[icmp_echo_type].seq==1: 
-                        THREADING_EVENT.set(self.event_pktconn)
-                        return
-                    icmp_id=packet[icmp_echo_type].id
-                    byte1 = (icmp_id >> 8) & 0xFF 
-                    byte2 = icmp_id & 0xFF 
-                    self.data.extend([chr(byte1),chr(byte2)]) 
-            #---------------------------------------------------
-            if not IS_TYPE.ipaddress(self.ip_dst) or not IS_TYPE.list(self.data): 
-                raise Exception(f"Argoemnti non corretti") 
-            TYPE_INFORMATION_REQUEST=128
-            TYPE_INFORMATION_REPLY=129  
-            #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
-            #print("IP_GOOGLE: ",ip_google) 
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn":  callback()
-                    #,"store":True 
-                    ,"iface": self.interface
-                }
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e:
-                raise Exception(f"get_information_request: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned 
-                return True 
-            return False  
-
-    class IPV6_PARAMETER_PROBLEM: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None 
-
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
+    class IPV6_PARAMETER_PROBLEM(IPVx_): 
+        TYPE_PARAMETER_PROBLEM=4
         
-        def return_calback(self): 
-            #TYPE_INFORMATION_REPLY=129
-            #TYPE_PARAMETER_PROBLEM=4  
+        def return_cget_callbackalback(self): 
             def callback(packet): 
                 nonlocal self
                 field=None 
@@ -2688,7 +2195,8 @@ class ReceiveSingleton:
                         if (field:=layer.getfieldval("ptr")) is not None and field!=0xffffffff: 
                             self.data.append(field.to_bytes(4,"big").decode()) 
                         elif field is not None and field==0xffffffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
+                            #THREADING_EVENT.set(self.event_pktconn) 
+                            self.stop_flag["value"]=True 
                             return 
                     if (layer:=layer.getlayer("IPerror6")) is not None: 
                         if (field:=layer.getfieldval("plen")) is not None: 
@@ -2702,94 +2210,23 @@ class ReceiveSingleton:
                             self.data.append(field.to_bytes(2,"big").decode()) 
             return callback
         
-        def wait(self): 
-            def get_filter():
+        def wait(self, type_list:list[int]=None):      
+            super().wait(type_list) 
+
+    class IPV6_TIME_EXCEEDED(IPVx_): 
+        TYPE_TIME_EXCEEDED=3  
+        
+        def get_callback(self):
+            def callback(packet): 
                 nonlocal self 
-                filter= f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM}) and dst {self.ip_dst.compressed}" 
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}" 
-                return filter 
-            def callback(packet): 
-                nonlocal self
-                field=None 
-                if (layer:=packet.getlayer("IPv6")) is not None:  
-                    if (layer:=layer.getlayer("ICMPv6ParamProblem")) is not None: 
-                        if (field:=layer.getfieldval("ptr")) is not None and field!=0xffffffff: 
-                            self.data.append(field.to_bytes(4,"big").decode()) 
-                        elif field is not None and field==0xffffffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
-                            return 
-                    if (layer:=layer.getlayer("IPerror6")) is not None: 
-                        if (field:=layer.getfieldval("plen")) is not None: 
-                            self.data.append(field.to_bytes(2,"big").decode())
-                    layer=(
-                        layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
-                        else layer.getlayer("ICMPv6EchoReply")
-                    )
-                    if layer is not None: 
-                        if (field:=layer.getfieldval("id")) is not None: 
-                            self.data.append(field.to_bytes(2,"big").decode()) 
-            #--------------------------------------------------- 
-            if not IS_TYPE.ipaddress(self.ip_dst) or not IS_TYPE.list(self.data): 
-                raise Exception(f"Argoemnti non corretti") 
-            TYPE_PARAMETER_PROBLEM=4 
-            args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn":  callback()
-                    #,"store":True 
-                    ,"iface":self.interface
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e:
-                raise Exception(f"get_parameter_problem: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned 
-                print(f"Done waiting 'parameter_problem' received: {self.data}") 
-                return True 
-            return False  
-
-    class IPV6_TIME_EXCEEDED: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None 
-
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-        
-        def return_calback(self):
-            def callback(packet): 
-                nonlocal self
-                TYPE_TIME_EXCEEDED=3   
                 field=None 
                 if (layer:=packet.getlayer("IPv6")) is not None:  
                     if (layer:=layer.getlayer("IPerror6")) is not None: 
                         if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
                             self.data.append(field.to_bytes(2,"big").decode())
                         elif field is not None and field==0xffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
+                            #THREADING_EVENT.set(self.event_pktconn) 
+                            self.stop_flag["value"]=True 
                             return
                     layer=(
                         layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
@@ -2799,92 +2236,20 @@ class ReceiveSingleton:
                         if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
                             self.data.append(field.to_bytes(2,"big").decode()) 
                         elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            THREADING_EVENT.set(self.event_pktconn)
+                            #THREADING_EVENT.set(self.event_pktconn) 
+                            self.stop_flag["value"]=True 
                             return 
-            return callback
+            return callback  
         
-        def ipv6_time_exceeded(self): 
-            def get_filter():
-                nonlocal self, TYPE_TIME_EXCEEDED 
-                filter=f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED}) and dst {self.ip_dst.compressed}" 
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}"
-                return filter 
-            def callback(packet): 
-                nonlocal self
-                TYPE_TIME_EXCEEDED=3   
-                field=None 
-                if (layer:=packet.getlayer("IPv6")) is not None:  
-                    if (layer:=layer.getlayer("IPerror6")) is not None: 
-                        if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
-                            self.data.append(field.to_bytes(2,"big").decode())
-                        elif field is not None and field==0xffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
-                            return
-                    layer=(
-                        layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
-                        else layer.getlayer("ICMPv6EchoReply")
-                    )
-                    if layer is not None: 
-                        if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
-                            self.data.append(field.to_bytes(2,"big").decode()) 
-                        elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            THREADING_EVENT.set(self.event_pktconn)
-                            return 
-            #--------------------------------------------------- 
-            time_exceeded_data=[]
-            if not IS_TYPE.ipaddress(self.ip_dst) or not IS_TYPE.list(self.data): 
-                raise Exception(f"Argoemnti non corretti") 
-            TYPE_TIME_EXCEEDED=3 
-            args={
-                    "filter": filter
-                    #,"count":1 
-                    ,"prn":  callback()
-                    #,"store":True 
-                    ,"iface":self.interface
-            } 
-            try: 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data.append(cleaned) 
-                return True 
-            return False  
+        def wait(self, type_list:list[int]=None):      
+            super().wait(type_list) 
 
-    class IPV6_PACKET_BIG: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None 
-
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
+    class IPV6_PACKET_BIG(IPVx_): 
+        TYPE_PKT_BIG= 2
         
-        def return_calback(self): 
+        def get_callback(self): 
             def callback(packet): 
-                nonlocal self
-                TYPE_PKT_BIG= 2
+                nonlocal self 
                 field=None 
                 if (layer:=packet.getlayer("IPv6")) is not None:  
                     if (layer:=layer.getlayer("ICMPv6PacketTooBig")) is not None: 
@@ -2894,7 +2259,8 @@ class ReceiveSingleton:
                         if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
                             self.data.append(field.to_bytes(2,"big").decode())
                         elif field is not None and field==0xffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
+                            #THREADING_EVENT.set(self.event_pktconn) 
+                            self.stop_flag["value"]=True 
                             return
                     layer=(
                         layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
@@ -2904,97 +2270,21 @@ class ReceiveSingleton:
                         if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
                             self.data.append(field.to_bytes(2,"big").decode()) 
                         elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            THREADING_EVENT.set(self.event_pktconn)
+                            #THREADING_EVENT.set(self.event_pktconn) 
+                            self.stop_flag["value"]=True 
                             return
                         #else: print("Caso non considetrato")  
-            return callback
+            return callback 
         
-        def ipv6_packet_to_big(self): 
-            def get_filter(): 
-                nonlocal self, TYPE_PKT_BIG 
-                filter=f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG}) and dst {self.ip_host.compressed}" 
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}"
-                return filter 
-            def callback(packet): 
-                nonlocal self
-                TYPE_PKT_BIG= 2
-                field=None 
-                if (layer:=packet.getlayer("IPv6")) is not None:  
-                    if (layer:=layer.getlayer("ICMPv6PacketTooBig")) is not None: 
-                        if (field:=layer.getfieldval("mtu")) is not None: 
-                            self.data.append(field.to_bytes(4,"big").decode()) 
-                    if (layer:=layer.getlayer("IPerror6")) is not None: 
-                        if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
-                            self.data.append(field.to_bytes(2,"big").decode())
-                        elif field is not None and field==0xffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
-                            return
-                    layer=(
-                        layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
-                        else layer.getlayer("ICMPv6EchoReply")
-                    )
-                    if layer is not None: 
-                        if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
-                            self.data.append(field.to_bytes(2,"big").decode()) 
-                        elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            THREADING_EVENT.set(self.event_pktconn)
-                            return
-                        #else: print("Caso non considetrato")                      
-            #--------------------------------------------------- 
-            if not IS_TYPE.ipaddress(self.ip_dst) or not IS_TYPE.list(self.data): 
-                raise Exception(f"Argoemnti non corretti") 
-            TYPE_PKT_BIG= 2  
-            try:
-                args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": callback()
-                    #,"store":True 
-                    ,"iface": self.interface
-                }
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}") 
-            THREADING_EVENT.wait(self.event_pktconn)
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data)
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data.append(cleaned) 
-                return True 
-            return False  
-
-    #FATTO
-    class IPV6_DESTINTION_UNREACHABLE: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None 
-
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
+        def wait(self, type_list:list[int]=None):      
+            super().wait(type_list) 
+    
+    class IPV6_DESTINTION_UNREACHABLE(IPVx_): 
+        TYPE_DESTINATION_UNREACHABLE=3  
         
-        def return_calback(self): 
+        def get_callback(self): 
             def callback(packet): 
-                nonlocal self
-                TYPE_DESTINATION_UNREACHABLE=3 
+                nonlocal self 
                 field=None 
                 if (layer:=packet.getlayer("IPv6")) is not None:  
                     if (layer:=layer.getlayer("ICMPv6DestUnreach")) is None: 
@@ -3003,7 +2293,8 @@ class ReceiveSingleton:
                         if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
                             self.data.append(field.to_bytes(2,"big").decode())
                         elif field is not None and field==0xffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
+                            #THREADING_EVENT.set(self.event_pktconn) 
+                            self.stop_flag["value"]=True 
                             return
                     layer=(
                         layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
@@ -3013,125 +2304,61 @@ class ReceiveSingleton:
                         if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")==1): 
                             self.data.append(field.to_bytes(2,"big").decode()) 
                         elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            THREADING_EVENT.set(self.event_pktconn)
+                            #THREADING_EVENT.set(self.event_pktconn) 
+                            self.stop_flag["value"]=True 
                             return 
-            return callback
+            return callback 
+        
+        def wait(self, type_list:list[int]=None):      
+            super().wait(type_list)  
 
-        def ipv6_destination_unreachable(self): 
-            def get_filter(): 
-                nonlocal self, TYPE_DESTINATION_UNREACHABLE 
-                filter=f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {self.ip_host.compressed}" 
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}"
-                return filter 
-            def callback(packet): 
-                nonlocal self
-                TYPE_DESTINATION_UNREACHABLE=3 
-                field=None 
-                if (layer:=packet.getlayer("IPv6")) is not None:  
-                    if (layer:=layer.getlayer("ICMPv6DestUnreach")) is None: 
-                        return
-                    if (layer:=layer.getlayer("IPerror6")) is not None: 
-                        if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
-                            self.data.append(field.to_bytes(2,"big").decode())
-                        elif field is not None and field==0xffff: 
-                            THREADING_EVENT.set(self.event_pktconn)
-                            return
-                    layer=(
-                        layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
-                        else layer.getlayer("ICMPv6EchoReply")
-                    )
-                    if layer is not None: 
-                        if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")==1): 
-                            self.data.append(field.to_bytes(2,"big").decode()) 
-                        elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
-                            THREADING_EVENT.set(self.event_pktconn)
-                            return 
-            #---------------------------------------------------                 
-            if not IS_TYPE.ipaddress(self.ip_dst) or not IS_TYPE.list(self.data): 
-                raise Exception(f"Argoemnti non corretti")  
-            TYPE_DESTINATION_UNREACHABLE=1 
-            try:
-                args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": callback() 
-                    #,"store":True 
-                    ,"iface":self.interface
-                } 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                )  
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}") 
-            THREADING_EVENT.wait(self.event_pktconn) 
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data) 
-                cleaned="".join(x for x in joined if x in string.printable)
-                self.data=cleaned 
-                return True 
-            return False  
-
-    class IPV6_TIMING: 
-        event_pktconn=None
-        ip_dst=None
-        host_attivi=None
-        interface=None
-        data=None 
+    class IPV6_TIMING(IPVx_): 
         callback_function=None
-        timer=None
+        timer=None 
+        numero_bit=0 
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129 
+        last_packet_time=None 
 
-        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None):
-            if not IS_TYPE.ipaddress(ip_dst): 
-                raise Exception("IP destinazione non valido") 
-            if host_attivi and not IS_TYPE.ipaddress(host_attivi): 
-                raise Exception("IP mittente non valido")
-            self.event_pktconn=GET.threading_Event() 
-            try:  
-                self.interface= NETWORK.DEFAULT_INTERFACE().default_iface  
-            except Exception as e:
-                raise Exception(f"IPV4_INFORMATION_REQUEST: {e}") 
-            self.data=[]
-            self.ip_dst=ip_dst
-            self.host_attivi=host_attivi 
-            self.callback_function=lambda: self.timeout_timer_callback(self.event_pktconn)
+        def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:ipaddress.IPv4Address=None, numero_bit:int=0):
+            if not IS_TYPE.integer(numero_bit): 
+                raise Exception("Numero di bit non valido")
+            super().__init__(ip_dst, host_attivi)
+            self.callback_function=lambda: self.timeout_timer_callback()
             self.timer=GET.timer(None,self.callback_function) 
         
-        def timeout_timer_callback(self): 
-            THREADING_EVENT.set(self.event_pktconn)
-            return 
         
-        def return_calback(self, previous_time=None, numero_bit=0 ):   
-            if numero_bit<=0: 
+        
+        def wait(self, type_list:list[int]=None):      
+            super().wait(type_list)  
+        
+        def get_callback(self): 
+            if self.numero_bit<=0: 
                 return None   
             DISTANZA_TEMPI=2 #sec
             dict_tempi={}
-            dict_tempi.update( [("TEMPO_"+str(index), 3+index*2*DISTANZA_TEMPI)  for index in range(2**numero_bit)])
+            dict_tempi.update( [("TEMPO_"+str(index), 3+index*2*DISTANZA_TEMPI)  for index in range(2**self.numero_bit)])
             dict_bit={ }
-            dict_bit.update([ ("TEMPO_"+str(index), index)  for index in range(2**numero_bit) ])  
+            dict_bit.update([ ("TEMPO_"+str(index), index)  for index in range(2**self.numero_bit) ])  
 
             MINUTE_TIME=0*60+30 #minuti
             MAX_TIME=max([value for _,value in dict_tempi.items()])+5 
         
-            def callback(packet):
-                nonlocal previous_time 
+            def callback(packet): 
                 nonlocal MAX_TIME, MINUTE_TIME  
-                if previous_time is None: 
-                    previous_time=packet.time 
+                if self.last_packet_time is None: 
+                    self.last_packet_time=packet.time 
                     self.timer.cancel()
                     self.timer=GET.timer(MAX_TIME,self.callback_function) 
                     self.timer.start() 
                     return  
                 if packet.time is not None: 
-                    delta_time=packet.time-previous_time   
+                    delta_time=packet.time-self.last_packet_time   
                     arr=arr=[(key, abs(delta_time-value)) for key,value in dict_tempi.items()] 
                     min_value=min([y for _,y in arr]) 
                     min_indices = [i for i, v in enumerate(arr) if v[1] == min_value] 
                     self.data.append(dict_bit.get(arr[min_indices[0]][0]))
-                    previous_time=packet.time
+                    self.last_packet_time=packet.time
                     self.timer.cancel() 
                     if len(self.data)%8==0: 
                         self.timer=GET.timer(MINUTE_TIME,self.callback_function) 
@@ -3140,53 +2367,16 @@ class ReceiveSingleton:
                     self.timer.start()
             return callback
         
-        def ipv6_timing_cc(self, numero_bit:int=0):  
-            def get_filter(): 
-                nonlocal self, TYPE_INFORMATION_REQUEST, TYPE_INFORMATION_REPLY
-                filter= f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {self.ip_dst.compressed}" 
-                if IS_TYPE.ipaddress(self.host_attivi): 
-                    filter+=f" and src {self.host_attivi.compressed}"
-                return filter 
-            #--------------------------------------------------- 
-            if not IS_TYPE.ipaddress(self.ip_dst) or not IS_TYPE.list(self.data): 
-                raise Exception(f"Argoemnti non corretti") 
-            if numero_bit<=0: 
-                raise Exception("Numero di bit passato non valido")   
-            TYPE_INFORMATION_REQUEST=128
-            TYPE_INFORMATION_REPLY=129
-            last_packet_time=None 
-            try: 
-                args={
-                    "filter": get_filter()
-                    #,"count":1 
-                    ,"prn": self.return_calback(last_packet_time, numero_bit)
-                    #,"store":True 
-                    ,"iface":self.interface
-                } 
-                sniffer,pkt_timer=SNIFFER.sniff_packet(
-                    args
-                    ,None
-                    ,lambda: SNIFFER.template_timeout(self.event_pktconn)
-                ) 
-                THREADING_EVENT.wait(self.event_pktconn)   
-                str_data=""
-                for integer in self.data:
-                    str_data+=format(integer, f'0{numero_bit}b') 
-                data="" 
-                for index in range(0, len(str_data), 8):
-                    int_data=0
-                    for bit in str_data[index:index+8][::-1]:
-                        int_data=int_data<<1|int(bit)
-                    data+=chr(int_data)  
-            except Exception as e:
-                raise Exception(f"wait_conn_from_attacker: {e}")
-            SNIFFER.stop(sniffer)
-            if TIMER.stop(pkt_timer): 
-                joined="".join(self.data) 
-                cleaned="".join(x for x in joined if x in string.printable) 
-                self.data=cleaned 
-                return True 
-            return False
+        def wait_ipv6_timing_cc(self, ): 
+            str_data=""
+            for integer in self.data:
+                str_data+=format(integer, f'0{self.numero_bit}b') 
+            data="" 
+            for index in range(0, len(str_data), 8):
+                int_data=0
+                for bit in str_data[index:index+8][::-1]:
+                    int_data=int_data<<1|int(bit)
+                data+=chr(int_data) 
 
 class AttackType(Enum): 
     ipv4_destination_unreachable=0
@@ -3230,83 +2420,24 @@ class AttackType(Enum):
             if not ask_bool_choice(msg): 
                 return None 
 
-    def get_attack_method(attack=None)->Enum: 
+    def get_attack_method(attack=None)->AttackType: 
         #Data in input una qualsiasi variabile ritorna l'enum associato quando possibile
-        if not (IS_TYPE.string(attack) or IS_TYPE.integer(attack) or IS_TYPE.enum(attack)): 
-            raise Exception("Argomenti non validi") 
-        if IS_TYPE.enum(attack): 
-            attack=attack.name 
-        try: 
-            attack=int(attack)  
-        except Exception as e: 
-            print("dgnfgn")
-            pass
+        if IS_TYPE.enum(attack, AttackType): 
+            return attack 
         if IS_TYPE.string(attack): 
-            match attack: 
-                case "ipv4_destination_unreachable": return AttackType.ipv4_destination_unreachable
-                case "ipv4_destination_unreachable_unused": return AttackType.ipv4_destination_unreachable_unused
-                case "ipv4_time_exceeded": return AttackType.ipv4_time_exceeded
-                case "ipv4_time_exceeded_unused": return AttackType.ipv4_time_exceeded_unused
-                case "ipv4_parameter_problem": return AttackType.ipv4_parameter_problem
-                case "ipv4_parameter_problem_unused": return AttackType.ipv4_parameter_problem_unused
-                case "ipv4_source_quench": return AttackType.ipv4_source_quench
-                case "ipv4_source_quench_unused": return AttackType.ipv4_source_quench_unused
-                case "ipv4_redirect": return AttackType.ipv4_redirect
-                case "ipv4_echo_campi": return AttackType.ipv4_echo_campi
-                case "ipv4_echo_payload": return AttackType.ipv4_echo_payload
-                case "ipv4_echo_random_payload": return AttackType.ipv4_echo_random_payload
-                case "ipv4_echo_campi_payload": return AttackType.ipv4_echo_campi_payload
-                case "ipv4_timestamp": return AttackType.ipv4_timestamp
-                case "ipv4_information": return AttackType.ipv4_information
-                case "ipv4_timing_channel_8bit": return AttackType.ipv4_timing_channel_8bit
-                case "ipv4_timing_channel_8bit_noise": return AttackType.ipv4_timing_channel_8bit_noise
-                #------------------------------------------------
-                case "ipv6_information": return AttackType.ipv6_information
-                case "ipv6_parameter_problem": return AttackType.ipv6_parameter_problem
-                case "ipv6_time_exceeded": return AttackType.ipv6_time_exceeded 
-                case "ipv6_packet_to_big": return AttackType.ipv6_packet_to_big
-                case "ipv6_destination_unreachable": return AttackType.ipv6_destination_unreachable
-                case "ipv6_timing_cc": return AttackType.ipv6_timing_cc
-                #------------------------------------------------
-                case _: 
-                    print("Attacco immesso non valido")
-                    return None
-                #case "ipv4_destination_unreachable": return AttackType.ipv4_destination_unreachable
-                #case "ipv4_destination_unreachable": return AttackType.ipv4_destination_unreachable
-                #case "ipv4_destination_unreachable": return AttackType.ipv4_destination_unreachable
+            try:
+                return AttackType[attack]
+            except KeyError:
+                raise ValueError(f"Stringa attacco non valida: {attack}")  
         if IS_TYPE.integer(attack): 
-            match attack: 
-                case AttackType.ipv4_destination_unreachable.value: return AttackType.ipv4_destination_unreachable
-                case AttackType.ipv4_destination_unreachable_unused.value: return AttackType.ipv4_destination_unreachable_unused
-                case AttackType.ipv4_time_exceeded.value: return AttackType.ipv4_time_exceeded
-                case AttackType.ipv4_time_exceeded_unused.value: return AttackType.ipv4_time_exceeded_unused
-                case AttackType.ipv4_parameter_problem.value: return AttackType.ipv4_parameter_problem
-                case AttackType.ipv4_parameter_problem_unused.value: return AttackType.ipv4_parameter_problem_unused
-                case AttackType.ipv4_source_quench.value: return AttackType.ipv4_source_quench
-                case AttackType.ipv4_source_quench_unused.value: return AttackType.ipv4_source_quench_unused
-                case AttackType.ipv4_redirect.value: return AttackType.ipv4_redirect
-                case AttackType.ipv4_echo_campi.value: return AttackType.ipv4_echo_campi
-                case AttackType.ipv4_echo_payload.value: return AttackType.ipv4_echo_payload
-                case AttackType.ipv4_echo_random_payload.value: return AttackType.ipv4_echo_random_payload
-                case AttackType.ipv4_echo_campi_payload.value: return AttackType.ipv4_echo_campi_payload
-                case AttackType.ipv4_timestamp.value: return AttackType.ipv4_timestamp
-                case AttackType.ipv4_information.value: return AttackType.ipv4_information
-                case AttackType.ipv4_timing_channel_8bit.value: return AttackType.ipv4_timing_channel_8bit
-                case AttackType.ipv4_timing_channel_8bit_noise.value: return AttackType.ipv4_timing_channel_8bit_noise
-                #------------------------------------------------
-                case AttackType.ipv6_information.value: return AttackType.ipv6_information
-                case AttackType.ipv6_parameter_problem.value: return AttackType.ipv6_parameter_problem
-                case AttackType.ipv6_time_exceeded.value: return AttackType.ipv6_time_exceeded
-                case AttackType.ipv6_packet_to_big.value: return AttackType.ipv6_packet_to_big
-                case AttackType.ipv6_destination_unreachable.value: return AttackType.ipv6_destination_unreachable
-                case AttackType.ipv6_timing_cc.value: return AttackType.ipv6_timing_cc
-                #------------------------------------------------
-                case _: 
-                    print("Attacco immesso non valido")
-                    return None
+            try:
+                return AttackType(attack)
+            except ValueError:
+                raise ValueError(f"Valore numerico attacco non valido: {attack}")
+        raise TypeError("Argomento non valido: atteso str, int o AttackType")
     
     def get_description(attack:Enum=None)->str: 
-        if IS_TYPE.enum(attack): 
+        if IS_TYPE.enum(attack, AttackType): 
             match attack: 
                 case AttackType.ipv4_destination_unreachable: 
                     return "Usa i campi di ICMP Destination Unreachable"
