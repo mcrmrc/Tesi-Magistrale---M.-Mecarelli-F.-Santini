@@ -816,7 +816,6 @@ class NETWORK:
                 mac_address=sanitize_str(stdout) if stdout else print("stdout vuota: ",stderr)
             print("MAC address: ",mac_address) 
 
-
 def sanitize_str(stringa):
     if type(stringa) is not str or string is None:
         raise Exception("Stringa non valida")
@@ -828,9 +827,6 @@ def sanitize_str(stringa):
     #stringa=stringa.replace("\t","")
     #stringa=stringa.replace("\n","")
     return stringa.strip() 
-
-
-
 
 def print_dictionary(dictionary:dict=None):
     if not isinstance(dictionary,dict):
@@ -855,19 +851,6 @@ def ask_bool_choice(msg:str):
         raise Exception("ask_bool_choice: Il messaggio non è una stringa")
     return is_scelta_SI_NO(input(f"{msg}"))
 
-def is_valid_ipaddress(ip_address:ipaddress.IPv4Address): 
-    if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
-        return True
-    elif isinstance(ip_address, str):
-        try:
-            ipaddress.ip_address(ip_address) 
-            return True
-        except Exception as e:
-            print(f"is_valid_ipaddress: {e}", file=sys.stderr)  
-            return False 
-    else: return False
-
-#------------------------
 class PARSER: 
     def add_argument(param_arg, parser=None):
         if parser is None:
@@ -898,7 +881,6 @@ class PARSER:
             return args, unknown 
         return None, None
 
-#------------------------
 class CALC: 
     def checksum(data: bytes) -> int:
         """
@@ -938,9 +920,6 @@ class CALC:
         checksum += checksum >> 16 
         return (~checksum) & 0xffff
     
-
-    
-#------------------------
 class IS_TYPE: 
     def callable_function(callback_function=None):
         #the type of a function can be 'function' or 'method' 
@@ -951,8 +930,14 @@ class IS_TYPE:
     
     def ipaddress(ip_address:ipaddress.IPv4Address): 
         if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
-            return True 
-        print(f"ipaddress: Indirizzo IP invalido {ip_address}") 
+            return True  
+        #else: 
+        #    try: 
+        #        ipaddress.ip_address(ip_address) 
+        #        return True
+        #    except Exception as e: 
+        #        print("IS_TYPE.ipaddress: ",e)
+        print(f"IS_TYPE.ipaddress: indirizzo IP non valido {ip_address}") 
         return False
 
     def time(timeout_time:int|float=None):    
@@ -1033,8 +1018,8 @@ class IS_TYPE:
         print(f"ArgumentParser: parser non valido {parser}")
         return False 
     
-    def enum(enum:Enum=None):
-        if isinstance(enum, Enum):
+    def enum(enum:Enum=None, enum_type=Enum):
+        if isinstance(enum, enum_type):
             return True
         print(f"is_Enum: enum non valido {enum}")
         return False 
