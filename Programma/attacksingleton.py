@@ -103,70 +103,87 @@ class ICMP_TYPE(Enum):
     v6_ParameterProblem=4
     v6_Echo_Request=128
     v6_Echo_Reply=129  
-
-class SendSingleton: 
-    type_attacco=None 
-    host_attivi=None 
-    use_delay=None 
-    block_size=1024 #bytes (1KB) 
-    min_wait=2 #sec
-    max_wait=15 #sec
-    class SenderEnum(Enum): 
+class SENDER_TYPE(Enum): 
         TRUE_SENDER=1
         FAKE_SENDER_ACTIVE=2 
         FAKE_SENDER_INACTIVE=3
         FAKE_SENDER_BOTH=4 
+block_size=1024 #bytes (1KB) 
+min_wait=2 #sec
+max_wait=15 #sec
+DEBUG=True
+
+class SendSingleton: 
+    type_attacco=None 
+    type_sender=None
+    host_attivi=None 
+    use_delay=None  
     
     def __init__(self, type_attacco:Enum=None, type_sender:Enum=None, use_delay:bool=False): 
-        if not IS_TYPE.boolean(use_delay):
-            raise Exception("use_delay non valido")
-        self.use_delay=use_delay
-        if not IS_TYPE.enum(type_attacco, AttackType): 
-            raise Exception("type_attacco non valido: ",type_attacco) 
-        self.type_attacco=type_attacco  
-        if not IS_TYPE.enum(type_sender, self.SenderEnum): 
+        if not IS_TYPE.enum(self.type_attacco, AttackType): 
+            raise Exception("type_attacco non valido: ") 
+        if not IS_TYPE.enum(self.type_sender, SENDER_TYPE): 
             raise Exception("type_sender non valido") 
-        match type_sender: 
-            case self.SenderEnum.TRUE_SENDER: 
+        if not IS_TYPE.boolean(self.use_delay):
+            raise Exception("use_delay non valido") 
+        self.use_delay=use_delay
+        self.type_attacco=type_attacco  
+        self.type_sender=type_sender
+        match self.type_sender: 
+            case SENDER_TYPE.TRUE_SENDER: 
                 ip,err=NETWORK.IP.find_local_IP()
                 if err:
                     raise Exception("Impossibile trovare l'IP locale: ", err)
                 self.host_attivi=[ip]
-            case SendSingleton.SenderEnum.FAKE_SENDER_ACTIVE: 
+            case SENDER_TYPE.FAKE_SENDER_ACTIVE: 
                 self.host_attivi= NETWORK.HOST_ATTIVI().active_host
-            case SendSingleton.SenderEnum.FAKE_SENDER_INACTIVE: 
+            case SENDER_TYPE.FAKE_SENDER_INACTIVE: 
                 self.host_attivi= NETWORK.HOST_ATTIVI().inactive_host
-            case SendSingleton.SenderEnum.FAKE_SENDER_BOTH:
+            case SENDER_TYPE.FAKE_SENDER_BOTH:
                 classe_host= NETWORK.HOST_ATTIVI() 
                 self.host_attivi= classe_host.active_host
                 self.host_attivi.extend(classe_host.inactive_host) 
-            case _: raise Exception("Tipo di sender non valido: ", type_sender)
+            case _: raise Exception("Tipo di sender non valido: ", type_sender) 
     
-    def send_host_attivi(self, sender_hosts:list[ipaddress.IPv4Address]=None, ip_dst:ipaddress.IPv4Address=None):
-        if not IS_TYPE.list(sender_hosts) or len(sender_hosts)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in sender_hosts): 
-            raise Exception("sender_hosts non valida")
+    def check_self_var(self): 
+        if not IS_TYPE.enum(self.type_attacco, AttackType): 
+            raise Exception("type_attacco non valido: ") 
+        if not IS_TYPE.enum(self.type_sender, SENDER_TYPE): 
+            raise Exception("type_sender non valido") 
+        if not IS_TYPE.boolean(self.use_delay):
+            raise Exception("use_delay non valido")  
+        if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in self.host_attivi): 
+            raise ValueError("host_attivi non valida")
+    
+    def send_host_attivi(self, ip_dst:ipaddress.IPv4Address=None): 
+        self.check_self_var() 
         if not IS_TYPE.ipaddress(ip_dst): 
             raise Exception("ip_dst: non valido")
-        target_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower()
-        interface=NETWORK.INTERFACE_FROM_IP(ip_dst).interface
-        while not interface: 
-            default_interface=NETWORK.DEFAULT_INTERFACE().default_iface
-            NETWORK.ping_once(ip_dst, default_interface) 
-            interface=(
-                NETWORK.INTERFACE_FROM_IP(ip_dst).interface or 
-                default_interface
-            )  
+        dst_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower() 
+        if not dst_mac: 
+            raise ValueError("dst_mac non valido") 
+        default_interface=NETWORK.DEFAULT_INTERFACE().default_iface
+        NETWORK.ping_once(ip_dst, default_interface) 
+        interface=(
+            NETWORK.INTERFACE_FROM_IP(ip_dst).interface or 
+            default_interface
+        )  
+        if not interface: 
+            raise ValueError("interface non valida") 
+        if DEBUG: 
+            print("send_host_attivi: ESECUZIONE DEBUG")
+            return
         #----------------------------
         msg=MSG.START_SOURCES.value
-        for index in range(len(sender_hosts)): 
-            if not IS_TYPE.ipaddress(sender_hosts[index]):
-                print("Host non valido: ", sender_hosts[index]) 
+        for index in range(len(self.host_attivi)): 
+            if not IS_TYPE.ipaddress(self.host_attivi[index]):
+                print("Host non valido: ", self.host_attivi[index]) 
                 continue 
-            indirizzo_IP=sender_hosts[index].compressed
+            indirizzo_IP=self.host_attivi[index].compressed
             if len(msg+indirizzo_IP)>64: 
                 #print("MESSAGGIO: ",len(msg),"\t",msg) 
                 pkt = ( 
-                    Ether(dst=target_mac)
+                    Ether(dst=dst_mac)
                     / IP(dst=ip_dst.compressed) 
                     / ICMP(type=0, id=23, seq=0)  
                     /Raw(load=(msg).encode()) 
@@ -176,7 +193,7 @@ class SendSingleton:
             else: msg=msg+";"+indirizzo_IP
         #print("MESSAGGIO: ",len(msg),"\t",msg)
         pkt = ( 
-            Ether(dst=target_mac)
+            Ether(dst=dst_mac)
             / IP(dst=ip_dst.compressed) 
             / ICMP(type=0, id=23, seq=0)  
             /Raw(load=(msg+MSG.END_SOURCES.value).encode()) 
@@ -184,43 +201,26 @@ class SendSingleton:
         sendp(pkt, verbose=1, iface=interface) 
 
     def send_data(self, data:bytes=None, ip_dst:ipaddress.IPv4Address=None):  
+        self.check_self_var()
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non byte")
         if not IS_TYPE.ipaddress(ip_dst): 
-            raise TypeError("ip_dst non valido") 
-        if not IS_TYPE.enum(self.type_attacco, AttackType): 
-                raise TypeError("type_attacco non valido: ") 
-        if not IS_TYPE.list(self.host_attivi) or any(not IS_TYPE.ipaddress(ip) for ip in self.host_attivi): 
-            raise ValueError("host_attivi non valida")
+            raise TypeError("ip_dst non valido")  
         sender=None
         if IS_TYPE.ipaddress(ip_dst) and ip_dst.version==4: 
             match self.type_attacco:
-                case AttackType.ipv4_destination_unreachable: 
-                    sender=IPV4_DESTINATION_UNRECHABLE(ip_dst, self.host_attivi)
-                case AttackType.ipv4_destination_unreachable_unused: 
-                    sender=IPV4_DESTINATION_UNRECHABLE(ip_dst, self.host_attivi)
-                case AttackType.ipv4_time_exceeded: 
-                    sender=IPV4_TIME_EXCEEDED(ip_dst, self.host_attivi)
-                case AttackType.ipv4_time_exceeded_unused: 
-                    sender=IPV4_TIME_EXCEEDED(ip_dst, self.host_attivi)
-                case AttackType.ipv4_parameter_problem: 
-                    sender=IPV4_PARAMETER_PROBLEM(ip_dst, self.host_attivi)
-                case AttackType.ipv4_parameter_problem_unused: 
-                    sender=IPV4_PARAMETER_PROBLEM(ip_dst, self.host_attivi)
-                case AttackType.ipv4_source_quench: 
-                    sender=IPV4_SOURCE_QUENCH(ip_dst, self.host_attivi)
-                case AttackType.ipv4_source_quench_unused: 
-                    sender=IPV4_SOURCE_QUENCH(ip_dst, self.host_attivi)
+                case AttackType.ipv4_destination_unreachable|AttackType.ipv4_destination_unreachable_unused: 
+                    sender=IPV4_DESTINATION_UNRECHABLE(ip_dst, self.host_attivi) 
+                case AttackType.ipv4_time_exceeded|AttackType.ipv4_time_exceeded_unused: 
+                    sender=IPV4_TIME_EXCEEDED(ip_dst, self.host_attivi) 
+                case AttackType.ipv4_parameter_problem|AttackType.ipv4_parameter_problem_unused: 
+                    sender=IPV4_PARAMETER_PROBLEM(ip_dst, self.host_attivi) 
+                case AttackType.ipv4_source_quench|AttackType.ipv4_source_quench_unused: 
+                    sender=IPV4_SOURCE_QUENCH(ip_dst, self.host_attivi) 
                 case AttackType.ipv4_redirect: 
                     sender=IPV4_REDIRECT(ip_dst, self.host_attivi)
-                case AttackType.ipv4_echo_campi: 
-                    sender=IPV4_ECHO(ip_dst, self.host_attivi)
-                case AttackType.ipv4_echo_payload: 
-                    sender=IPV4_ECHO(ip_dst, self.host_attivi)
-                case AttackType.ipv4_echo_campi_payload: 
-                    sender=IPV4_ECHO(ip_dst, self.host_attivi)
-                case AttackType.ipv4_echo_random_payload: 
-                    sender=IPV4_ECHO(ip_dst, self.host_attivi)
+                case AttackType.ipv4_echo_campi|AttackType.ipv4_echo_payload|AttackType.ipv4_echo_campi_payload|AttackType.ipv4_echo_random_payload: 
+                    sender=IPV4_ECHO(ip_dst, self.host_attivi, self.type_attacco) 
                 case AttackType.ipv4_timestamp: 
                     sender=IPV4_TIMESTAMP(ip_dst, self.host_attivi)
                 case AttackType.ipv4_information: 
@@ -246,86 +246,89 @@ class SendSingleton:
                     sender=IPV6_TIMING(ip_dst, self.host_attivi) 
                 case _: raise Exception(f"Tipologia non conosciuta: {self.tipologia}") 
         else: raise Exception("IP destinazione non valido: ",ip_dst)
-        self.send_host_attivi(self.host_attivi, ip_dst) 
+        self.send_host_attivi(ip_dst) 
         for i in range(0, len(data), self.block_size): 
             if self.useDelay: 
+                print("#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n")
                 print("Waiting...")
                 time.sleep(random.uniform(self.min_wait,self.max_wait)) 
             try:
                 sender.send(data[i:i+self.block_size],self.type_attacco) 
-                sender.send_last()
             except Exception as e: 
                 print("send data IPV4: ",e) 
+        sender.send_last()
 
 class ReceiveSingleton:  
     attacco=None 
-    DEBUG=True
     ip_dst=None
     host_attivi=None 
     stop_flag={"value":False} 
+    wait_class=None
 
-    def __init__(self, attacco:Enum=None): 
+    def __init__(self, attacco:Enum=None):  
         if not IS_TYPE.enum(attacco, AttackType): 
-            self.attacco=AttackType.choose_attack_function() 
-        ip_dst,err=NETWORK.IP.find_local_IP()
-        if err: 
-            raise Exception(f"ReceiveSingleton: {err}") 
+            raise TypeError("attacco non valido") 
+        self.attacco=attacco  
+        self.ip_dst,err=NETWORK.IP.find_local_IP() 
+        if err or not IS_TYPE.ipaddress(self.ip_dst): 
+            print(err)
+            raise Exception(f"ip_dst non valido") 
         self.wait_host_attivi() 
+        if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in self.host_attivi): 
+            raise ValueError("host_attivi non valido")
         if self.ip_dst.version==4: 
             match self.attacco: 
                 case AttackType.ipv4_information: 
-                    wait_class=IPV4_INFORMATION(self.ip_dst, self.host_attivi) 
+                    self.wait_class=IPV4_INFORMATION(self.ip_dst, self.host_attivi) 
                 case AttackType.ipv4_timestamp: 
-                    wait_class=IPV4_TIMESTAMP(self.ip_dst, self.ip_src)
+                    self.wait_class=IPV4_TIMESTAMP(self.ip_dst, self.ip_src)
                 case AttackType.ipv4_redirect: 
-                    wait_class=wait_class=IPV4_REDIRECT(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV4_REDIRECT(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_source_quench | AttackType.ipv4_source_quench_unused: 
-                    wait_class=wait_class=IPV4_SOURCE_QUENCH(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV4_SOURCE_QUENCH(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_parameter_problem | AttackType.ipv4_parameter_problem_unused: 
-                    wait_class=wait_class=IPV4_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV4_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_time_exceeded | AttackType.ipv4_time_exceeded_unused: 
-                    wait_class=wait_class=IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi) 
+                    self.wait_class=wait_class=IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi) 
                 case AttackType.ipv4_destination_unreachable | AttackType.ipv4_destination_unreachable_unused: 
-                    wait_class=wait_class=IPV4_DESTINATION_UNRECHABLE(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV4_DESTINATION_UNRECHABLE(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_echo_campi|AttackType.ipv4_echo_payload|AttackType.ipv4_echo_campi_payload|AttackType.ipv4_echo_random_payload: 
-                    wait_class=wait_class=IPV4_ECHO(self.ip_dst, self.host_attivi, self.attacco)
+                    self.wait_class=wait_class=IPV4_ECHO(self.ip_dst, self.host_attivi, self.attacco)
                 case AttackType.ipv4_timing_channel_8bit: 
-                    wait_class=wait_class=IPV4_TIMING_8BIT(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV4_TIMING_8BIT(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_timing_channel_8bit_noise: 
-                    wait_class=wait_class=IPV4_TIMING_8BIT_NOISE(self.ip_dst, self.host_attivi) 
-                case _: raise Exception(f"ReceiveSingleton: Tipologia non conosciuta: {self.attacco}")
+                    self.wait_class=wait_class=IPV4_TIMING_8BIT_NOISE(self.ip_dst, self.host_attivi) 
+                case _: raise Exception(f"ReceiveSingleton: tipologia non conosciuta: {self.attacco}")
         elif self.ip_dst.version==6: 
             match self.attacco: 
                 case AttackType.ipv6_echo:  
-                    wait_class=wait_class=IPV6_ECHO(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV6_ECHO(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_parameter_problem: 
-                    wait_class=wait_class=IPV6_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV6_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_time_exceeded: 
-                    wait_class=wait_class=IPV6_TIME_EXCEEDED(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV6_TIME_EXCEEDED(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_packet_to_big: 
-                    wait_class=wait_class=IPV6_PACKET_BIG(self.ip_dst, self.host_attivi)
+                    self.wait_class=wait_class=IPV6_PACKET_BIG(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_destination_unreachable: 
-                    wait_class=wait_class=IPV6_DESTINTION_UNREACHABLE(self.ip_dst, self.host_attivi) 
+                    self.wait_class=wait_class=IPV6_DESTINTION_UNREACHABLE(self.ip_dst, self.host_attivi) 
                 case _: raise Exception(f"ReceiveSingleton: Tipologia non conosciuta: {self.attacco}")
         else:
-            raise Exception(f"IP version non conosciuta: {self.ip_dst.version}") 
+            raise Exception(f"ReceiveSingleton: versione IP non conosciuta: {self.ip_dst.version}") 
+        if not isinstance(self.wait_class, _IPx): 
+            raise TypeError("wait_class non valida") 
     
-    def get_filter(self): 
-        TYPE_ECHO_REQUEST=8
-        TYPE_ECHO_REPLY=0 
-        filter="icmp"
-        filter=filter+f" and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY})"
-        filter=filter+f" and dst {self.ip_dst.compressed}" 
-        return filter 
-    
-    def get_stop_filter(self): 
-        def stop_filter(pkt): 
-            return self.stop_flag["value"] 
-        return stop_filter 
+    def check_self_var(self): 
+        if not IS_TYPE.enum(self.attacco, AttackType): 
+            raise TypeError("attacco non valido") 
+        #if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in self.host_attivi): 
+        #    raise ValueError("host_attivi non valida") 
+        if not IS_TYPE.ipaddress(self.ip_dst): 
+            raise TypeError("ip_dst non valido")  
+        #if not isinstance(self.wait_class, _IPx): 
+        #    raise TypeError("wait_class non valida")
     
     def get_callback(self): 
-        def callback(pkt): 
-            nonlocal self
+        def callback(pkt):  
             print("Pacchetto ricevuto: ", pkt.summary())  
             if pkt.haslayer("ICMP") and pkt.haslayer("Raw") and (pkt["ICMP"].type==8 or pkt["ICMP"].type==0): 
                 if pkt[ICMP].id==23 and MSG.START_SOURCES.value.encode() in pkt["Raw"].load: 
@@ -349,17 +352,35 @@ class ReceiveSingleton:
         return callback 
     
     def wait_host_attivi(self):  
-        if (self.DEBUG): 
-            self.host_attivi=[ipaddress.ip_address("192.168.1.13")] 
+        def get_filter(): 
+            TYPE_ECHO_REQUEST=ICMP_TYPE.v4_Echo_Request if self.ip_dst.version==4 else ICMP_TYPE.v6_Echo_Request
+            TYPE_ECHO_REPLY=ICMP_TYPE.v6_Echo_Reply if self.ip_dst.version==4 else ICMP_TYPE.v6_Echo_Reply 
+            str_icmp="icmp" if self.ip_dst.version==4 else "icmp6"
+            filter=str_icmp
+            filter=filter+f" and ({str_icmp}[0]=={TYPE_ECHO_REQUEST} or {str_icmp}[0]=={TYPE_ECHO_REPLY})"
+            filter=filter+f" and dst {self.ip_dst.compressed}" 
+            return filter 
+        def get_stop_filter(): 
+            def stop_filter(pkt): 
+                return self.stop_flag["value"] 
+            return stop_filter 
+        self.check_self_var()
+        if (DEBUG): 
+            print("wait_host_attivi: ESECUZIONE DEBUG")
+            self.host_attivi=[ipaddress.ip_address("192.168.1.15")] 
+            if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in self.host_attivi): 
+                raise ValueError("host_attivi non valida") 
             return
         print("In ascolto dei pacchetti ICMP...")
         sniff( 
-            filter=self.get_filter()
+            filter=get_filter()
             ,prn=self.get_callback()
             ,store=False 
-            ,stop_filter=self.get_stop_filter() 
+            ,stop_filter=get_stop_filter() 
         ) 
-        print("Host attivi trovati: ", self.host_attivi) 
+        #print("Host attivi trovati: ", self.host_attivi) 
+        if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in self.host_attivi): 
+            raise ValueError("host_attivi non valida") 
 
 class _IPx: 
     ip_dst=None
@@ -376,32 +397,42 @@ class _IPx:
 
     def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None):
         if not IS_TYPE.ipaddress(ip_dst) :   
-            raise Exception("IP di destinazione non corretto") 
-        self.ip_dst=ip_dst 
-        self.dst_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower()
+            raise TypeError("IP di destinazione non corretto") 
+        self.ip_dst=ip_dst  
+        self.dst_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address
         #print(f"MAC destinazione: {self.dst_mac}")
         if not self.dst_mac: 
-            raise Exception(f"Impossibile trovare il MAC per l'IP: {ip_dst.compressed}") 
-        #self.ip_src=NETWORK.IP.find_local_IP() 
-        #self.src_mac=NETWORK.get_macAddress(self.ip_src).strip().replace("-",":").lower()
-        #if not self.src_mac: 
-        #    #src_mac = get_if_hwaddr(interface) 
-        #    raise Exception(f"Impossibile trovare il MAC per l'IP: {self.ip_src.compressed}")
-        #print(f"MAC sorgente: {self.dst_mac}") 
-        self.interface=NETWORK.INTERFACE_FROM_IP(ip_dst).interface
-        while not self.interface: 
-            default_interface=NETWORK.DEFAULT_INTERFACE().default_iface
-            NETWORK.ping_once(ip_dst, default_interface) 
-            self.interface=(
-                NETWORK.INTERFACE_FROM_IP(ip_dst).interface or 
-                default_interface
-            ) 
-        print(f"Interfaccia per destinazione: {self.interface}")
+            raise ValueError(f"dst_mac non valido") 
+        default_interface=NETWORK.DEFAULT_INTERFACE().default_iface
+        NETWORK.ping_once(ip_dst, default_interface)
+        self.interface=(
+            NETWORK.INTERFACE_FROM_IP(ip_dst).interface or 
+            default_interface
+        ) 
+        if not self.interface: 
+            raise ValueError(f"interface non valida") 
+        #print(f"Interfaccia per destinazione: {self.interface}")
         if not IS_TYPE.list(host_attivi) or len(host_attivi)<=0 or any( not IS_TYPE.ipaddress(ip_host) for ip_host in host_attivi):
             raise Exception("Lista degli indiirzzi host non valida") 
         self.host_attivi=host_attivi 
-        print("Host Attivi: ",self.host_attivi) 
+        #print("Host Attivi: ",self.host_attivi) 
     
+    def check_self_var(self): 
+        if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version not in [4,6]:   
+            raise TypeError("ip_dst non valido") 
+        if not self.dst_mac: 
+            raise ValueError(f"dst_mac non valido") 
+        if not self.interface: 
+            raise ValueError(f"interface non valida") 
+        if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any( not IS_TYPE.ipaddress(ip_host) for ip_host in self.host_attivi):
+            raise ValueError("host_attivi non valida") 
+        if not IS_TYPE.list(self.data): 
+            raise TypeError("data non valido") 
+        if not IS_TYPE.integer(self.stop_integer): 
+            raise TypeError("stop_integer non valido") 
+        if not IS_TYPE.dictionary(self.stop_flag) or not IS_TYPE.boolean(self.stop_flag["value"]): 
+            raise TypeError("stop_flag non valido")  
+
     def get_stop_filter(self): 
         def stop_filter(pkt): 
             nonlocal self
@@ -409,41 +440,40 @@ class _IPx:
         return stop_filter 
 
     def timeout_timer_callback(self): 
+        if not IS_TYPE.dictionary(self.stop_flag) or not IS_TYPE.boolean(self.stop_flag["value"]): 
+            raise TypeError("stop_flag non valido")  
         #THREADING_EVENT.set(self.event_pktconn) 
         self.stop_flag["value"]=True  
     
     @staticmethod
-    def get_filter(type_list:list[int]=None, ip_dst:ipaddress.IPv4Address=None, host_attivi:list[ipaddress.IPv4Address]=None): 
-        if not IS_TYPE.list(type_list) or any(not IS_TYPE.integer(x) for x in type_list): 
+    def get_filter(type_list:list[Enum]=None, ip_dst:ipaddress.IPv4Address=None, host_attivi:list[ipaddress.IPv4Address]=None): 
+        if not IS_TYPE.list(type_list) or len(type_list)<=0 or any(not IS_TYPE.enum(x,ICMP_TYPE) for x in type_list): 
             raise TypeError("type_list non valido")
         if not IS_TYPE.ipaddress(ip_dst) or ip_dst.version not in [4,6]: 
             raise TypeError("ip_dst non valido") 
-        if not IS_TYPE.list(host_attivi) or any(not IS_TYPE.ipaddress(x) for x in host_attivi): 
+        if not IS_TYPE.list(host_attivi) or len(host_attivi)<=0 or any(not IS_TYPE.ipaddress(x) for x in host_attivi): 
             raise TypeError("host_attivi non valido")
         if ip_dst.version==4: 
             str_icmp="icmp"
         elif ip_dst.version==6: 
             str_icmp="icmp6"
         filter=str_icmp
-        if IS_TYPE.list(type_list) and len(type_list)>0 and all(IS_TYPE.integer(type) for type in type_list):
-            filter=filter+f" and ("
-            for index in range(len(type_list)): 
-                if index>0:  filter=filter+f" or {str_icmp}[0]=={type_list[index]} "
-                else: filter=filter+f" {str_icmp}[0]=={type_list[index]} "
-            filter=filter+f" )"
-        else: print("get_filter: type_list non valida-> ",type_list) 
-        if IS_TYPE.ipaddress(ip_dst): 
-            filter=filter+f" and dst {ip_dst.compressed}" 
-        else: print("get_filter: ip_dst non valido-> ",ip_dst)
-        if IS_TYPE.list(host_attivi) and len(host_attivi)>0: 
-            filter+=f" and ("
-            for index in range(len(host_attivi)): 
-                if IS_TYPE.ipaddress(host_attivi[index]): 
-                    if index>0:  filter+=f" or src {host_attivi[index].compressed} "
-                    else: filter+=f" src {host_attivi[index].compressed}"
-                else: print(f"get_filter: host non valido {host_attivi[index]}")
-            filter+=f")"
-        else: print("get_filter: host_attivi list non valida-> ",host_attivi)
+        #Parte che agiunge le tipologie in ascolot
+        filter=filter+f" and ("
+        for index in range(len(type_list)): 
+            if index>0:  filter=filter+f" or {str_icmp}[0]=={type_list[index].value} "
+            else: filter=filter+f" {str_icmp}[0]=={type_list[index].value} "
+        filter=filter+f" )"
+        filter=filter+f" and dst {ip_dst.compressed}"   
+        #Parte che aggiunge le tipologie in ascolto
+        filter+=f" and ("
+        for index in range(len(host_attivi)): 
+            if not IS_TYPE.ipaddress(host_attivi[index]): 
+                #print(f"get_filter: host non valido {host_attivi[index]}")
+                continue
+            if index>0:  filter+=f" or src {host_attivi[index].compressed} "
+            else: filter+=f" src {host_attivi[index].compressed}" 
+        filter+=f")" 
         print("FILTRO: ", filter)
         return filter
 
@@ -451,23 +481,21 @@ class _IPx:
     def get_callback(self):
         raise NotImplementedError(f"Non si è sovrascritto il metodo get_callback: {self.__class__.__name__}")
 
-    def wait(self, type_list:list[int]=None):  
-        if not IS_TYPE.ipaddress(self.ip_dst): 
-            raise Exception(f"IPV4_: indirizzo destinazione non valido")  
-        if not IS_TYPE.list(self.data): 
-            raise Exception(f"IPV4_: lista dati non valida") 
-        if not IS_TYPE.list(type_list): 
-            raise Exception(f"IPV4_: lista tipologie non valida")  
+    def wait(self, type_list:list[Enum]=None):   
+        self.check_self_var()
+        if not IS_TYPE.list(type_list) or len(type_list)<=0 or any(not IS_TYPE.enum(x,ICMP_TYPE) for x in type_list): 
+            raise TypeError("type_list non valido")  
         print("In ascolto dei pacchetti...")
         sniff(
             filter=self.get_filter(
                 type_list,
                 self.ip_dst, 
                 self.host_attivi
-            )
-            ,prn=self.get_callback 
-            ,store=False 
-            ,stop_filter=self.get_stop_filter 
+            ),
+            prn=self.get_callback(),
+            store=False ,
+            stop_filter=self.get_stop_filter(),
+            timeout=60 #1 minuto
         )  
         #self.data="".join(x for x in self.data)  
         joined="".join(self.data) 
@@ -521,8 +549,8 @@ class _IPx:
         pass
 
 class IPV4_INFORMATION(_IPx): 
-    INFORMATION_REQ=ICMP_TYPE.v4_Information_Request.value
-    INFORMATION_REP=ICMP_TYPE.v4_Information_Reply.value
+    INFORMATION_REQ=ICMP_TYPE.v4_Information_Request
+    INFORMATION_REP=ICMP_TYPE.v4_Information_Reply
 
     def get_callback(self):
         def callback(packet): 
@@ -576,8 +604,8 @@ class IPV4_INFORMATION(_IPx):
         sendp(pkt, verbose=1, iface=self.interface)
     
 class IPV4_TIMESTAMP(_IPx):  
-    TIMESTAMP_REQ=ICMP_TYPE.v4_Timestamp_Request.value
-    TIMESTAMP_REP=ICMP_TYPE.v4_Timestamp_Reply.value 
+    TIMESTAMP_REQ=ICMP_TYPE.v4_Timestamp_Request
+    TIMESTAMP_REP=ICMP_TYPE.v4_Timestamp_Reply 
     
     def get_callback(self): 
         def callback(packet): 
@@ -667,7 +695,7 @@ class IPV4_TIMESTAMP(_IPx):
         sendp(pkt, verbose=1, iface=self.interface)  
 
 class IPV4_REDIRECT(_IPx):  
-    REDIRECT=ICMP_TYPE.v4_Redirect.value
+    REDIRECT=ICMP_TYPE.v4_Redirect
 
     def get_callback(self): 
         def callback(packet): 
@@ -725,7 +753,7 @@ class IPV4_REDIRECT(_IPx):
         sendp(pkt, verbose=1, iface=self.interface)  
 
 class IPV4_SOURCE_QUENCH(_IPx): 
-    SOURCE_QUENCH=ICMP_TYPE.v4_SourceQuench.value
+    SOURCE_QUENCH=ICMP_TYPE.v4_SourceQuench
 
     def get_callback(self): 
         def callback(packet): 
@@ -826,7 +854,7 @@ class IPV4_SOURCE_QUENCH(_IPx):
         sendp(pkt, verbose=1, iface=self.interface)  
 
 class IPV4_PARAMETER_PROBLEM(_IPx): 
-    PARAMETER_PROBLEM=ICMP_TYPE.v4_ParameterProblem.value
+    PARAMETER_PROBLEM=ICMP_TYPE.v4_ParameterProblem
 
     def get_callback(self): 
         def callback(packet): 
@@ -929,7 +957,7 @@ class IPV4_PARAMETER_PROBLEM(_IPx):
         sendp(pkt, verbose=1, iface=self.interface)  
 
 class IPV4_TIME_EXCEEDED(_IPx):  
-    TIME_EXCEEDED=ICMP_TYPE.v4_TimeExceeded.value 
+    TIME_EXCEEDED=ICMP_TYPE.v4_TimeExceeded 
 
     def get_callback(self): 
         def callback(packet):  
@@ -1030,7 +1058,7 @@ class IPV4_TIME_EXCEEDED(_IPx):
         sendp(pkt, verbose=1, iface=self.interface) 
 
 class IPV4_DESTINATION_UNRECHABLE(_IPx): 
-    DESTINATION_UNREACHABLE=ICMP_TYPE.v4_DestinationUnreachable.value 
+    DESTINATION_UNREACHABLE=ICMP_TYPE.v4_DestinationUnreachable 
 
     def get_callback(self): 
         def callback(packet): 
@@ -1132,16 +1160,16 @@ class IPV4_DESTINATION_UNRECHABLE(_IPx):
         sendp(pkt, verbose=1, iface=self.interface) 
         
 class IPV4_ECHO(_IPx): 
-    ECHO_REQ=ICMP_TYPE.v4_Echo_Request.value
-    ECHO_REP=ICMP_TYPE.v4_Echo_Reply.value
-    variante:Enum=None 
+    ECHO_REQ=ICMP_TYPE.v4_Echo_Request
+    ECHO_REP=ICMP_TYPE.v4_Echo_Reply
+    type_attacco:Enum=None 
     
-    def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None, variante:Enum=None): 
-        if not IS_TYPE.enum(variante, AttackType): 
-            raise Exception("IPV4_ECHO: variante non valida: ",variante) 
-        #Variante indicherà quali campi leggere
+    def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None, type_attacco:Enum=None): 
         super().__init__(ip_dst, host_attivi) 
-        self.variante=variante 
+        if not IS_TYPE.enum(type_attacco, AttackType): 
+            raise Exception("attacco non valida") 
+        #type_attacco indicherà quali campi leggere 
+        self.type_attacco=type_attacco 
     
     def get_callback(self): 
         def callback(packet): 
@@ -1162,7 +1190,7 @@ class IPV4_ECHO(_IPx):
                     self.data.append(chr(byte1)+chr(byte2)) 
         return callback
     
-    def wait(self):
+    def wait(self):  
         super().wait([self.ECHO_REQ, self.ECHO_REP])  
     
     def send(self, data:bytes=None, type_attacco:Enum=None): 
@@ -2038,7 +2066,7 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
         return callback 
     
     def wait(self, type_list:list[int]=None):      
-        super().wait([self.TYPE_DESTINATION_UNREACHABLE])  
+        super().wait([self.DESTINATION_UNREACHABLE])  
     
     def send(self, data:bytes=None):  
         if not IS_TYPE.bytes(data): 
