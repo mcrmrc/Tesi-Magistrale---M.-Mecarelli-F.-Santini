@@ -253,7 +253,7 @@ class SendSingleton:
             if self.use_delay: 
                 print("#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n")
                 print("Waiting...")
-                time.sleep(random.uniform(self.min_wait,self.max_wait)) 
+                time.sleep(random.uniform(min_wait,max_wait)) 
             try:
                 sender.send(data[i:i+block_size],self.type_attacco) 
             except Exception as e: 
@@ -267,9 +267,9 @@ class ReceiveSingleton:
     stop_flag={"value":False} 
     wait_class=None
 
-    def __init__(self, attacco:Enum=None):  
+    def __init__(self, attacco:Enum=None): 
         if not IS_TYPE.enum(attacco, AttackType): 
-            raise TypeError("attacco non valido") 
+            raise TypeError("attacco non valido")  
         self.attacco=attacco  
         self.ip_dst,err=NETWORK.IP.find_local_IP() 
         if err or not IS_TYPE.ipaddress(self.ip_dst): 
@@ -285,43 +285,45 @@ class ReceiveSingleton:
                 case AttackType.ipv4_timestamp: 
                     self.wait_class=IPV4_TIMESTAMP(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_redirect: 
-                    self.wait_class=wait_class=IPV4_REDIRECT(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV4_REDIRECT(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_source_quench | AttackType.ipv4_source_quench_unused: 
-                    self.wait_class=wait_class=IPV4_SOURCE_QUENCH(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV4_SOURCE_QUENCH(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_parameter_problem | AttackType.ipv4_parameter_problem_unused: 
-                    self.wait_class=wait_class=IPV4_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV4_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_time_exceeded | AttackType.ipv4_time_exceeded_unused: 
-                    self.wait_class=wait_class=IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi) 
+                    self.wait_class=IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi) 
                 case AttackType.ipv4_destination_unreachable | AttackType.ipv4_destination_unreachable_unused: 
-                    self.wait_class=wait_class=IPV4_DESTINATION_UNRECHABLE(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV4_DESTINATION_UNRECHABLE(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_echo_campi|AttackType.ipv4_echo_payload|AttackType.ipv4_echo_campi_payload|AttackType.ipv4_echo_random_payload: 
-                    self.wait_class=wait_class=IPV4_ECHO(self.ip_dst, self.host_attivi, self.attacco)
+                    self.wait_class=IPV4_ECHO(self.ip_dst, self.host_attivi, self.attacco)
                 case AttackType.ipv4_timing_channel_8bit: 
-                    self.wait_class=wait_class=IPV4_TIMING_8BIT(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV4_TIMING_8BIT(self.ip_dst, self.host_attivi)
                 case AttackType.ipv4_timing_channel_8bit_noise: 
-                    self.wait_class=wait_class=IPV4_TIMING_8BIT_NOISE(
-                        self.ip_dst, self.host_attivi, {"min_delay":1, "max_delay":30, "rumore":2, "seed":4582}
+                    self.wait_class=IPV4_TIMING_8BIT_NOISE(
+                        self.ip_dst, 
+                        self.host_attivi, 
+                        {"min_delay":1, "max_delay":30, "rumore":2, "seed":4582}
                     ) 
                 case _: raise Exception(f"ReceiveSingleton: tipologia non conosciuta: {self.attacco}")
         elif self.ip_dst.version==6: 
             match self.attacco: 
                 case AttackType.ipv6_echo:  
-                    self.wait_class=wait_class=IPV6_ECHO(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV6_ECHO(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_parameter_problem: 
-                    self.wait_class=wait_class=IPV6_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV6_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_time_exceeded: 
-                    self.wait_class=wait_class=IPV6_TIME_EXCEEDED(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV6_TIME_EXCEEDED(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_packet_to_big: 
-                    self.wait_class=wait_class=IPV6_PACKET_BIG(self.ip_dst, self.host_attivi)
+                    self.wait_class=IPV6_PACKET_BIG(self.ip_dst, self.host_attivi)
                 case AttackType.ipv6_destination_unreachable: 
-                    self.wait_class=wait_class=IPV6_DESTINTION_UNREACHABLE(self.ip_dst, self.host_attivi) 
+                    self.wait_class=IPV6_DESTINTION_UNREACHABLE(self.ip_dst, self.host_attivi) 
                 case _: raise Exception(f"ReceiveSingleton: Tipologia non conosciuta: {self.attacco}")
         else:
             raise Exception(f"ReceiveSingleton: versione IP non conosciuta: {self.ip_dst.version}") 
         if not isinstance(self.wait_class, _IPx): 
             raise TypeError("wait_class non valida") 
     
-    def check_self_var(self): 
+    def check_self_var(self):  
         if not IS_TYPE.enum(self.attacco, AttackType): 
             raise TypeError("attacco non valido") 
         #if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in self.host_attivi): 
@@ -329,7 +331,7 @@ class ReceiveSingleton:
         if not IS_TYPE.ipaddress(self.ip_dst): 
             raise TypeError("ip_dst non valido")  
         #if not isinstance(self.wait_class, _IPx): 
-        #    raise TypeError("wait_class non valida")
+        #    raise TypeError("wait_class non valida") 
     
     def get_callback(self): 
         def callback(pkt):  
@@ -420,15 +422,15 @@ class _IPx:
         if not IS_TYPE.list(host_attivi) or len(host_attivi)<=0 or any( not IS_TYPE.ipaddress(ip_host) for ip_host in host_attivi):
             raise Exception("Lista degli indiirzzi host non valida") 
         self.host_attivi=host_attivi 
-        #print("Host Attivi: ",self.host_attivi) 
+        #print("Host Attivi: ",self.host_attivi)  
     
-    def check_self_var(self): 
+    def check_self_var(self):  
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version not in [4,6]:   
             raise TypeError("ip_dst non valido") 
         if not self.dst_mac: 
             raise ValueError(f"dst_mac non valido") 
         if not self.interface: 
-            raise ValueError(f"interface non valida") 
+            raise ValueError(f"interface non valida")  
         if not IS_TYPE.list(self.host_attivi) or len(self.host_attivi)<=0 or any( not IS_TYPE.ipaddress(ip_host) for ip_host in self.host_attivi):
             raise ValueError("host_attivi non valida") 
         if not IS_TYPE.list(self.data): 
@@ -436,7 +438,7 @@ class _IPx:
         if not IS_TYPE.integer(self.stop_integer): 
             raise TypeError("stop_integer non valido") 
         if not IS_TYPE.dictionary(self.stop_flag) or not IS_TYPE.boolean(self.stop_flag["value"]): 
-            raise TypeError("stop_flag non valido")  
+            raise TypeError("stop_flag non valido")   
 
     def get_stop_filter(self): 
         def stop_filter(pkt): 
@@ -487,9 +489,9 @@ class _IPx:
         raise NotImplementedError(f"Non si è sovrascritto il metodo get_callback: {self.__class__.__name__}")
 
     def wait(self, type_list:list[Enum]=None):   
-        self.check_self_var()
+        print("1111")
+        self.check_self_var()  
         if not IS_TYPE.list(type_list) or len(type_list)<=0 or any(not IS_TYPE.enum(x,ICMP_TYPE) for x in type_list): 
-            print("type_list",type_list)
             raise TypeError("type_list non valido")  
         print("In ascolto dei pacchetti...")
         sniff(
@@ -1621,6 +1623,7 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
         self.max_delay=args["max_delay"]+self.rumore
         self.seed=args["seed"] 
         random.seed(self.seed) 
+        print("VVVV")
 
     def get_callback(self): 
         delta=None
@@ -1635,7 +1638,7 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
             byte=int((delay-self.min_delay)/bin_width+0.5) 
             return max(0, min(255,byte)) #CLAMP TO 0 AND 255
         def callback(pkt): 
-            nonlocal delta, previous_time
+            nonlocal delta, previous_time 
             if pkt.haslayer(IP) and pkt.haslayer(ICMP) and pkt[IP].dst==self.ip_dst.compressed: 
                 if pkt[ICMP].id==self.stop_integer:  
                     if previous_time is not None: 
@@ -1648,7 +1651,7 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
                     return
                 elif pkt[ICMP].id!=self.stop_integer-1:  
                     return  
-                if not packet.haslayer(Raw):  
+                if not pkt.haslayer(Raw):  
                     print("packet has not Raw layer")
                     return 
                 random_delay = int.from_bytes(pkt[Raw].load, byteorder='big', signed=True)
@@ -1661,13 +1664,21 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
                 #print(f"Delta:{delta}\tByte:{byte}\Chr:{chr(byte)}")  
                 self.data.append(byte)   
                 previous_time=current_time 
-        return callback
+        return callback 
     
-    def wait(self, type_list:list[Enum]=None): 
-        if not IS_TYPE.list(type_list) or len(type_list)<=0:
+    def check_data(self): 
+        self.data = "".join(
+            chr(b) if 32 <= b <= 126 else ""
+            for b in self.data
+        )
+    
+    def wait(self, type_list:list[Enum]=None):  
+        if not IS_TYPE.list(type_list) or len(type_list)<=0: 
+            print("type_list non valida: INIZIALIZZAZIONE")
             type_list=[x for x in ICMP_TYPE if x.name.startswith("v4_")] 
-        else: type_list=[x for x in type_list if IS_TYPE.enum(x,ICMP_TYPE)] 
-        super().wait(type_list) 
+        else:  
+            type_list=[x for x in type_list if IS_TYPE.enum(x,ICMP_TYPE)] 
+        super().wait(type_list)  
     
     def send(self, data:bytes=None, type_attacco:Enum=None): 
         #Il rumore serve per non mandare sempre con lo stesso intervallo di tempo. 
@@ -1682,9 +1693,9 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
             raise TypeError("data non integer") 
         if not IS_TYPE.integer(self.stop_value) or not (0<=self.stop_value <=255): 
             raise TypeError("data non integer") 
-        if IS_TYPE.integer(self.rumore): 
+        if not IS_TYPE.integer(self.rumore): 
             raise TypeError("rumore non integer") 
-        if IS_TYPE.integer(self.seed):
+        if not IS_TYPE.integer(self.seed):
             raise TypeError("seed non integer") 
         dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
         if not dst_mac: 
@@ -1692,19 +1703,19 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
         interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
         if not interface: 
             raise ValueError("interface non valida") 
-        min_delay+=self.rumore
-        max_delay+=self.rumore
+        self.min_delay+=self.rumore
+        self.max_delay+=self.rumore
         #Nel caso non si voglia mettere il rumore scelto nel payload chi ricevere deve avere lo stesso seed 
         random.seed(self.seed) 
         random_delay=random.randint(-self.rumore, self.rumore)
         pkt = Ether(dst=self.dst_mac)/\
-            IP(dst=self.ip_dst.compressed)/\
-            ICMP(id=self.stop_integer, seq=self.stop_integer, proto=1)/\
+            IP(dst=self.ip_dst.compressed, proto=1)/\
+            ICMP(id=self.stop_integer, seq=self.stop_integer)/\
             Raw(load=(0).to_bytes(signed=True)) 
         sendp(pkt, verbose=1, iface=self.interface) 
         ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
         for byte in data:   
-            delay=min_delay+(byte/255)*(max_delay-min_delay)
+            delay=self.min_delay+(byte/255)*(self.max_delay-self.min_delay)
             #print(f"Delay:{chr(byte)} {byte}\t{delay}") 
             random_delay=random.randint(-self.rumore, self.rumore)  
             #print("Delay:", delay,"Random delay:", random_delay, delay+random_delay) 
