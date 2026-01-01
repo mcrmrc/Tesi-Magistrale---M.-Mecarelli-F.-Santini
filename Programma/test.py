@@ -11,10 +11,11 @@ import math
 #import sys
 #print(sys.byteorder) 
 
+#ipv4_timing_channel_8bit_noise
 #ipv4_timing_channel_8bit
 def receive():
     wait_class=ReceiveSingleton(
-        AttackType.ipv4_timing_channel_8bit_noise).wait_class
+        AttackType.ipv4_timing_channel_8bit).wait_class
     if not isinstance(wait_class, _IPx):  
         raise TypeError("wait_class non valida") 
     wait_class.wait()  
@@ -33,7 +34,7 @@ def send():
     print("Dato length:", len(un_KB)) 
     for index in range(ripetizioni):
         SendSingleton(
-            AttackType.ipv4_timing_channel_8bit_noise,
+            AttackType.ipv4_timing_channel_8bit,
             SENDER_TYPE.TRUE_SENDER, 
             True 
         ).send_data(un_KB.encode(), destinazione)

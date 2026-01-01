@@ -488,8 +488,7 @@ class _IPx:
     def get_callback(self):
         raise NotImplementedError(f"Non si è sovrascritto il metodo get_callback: {self.__class__.__name__}")
 
-    def wait(self, type_list:list[Enum]=None):   
-        print("1111")
+    def wait(self, type_list:list[Enum]=None): 
         self.check_self_var()  
         if not IS_TYPE.list(type_list) or len(type_list)<=0 or any(not IS_TYPE.enum(x,ICMP_TYPE) for x in type_list): 
             raise TypeError("type_list non valido")  
@@ -1535,11 +1534,12 @@ class IPV4_TIMING_8BIT(_IPx):
         if not IS_TYPE.list(type_list) or len(type_list)<=0:
             type_list=[x for x in ICMP_TYPE if x.name.startswith("v4_")] 
         else: type_list=[x for x in type_list if IS_TYPE.integer(x)] 
-        self.time_timeout=None
-        powersleep=POWER_SLEEP.WINDOWS(-1)
+        self.time_timeout=None 
+        power_sleep=POWER_SLEEP.WINDOWS(-1)
+        threading.Thread(target=power_sleep.run, daemon=True)
         super().wait(type_list)  
-        powersleep.keep_preventing_sleep=False
-        #powersleep.allow_sleep()
+        power_sleep.keep_preventing_sleep=False
+        power_sleep.allow_sleep()
     
     def check_data(self): 
         self.data = "".join(
@@ -1622,8 +1622,7 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
         self.min_delay=args["min_delay"]+self.rumore
         self.max_delay=args["max_delay"]+self.rumore
         self.seed=args["seed"] 
-        random.seed(self.seed) 
-        print("VVVV")
+        random.seed(self.seed)  
 
     def get_callback(self): 
         delta=None
@@ -1654,12 +1653,15 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
                 if not pkt.haslayer(Raw):  
                     print("packet has not Raw layer")
                     return 
-                random_delay = int.from_bytes(pkt[Raw].load, byteorder='big', signed=True)
-                #random_delay = random.randint(-rumore, rumore) 
+                try:
+                    random_delay = int.from_bytes(pkt[Raw].load, byteorder='big', signed=True) 
+                    #random_delay = random.randint(-rumore, rumore) 
+                except Exception as e: 
+                    print("ERRORE: ",e) 
                 current_time=pkt.time 
                 #print("CURRENT",current_time,"PREVIOUS",previous_time)
                 delta=(current_time-previous_time)-random_delay
-                print("This Delay:", delta,"Random delay:", random_delay, "Send Delay" ,delta-random_delay)
+                print("This Delay:", delta,"Random delay:", random_delay, "Send Delay" ,delta+random_delay)
                 byte=decode_byte(delta) 
                 #print(f"Delta:{delta}\tByte:{byte}\Chr:{chr(byte)}")  
                 self.data.append(byte)   
@@ -1678,7 +1680,12 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
             type_list=[x for x in ICMP_TYPE if x.name.startswith("v4_")] 
         else:  
             type_list=[x for x in type_list if IS_TYPE.enum(x,ICMP_TYPE)] 
+        self.time_timeout=None
+        power_sleep=POWER_SLEEP.WINDOWS(-1)
+        threading.Thread(target=power_sleep.run, daemon=True)
         super().wait(type_list)  
+        power_sleep.keep_preventing_sleep=False
+        power_sleep.allow_sleep()
     
     def send(self, data:bytes=None, type_attacco:Enum=None): 
         #Il rumore serve per non mandare sempre con lo stesso intervallo di tempo. 
@@ -1703,8 +1710,8 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
         interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
         if not interface: 
             raise ValueError("interface non valida") 
-        self.min_delay+=self.rumore
-        self.max_delay+=self.rumore
+        #self.min_delay+=self.rumore
+        #self.max_delay+=self.rumore
         #Nel caso non si voglia mettere il rumore scelto nel payload chi ricevere deve avere lo stesso seed 
         random.seed(self.seed) 
         random_delay=random.randint(-self.rumore, self.rumore)
@@ -1737,7 +1744,7 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
         time.sleep(stop_delay)  # opzionale, per separarlo dal resto 
         pkt = Ether(dst=self.dst_mac)/\
             IP(dst=self.ip_dst.compressed)/\
-            ICMP()/\
+            ICMP(id=self.stop_integer, seq=self.stop_integer)/\
             Raw(load=random_delay.to_bytes(signed=True))  
         #print(f"Sending {pkt.summary()}") 
         sendp(pkt, verbose=1, iface=self.interface) 
@@ -1810,8 +1817,10 @@ class IPV6_ECHO(_IPx):
             Ether(dst=self.dst_mac, src=src_mac)
             /IPv6(dst=f"{self.ip_dst.compressed}%{self.interface}",
                   src=ip_src.compressed)
-            /ICMPv6EchoReply(type=self.ECHO_REP,
-                             id=self.stop_integer, seq=self.stop_integer)
+            /ICMPv6EchoReply(
+                type=self.ECHO_REP,
+                id=self.stop_integer, seq=self.stop_integer
+            )
             / Raw(load="Hello Neighbour".encode())
         )
         #print(f"Sending {pkt.summary()}") 
