@@ -121,14 +121,15 @@ class SendSingleton:
     
     def __init__(self, type_attacco:Enum=None, type_sender:Enum=None, use_delay:bool=False): 
         if not IS_TYPE.enum(type_attacco, AttackType): 
-            raise Exception("type_attacco non valido: ") 
-        if not IS_TYPE.enum(type_sender, SENDER_TYPE): 
-            raise Exception("type_sender non valido") 
-        if not IS_TYPE.boolean(use_delay):
-            raise Exception("use_delay non valido") 
-        self.use_delay=use_delay
+            raise Exception("type_attacco non AttackType: ") 
         self.type_attacco=type_attacco  
+        if not IS_TYPE.enum(type_sender, SENDER_TYPE): 
+            raise Exception("type_sender non SENDER_TYPE") 
         self.type_sender=type_sender
+        if not IS_TYPE.boolean(use_delay):
+            raise Exception("use_delay non boolean") 
+        self.use_delay=use_delay
+        
         match self.type_sender: 
             case SENDER_TYPE.TRUE_SENDER: 
                 ip,err=NETWORK.IP.find_local_IP()
@@ -489,6 +490,7 @@ class _IPx:
         raise NotImplementedError(f"Non si è sovrascritto il metodo get_callback: {self.__class__.__name__}")
 
     def wait(self, type_list:list[Enum]=None): 
+        self.data=[]
         self.check_self_var()  
         if not IS_TYPE.list(type_list) or len(type_list)<=0 or any(not IS_TYPE.enum(x,ICMP_TYPE) for x in type_list): 
             raise TypeError("type_list non valido")  
@@ -2377,36 +2379,49 @@ class AttackType(Enum):
     ipv6_timing_cc=25  
 
     def choose_attack_function(): 
+        attack_enum=None
         while True: 
-            print(AttackType.get_available_attack(),"\n")
-            msg="Scegli il nome o il codice della funzione:\t"
-            try:
-                scelta=str(input(msg)).lower().strip() 
-                print("Hai digitato: ",scelta if str(scelta)!="" else "<empty>") 
-                attack_enum=AttackType.get_attack_method(scelta) 
-            except Exception as e:
-                print(f"choose_attack_function: {e}")
-            if attack_enum: 
-                return attack_enum
-            msg="Nessuna funzione trovata. Si vuole continuare? S/N\t" 
+            print(AttackType.print_available_attack(),"\n")
+            msg="Scegli il nome o il codice della funzione:\t" 
+            scelta=str(input(msg)).lower().strip() 
+            print("Hai scelto: ",scelta if str(scelta)!="" else "<empty>") 
+            attack_enum=AttackType.get_attack_method(scelta) 
+            if IS_TYPE.enum(attack_enum,AttackType): 
+                break
+            msg="\n\nNessuna funzione trovata. Si vuole continuare? S/N\t" 
             if not ask_bool_choice(msg): 
-                return None 
+                break
+        return attack_enum 
 
     def get_attack_method(attack=None)->Enum: 
         #Data in input una qualsiasi variabile ritorna l'enum associato quando possibile
         if IS_TYPE.enum(attack, AttackType): 
-            return attack 
-        if IS_TYPE.string(attack): 
-            try:
-                return AttackType[attack]
-            except KeyError:
-                raise ValueError(f"Stringa attacco non valida: {attack}")  
-        if IS_TYPE.integer(attack): 
+            return attack  
+        elif IS_TYPE.enum(attack,Enum): 
+            try: 
+                return AttackType[attack.name] 
+            except KeyError as k: 
+                print("STRINGA NON VALIDA",k)
+            try: 
+                return AttackType(attack.value)
+            except ValueError as v: 
+                print("INTEGER NON VALIDO",v) 
+        elif IS_TYPE.integer(attack): 
             try:
                 return AttackType(attack)
-            except ValueError:
-                raise ValueError(f"Valore numerico attacco non valido: {attack}")
-        raise TypeError("Argomento non valido: atteso str, int o AttackType")
+            except ValueError as v:
+                print("INTEGER NON VALIDO",v)
+        elif IS_TYPE.string(attack): 
+            try:
+                return AttackType(int(attack))
+            except ValueError as k: 
+                print("STRINGA NON VALIDA",k)
+            try:
+                return AttackType[attack]
+            except KeyError as k: 
+                print("STRINGA NON VALIDA",k)
+        
+        return None
     
     def get_description(attack:Enum=None)->str: 
         if IS_TYPE.enum(attack, AttackType): 
@@ -2461,17 +2476,21 @@ class AttackType(Enum):
                 #------------------------------------------------
         raise Exception("Attacco immesso non valido: ",attack) 
     
-    def get_available_attack()->str: 
-        stringa="Gli attacchi disponibili sono:\n"
+    def print_available_attack(): 
+        time.sleep(0.5)
+        print("Gli attacchi disponibili sono:\n")
         for enumerator in list(AttackType): 
-            stringa+=f" *{enumerator.name}:{enumerator.value}\t{AttackType.get_description(enumerator)}\n" 
-        stringa+=(
-            "\n" \
-            "Per scegliere un attacco, usa il nome o il numero corrispondente." \
-            "\nAd esempio per l'attacco Destination Unreachable TRamite ICMPv4, puoi scegliere:" \
-            "\n\t*il nome 'ipv4_destination_unreachable'" \
-            "\n\t*il numero '0'." \
-        ) 
-        return stringa
+            time.sleep(2) 
+            print(f" *{enumerator.name}:{enumerator.value}\n\t{AttackType.get_description(enumerator)}\n") 
+        time.sleep(0.5) 
+        print("\n Per scegliere un attacco, usa il nome o il numero corrispondente.") 
+        time.sleep(1) 
+        print(""" 
+            \nAd esempio per l'attacco ICMPv4 Destination Unreachable, puoi scegliere: 
+            \n\t*Il nome 'ipv4_destination_unreachable' 
+            \n\t\toppure'.
+            \n\t*Il numero '0'.
+        """) 
+        
 
 
