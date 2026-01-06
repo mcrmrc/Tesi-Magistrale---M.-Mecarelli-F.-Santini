@@ -119,8 +119,6 @@ class POWER_SLEEP:
         def run(): 
             subprocess.Popen(["caffeinate", "-dimsu"])
 
-
-
 class NETWORK:
     def ping_once(ip_dst:ipaddress.IPv4Address=None, iface:str=None, timeout=1): 
         #if not IS_TYPE.string(iface): 
@@ -953,9 +951,9 @@ class PARSER:
                     help=action.help
                 )) 
 
-    def check_arguments(parser: argparse.ArgumentParser = None): 
+    def check_arguments(parser: argparse.ArgumentParser=None): 
         if IS_TYPE.ArgumentParser(parser):  
-            args, unknown = parser.parse_known_args()  
+            args, unknown = parser.parse_known_args() 
             return args, unknown 
         return None, None
 
@@ -983,7 +981,7 @@ class CALC:
         
         # One's complement of the result
         checksum = ~checksum & 0xFFFF
-        print(f"\tThe checksum of {data} is {checksum}")
+        print(f"The checksum of\n\t{data}\n\tis\n\t{checksum}") 
         return checksum 
     
     def checksumV2(data):
@@ -999,112 +997,129 @@ class CALC:
         return (~checksum) & 0xffff
     
 class IS_TYPE: 
-    def callable_function(callback_function=None):
+    def callable_function(var_ToCheck=None):
         #the type of a function can be 'function' or 'method' 
-        if callable(callback_function): 
+        if callable(var_ToCheck): 
             return True
-        print(f"callable_function: callback function invalida {callback_function}") 
+        #print(f"callback function non valida {var_ToCheck}") 
         return False  
     
-    def ipaddress(ip_address:ipaddress.IPv4Address): 
-        if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
+    def ipaddress(var_ToCheck=None): 
+        if isinstance(var_ToCheck, (ipaddress.IPv4Address,ipaddress.IPv6Address)): 
+            return True 
+        #print(f"non è un ipaddress {var_ToCheck}") 
+        return False
+
+    def time(var_ToCheck=None):    
+        if isinstance(var_ToCheck, (int, float)): 
+            return True
+        #print(f"Tempo non valido {var_ToCheck}") 
+        return False 
+
+    def threading_Event(var_ToCheck=None):
+        if isinstance(var_ToCheck, threading.Event): 
+            return True
+        #print(f"non è un threading.Event {type(var_ToCheck)}") 
+        return False 
+
+    def dictionary(var_ToCheck=None):
+        if isinstance(var_ToCheck, dict):
+            return True
+        #print(f"non è un dizionario {var_ToCheck}") 
+        return False
+    
+    def AsyncSniffer(var_ToCheck=None):
+        if isinstance(var_ToCheck,AsyncSniffer): 
+            return True
+        #print(f"sniffer non è valido {var_ToCheck}") 
+        return False 
+
+    def threading_Timer(var_ToCheck=None):
+        if isinstance(var_ToCheck, threading.Timer): 
+            return True
+        #print(f"timer non è un threading.Timer {type(var_ToCheck)}")
+        return False 
+
+    def list(var_ToCheck=None):
+        if isinstance(var_ToCheck,list): 
             return True  
-        #else: 
-        #    try: 
-        #        ipaddress.ip_address(ip_address) 
-        #        return True
-        #    except Exception as e: 
-        #        print("IS_TYPE.ipaddress: ",e)
-        print(f"IS_TYPE.ipaddress: indirizzo IP non valido {ip_address}") 
-        return False
-
-    def time(timeout_time:int|float=None):    
-        if isinstance(timeout_time, (int, float)): 
-            return True
-        print(f"IS_TYPE.time\tTempo invalido {timeout_time}") 
-        return False 
-
-    def threading_Event(event:threading.Event=None):
-        if isinstance(event, threading.Event): 
-            return True
-        print(f"is_threading_Event: event non è un threading.Event {type(event)}") 
-        return False 
-
-    def dictionary(args:dict=None):
-        if isinstance(args, dict):
-            return True
-        print(f"is_dictionary: Argomenti non validi {args}") 
+        #print(f"non è una lista {var_ToCheck}") 
         return False
     
-    def AsyncSniffer(sniffer:AsyncSniffer=None):
-        if isinstance(sniffer,AsyncSniffer): 
+    def string(var_ToCheck=None):
+        if isinstance(var_ToCheck,str):
             return True
-        print(f"is_AsyncSniffer: lo sniffer non è valido {sniffer}") 
+        #print(f"stringa non valida {var_ToCheck}")
         return False 
 
-    def threading_Timer(timer:threading.Timer=None):
-        if isinstance(timer, threading.Timer): 
+    def bytes(var_ToCheck=None):
+        if isinstance(var_ToCheck,bytes): 
             return True
-        print(f"is_threading_Timer: timer non è un threading.Timer {type(timer)}")
+        #print(f"byte non valido {var_ToCheck}") 
         return False 
 
-    def list(lista:list=None):
-        if isinstance(lista,list): 
-            return True  
-        print(f"is_list: lista non è una lista {lista}") 
+    def integer(var_ToCheck=None):
+        if isinstance(var_ToCheck,int): 
+            return True
+        #print(f"integer non valido {var_ToCheck}")
+        return False 
+
+    def boolean(var_ToCheck=None):
+        if isinstance(var_ToCheck,bool): 
+            return True
+        #print(f"booleano non valido {var_ToCheck}")
+        return False 
+
+    def threading_Lock(var_ToCheck=None):
+        if isinstance(var_ToCheck, threading.Lock): 
+            return True
+        #print(f"lock non valido {var_ToCheck}")
+        return False 
+
+    def subprocess_Popen(var_ToCheck=None): #is_valid_shell
+        if isinstance(var_ToCheck, subprocess.Popen): 
+            return True
+        #print(f"shell non valida {var_ToCheck}")
+        return False 
+
+    def ArgumentParser(var_ToCheck=None): 
+        if isinstance(var_ToCheck, argparse.ArgumentParser): 
+            return True
+        #print(f"ArgumentParser: parser non valido {var_ToCheck}")
+        return False 
+    
+    def enum(var_ToCheck=None, enum_type:Enum=None): 
+        if enum_type is None and isinstance(var_ToCheck, Enum): 
+            return True 
+        if isinstance(var_ToCheck, enum_type):
+            return True
+        #print(f"enum non valido {type(var_ToCheck)}")
+        return False 
+    
+    def namespace(var_ToCheck=None): 
+        if isinstance(var_ToCheck, argparse.Namespace): 
+            return True 
+        #print(f"namespace: namespace non valido {var_ToCheck}")
+        return False 
+    
+    def threading_Thread(var_ToCheck=None): 
+        if isinstance(var_ToCheck,threading.Thread): 
+            return True 
+        #print(f"thread non valido {var_ToCheck}")
+        return False 
+    
+    def socket(var_ToCheck=None): 
+        if isinstance(var_ToCheck, socket.socket): 
+            return True 
+        #print(f"socket non valido {var_ToCheck}")
         return False
-    
-    def string(stringa:str=None):
-        if isinstance(stringa,str):
-            return True
-        print(f"is_string: stringa non valida {stringa}")
-        return False 
-
-    def bytes(byte:bytes=None):
-        if isinstance(byte,bytes): 
-            return True
-        print(f"is_bytes: byte non valido {byte}") 
-        return False 
-
-    def integer(integer:int=None):
-        if isinstance(integer,int): 
-            return True
-        print(f"is_integer: int non valido {integer}")
-        return False 
-
-    def boolean(booleano:bool=None):
-        if isinstance(booleano,bool): 
-            return True
-        print(f"is_boolean: booleano non valido {booleano}")
-        return False 
-
-    def threading_lock(lock:threading.Lock=None):
-        if isinstance(lock,type(threading.Lock())): 
-            return True
-        print(f"is_threading_lock: lock non valido {lock}")
-        return False 
-
-    def is_valid_shell(shell:subprocess.Popen[str]=None):
-        if isinstance(shell, subprocess.Popen): 
-            return True
-        print(f"is_valid_shell: shell non valida {shell}")
-        return False 
-
-    def ArgumentParser(parser:argparse.ArgumentParser=None): 
-        if isinstance(parser, argparse.ArgumentParser): 
-            return True
-        print(f"ArgumentParser: parser non valido {parser}")
-        return False 
-    
-    def enum(enum:Enum=None, enum_type=Enum):
-        if isinstance(enum, enum_type):
-            return True
-        print(f"is_Enum: enum non valido {enum}")
-        return False 
 
 class GET: 
     def threading_Event()->threading.Event: 
         return threading.Event() 
+
+    def threading_Lock()->threading.Lock: 
+        return threading.Lock()
 
     def AsyncSniffer(args:dict=None): 
         if not IS_TYPE.dictionary(args): 
@@ -1276,16 +1291,30 @@ class SNIFFER:
             return sniffer, timer 
         raise Exception(f"sniff_packet: Argomenti non validi") 
 
-    def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address=None, icmp_seq:int=0,icmp_id:int=None): 
-        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.bytes(data) and IS_TYPE.integer(icmp_seq)): 
-            raise Exception("send_packet: Argomenti non validi") 
-        if not icmp_id or not IS_TYPE.integer(icmp_seq): 
-            icmp_id=CALC.checksum(data) 
-        target_mac = IP_INTERFACE.GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower()
-        interface=IP_INTERFACE.INTERFACE_FROM_IP(ip_dst).interface
-        print(f"Interfaccia per destinazione: {interface}")
-        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP(id=icmp_id,seq=icmp_seq) / data 
-        print(f"Sending {pkt.summary()}") 
+    def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address=None, icmp_seq:int=0,icmp_id:int=0): 
+        if not IS_TYPE.bytes(data): 
+            raise TypeError("data non bytes") 
+        if not IS_TYPE.ipaddress(ip_dst): 
+            raise TypeError("ip_dst non valido") 
+        if not IS_TYPE.integer(icmp_seq): 
+            #raise TypeError("icmp_seq non valido") 
+            icmp_seq=0
+        if not IS_TYPE.integer(icmp_id): 
+            raise TypeError("icmp_id non valido") 
+        icmp_id=CALC.checksum(data) 
+        target_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address 
+        if not target_mac: 
+            raise TypeError("target_mac non valido") 
+        interface=NETWORK.INTERFACE_FROM_IP(ip_dst).interface 
+        if not interface: 
+            raise TypeError("interface non valido") 
+        print("MAC",target_mac) 
+        print("INTERFACE",interface) 
+        pkt = Ether(dst=target_mac)/\
+            IP(dst=ip_dst.compressed)/\
+            ICMP(id=icmp_id,seq=icmp_seq)/\
+            data 
+        print(f"send_packet {pkt.summary()}") 
         sendp(pkt, verbose=1, iface=interface) 
 
 #------------------------
