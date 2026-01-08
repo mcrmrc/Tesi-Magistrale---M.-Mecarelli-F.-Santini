@@ -1,0 +1,121 @@
+\subsection{Possibili attacchi tramite ICMP}
+\subsubsection{Attacchi Denial-of-Service (DoS/DDoS)}
+\subsubsection*{Icmp Flood (Ping Flood)}
+Usato per sopraffare un bersaglio con richieste Echo
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    L'attaccante invia un gran numero di richieste di ICMP Echo (richieste di ping) a un sistema bersaglio.
+    Se il sistema risponde con risposte ICMP Echo, consuma potenza di elaborazione e larghezza di banda. 
+    Se più macchine attaccano contemporaneamente, si parla di un attacco DDoS (Distributed DoS) ICMP Flood.
+    \item \textbf{Mitigazione}: \newline 
+    Limitare la velocità del traffico ICMP su firewall e router.
+    Disattivare le richieste di eco ICMP dalle reti esterne se non necessarie. 
+    Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare le richieste di ping eccessive.
+\end{itemize} 
+\subsubsection*{Attacco Smurf} 
+Richieste ICMP contraffatte amplificano il traffico verso una vittima.
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    L'aggressore invia richieste ICMP Echo con un IP sorgente falsificato (l'IP della vittima). 
+    Le richieste vengono inviate a un indirizzo broadcast, provocando la risposta di tutti gli host della rete.
+    La vittima viene sommersa da risposte ICMP Echo, che portano a una condizione DoS.
+    \item \textbf{Mitigazione}: \newline 
+    Disabilitare le richieste di broadcast ICMP sui router (nessuna trasmissione diretta IP)
+    Implementare filtri in ingresso per bloccare i pacchetti con indirizzi di origine falsificati. 
+    Utilizzare le regole del firewall per bloccare il traffico ICMP non necessario.
+\end{itemize} 
+\subsubsection*{Ping della morte (attacco storico)} 
+Invio di pacchetti ICMP di grandi dimensioni per mandare in crash i sistemi
+\begin{itemize}
+    \item \textbf{Attacco}: 
+    L'attaccante invia un pacchetto ICMP sovradimensionato ($>$ 65.535 byte) 
+    causano crash da buffer overflow nei sistemi vulnerabili.
+    I sistemi operativi più vecchi potrebbero crashare, bloccarsi o riavviarsi quando gestiscono tali pacchetti.
+    \item \textbf{Mitigazione}: 
+    I sistemi moderni rifiutano i pacchetti di dimensioni eccessive.
+    Applicare aggiornamenti e patch di sistema per prevenire questa vulnerabilità.
+\end{itemize} 
+\subsubsection*{ICMP Unreachable Flood}
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    L'attaccante invia un numero massiccio di messaggi ICMP Destination Unreachable.
+    Può sovraccaricare i dispositivi di rete e causare un denial of service. 
+    \item \textbf{Mitigazione}: \newline 
+    Configurare limiti di velocità per i messaggi di errore ICMP.
+    Implementare regole firewall per eliminare il traffico ICMP eccessivo
+\end{itemize}
+%
+\subsubsection{Attacchi di ricognizione}
+\subsubsection*{ICMP Ping Sweep}
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    L'aggressore invia richieste ICMP Echo a più host su una rete.
+ Sulla base delle risposte, l'attaccante identifica gli host attivi per ulteriori attacchi.
+    \item \textbf{Mitigazione}: \newline 
+    Blocca le richieste ICMP Echo da fonti esterne. 
+    Utilizzare sistemi di prevenzione delle intrusioni (IPS) per rilevare e bloccare attività di scansione sospette.
+\end{itemize} 
+\subsubsection*{Attacco Timestamp ICMP}
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    Le richieste ICMP Timestamp (tipo 13) consentono agli aggressori di determinare il tempo di attività del sistema.
+    Queste informazioni aiutano gli aggressori a individuare i sistemi vulnerabili o riavviati di recente.
+    \item \textbf{Mitigazione}: \newline 
+    Disattivare le richieste di timestamp ICMP su firewall e router.
+ Utilizzare protocolli di sincronizzazione temporale (NTP) con autenticazione anziché query orarie basate su ICMP.
+\end{itemize} 
+\subsubsection*{Attacco ICMP che maschera l'indirizzo}
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    L'aggressore invia una richiesta di mascheramento dell'indirizzo ICMP (tipo 17) a un bersaglio.
+    Se l'obiettivo risponde con la sua maschera di sottorete (subnet mask), rivela i dettagli della rete all'attaccante.
+    \item \textbf{Mitigazione}: \newline 
+    Disattivare le risposte ICMP Address Mask a meno che non siano necessarie per le operazioni di rete.
+    Utilizzare i firewall per filtrare il traffico ICMP proveniente da fonti non attendibili.
+\end{itemize} 
+%
+\subsubsection{Attacchi ICMP Tunneling e Covert Channel}
+\subsubsection*{ICMP Tunneling} 
+Covert Channel che utilizzano pacchetti ICMP per aggirare i firewall.
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    Gli attaccanti incapsulano dati dannosi all'interno delle richieste e delle risposte ICMP Echo.
+    I dati sono incorporati nei pacchetti ICMP per poter aggirare i firewall che consentono il traffico ICMP 
+    (ma bloccano le connessioni TCP/UDP) ed esfiltrare così le informazioni.
+    Spesso utilizzato per comunicazioni segrete in malware e canali C2 (comando e controllo). 
+    \item Esempi di strumenti: 
+    \begin{itemize}
+        \item Icmpsh - Crea una reverse shell utilizzando ICMP. 
+        \item PingTunnel - Incanala il traffico TCP attraverso pacchetti ICMP.
+    \end{itemize} 
+    \item \textbf{Mitigazione}: \newline 
+    Ispezione approfondita dei pacchetti (DPI) per rilevare ICMP Tunneling. 
+    Blocca le richieste/risposte di ICMP Echo da reti non attendibili.
+    Monitorare il traffico di rete per individuare modelli ICMP insoliti.
+\end{itemize} 
+\subsubsection*{Esfiltrazione ICMP (furto di dati tramite ICMP)}
+\begin{itemize}
+    \item \textbf{Attacco}: \newline 
+    Gli attaccanti inseriscono dati sensibili (password, file, comandi) all'interno dei pacchetti ICMP.
+    I dati vengono inviati a un server esterno controllato dall'attaccante.
+    \item \textbf{Mitigazione}: \newline 
+    Monitorare e registrare il traffico ICMP per rilevare attività anomale.
+    Utilizzare i firewall per limitare il traffico ICMP solo ai dispositivi necessari.
+    Utilizzare soluzioni DLP (Data Loss Prevention) per rilevare i tentativi di esfiltrazione.
+\end{itemize}
+\subsubsection*{ICMP Covert Channels}
+\begin{itemize}
+    \item \textbf{Attacco}: \newline
+    Malware e attaccanti utilizzano pacchetti ICMP per stabilire un canale di comunicazione nascosto.
+    Spesso utilizzato nella comunicazione C2 per botnet o operazioni di malware furtive.
+    \item \textbf{Mitigazione}: \newline
+    Monitorare il traffico ICMP per individuare modelli di utilizzo insoliti.
+    Utilizzare i sistemi di rilevamento delle intrusioni di rete (NIDS) per rilevare Covert Channel.
+    Limitare la comunicazione ICMP tra reti interne ed esterne.
+\end{itemize}
+\subsubsection*{Attacco di reindirizzamento ICMP}
+\begin{itemize}
+    \item Messaggi di reindirizzamento ICMP non autorizzati reindirizzano il traffico 
+    verso un gateway dannoso.
+    \item Mitigazione: disabilitare il reindirizzamento ICMP.
+\end{itemize}

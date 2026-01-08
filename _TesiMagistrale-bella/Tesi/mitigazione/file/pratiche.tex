@@ -1,0 +1,36 @@
+\subsection{Buona practice di sicurezza}
+Per prevenire gli attacchi basati su ICMP; buone misure di sicurezza sono: 
+\begin{itemize}
+    \item limitare e filtrare l'utilizzo di ICMP tramite i firewall 
+    \item la limitazione della velocità 
+    \item il monitoraggio del traffico (tramite strumenti di sicurezza) per rilevare le anomalie
+\end{itemize} 
+\subsubsection*{Regole del firewall}
+Limitare o bloccare il traffico ICMP non necessario. %sui firewall. 
+%Consentire solo i messaggi ICMP strettamente necessari (e.g. Echo Reply, Destinazione non raggiungibile, ma non Redirect).
+%Bloccare i tipi di ICMP non necessari sui firewall (ad esempio, Redirect, Timestamp, Source Quench). 
+\begin{itemize}
+    \item Bloccare le richieste Echo di ICMP da reti esterne, a meno che non siano necessarie.
+    \item Disabilitare le risposte a ICMP Timestamp e Address Mask per impedire la ricognizione.
+    \item Consentire solo i messaggi di errore ICMP necessari (ad esempio, Destinazione non raggiungibile).
+    \item Eliminare i messaggi di reindirizzamento ICMP per impedire la manipolazione dell'instradamento (del routing).
+\end{itemize}
+\subsubsection*{Limitazione della velocità} 
+Limitare la velocità delle richieste ICMP. %per evitare di essere sopraffatti
+\begin{itemize}
+    \item Limita il numero di pacchetti ICMP al secondo per prevenire la sovrastazione. 
+    \item Configura i criteri di limitazione della velocità ICMP su router e firewall.
+\end{itemize}
+\subsubsection*{Monitoraggio della rete e Rilevamento}
+%Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare attività ICMP sospette. 
+\begin{itemize}
+    \item Utilizzare i sistemi di rilevamento delle intrusioni (IDS/IPS) per rilevare abusi del protocollo ICMP.
+    \item Analizza i registri di rete per attività ICMP insolite (ad esempio, pacchetti ICMP di grandi dimensioni, ping frequenti).
+    \item Implementa l'ispezione approfondita dei pacchetti (DPI) per identificare il Tunneling ICMP.
+\end{itemize}
+\subsubsection*{Rafforzamento del sistema}
+\begin{itemize}
+    \item Mantieni aggiornati i sistemi e il firmware per correggere le vulnerabilità ICMP note
+    \item Disattivare i servizi ICMP sui sistemi critici se non necessari.
+    \item Utilizzare soluzioni di sicurezza degli endpoint per rilevare malware che utilizzano ICMP per la comunicazione
+\end{itemize} 

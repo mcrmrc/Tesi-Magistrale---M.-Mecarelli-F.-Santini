@@ -1,0 +1,229 @@
+%https://github.com/activecm/rita 
+%https://www.activecountermeasures.com/free-tools/rita/ 
+%https://www.promptzine.com/threat-hunting-zine/rita-real-intelligence-threat-analytics 
+%https://www.youtube.com/watch?v=kwR3TjIgoCo&t=13s 
+
+
+%UNUSED
+%https://www.activecountermeasures.com/intro-to-rita-v5/
+
+
+
+
+Durante la fase di analisi, RITA suddivide questi indicatori principali di persistenza in moduli separati [Tabella \ref{tabella:RITA:moduliPrincipali} ], 
+per poi visualizzare i risultati in base a un indicatore specifico. 
+%RITA’s analysis stage splits these primary indicators of persistency into separate modules, 
+%allowing results to be viewed based on a specific indicator.  
+La gravità di ciascun beacon 
+è determinata da quattro fattori; 
+%Scoring Breakdown: The score of each beacon is determined by four factors.
+le cui soglie che possono essere modificate nel file di configurazione. %di RITA.
+%The beacon modules also allow you to customize the weight each subscore 
+%(see Score Breakdown in Beacons section) has on the final score. 
+%I moduli beacon consentono anche di personalizzare il peso di ogni sottopunteggio 
+%(vedi la sezione "Scomposizione del punteggio nei beacon") 
+sul punteggio finale.
+\begin{itemize}
+    \item Analisi del timestamp: coerenza nell'intervallo di tempo tra le sessioni. 
+    %Timestamp Analysis - Time interval consistency between sessions.
+    \item Analisi della dimensione dei dati: consistenza nella dimensione tra le sessioni. 
+    %Datasize Analysis - Size consistency between sessions 
+    \item Analisi dell'istogramma: frequenza delle sessioni nel tempo. 
+    %Histogram Analysis - Frequency of sessions over time
+    \item Analisi della durata: persistenza del canale all'interno dell'intervallo di tempo. 
+    %Duration Analysis - Persistency of channel within timeframe
+\end{itemize}  
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+    \hline
+    \textbf{Modulo} & \textbf{Descrizione} \\
+    \hline
+    Beacons &  
+    Sono impulsi di comunicazioni fra due host. 
+    %Beacons are repeating “heartbeat” communications between a pair of hosts. 
+    Mentre alcuni sono innocui, un sistema compromesso li userà per esfiltrare dati o ricevere istruzioni. 
+    %While some beacons are innocuous, a compromised system will use beaconing to continuously request instructions 
+    %or exfiltrate data, allowing an attacker to maintain a persistent presence on the network. 
+    RITA identifica ed etichetta quattro differenti tipi di beacon. 
+    %RITA identifies and scores four different types of beacons. 
+    %We recommend investigating hosts with scores over 85\% to verify that the associated network traffic fulfills 
+    %a legitimate business need.
+    \\ 
+    \hline 
+%    IP &  
+%    Un beacon IP può indicare che un sistema compromesso sta comunicando con un server C2 con un indirizzo IP specifico.
+    %An IP beacon may indicate that a compromised internal system is communicating 
+    %with a C2 server at a specific IP address. 
+%    Questo modulo analizza le connessioni tra un IP sorgente interno al sitema e un IP di destinazione esterno ad esso. 
+    %This module analyzes connections between an internal source IP and an external destination IP pair. 
+    %\begin{lstlisting}
+    %$ rita show-beacons
+    %\end{lstlisting}
+%    \\
+%    \hline 
+%    Web &  
+%    I web beacon sono casi in cui un host interno comunica con un server C2 tramite una CDN. 
+    %Web beacons are cases where an internal host communicates with a C2 server through a CDN. 
+%    Il CDN distribuirà il traffico su più IP e lo mescolerà con il traffico legittimo. 
+    %The CDN will spread out the C2 traffic over multiple IPs and mix it in with legitimate traffic. 
+%    RITA inverte questo processo per rendere le connessioni malevole chiaramente visibili. 
+    %RITA reverses this process to make C2 connections clearly visible.
+    %\begin{lstlisting} 
+    %$ rita show-beacons-sni
+    %\end{lstlisting}
+%    \\
+%    \hline  
+%    Proxy &  
+%    Gli ambienti che utilizzano uno o più server proxy per le comunicazioni esterne potrebbero avere 
+%    difficoltà a identificare i beacon a causa del fatto che il server proxy appare come destinazione 
+%    di una richiesta HTTP/HTTPS.
+    %Environments that use one or more proxy servers for external communication may struggle to identify 
+    %beacons due to the proxy server appearing as the destination of an HTTP/HTTPS request. 
+%    Questo modulo utilizza le informazioni dell'intestazione Proxy CONNECT per determinare la 
+%    destinazione originariamente richiesta per l'analisi dei beacon.
+    %This module uses Proxy CONNECT header information to determine the originally requested destination 
+    %for its beacon analysis.
+    %\begin{lstlisting} 
+    %$ rita show-beacons-proxy
+    %\end{lstlisting}
+%    \\
+%    \hline  
+    Strobes &  
+    Le coppie (host interno, host esterno) che attivano una nuova connessione (una o più volte al secondo) vengono chiamate Strobe.
+    %Internal to external host pairs that trigger a new connection one or more times per second are called strobes. 
+    Poiché si tratta di segnali basati sulla frequenza della comunicazione, non vengono 
+    valutati e vengono invece presentati come un elenco ordinato in base al numero di connessioni. 
+    %Since these are indisputable beacons based on the frequency of communication alone, 
+    %they are not scored and instead presented as a list sorted on connection count.
+    %\begin{lstlisting} 
+    %$ rita show-strobes 
+    %\end{lstlisting} 
+    \\ 
+    \hline  
+%    Exploded DNS &  
+    %A compromised system may leverage DNS to set up a C2 channel by encoding data in the FQDN or 
+    %query portion of a DNS request.  
+%    Un sistema compromesso può sfruttare il DNS per impostare un canale C2 codificando i dati nella parte 
+%    FQDN o query di una richiesta DNS. 
+    %To avoid DNS caching and ensure that the local resolver forwards the request, the malware will use 
+    %a unique query for every request by varying the FQDN. 
+%    Per evitare la memorizzazione nella cache del DNS e garantire che il resolver locale inoltri la richiesta, 
+%    il malware utilizzerà una query univoca per ogni richiesta variando l'FQDN. 
+    %This results in thousands of separate resource requests to a single parent domain. 
+%    Ciò si traduce in migliaia di richieste di risorse separate a un singolo dominio padre. 
+    %This module displays the unique FQDN count and total DNS lookups for each domain. 
+%    Questo modulo visualizza il conteggio univoco dell'FQDN e il totale delle ricerche DNS per ciascun dominio.
+    %\begin{lstlisting} 
+    %$ rita show-exploded-dns
+    %\end{lstlisting}
+%    \\
+%    \hline  
+    Connessioni lunghe &  
+    %Long connections can be an indicator of well-established malware, allowing a compromised system to receive commands and exfiltrate data without constantly checking in with the C2 server. 
+%    Le connessioni lunghe possono essere un indicatore. %di malware ben consolidato, 
+    Consentono a un sistema compromesso di ricevere comandi ed esfiltrare dati senza 
+    dover effettuare costantemente il check-in con il server. %C2. 
+    %Longer sessions also create fewer log entries, making them difficult to detect. 
+    Questi tipi di sessioni creano meno voci nei log; ciò le rende difficili da rilevare. 
+    %This module displays a sorted list of the longest connections and their source and destination hosts.
+    %Questo modulo visualizza un elenco ordinato delle connessioni più lunghe e 
+    %dei relativi host di origine e destinazione. 
+    %\begin{lstlisting} 
+    %$ rita show-long-connections
+    %\end{lstlisting}
+    \\
+    \hline  
+%   User Agent &  
+    %User agent strings can also function as indicators of compromise. 
+%   Le stringhe 'User agent' possono fungere da indicatori di compromissione. 
+    %Malware might use a weird or uncommon user agent string or alter one to make it appear as if 
+    %it was coming from a browser or client other than the one infected. 
+%    Un malware potrebbe utilizzare una stringa dell'agente utente nsolita o modificarne 
+%    una per farla apparire valida. %come se provenisse da un browser o client diverso da quello infetto.
+    %Detecting and vetting such irregularities can assist you in determining whether a communication 
+    %is malicious or benign.
+%    Rilevare e analizzare tali irregolarità può aiutare a determinare se una comunicazione è dannosa o benigna. 
+    %This module displays a list of unique user agent strings found in the dataset.
+    %Questo modulo visualizza un elenco di stringhe dell'agente utente univoche trovate nel set di dati.
+    %\begin{lstlisting} 
+    %$ rita show-useragents
+    %\end{lstlisting}
+%    \\
+%    \hline  
+    Threat Intel & 
+    %Threat intelligence feeds contain information on potentially malicious hosts based on 
+    %attack information accumulated through various sources. 
+    I feed di Threat Intelligence contengono informazioni su host potenzialmente dannosi. 
+    Si basano su informazioni di attacco accumulate da varie fonti.
+    %You can customize which feeds this module uses in its analysis. 
+    %È possibile personalizzare i feed utilizzati da questo modulo per la sua analisi. 
+    %Results display a list of the potentially malicious matches split into three categories: 
+    %hostnames, IPs contacted via an outbound connection, and IPs that initiated an inbound connection. 
+    I risultati mostrano l'elenco delle corrispondenze dannose suddivise in tre categorie: %potenzialmente dannose 
+    nomi host, IP contattati %tramite una connessione 
+    in uscita e IP esterni che hanno avviato una connessione. %in entrata.
+    %\begin{lstlisting} 
+    %$ rita show-bl-dest-ips 
+    %$ rita show-bl-source-ips 
+    %$ rita show-bl-hostnames 
+    %\end{lstlisting}
+    \\
+    \hline 
+\caption{Moduli principali di RITA} 
+\label{tabella:RITA:moduliPrincipali} 
+\end{longtable} 
+\end{center}  
+%Tips and Tricks  
+%Format module results into easy-to-read tables by adding -H to the command:
+%\begin{lstlisting} 
+%$ rita show-strobes <dataset> -H
+%\end{lstlisting} 
+%Create a simple HTML summary of all module results:
+%\begin{lstlisting} 
+%$ rita html-report <dataset>
+%\end{lstlisting} 
+%You can filter results of any module by using grep. 
+%One example is to create a text file with the IP addresses to exclude (one per line) and use it when piping into grep:
+%\begin{lstlisting} 
+%$ rita show-beacons <dataset> | grep -v -w -F -f <filename>
+%\end{lstlisting} 
+%
+%If you find a suspicious result, you can use your Zeek logs to gather more context 
+%clues about the hosts or connections. 
+%Se si trova un risultato sospetto, si possono utilizzare i log di Zeek per raccogliere ulteriori 
+%indizi sugli host o sulle connessioni.
+%Check out the Useful Threat Hunting Scripts article for some examples.
+%Consulta l'articolo "Utili script di Threat Hunting" per alcuni esempi.
+%Most modules have thresholds that can be adjusted via RITA’s configuration file. 
+
+
+
+%\subsection{How to Install RITA} 
+%The package can be found at https://github.com/activecm/rita/releases . You’ll need to launch the installer from a Linux system, and from there you can push out RITA to any of the above Linux distributions.
+
+%In a command prompt (found under the “Terminal” application if you’ve installed a Desktop), run the following to install RITA on this system:
+%\begin{lstlisting}
+%cd
+%wget https://github.com/activecm/rita/releases/download/v5.0.0-beta/rita-v5.0.0-beta.tar.gz
+%tar -xzvf rita-v5.0.0-beta.tar.gz
+%cd rita-v5.0.0-beta-installer
+%./install_rita.sh localhost
+%\end{lstlisting}
+%You’ll be asked for your user’s password a few times.
+
+%\subsection{How to Install Zeek}
+%Zeek used to be installed automatically when installing RITA – it’s now part of the “docker-zeek” package. To use that to install Zeek, run the following commands on the target Linux system after installing RITA. Note that the “sudo wget…” command wraps onto two lines below, but it needs to be one typed line with a space just before “https”:
+%\begin{lstlisting}
+%sudo wget -O /usr/local/bin/zeek https://raw.githubusercontent.com/activecm/docker-zeek/master/zeek
+%sudo chmod +x /usr/local/bin/zeek
+%zeek start
+%\end{lstlisting}
+%We encourage you to install docker-zeek on a physical system but RITA can be installed on a physical or virtual machine. 
+
+
+%https://www.activecountermeasures.com/is-it-ok-to-capture-packets-in-a-virtual-machine/
+
+
+
+
+
