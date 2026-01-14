@@ -1,17 +1,20 @@
+\section{Implementazione del Storage Covert Channel} 
 %ICMP: The Good, the Bad, and the Ugly
 %https://www.researchgate.net/publication/224349250_Implementation_of_an_ICMP-based_covert_channel_for_file_and_message_transfer 
 %
-In uno Storage Covert Channel, la risorsa condivisa sarà il pacchetto ICMP inviato e i dati saranno 
-scritti nei suoi campi. 
-Il destinatario, una volta ricevuto, potrà poi leggere i valori codificati al loro interno. 
-\vspace{2ex} \newline
-Nelle tabelle [Tabella \ref{table:icmpv4:tipologie} ][Tabella \ref{table:icmpv6:tipologie} ] sono 
-indicati quali tipologie di messaggi verranno sfruttati oltre a quali campi sono stati utilizzati 
-e quanti byte pesa un singolo pacchetto. 
+In uno Storage Covert Channel, la risorsa condivisa sarà il pacchetto ICMP 
+inviato e i dati saranno scritti nei suoi campi. Il destinatario, una volta 
+ricevuto, potrà poi leggere i valori codificati al loro interno. 
+Nelle Tabelle \ref{table:icmpv4:tipologie} e \ref{table:icmpv6:tipologie} 
+sono indicati le tipologie di messaggi sfruttate. Le tabelle indicano anche 
+quali campi sono stati utilizzati e quanti byte pesa un singolo pacchetto. 
 %Inoltre è stato indicato anche quant'è il peso di un singolo pacchetto di quella tipologia. 
-Nel caso di tipologie come i messaggi Echo Request/Reply, si avranno delle varianti sia 
-nella quantità di dati esfiltrabili sia sulla quantità di byte che vengono trasmessi per singolo datagram.  
-Ciò è dovuto alla presenza del campo \textit{data} che permette di inserire una quantità "illimitata" di dati. 
+\vspace{2ex} \newline 
+Tuttavia, nel caso di alcune tipologie (come i messaggi Echo Request/Reply), 
+si avranno delle varianti sia nella quantità di dati esfiltrabili sia sulla 
+quantità di byte che vengono trasmessi per singolo datagram.  
+Ciò è dovuto alla presenza del campo \textit{data} che permette di inserire 
+una quantità maggiore di dati. 
 %Questo perchè il messaggio può trasportare un payload al suo interno. 
 %Le varianti implicheranno quindi l'utliizzazione o meno di questo campo. 
 %Nel caso lo si utilizzi il payload o conterrà 32 byte di informazione oppure 56 byte; 
@@ -33,94 +36,98 @@ Ciò è dovuto alla presenza del campo \textit{data} che permette di inserire un
     \hline
     Parameter Problem  & 20+8+21 & pointer(1byte)\\ 
     &$\rightarrow$min 49 byte&unused(3byte)\\ 
-    &&header+64 bits(2byte) 4-8  \\ %messaggi di errore
+    &&header+64 bits(2byte)  \\ %messaggi di errore
     \hline 
     Source Quench   & 20+8+21 & unused(4byte)\\ 
-    &$\rightarrow$min 49 byte&header+64 bits(2byte) 3-8   \\ %messaggi di errore
+    &$\rightarrow$min 49 byte&header+64 bits(2byte) \\ %messaggi di errore
     \hline     
-    Redirect Message & 20+8+21=min 49 byte & header+64 bits(2byte) 3-4\\ %messaggi di errore
+    Redirect Message & 20+8+21=min 49 byte & header+64 bits(2byte) \\ %messaggi di errore
     \hline 
     Echo Request/Reply & 20+8+32 & identifier(2byte)\\ 
-    &$\rightarrow$min 60 byte&data($\geq32$) 2\\ %messaggi di informazione
+    &$\rightarrow$min 60 byte&data($\geq32$) \\ %messaggi di informazione
     \hline 
     Timestamp Request/Reply & 20+8+12+32& identifier(2byte)\\ 
     &$\rightarrow$min 72 byte&timestamp(4byte*3)\\ 
-    &&data($\geq32$) 5 \\ %messaggi di informazione
+    &&data($\geq32$) \\ %messaggi di informazione
     \hline 
-    Information Request/Reply & 20+8=28 byte & identifier(2byte) 2\\ %messaggi di informazione
+    Information Request/Reply & 20+8=28 byte & identifier(2byte) \\ %messaggi di informazione
     \hline 
     %9 & 0 & CC  & Router Advertisement & Routers announce themselves to hosts. \\
     %\hline
     %10 & 0 & CC  & Router Solicitation & Hosts request router advertisements. \\
     %\hline 
-\end{longtable}
-\captionof{table}{Tipologie di messaggi ICMPv4} 
-\label{table:icmpv4:tipologie} 
-\vspace{4ex}
+    \caption{Tipologie di messaggi ICMPv4 usati} 
+    \label{table:icmpv4:tipologie} 
+\end{longtable} 
+\vspace{2ex}
 \begin{longtable}{|c|c|c|} 
     \hline 
     \textbf{Tipologia} & \textbf{Byte per pacchetto} & \textbf{Campi Sfruttatti}  \\
     \hline
     Destination Unreachable & 40+8+41 & unused(4 bytes)\\ 
-    &$\rightarrow$min 89 byte&invoking packet(2bytes) 4-8  \\ %messaggi di errore
+    &$\rightarrow$min 89 byte&invoking packet(2bytes) \\ %messaggi di errore
     \hline 
     Time Exceeded & 40+8+41 & unused(4 bytes)\\ 
-    &$\rightarrow$min 89 byte&invoking packet(2bytes) 4-8 \\ %messaggi di errore
+    &$\rightarrow$min 89 byte&invoking packet(2bytes) \\ %messaggi di errore
     \hline
     Parameter Problem & 40+8+41 & pointer(4byte)\\ 
-    &$\rightarrow$min 89 byte&invoking packet(2byte) 8 \\  %messaggi di errore
+    &$\rightarrow$min 89 byte&invoking packet(2byte) \\  %messaggi di errore
     \hline 
     Echo Request/Reply & 40+8+32 & identifier(2byte)\\ 
-    &$\rightarrow$min 80 byte&data($\geq32$) 2\\ %messaggi di informazione
+    &$\rightarrow$min 80 byte&data($\geq32$) \\ %messaggi di informazione
     \hline 
     Packet Too Big & 40+8+41 & mtu(4byte)\\ 
-    &$\rightarrow$min 89 byte&invoking packet(2byte) 8 \\  %messaggi di errore
+    &$\rightarrow$min 89 byte&invoking packet(2byte) \\  %messaggi di errore
     \hline 
-\end{longtable}
-\captionof{table}{Tipologie di messaggi ICMPv6} 
-\label{table:icmpv6:tipologie} 
+    \caption{Tipologie di messaggi ICMPv6 usati} 
+    \label{table:icmpv6:tipologie} 
+\end{longtable} 
 %\import{./icmp}{messaggi_errore}  
 %\import{./icmp}{messaggi_informativi} 
 
 
-\subsubsection{Come i dati vengono inseriti nei campi utilizzati}
-\subsubsection*{Campo \textbf{unused}}
-Dalle specifiche RFC 792\cite{icmpv4_message_type} (e RFC 4434 \cite{icmpv6_message_type}) deve 
-essere 0 quindi Scapy, quando manderà il pacchetto, azzererà qualsiasi valore inserito al suo 
-interno [Figura \ref{fig:covertStorage:sourcequench:errScapy} ]. 
+\subsection{Inserimento dei dati nei campi usati} 
+\subsubsection{Campo \textbf{unused}}
+Dalle specifiche RFC (792 \cite{icmpv4_message_type} e 4434 \cite{icmpv6_message_type})
+il campo deve essere 0. Quindi Scapy, quando manderà il pacchetto, lo 
+invierà conforme allo standard e di conseguenza azzererà qualsiasi valore 
+al suo interno (come mostra la Figura \ref{fig:covertStorage:sourcequench:errScapy}). 
+\newline
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/destination_CC_errscapy.png}
-    \captionof{figure}{Messaggio Destination Unreachable con il campo \textit{unused} azzerato} 
+    \includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagine_parameterproblem.png}
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{unused} azzerato} 
     \label{fig:covertStorage:sourcequench:errScapy} 
 \end{minipage}  
 \vspace{2ex} \newline 
-Tramite degli accorgimenti è possibile inserire dei dati all'interno del campo [Figura \ref{fig:covertStorage:sourcequench:wUnused}].  
-Tramite la libreria \textit{struct} \cite{struct}, si può riscrivere, il pacchetto evitando di 
-utilizzare il livello ICMP di Scapy; così che al suo invio i dati siano presenti. 
-\begin{minipage}{\textwidth}
+Il problema può essere risolto tramite degli accorgimenti.  
+Tramite la libreria \textbf{struct} \cite{struct}, \uppercase{è} possibile 
+inserire dei dati all'interno del campo. Infatti si può riscrivere, il 
+pacchetto evitando di farlo creare Scapy. 
+Così, quando lo si farà inviare da Scapy, al suo interno saranno presenti i dati. 
+In Figura \ref{fig:covertStorage:unused} si vede la loro presenza. 
+\newline
+\begin{minipage}{\textwidth} 
     \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/destination_unused_CC_1.png}
-    \captionof{figure}{Messaggio Destination Unreachable che usa il campo \textit{unused}} 
-    \label{fig:covertStorage:sourcequench:wUnused} 
+    \includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagine_parameterproblem_unused.png}
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{unused} impostato} 
+    \label{fig:covertStorage:unused} 
 \end{minipage} 
 \vspace{2ex} \newline 
-Siccome il suo utilizzo rende il messaggio non conforme allo standard RFC \cite{icmpv4_message_type}\cite{icmpv6_message_type}; 
-un IDS che implementi la Deep Packet Inspection rileverà l'anomali. 
-Si potrà quindi scegliere se inserire dati nel campo o no [Figuara \ref{fig:covertStorage:sourcequench:noUnused}]. 
-%Tuttavia nel nostro caso è stato utilizzato per testare la presenza della \textit{Deep Packet Inspection}. 
-\begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/destination_CC.png}
-    \captionof{figure}{Messaggio Destination Unreachable che non usa il campo \textit{unused}} 
-    \label{fig:covertStorage:sourcequench:noUnused} 
-\end{minipage}  
+Siccome il suo utilizzo rende il messaggio non conforme agli standard RFC \cite{icmpv4_message_type}\cite{icmpv6_message_type}; 
+un IDS che implementi la Deep Packet Inspection rileverà l'anomalia. 
+Si potrà quindi scegliere se inserire dati nel campo o non. 
+%Tuttavia nel nostro caso è stato utilizzato per testare la presenza della \textit{Deep Packet Inspection}.  
 
-\subsubsection*{Campo \textbf{Header+64 bits}} 
-Nel campo si dovranno inserire l'header IP più 8 byte. 
-%si potranno usare varie coppie nelle quali inserire i dati. 
-Nel nostro caso si è usato IP/ICMP e siccome il campo rappresenta un datagram già spedito, si sfruttano un 
-maggior numero di campi (in particolare quelli del protocollo IP [Tabella \ref{table:icmpv4:header64bit}]).  
+\subsubsection{Campo \textbf{Header+64 bits}} 
+Nel campo si dovranno inserire l'header IP più 8 byte. %si potranno usare varie coppie nelle quali inserire i dati. 
+Si potranno usare qindi varie tipologie di pacchetti purchè la loro lunghezza 
+non superi i 28 byte.
+\vspace{1ex} \newline
+Inoltre siccome non rappresenta un datagram da inviare ma già spedito, 
+si possono sfruttare un maggior numero di campi (indicati nella 
+Tabella \ref{table:icmpv4:header64bit}). La Figura \ref{fig:covertStorage:header64bit}  
+invece mostra un caso applicato ai protocolli IP e ICMP. 
 \begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|} 
     \multicolumn{3}{c}{Header IPv4} \\  
     \hline 
@@ -142,9 +149,9 @@ maggior numero di campi (in particolare quelli del protocollo IP [Tabella \ref{t
     \hline 
     Sequence & 2 byte & Numero di sequenza del messaggio di richiesta invocato \\  
     \hline
-\end{longtable}
-\captionof{table}{Struttura del campo Header+64 bits} 
-\label{table:icmpv4:header64bit} 
+    \caption{Uso del Header+64 bits nel caso di IP/ICMP} 
+    \label{table:icmpv4:header64bit} 
+\end{longtable} 
 %Ma può essere utilizzato anche TCP/IP o altri protocolli purchè lunghezza passata, 
 %non sfori i 28 bytes.-
 %si userà il campo \textbf{len} del protocollo \textit{IP} e il campo \textbf{id} del protocollo \textit{ICMP}. 
@@ -152,16 +159,34 @@ maggior numero di campi (in particolare quelli del protocollo IP [Tabella \ref{t
 %Ciò cambierà la visibilità del pacchetto siccome non conforme allo standard. 
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/ttl_CC_header.png}
-    \captionof{figure}{Messaggio Time Exceeded e il campo \textit{Header+64 bit}} 
-    \label{fig:covertStorage:timexceeded:noUnused} 
-\end{minipage}  
+    \includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagie_header_64bit.png}
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{Header+64 bit} impostato} 
+    \label{fig:covertStorage:header64bit} 
+\end{minipage} 
+\begin{center}
+\begin{minipage}{0.9\linewidth}
+\centering
+\begin{lstlisting} [basicstyle=\ttfamily\scriptsize]
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 38 00 01 00 00 40 01 F7 15 C0 A8 01 0F C0 A8  .8....@.........
+0020  01 4F 03 03 68 66 42 4F 52 47 45 00 4F 47 4E 41  .O..hfBORGE.OGNA
+0030  00 00 42 01 09 B3 C0 A8 01 0A 08 08 08 08 00 00  ..B.............
+0040  69 5E 4F 52 47 4F                                i^ORGO
+\end{lstlisting}
+\captionof{lstlisting}{Dump esadecimale del messaggio in figura \ref{fig:covertStorage:header64bit}}
+\label{code:covertStorage:header64bit} 
+\end{minipage}
+\end{center}
 
-\subsubsection*{Campo \textbf{Invoking Packet}} 
-Nel campo, il pacchetto usato per indicare l'errore, sarà quello con il protocollo IPV6 e ICMPv6. 
-Tuttavia, in questo caso si dovrà stare attenti a non superare la \textit{IPv6 MTU}, 
-ma ciò non succederà siccome l'intestazione IPv6 sarà di 40 byte mentre l'intestazione ICMPv6 sarà di 8 byte. 
+\subsubsection{Campo \textbf{Invoking Packet}} 
+Quando si indicha il pacchetto che ha causato l'errore, si dovrà stare 
+attenti a non superare la \textit{IPv6 MTU}. 
+Nel nostro caso, ciò non succederà siccome si useranno i protocolli IPv4 la 
+cui intestazione è di 40 byte, ed il protocollo ICMPv4, la cui intestazione 
+è di 8 byte. 
 %Nel campo \textbf{Invoking Packet} si userà il campo \textbf{plen} del protocollo \textit{IPv6} e il campo \textbf{id} del protocollo \textit{ICMPv6}. 
+La Tabella \ref{table:icmpv6:invokinppacket} indica i campi utilizzati nel caso IPv6/ICMPv6. 
+\newline
 \begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|} 
     \multicolumn{3}{c}{Header IPv6} \\ 
     \hline 
@@ -178,71 +203,181 @@ ma ciò non succederà siccome l'intestazione IPv6 sarà di 40 byte mentre l'int
     Identifier & 2 byte & Identificativo del messaggio di richiesta invocato\\  
     \hline 
     Sequence & 2 byte & Numero di sequenza del messaggio di richiesta invocato \\  
-    \hline
+    \hline 
+    \caption{Struttura del campo Invoking Packet} 
+    \label{table:icmpv6:invokinppacket} 
 \end{longtable}
-\captionof{table}{Struttura del campo Invoking Packet} 
-\label{table:icmpv6:invokinppacket} 
 
-\subsubsection*{Campo \textbf{Pointer}} 
-Indica l'ottetto del messaggio in cui è presente l'errore. 
-Tuttavia può contenere dei dati non correlati ad esso; 
-in questo caso, verranno inseriti tanti dati quanto la sua dimensione in byte. 
+
+\subsubsection{Campo \textbf{Pointer}} 
+Indica l'ottetto del messaggio in cui è presente l'errore; 
+tuttavia può contenere dei dati non correlati ad esso. 
+Nel nostro caso, verranno inseriti tanti dati quanto la sua capacità; 
+come mostra la Figura \ref{fig:covertStorage:pointer}. 
 %può contenere i dati e, siccome rappresenta l'ottetto in cui è stato rilevato l'errore, potrà essere variabile.
-    
-\subsubsection*{Campo \textbf{Identifier} e \textbf{Sequenza}}
-Il campo \textit{Identifier} definisce l'identificativo delle richieste e può assumere un qualsiasi valore. 
-Il campo \textit{Sequenza}, dalle specifiche RFC 792, viene incrementato ad ogni richiesta inviata con lo stesso Identifier. 
-Se il valore cambiasse troppo spesso, a differenza del campo \textit{Identifier}, 
-la cosa potrebbe risultare sospetta. %in maniera estremamente variabile (e non fosse strettamente crescente)
-\vspace{1ex} \newline 
-Quindi sebbene può essere utilizzato per inserire le informazioni, si userà quasi esclusivamente il campo Identifier. 
+\newline 
+\begin{minipage}{\textwidth}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./img/ICMP_storageCC/immagine_pointer.png}
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{pointer} impostato} 
+    \label{fig:covertStorage:pointer} 
+\end{minipage} 
+\begin{center}
+\begin{minipage}{0.9\linewidth}
+\centering
+\begin{lstlisting} [basicstyle=\ttfamily\scriptsize]
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 38 00 01 00 00 40 01 F7 15 C0 A8 01 0F C0 A8  .8....@.........
+0020  01 4F 0C 00 B1 FF 42 00 00 00 45 00 4F 52 47 4F  .O....B...E.ORGO
+0030  00 00 47 01 0B 9A C0 A8 01 0A 08 08 08 08 00 00  ..G.............
+0040  6F 6F 4E 41 42 4F                                ooNABO
+\end{lstlisting}
+\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:pointer}}
+\label{code:covertStorage:pointer} 
+\end{minipage}
+\end{center}
 
-\subsubsection*{Campo \textbf{Data}} 
+\subsubsection{Campo \textbf{Identifier} e \textbf{Sequenza}}
+Il campo \textit{Identifier} definisce l'identificativo delle richieste e 
+può assumere un qualsiasi valore. 
+Il campo \textit{Sequenza} (dalle specifiche RFC 792 \cite{icmpv4_message_type}), 
+viene incrementato ad ogni richiesta inviata con lo stesso Identifier. 
+Se suo valore cambiasse troppo spesso la cosa potrebbe risultare sospetta 
+(a differenza del campo \textit{Identifier}). %in maniera estremamente variabile (e non fosse strettamente crescente)
+Quindi sebbene può essere utilizzato per inserire le informazioni, si 
+userà quasi esclusivamente il campo Identifier (come mostra la Figura \ref{fig:covertStorage:identifier}). 
+\newline
+\begin{minipage}{\textwidth} 
+    \centering
+    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/imagine_identifier.png}
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{identifier} impostato} 
+    \label{fig:covertStorage:identifier} 
+\end{minipage} 
+\begin{center}
+\begin{minipage}{0.9\linewidth}
+\centering
+\begin{lstlisting} [basicstyle=\ttfamily\scriptsize] 
+#PACCHETTO No1
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 1C 00 01 00 00 40 01 F7 31 C0 A8 01 0F C0 A8  ......@..1......
+0020  01 4F 10 00 AD B0 42 4F 00 00                    .O....BO..
+
+#PACCHETTO No2
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 1C 00 01 00 00 40 01 F7 31 C0 A8 01 0F C0 A8  ......@..1......
+0020  01 4F 10 00 9D B8 52 47 00 00                    .O....RG..
+
+#PACCHETTO No3
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 1C 00 01 00 00 40 01 F7 31 C0 A8 01 0F C0 A8  ......@..1......
+0020  01 4F 10 00 A0 B8 4F 47 00 00                    .O....OG..
+
+#PACCHETTO No4
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 1C 00 01 00 00 40 01 F7 31 C0 A8 01 0F C0 A8  ......@..1......
+0020  01 4F 10 00 A1 BE 4E 41 00 00                    .O....NA..
+\end{lstlisting}
+\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:identifier}}
+\label{code:covertStorage:identifier} 
+\end{minipage}
+\end{center}
+
+\subsubsection{Campo \textbf{Data}} 
 In questo campo il mittente può inserire quanti dati preferisce. 
-Ma per sicurezza la dimensione sarà fra i 32 ed i 64 byte. 
+Ma per sicurezza la dimensione sarà o 32 o 64 byte. 
+Inoltre una quantità di dati eccessiva può far mandare più pacchetti di risposta 
+nel caso si fosse inviata una richiesta. 
 %dovrà inferiore a 1400 bytes se non 
 %strettamente uguale o inferiore a 32 bytes. %(o 56 bytes nel caso li si mandi da Linux).
 \vspace{2ex} \newline  
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/echo_CC_payload.png}
-    \captionof{figure}{Messaggio Echo Reply e il campo \textit{Data}} 
-    \label{fig:covertStorage:echo:payload} 
+    \includegraphics[width=0.7\textwidth]{./img/ICMP_storageCC/immagine_payload.png}
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{Data} impostato} 
+    \label{fig:covertStorage:payload} 
 \end{minipage}  
-    
-\subsubsection*{Campo \textbf{Timestamp}}
-Contiene i millisecondi dalla mezzanotte UT e ciascun campo ha un ordine temporale specifico; 
-che dovrà rimanere congruente quando si inseriscono i dati. 
+\begin{center}
+\begin{minipage}{0.9\linewidth}
+\centering
+\begin{lstlisting} [basicstyle=\ttfamily\scriptsize] 
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 5C 00 01 00 00 40 01 F6 F1 C0 A8 01 0F C0 A8  .\....@.........
+0020  01 4F 00 00 6F 05 00 01 00 00 42 4F 52 47 4F 47  .O..o.....BORGOG
+0030  4E 41 42 4F 52 47 4F 47 4E 41 42 4F 52 47 4F 47  NABORGOGNABORGOG
+0040  4E 41 42 4F 52 47 4F 47 4E 41 42 4F 52 47 4F 47  NABORGOGNABORGOG
+0050  4E 41 42 4F 52 47 4F 47 4E 41 42 4F 52 47 4F 47  NABORGOGNABORGOG
+0060  4E 41 42 4F 52 47 4F 47 4E 41                    NABORGOGNA
+\end{lstlisting}
+\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:payload}}
+\label{code:covertStorage:data} 
+\end{minipage}
+\end{center}
+
+\subsubsection{Campo \textbf{Timestamp}}
+Contiene i millisecondi dalla mezzanotte UT e ciascun campo ha un ordine temporale 
+specifico; che dovrà rimanere congruente quando si inseriscono i dati. 
 %Siccome i campi hanno un ordine temporale L'ordine dei tempi presenti in ciascuno dei campi dovrà essere congruente. 
 %Si potrebbero inserire un numero magigore di dati sfruttando l'intera lunghezza dei campi ma 
 %poi i tempi non risulterebbero congruenti fra di loro
 %\footnote{Si potrebbe avere il caso che il destinatario ha modificato il messagio prima di poterlo ricevere}
-In ciascun campo timestamp verrà inserito un byte nella parte dei millisecondi [Figura \ref{fig:covertStorage:timestamp:output}]. 
+Il Codice \ref{fig:covertStorage:timestamp:output} mostra come in ciascun 
+campo timestamp verrà inserito un byte nella parte dei millisecondi. [Figura \ref{fig:covertStorage:timestamp:output}]. 
 \newline
-\begin{lstlisting} [language=python]
-Dati nasocsti:  b'r'     114
-Dati nasocsti:  b'c'     99
-Dati nasocsti:  b'o'     111
+\begin{lstlisting}
+Dato nascosto:  b'r'     114
+Dato nascosto:  b'c'     99
+Dato nascosto:  b'o'     111
 
 Timestamp origin prima:  2025-11-07 23:13:36.146254+00:00
 Timestamp origin dopo:  2025-11-07 23:13:36.114000+00:00
-Tempo campo origin:  83616114 
+Tempo del campo:  83616114 
 \end{lstlisting}
-\captionof{lstlisting}{Output per la creazione di un messaggio Timestamp}
+\captionof{lstlisting}{Esempio di un dato inserito nel campo Timestamp}
 \label{fig:covertStorage:timestamp:output} 
 \vspace{2ex} 
-Non è possibile inserire informazioni in ulteriori parti del timestamp siccome hanno dei valori ben definiti, pocihè 
-rappresentando le ore, i minuti ed i secondi [Figura \ref{fig:covertStorage:timestamp:time}]. 
-Si potrebbero inserire i dati sottoforma di dati temporali; ma questo ci espone al rischio di avere tempi errati (e.g ricevo il messaggio prima che arrivi). 
-\vspace{2ex} \newline  
+Non è possibile inserire ulteriori informazioni nelle altre parti  del 
+campo temporale: rappresentando le ore, i minuti ed i secondi. 
+Infatti hanno dei valori definiti e limitati, come si vede dalla Figura \ref{fig:covertStorage:time} (che mostra il valore contenuto nei campi). 
+\vspace{1ex} \newline
+Si potrebbero inserire il dato in tutto il campo rappresentnate il dato temporale; 
+ma questo ci espone al rischio di avere tempi errati 
+\footnote{
+    Per esempio l pacchetto viene risultare ricevuto prima che sia stato inviato. 
+}. 
+\vspace{2ex} \newline 
+Inoltre dalla Figura \ref{fig:covertStorage:time} si può constatare la presenza 
+dell'informazione nella parte dei millisecondi. Dalle informazioni del pacchetto, 
+i caratteri ricavati saranno le lettere R, G ed O; siccome i corrispettivi 
+valori nella codifica ASCII \cite{ascii-table} sono 82, 71 e 79. 
+\newline 
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=0.8\textwidth]{./img/ICMP_storageCC/timestamp_CC_originitime_crop.png}
-    \captionof{figure}{Messaggio Echo Reply e il campo \textit{Data}} 
-    \label{fig:covertStorage:timestamp:time} 
-\end{minipage}  
+    \includegraphics[width=0.6\textwidth]{./img/ICMP_storageCC/immagine_timestamp.png}
+    \captionof{figure}{Messaggio IP/ICMP con campi \textit{Timestamp} impostati} 
+    \label{fig:covertStorage:time} 
+\end{minipage}   
+\begin{center}
+\begin{minipage}{0.9\linewidth}
+\centering
+\begin{lstlisting} [basicstyle=\ttfamily\scriptsize] 
+#PACCHETTO No1
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 28 00 01 00 00 40 01 F7 25 C0 A8 01 0F C0 A8  .(....@..%......
+0020  01 4F 0E 00 00 B3 42 4F 00 00 04 DF 31 92 04 DF  .O....BO....1...
+0030  35 6F 04 DF 39 5F                                5o..9_ 
+#PACCHETTO No2
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 28 00 01 00 00 40 01 F7 25 C0 A8 01 0F C0 A8  .(....@..%......
+0020  01 4F 0E 00 FB C9 47 4E 00 00 04 DF 31 81 04 DF  .O....GN....1...
+0030  35 6A 04 DF 39 5F                                5j..9_
+\end{lstlisting}
+\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:time}}
+\label{code:covertStorage:data} 
+\end{minipage}
+\end{center}
 
-\subsubsection*{Campo \textbf{MTU}}
-Nel campo viene indicata la capacità massima del collegamento; siccome il suo valore è variabile, 
-e quindi non c'è un valore prestabilito, potrà essere usato per inserire dei dati. 
-
+\subsubsection{Campo \textbf{MTU}}
+Nel campo viene indicata la capacità massima del collegamento, 
+Siccome il suo valore non è un valore prestabilito (ed è un intero 
+variabile); l'intera dimensione del campo, potrà essere usato per inserire 
+i dati. 
