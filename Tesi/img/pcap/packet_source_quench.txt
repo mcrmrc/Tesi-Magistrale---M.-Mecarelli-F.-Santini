@@ -1,0 +1,52 @@
+Detailed packet information:
+###[ Ethernet ]###
+  dst       = 24:77:03:18:7b:74
+  src       = 18:c0:4d:74:bb:ae
+  type      = IPv4
+###[ IP ]###
+     version   = 4
+     ihl       = 5
+     tos       = 0x0
+     len       = 56
+     id        = 1
+     flags     = 
+     frag      = 0
+     ttl       = 64
+     proto     = icmp
+     chksum    = 0xf715
+     src       = 192.168.1.15
+     dst       = 192.168.1.79
+     \options   \
+###[ ICMP ]###
+        type      = source-quench
+        code      = 0
+        chksum    = 0xfbff
+        unused    = 0
+###[ IP in ICMP ]###
+           version   = 4
+           ihl       = 5
+           tos       = 0x0
+           len       = 16975
+           id        = 21063
+           flags     = 
+           frag      = 0
+           ttl       = 79
+           proto     = icmp
+           chksum    = 0x5a5
+           src       = 192.168.1.10
+           dst       = 8.8.8.8
+           \options   \
+###[ ICMP in ICMP ]###
+              type      = echo-reply
+              code      = 0
+              chksum    = 0x776f
+              id        = 0x474e
+              seq       = 0x4142
+              unused    = b''
+
+Hexdump of the packet:
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 38 00 01 00 00 40 01 F7 15 C0 A8 01 0F C0 A8  .8....@.........
+0020  01 4F 04 00 FB FF 00 00 00 00 45 00 42 4F 52 47  .O........E.BORG
+0030  00 00 4F 01 05 A5 C0 A8 01 0A 08 08 08 08 00 00  ..O.............
+0040  77 6F 47 4E 41 42                                woGNAB

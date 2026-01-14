@@ -1,0 +1,31 @@
+Detailed packet information:
+###[ Ethernet ]###
+  dst       = 24:77:03:18:7b:74
+  src       = 18:c0:4d:74:bb:ae
+  type      = IPv4
+###[ IP ]###
+     version   = 4
+     ihl       = 5
+     tos       = 0x0
+     len       = 28
+     id        = 1
+     flags     = 
+     frag      = 0
+     ttl       = 64
+     proto     = icmp
+     chksum    = 0xf731
+     src       = 192.168.1.15
+     dst       = 192.168.1.79
+     \options   \
+###[ ICMP ]###
+        type      = echo-reply
+        code      = 0
+        chksum    = 0xadb8
+        id        = 0x5247
+        seq       = 0x0
+        unused    = b''
+
+Hexdump of the packet:
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 1C 00 01 00 00 40 01 F7 31 C0 A8 01 0F C0 A8  ......@..1......
+0020  01 4F 00 00 AD B8 52 47 00 00                    .O....RG..

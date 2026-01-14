@@ -1,0 +1,35 @@
+Detailed packet information:
+###[ Ethernet ]###
+  dst       = 24:77:03:18:7b:74
+  src       = 18:c0:4d:74:bb:ae
+  type      = IPv4
+###[ IP ]###
+     version   = 4
+     ihl       = 5
+     tos       = 0x0
+     len       = 40
+     id        = 1
+     flags     = 
+     frag      = 0
+     ttl       = 64
+     proto     = icmp
+     chksum    = 0xf725
+     src       = 192.168.1.15
+     dst       = 192.168.1.79
+     \options   \
+###[ ICMP ]###
+        type      = timestamp-reply
+        code      = 0
+        chksum    = 0xfbc9
+        id        = 0x474e
+        seq       = 0x0
+        ts_ori    = 22:42:16.65
+        ts_rx     = 22:42:17.66
+        ts_tx     = 22:42:18.79
+        unused    = b''
+
+Hexdump of the packet:
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 28 00 01 00 00 40 01 F7 25 C0 A8 01 0F C0 A8  .(....@..%......
+0020  01 4F 0E 00 FB C9 47 4E 00 00 04 DF 31 81 04 DF  .O....GN....1...
+0030  35 6A 04 DF 39 5F                                5j..9_

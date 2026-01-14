@@ -1,0 +1,57 @@
+Detailed packet information:
+###[ Ethernet ]###
+  dst       = 24:77:03:18:7b:74
+  src       = 18:c0:4d:74:bb:ae
+  type      = IPv4
+###[ IP ]###
+     version   = 4
+     ihl       = 5
+     tos       = 0x0
+     len       = 56
+     id        = 1
+     flags     = 
+     frag      = 0
+     ttl       = 64
+     proto     = icmp
+     chksum    = 0xf715
+     src       = 192.168.1.15
+     dst       = 192.168.1.79
+     \options   \
+###[ ICMP ]###
+        type      = dest-unreach
+        code      = port-unreachable
+        chksum    = 0x6866
+        reserved  = 66
+        length    = 79
+        nexthopmtu= 21063
+        unused    = b''
+        extpad    = b''
+        ext       = None
+###[ IP in ICMP ]###
+           version   = 4
+           ihl       = 5
+           tos       = 0x0
+           len       = 20295
+           id        = 20033
+           flags     = 
+           frag      = 0
+           ttl       = 66
+           proto     = icmp
+           chksum    = 0x9b3
+           src       = 192.168.1.10
+           dst       = 8.8.8.8
+           \options   \
+###[ ICMP in ICMP ]###
+              type      = echo-reply
+              code      = 0
+              chksum    = 0x695e
+              id        = 0x4f52
+              seq       = 0x474f
+              unused    = b''
+
+Hexdump of the packet:
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 38 00 01 00 00 40 01 F7 15 C0 A8 01 0F C0 A8  .8....@.........
+0020  01 4F 03 03 68 66 42 4F 52 47 45 00 4F 47 4E 41  .O..hfBORGE.OGNA
+0030  00 00 42 01 09 B3 C0 A8 01 0A 08 08 08 08 00 00  ..B.............
+0040  69 5E 4F 52 47 4F                                i^ORGO
