@@ -1,34 +1,55 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
-\contentsline {section}{\numberline {1}Background}{3}{section.1}%
-\contentsline {subsection}{\numberline {1.1}ICMP \cite {icmp}}{3}{subsection.1.1}%
-\contentsline {subsubsection}{\numberline {1.1.1}Tipologie di Messaggi ICMP \cite {icmpv4_message_type} \cite {icmpv6_message_type}}{4}{subsubsection.1.1.1}%
-\contentsline {subsubsection}{\numberline {1.1.2}Time Exceeded}{6}{subsubsection.1.1.2}%
-\contentsline {subsubsection}{\numberline {1.1.3}Parameter Problem}{7}{subsubsection.1.1.3}%
-\contentsline {subsubsection}{\numberline {1.1.4}Source Quench}{8}{subsubsection.1.1.4}%
-\contentsline {subsubsection}{\numberline {1.1.5}Redirect}{8}{subsubsection.1.1.5}%
-\contentsline {subsubsection}{\numberline {1.1.6}Echo Request / Echo Reply}{9}{subsubsection.1.1.6}%
-\contentsline {subsubsection}{\numberline {1.1.7}Timestamp Request / Timestamp Reply}{10}{subsubsection.1.1.7}%
-\contentsline {subsubsection}{\numberline {1.1.8}Information Request / Information Reply}{11}{subsubsection.1.1.8}%
-\contentsline {subsubsection}{\numberline {1.1.9}Packet Too Big}{11}{subsubsection.1.1.9}%
-\contentsline {subsection}{\numberline {1.2}Covert Channel}{12}{subsection.1.2}%
-\contentsline {subsubsection}{\numberline {1.2.1}Tipologie di Covert Channel \cite {covert_channel_tipologie1} \cite {covert_channel_tipologie2}}{13}{subsubsection.1.2.1}%
-\contentsline {section}{\numberline {2}Strumenti Utilizzati}{15}{section.2}%
-\contentsline {section}{\numberline {3}Implementazione \cite {repoGITHUB}}{18}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Struttura della comunicazione fra le entità}{20}{subsection.3.1}%
-\contentsline {subsubsection}{\numberline {3.1.1}Struttura dell'attaccante}{22}{subsubsection.3.1.1}%
-\contentsline {subsubsection}{\numberline {3.1.2}Struttura del Proxy}{23}{subsubsection.3.1.2}%
-\contentsline {subsubsection}{\numberline {3.1.3}Struttura Vittima}{24}{subsubsection.3.1.3}%
-\contentsline {subsection}{\numberline {3.2}Implementazione del Timing Covert Channel}{25}{subsection.3.2}%
-\contentsline {subsubsection}{\numberline {3.2.1}Funzione di codifica}{25}{subsubsection.3.2.1}%
-\contentsline {subsubsection}{\numberline {3.2.2}Randomizzazione dei tempi di invio dei pacchetti}{28}{subsubsection.3.2.2}%
-\contentsline {subsubsection}{\numberline {3.2.3}Requisiti per la comunicazione}{29}{subsubsection.3.2.3}%
-\contentsline {subsection}{\numberline {3.3}Implementazione del Storage Covert Channel}{30}{subsection.3.3}%
-\contentsline {subsubsection}{\numberline {3.3.1}Come i dati vengono inseriti nei campi utilizzati}{31}{subsubsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.4}Implementazione del Behavioural Covert Channel}{36}{subsection.3.4}%
-\contentsline {subsubsection}{\numberline {3.4.1}Tipologie di messaggi deprecati \cite {icmp_deprecated} \cite {rfc6918_deprecated_types} \cite {rfc6633_sourcequench}}{36}{subsubsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.5}Implementazione di un Hybrid Covert Channel}{38}{subsection.3.5}%
-\contentsline {section}{\numberline {4}Test e Risultati}{39}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Test dei Covert Channel con RITA}{39}{subsection.4.1}%
-\contentsline {subsubsection}{\numberline {4.1.1}Singolo invio di dati}{39}{subsubsection.4.1.1}%
-\contentsline {subsubsection}{\numberline {4.1.2}Molteplici invii dei dati}{41}{subsubsection.4.1.2}%
+\contentsline {chapter}{\numberline {1}Introduzione}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Internet Control Message Protocol}{7}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Tipologie di Messaggi ICMP}{9}{subsection.1.1.1}%
+\contentsline {subsubsection}{Time Exceeded}{10}{section*.5}%
+\contentsline {subsubsection}{Parameter Problem}{11}{section*.6}%
+\contentsline {subsubsection}{Source Quench}{12}{section*.7}%
+\contentsline {subsubsection}{Redirect}{13}{section*.8}%
+\contentsline {subsubsection}{Echo Request / Echo Reply}{14}{section*.9}%
+\contentsline {subsubsection}{Timestamp Request / Timestamp Reply}{14}{section*.10}%
+\contentsline {subsubsection}{Information Request / Information Reply}{15}{section*.11}%
+\contentsline {subsubsection}{Packet Too Big}{16}{section*.12}%
+\contentsline {section}{\numberline {1.2}Covert Channel}{16}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Tipologie di Covert Channel}{18}{subsection.1.2.1}%
+\contentsline {subsubsection}{Timing Covert Channel}{18}{section*.13}%
+\contentsline {subsubsection}{Storage Covert Channel}{18}{section*.14}%
+\contentsline {subsubsection}{Behavioural Covert Channel}{18}{section*.15}%
+\contentsline {subsubsection}{Hybrid Covert Channel}{18}{section*.16}%
+\contentsline {chapter}{\numberline {2}Strumenti Utilizzati}{19}{chapter.2}%
+\contentsline {chapter}{\numberline {3}Implementazione}{23}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Struttura della comunicazione fra le entità}{25}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Struttura dell'attaccante}{28}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Struttura del Proxy}{28}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Struttura Vittima}{29}{subsection.3.1.3}%
+\contentsline {section}{\numberline {3.2}Implementazione del Timing Covert Channel}{30}{section.3.2}%
+\contentsline {subsubsection}{Funzione di codifica}{31}{section*.23}%
+\contentsline {subsection}{\numberline {3.2.1}Randomizzazione dei tempi di invio}{34}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Requisiti per la comunicazione}{35}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Implementazione del Storage Covert Channel}{35}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Inserimento dei dati nei campi usati}{37}{subsection.3.3.1}%
+\contentsline {subsubsection}{Campo \textbf {unused}}{37}{section*.24}%
+\contentsline {subsubsection}{Campo \textbf {Header+64 bits}}{38}{section*.25}%
+\contentsline {subsubsection}{Campo \textbf {Invoking Packet}}{39}{section*.26}%
+\contentsline {subsubsection}{Campo \textbf {Pointer}}{40}{section*.27}%
+\contentsline {subsubsection}{Campo \textbf {Identifier} e \textbf {Sequenza}}{40}{section*.28}%
+\contentsline {subsubsection}{Campo \textbf {Data}}{40}{section*.29}%
+\contentsline {subsubsection}{Campo \textbf {Timestamp}}{41}{section*.30}%
+\contentsline {subsubsection}{Campo \textbf {MTU}}{42}{section*.31}%
+\contentsline {section}{\numberline {3.4}Implementazione Behavioural Covert Channel}{42}{section.3.4}%
+\contentsline {subsubsection}{Tipologie di messaggi deprecati}{44}{section*.32}%
+\contentsline {section}{\numberline {3.5}Implementazione di un Hybrid Covert Channel}{45}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Test e Risultati}{47}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Test dei Covert Channel con RITA}{47}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Singolo invio di dati}{48}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Molteplici invii dei dati}{49}{subsection.4.1.2}%
+\contentsline {subsubsection}{Test con payload fisso, invio di 1MB di dati e delay fra i blocchi di dati}{50}{section*.35}%
+\contentsline {subsubsection}{Test con payload fisso ed invio sequenziale di 1MB di dati}{52}{section*.36}%
+\contentsline {subsubsection}{Test con payload fisso, invio 100 KB di dati e delay fra i blocchi di dati}{53}{section*.37}%
+\contentsline {subsubsection}{Test con payload variabile, invio di 1MB di dati e delay fra i blocchi di dati}{55}{section*.38}%
+\contentsline {subsection}{\numberline {4.1.3}Considerazioni sui risultati ottenuti}{56}{subsection.4.1.3}%
+\contentsline {chapter}{\numberline {5}Conclusioni}{58}{chapter.5}%
+\contentsline {subsubsection}{Conclusioni sull'implementazione dei Covert Channel}{58}{section*.39}%
+\contentsline {subsubsection}{Conclusioni sui test effettuati}{59}{section*.40}%
+\contentsline {subsubsection}{Conclusioni sull'utilizzo di ICMP}{60}{section*.41}%

@@ -1,0 +1,38 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Struttura pacchetto IPv4/ICMPv4 \cite {img_icmp_packet_structure}}}{8}{figure.1.1}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Destination Unreachable}}}{10}{figure.1.2}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Struttura del pacchetto \textbf {ICMPv6 Destination Unreachable}}}{10}{figure.1.3}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Time Exceeded}}}{11}{figure.1.4}%
+\contentsline {figure}{\numberline {1.5}{\ignorespaces Struttura del pacchetto \textbf {ICMPv6 Time Exceeded}}}{11}{figure.1.5}%
+\contentsline {figure}{\numberline {1.6}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Parameter Problem}}}{11}{figure.1.6}%
+\contentsline {figure}{\numberline {1.7}{\ignorespaces Struttura del pacchetto \textbf {ICMPv6 Parameter Problem}}}{12}{figure.1.7}%
+\contentsline {figure}{\numberline {1.8}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Source Quench}}}{12}{figure.1.8}%
+\contentsline {figure}{\numberline {1.9}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Redirect}}}{13}{figure.1.9}%
+\contentsline {figure}{\numberline {1.10}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Echo}}}{14}{figure.1.10}%
+\contentsline {figure}{\numberline {1.11}{\ignorespaces Struttura del pacchetto \textbf {ICMPv6 Echo}}}{14}{figure.1.11}%
+\contentsline {figure}{\numberline {1.12}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Timestamp}}}{15}{figure.1.12}%
+\contentsline {figure}{\numberline {1.13}{\ignorespaces Struttura del pacchetto \textbf {ICMPv4 Information}}}{15}{figure.1.13}%
+\contentsline {figure}{\numberline {1.14}{\ignorespaces Struttura del pacchetto \textbf {ICMPv6 Packet Too Big}}}{16}{figure.1.14}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Architettura generale di \textbf {icmp tunnel}}}{23}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Comunicazione vitttima-proxy in \textbf {icmp tunnel}}}{23}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Comunicazione proxy-internet in \textbf {icmp tunnel}}}{24}{figure.3.3}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Flusso di comunicazione fra le entita}}{26}{figure.3.4}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Struttura e dialogo delle entità presenti}}{27}{figure.3.5}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Assegnazione degli intervalli con la distanza}}{32}{figure.3.6}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Normalizzazione degli intervalli (Timing Channel) \cite {time_normalization4}}}{34}{figure.3.7}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Randomizzazione dei tempi con il rumore (Timing Channel)}}{35}{figure.3.8}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Messaggio con il campo \textit {unused} azzerato}}{37}{figure.3.9}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Messaggio con il campo \textit {unused} impostato}}{37}{figure.3.10}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Messaggio con il campo \textit {Header+64 bit} impostato}}{39}{figure.3.11}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Messaggio con il campo \textit {pointer} impostato}}{40}{figure.3.12}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Messaggio con il campo \textit {identifier} impostato}}{40}{figure.3.13}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Messaggio con il campo \textit {Data} impostato}}{41}{figure.3.14}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Messaggio con i campi \textit {Timestamp} impostati}}{42}{figure.3.15}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Schema Hybrid Channel \cite {francesco_santini}}}{42}{figure.3.16}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Ricezione dei dait tramite Hybrid Covert Channel}}{46}{figure.3.17}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
