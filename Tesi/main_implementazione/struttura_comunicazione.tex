@@ -1,43 +1,53 @@
-Le entita coinvolte sono: 
+\section{Struttura della comunicazione fra le entità} 
+La Figura \ref{fig:covertchannel:struttura:flow} mostra il flusso di 
+comunicazione fra le entità coinvolte nella comunicazione covert channel. 
+Di seguito la descrizione di ciascuna entità. 
 \begin{itemize}
     \item \textbf{Attaccante}: \newline
     %Il primo avrà bisogno di 
     Carica un file di configurazione nel quale viene definito l'indirizzo IP della vittima, 
-    il metodo di attacco e i proxy utilizzabili per farlo. 
-    %e il comando da eseguire. 
+    il metodo di attacco e i proxy utilizzabili per farlo. %e il comando da eseguire. 
     Inoltre inserirà il comando che la vittima dovrà eseguire o il dato che gli si vuole mandare.  
     %dovo averlo inoltrato, tramite i proxy, aspetta i dati relativi ad esso. 
-    Nel caso l'attaccante utilizzasse dei proxy, aspettera da essi i dati che la vittima ha restituito. 
+    Nel caso utilizzasse dei proxy, aspettera da essi i dati che la vittima restituirà. 
     \item \textbf{Proxy}: \newline 
-    Ha bisongo di sapere qual'è l'indirizzo IP dell'attaccante. 
-    %Questo perchè 
-    Deve potersi connettere ad esso ed ottenere l'indirizzo IP della vittima e il comando da inoltrare. 
+    Ha bisongo di sapere l'indirizzo IP dell'attaccante siccome deve ottenre 
+    da esso l'indirizzo IP della vittima e il comando da inoltrarle. 
     Una volta stabilita una connesisone sia con l'attaccante che con la vittima; 
-    si occuperà di inoltrare i dati che le due entità si inviano. 
+    si occuperà di inoltrare i dati che le due entità si scambiano. 
     \item \textbf{Vittima}: \newline 
-    Aspetta le connessioni o dall'attaccante o dai proxy se vengonoutilizzati. 
-    Dopodichè aspetterà un comando (o un dato). 
-    Nel primo caso lo eseguirà e invierà i dati ricavati dall'esecuzione. 
-\end{itemize}
-\vspace{2ex}  
-%Il come avviene 
-La comunicazione fra le entità è definita dall'immagine seguente [Figura \ref{fig:covertchannel:struttura:flow}]. 
+    Aspetta le connessioni o dall'attaccante o dai proxy (se vengono utilizzati). 
+    Rimane in attesa di un comando (o di un dato). 
+    Nel primo caso lo eseguirà e successivamnete invierà i dati ricavati. 
+\end{itemize} 
+\vspace{2ex} 
 \begin{center} 
     \includegraphics[width=\textwidth]{../img/implementazione/diagramma_struttura_entita.jpg} 
     \captionof{figure}{Flusso di comunicazione fra le entita}
     \label{fig:covertchannel:struttura:flow} 
 \end{center}  
-Il canale di comunicazione che il proxy e l'attaccante potranno avere dipende dall'affidabilità del proxy. 
-%Nel caso si reputi il proxy insicuro, 
-Si potrà utilizare una comunicazione tramite ICMP (ovvero la stessa che il proxy avrà con la vittima) 
-oppure si potrà usare il protocollo TCP per avere una comunicazione maggiormente stabile e affidabile. 
-\vspace{1ex} \newline
-Inoltre l'attaccante potrà usare uno o più proxy per comunicare con la vittima [Figura \ref{fig:covertchannel:struttura:schema}]. 
-Il caso standard sarà quello in cui l'attaccante usa un singolo proxy. 
-Tuttavià per l'attaccante sarà possibile comunicare direttamente con la vittima o tramite ulteriori proxy. 
-\vspace{1ex} \newline 
-Nel primo caso alcune funzioni presenti nell'entità proxy verranno eseguite dall'attaccante (e.g connettersi 
-alla vittima). Nell'ultimo invece, l'attaccante dovrà prevedere un metodo per riunire in modo ordinato i messaggi ricevuti dai proxy. 
+Il canale di comunicazione che il proxy e l'attaccante potranno avere 
+dipende dall'affidabilità di quest'ultimo\footnote{
+    Durante lo sviluppo si sono ritenuti i proxy affidabili
+}: 
+\begin{itemize} 
+    \item Nel caso si reputi il proxy insicuro, si potrà utilizare una 
+    comunicazione TCP così da avere una comunicazione stabile e affidabile. 
+    \item Se invece si reputa il proxy non non sicuro (e quindi si dovrà 
+    nascondere la comunicazione anche da lui), si potrà comunicazione usata con la vitima. 
+    Quindi il proxy e l'attacante comunicheranno tramite pachetti ICMP.
+    Questa tipologia di comunicazione è più instabile rispetto alla precedente 
+    ma garantisce un maggior anonimato. 
+\end{itemize}  
+Riguardo la comunicazione; l'attaccante potrà usare uno (il caso standard) 
+o più proxy per comunicare con la vittima (come mostrato nella Figura \ref{fig:covertchannel:struttura:schema}). 
+Tuttavia sarà anche possibile (per l'attaccante) anche comunicare direttamente con la vittima.  
+In questo caso alcune funzioni presenti nel proxy verranno eseguite dall'attaccante 
+(e.g connettersi alla vittima). 
+Mentre nel precedente invece, si deve prevedere un metodo per poter riordinare i 
+messaggi che l'attaccante ha ricevuto dai proxy\footnote{
+    Ciò è stato fatto inserendo un indice al pacchetto inviato dal proxy
+}.
 %\begin{center} 
 %    \includegraphics[width=0.7\textwidth]{../img/implementazione/struttura attacker.proxy.victim 2.jpg} 
 %    \captionof{figure}{Struttura delle entità presenti e come dialogano}
@@ -45,15 +55,16 @@ alla vittima). Nell'ultimo invece, l'attaccante dovrà prevedere un metodo per r
 %\end{center} 
 \begin{center} 
     \includegraphics[width=0.7\textwidth]{../img/implementazione/struttura attacker.proxy.victim 3.jpg} 
-    \captionof{figure}{Struttura delle entità presenti e come dialogano}
+    \captionof{figure}{Struttura e dialogo delle entità presenti}
     \label{fig:covertchannel:struttura:schema} 
 \end{center} 
 
-\subsubsection{Struttura dell'attaccante} 
+\subsection{Struttura dell'attaccante} 
 %Quando si esegue il programma, tramite linea di comando, devono essere passati degli argomenti; 
 %in particolare verrà utilizzato 
-Tramite un parser rileve se nella linea di comando sono state inserite le opzioni necessarie 
-all'inizializzazione [Tabella \ref{table:comunicazione:attacccante:opzioni}]. 
+Tramite un parser rileve se nella linea di comando sono state inserite le opzioni 
+de scritte nella Tabella \ref{table:comunicazione:attacccante:opzioni}
+Queste sono necessarie alla sua inizializzazione . 
 \begin{longtable}{|p{0.3\textwidth}|p{0.6\textwidth}|} 
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
@@ -63,9 +74,9 @@ all'inizializzazione [Tabella \ref{table:comunicazione:attacccante:opzioni}].
     l'indirizzo IP della vittima, la metodologia di attacco e la lista dei proxy che si vogliono usare. 
     \\ 
     \hline 
-\end{longtable}
-\captionof{table}{Opzioni richieste nel comando dell'attaccante} 
-\label{table:comunicazione:attacccante:opzioni} 
+    \caption{Opzioni richieste nel comando dell'attaccante} 
+    \label{table:comunicazione:attacccante:opzioni} 
+\end{longtable} 
 \vspace{2ex} 
 Per ogni proxy specificato nel file di configurazione, si verifica quali sono disponibili; 
 ovvero quali proxy sono connessi sia all'attaccante che alla vititma. 
@@ -90,8 +101,8 @@ Inoltre se si volesse mandare un altro comando, si dovranno reimpostare le varia
 Altrimenti si può decidere di interrompere la comunicazione e in quel caso i proxy ne verranno aggiornati. 
 
 
-\subsubsection{Struttura del Proxy} 
-Come per l'attaccante, il proxy richiede degli argomenti [Tabella \ref{table:comunicazione:proxy:opzioni}]. 
+\subsection{Struttura del Proxy} 
+Come per l'attaccante, anche il proxy necessita di alcune opzioni (descritte nella Tabella \ref{table:comunicazione:proxy:opzioni}). 
 \begin{longtable}{|p{0.3\textwidth}|p{0.6\textwidth}|} 
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
@@ -102,9 +113,9 @@ Come per l'attaccante, il proxy richiede degli argomenti [Tabella \ref{table:com
     Questo viene fatto anche nel caso di un canale tramite ICMP. 
     \\ 
     \hline 
+    \caption{Opzioni richieste nel comando del proxy} 
+    \label{table:comunicazione:proxy:opzioni} 
 \end{longtable}
-\captionof{table}{Opzioni richieste nel comando del proxy} 
-\label{table:comunicazione:proxy:opzioni} 
 \vspace{2ex} 
 %Il proxy ricaverà il proprio indirizzo IP. 
 Per poter comunicare con l'attaccante, il proxy definisce un socket in cui rimane in ascolto. 
@@ -113,14 +124,15 @@ Nel caso si utilizzi il protoccollo ICMP, monitorerà il flusso di rete per catt
 %Controlla se il messaggio ricevuto successivamente corrisponde ad un messaggio di conferma. 
 %Nel caso non fosse il socket viene chiuso e si ritorna in ascolto; 
 %altrimenti dal messaggio si ricava l'indirizzo Ip della vittima e la metodologia di attacco. 
-Stabilita una comunicazione con l'attaccante, il proxy aspetterà un messaggio indicante l'indirizzo IP della 
-vittima oltre alla metodologia di esfiltrazione scelta. 
+Stabilita una comunicazione con esso, il proxy aspetterà un messaggio indicante l'indirizzo IP della 
+vittima oltre alla tipologia di Covert Channel scelto. 
 \vspace{1ex} \newline 
 I messaggi che un proxy può ricevere dall'attacante sono: 
 \begin{enumerate}
-    \item il messaggio indicante il comando, che il proxy dovrà inoltrare alla vittima, o se invece deve 
-    aspettare solo i dati, perchè non ha ricevuto il comando. 
-    \item quello che indica la volonta, da parte dell'attaccante, di terminare la comunicazione. 
+    \item Il messaggio indicante il comando (che il proxy dovrà inoltrare 
+    alla vittima) oppure se deve aspettare solo i dati 
+    (siccome non ha ricevuto il comando). 
+    \item Il messaggio che indica la terminazione della comunicazione con l'attacante. 
     In questo caso il proxy aggiornerà la vittima della cosa. 
 \end{enumerate} 
 %Le principali variabili utilizzate sono: 
@@ -132,7 +144,7 @@ I messaggi che un proxy può ricevere dall'attacante sono:
 Per la connessione con la vittima, il proxy comunicherà tramite pacchetti ICMP. 
 Prima di inviare alcun dato, si imposta un thread con lo scopo di analizzare il traffico e catturare i dati che 
 la vittima ritornerà. %per confermare la connesisone. 
-Se questo non viene fatto dopo i pacchetti potrebbe andare persi. 
+Se questo viene fatto dopo i pacchetti potrebbe andare persi. 
 %Dopo aver fatto partire il thread, si procederà codificando l'attacco scelta nel campo identifier del messaggio 
 %ICMP Echo Request mentre nel payload verrà inserito il messaggio che richiede la connessione.  
 %Infine si aspetta che il thread termini e ritorni lo stato della connessione con la vititma. 
@@ -149,32 +161,32 @@ Una volta ricevuti tutti i dati dalla vittima, il proxy procederà ad inoltrarli
 %Nel caso il proxy e l'attaccante combaciassero, in questo caso non si aspetterà alcun comando lo si richiederà 
 %in input. Inoltre i dati non verranno inoltrati. 
 
-
-
-\subsubsection{Struttura Vittima} 
-Come per l'attaccante e il proxy, la vittima richiede degli argomenti [Tabella \ref{table:comunicazione:vittima:opzioni}]. 
+\subsection{Struttura Vittima} 
+Per poterla inizializzare, la vittima richiede in input alcune opzioni
+(indicate nella Tabella \ref{table:comunicazione:vittima:opzioni}). 
 \begin{longtable}{|p{0.3\textwidth}|p{0.6\textwidth}|} 
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
     \hline
     Numero di Proxy & 
-    Quando si eseguirà il programma, dovranno essere definitiil numero di proxy necessarri. 
+    Quando si eseguirà il programma, dovranno essere definiti il numero di proxy necessari. 
     Ciò indicherà il numero minimo di proxy necessari che serviranno per l'esecuzione dell'attacco. 
     Una volta raggiunto questo numero, la vittima procederà con l'esecuzione del comando. 
     Altrimenti, se il numero non viene raggiunto, allo scadere del timer si chiederà se si vuole procedere comunque.
     %attessa dei proxy che si vorranno connettere
     \\ 
     \hline 
+    \caption{Opzioni richieste nel comando della vittima} 
+    \label{table:comunicazione:vittima:opzioni} 
 \end{longtable}
-\captionof{table}{Opzioni richieste nel comando della vittima} 
-\label{table:comunicazione:vittima:opzioni} 
 %Successivamente si ricaverà il prorpio indirizzo IP e si andrà in attessa dei proxy che si vorranno connettere. 
 La vittima rimane in attesa di connessioni da parte dei proxy.
-Ciò viene fatto monitornado il flusso di rete e filtrando i messaggi ICMP, destinati alla vittima, che rappresentano 
-una richiesta di connessione. 
-Se il messaggio catturato è valido, si risponde al mittente con un messaggio di conferma e il suo l'indirizzo IP 
-viene inserito nella lista indicante i proxy connessi.
-Da questo messaggio la vittima ricaverà anche la metodologia di attacco scelta. 
+Ciò viene fatto monitornado il flusso di rete e filtrando i messaggi ICMP 
+(destinati alla vittima) che rappresentano una richiesta di connessione. 
+Se il messaggio ricevuto risutla valido, si invia al mittente un messaggio 
+di conferma e il suo l'indirizzo IP viene inserito nella lista indicante i proxy connessi.
+Da questo messaggio la vittima ricaverà anche la metodologia di attacco scelto. 
+E quindi ciascun proxy potrà usare (se voluto) una diversa tipologia di attacco.
 %\vspace{1ex} \newline 
 %La vititma smetterà di monitorare il traffico finche o non verrà raggiunto il nuemro minimo 
 %di proxy o finche il tmier non scade. 
