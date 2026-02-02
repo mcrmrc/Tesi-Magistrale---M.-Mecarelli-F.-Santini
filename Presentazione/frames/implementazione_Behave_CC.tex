@@ -1,0 +1,57 @@
+\begin{frame}
+\frametitle{Implementazione Behavioural Covert Channel} 
+Ciò che indicherà l'informazione trasmessa, è l'arrivo 
+di un determinato messaggio ICMP (la cui tipologia e 
+codice indicano il dato). Siccome il numero 
+di eventi possibili sono 17, ognuno permetterà di 
+codificare 4 bit alla volta ($\log_216=4$). Quindi 
+l'invio di un byte, prevede la sua divisione in due 
+parti e l'avvenimento di due eventi. 
+\begin{figure}
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png}
+\justifying
+Per ricavare i dati, si monitora il traffico di rete e si controllano le 
+tipologie di messaggi ICMP ricevuti. Da ognuno si ricaveranno i quatttro 
+bit.  
+\end{figure} 
+\end{frame}
+\begin{frame} [fragile] 
+\scriptsize
+\begin{lstlisting} 
+data='m' 
+data.hex=0x6D
+data.bytes=b'0110 1101'
+
+#PRIMO EVENTO 
+Maschera il byte con b'11110000' per ottenere: 0x60 
+Effettua lo shift a destra per ottenere: 0x06 (0110) 
+Si ottiene come tipologia: Time Exceeded (tipo 11) 
+Si ottiene come codice: 0 (Time to Live exceeded in Transit)
+Invia un messaggio ICMP Time Exceeded con codice 0
+
+#SECONDO EVENTO
+Maschera il byte con b'00001111' per ottenere: 0x0D (1101) 
+Si ottiene come tipologia: Redirect (tipo 5)
+Si ottiene come codice: 3 (Redirect for the host)
+Invia un messaggio ICMP Redirect con codice 3 
+\end{lstlisting}
+\captionof{lstlisting}{Esempio dell'invio di un byte} 
+\end{frame} 
+
+\begin{frame}
+\frametitle{Tipologie di messaggi deprecati}
+L'uso di tipologie deprecate non assicura la ricezione 
+dei messaggi, sicocme i router o firewall potrebero 
+ignorarli. Inolre se inviati ripetutamente potrebbero 
+destare dei sospeti sul flusso di comunicazione. 
+\vspace{1ex} \newline 
+Le tipologie deprecate sono: 
+\begin{itemize}
+    \item Information Request/Reply: che è stato 
+    sostituito da protocolli come il DHCP. 
+    \item Source Quench: che era concepito come meccanismo 
+    per il controllo della congestione ma, data la 
+    sua inefficenza, è stato sostituito dai 
+    meccanismi presenti nel protocollo TCP.
+\end{itemize}
+\end{frame}  

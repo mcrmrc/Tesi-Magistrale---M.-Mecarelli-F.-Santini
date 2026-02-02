@@ -1,0 +1,98 @@
+\begin{frame}
+\frametitle{Implementazione Timing Covert Channel} 
+Per poter temporizzare i dati da inviare, si sono 
+definiti vari metodi per la codifica e decodifica 
+degli intervalli temporali. Dovrà quindi essere 
+presente una funzione che è responsabile di mappare 
+un dato binario a un intervallo di tempo. 
+\vspace{1ex} \newline  
+Per la \textbf{codifica}, si calcolerà il delay 
+temporale associato al dato da mandare; esso 
+verrà usato come il tempo da aspetare prima di 
+inviare un pacchetto. 
+\vspace{1ex} \newline
+Per la \textbf{decodifica}, il destinatario 
+rimane in attesa dei pacchetti e ogni volta calcolerà 
+la diferenza di tempo fra il pacchetto precedente e 
+quello attuale. Dall'intervallo temporale fra i due 
+pacchetti, ricaverà il dato relativo. 
+\end{frame} 
+
+\begin{frame}
+\frametitle{Prima implementazione della funzione}
+In una \textbf{prima versione}, si associa ad ogni 
+punto una distanza di sicurezza, coì da evitare che 
+due codici combacino verso lo stesso tempo di delay. 
+\begin{center}
+    %\text{tempo\_base}+\text{indice}*(2*\text{distanza\_tempi})
+    $\text{tempo\_base}+\text{indice}*\text{distanza\_tempi}$
+\end{center} 
+\begin{figure}
+    \centering 
+    \includegraphics[width=0.9\textwidth]{../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png}
+    %\captionof{figure}{Assegnazione degli intervalli con la distanza} %di tempo 
+\end{figure} 
+Le distanze fra i vari intervalli di tempo sono 
+necessarie per evitare errori nella decodifica 
+siccome durante la trasmissione del pacchetto possono 
+avvenire dei ritardi sui datagram inviati.
+\end{frame} 
+
+\begin{frame} 
+\frametitle{Seconda implementazione della funzione}
+Lo svantaggio dell'approccio precedente, sono i tempi 
+di attesa che sono dati dal fatto che il tempo di 
+delay è basato sul valore che lo stesso byte ha. 
+\vspace{1ex} %\newline
+%Cercando di avere una performance migliore 
+%sui tempi di attesa, si sfrutta il fatto che nella 
+%codifica ASCII i caratteri stampabili vanno da 32 a 
+%126. Si invieranno quindi solo i caratteri stampabili. 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}   
+\justifying 
+Quindi si è definita una funzione che normalizzerà 
+l'intervallo di tempo (associato al dato), fra un 
+valore minimo ed uno massimo. Tramite questo approccio, 
+il range dei delay viene ristretto ad un intervallo 
+preciso e definito.  
+\column{0.48\textwidth} 
+\includegraphics[width=0.65\textwidth]{../Tesi/img/timing_channel/timinmg_channel_2nd_function.png}
+%\captionof{figure}{Normalizzazione degli intervalli (Timing Channel) \cite{time_normalization4}} 
+\end{columns} 
+\vspace{1ex}
+\begin{center}
+    $\text{min\_delay}+(\text{byte}/255)*(\text{max\_delay}-\text{min\_delay})$
+\end{center} 
+\end{frame}
+
+\begin{frame}
+\frametitle{Randomizzazione dei tempi di invio}
+Si evolve il Covert Channel precedentemente aggiungendo del rumore per 
+permettera di far sembrare casuale il tempo di delay. 
+\begin{figure} 
+    \includegraphics[width=\textwidth]{../Tesi/img/timing_channel/timinmg_channel_rumore.png}
+    %\captionof{figure}{Randomizzazione dei tempi con il rumore (Timing Channel)} 
+\end{figure}
+Questo porta alla necessita che, per potersi scambiare i dati, il mittente e 
+il destinatario devono sincronizzarsi sulla quantità di rumore aggiunto. 
+%Le strade possibili sono due: 
+%\begin{enumerate} 
+%    \item L'entità mittente crea un numero randomico e lo usa per calcolare 
+%    il rumore. La sincronizzazione sarà sul seed usato e sul numero di 
+%    estrazioni effettuate.
+%    \item Il mittente indica il rumore generato nel pacchetto stesso. Si 
+%    otterrà quindi il valore dalla risorsa condivisa
+%    \item Gli intervalli temporali non trasportano alcun dato. 
+%\end{enumerate} 
+\end{frame}  
+%\begin{frame}
+%\frametitle{Requisiti per la comunicazione}
+%Siccome il destinatario rimane in ascolto e, all'arrivo di un pacchetto, 
+%ricava il dato associato all'intervallo di tempo; avrà bisogno di un 
+%messaggio che indichi quando la trasmissione inizia. Nel timing channel si 
+%dovrà quindi prevedere un modo per indicare l'inizio della comunicazione. 
+%Il metodo potrà essere una particolare sequenza inserita in un campo del 
+%pacchetto mentre oppura una particolare tipologia di messaggio ICMP 
+%(se non entrambi i metodi). 
+%\end{frame}

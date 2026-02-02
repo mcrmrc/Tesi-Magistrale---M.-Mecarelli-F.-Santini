@@ -1,0 +1,151 @@
+\begin{frame}
+\frametitle{Covert Channel} 
+Un \textbf{Covert Channel} è un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta.  
+Solitamente operano al di fuori degli usuali meccanismi di comunicazioni sfruttando vulnerabilità o comportamenti non previsti nei sistemi. 
+Ciò gli permette di non generare segnali di un uso improprio del sistema ed inoltre, 
+nascondendosi all'interno dei normali processi del sistema, sono difficili da rilevare e/o identificare. 
+\vspace{2ex} \newline 
+Qualsiasi risorsa condivisa può essere utilizzata per la creazione di un canale nascosto. 
+\end{frame}
+\begin{frame}
+\frametitle{Caratteristiche di un Covert Channel} 
+Per poter essere efficace, un Covert Channel deve possedere determinate caratteristiche. 
+Fra queste, l'\textbf{indistinguibilità} è quella principale.  
+\begingroup
+\scriptsize
+\begin{longtable}{|p{0.25\textwidth}|p{0.7\textwidth}|} 
+    \hline
+    \textbf{Caratteristica} & \textbf{Descrizione} \\ \hline
+    \textbf{Furtività} & Evitare di attirare le attenzioni sia degli amministratori che degli strumenti di rilevamento degli attacchi. \\ \hline 
+    \textbf{Capacità di trasmissione} & La quantità di dati che il canale trasmette in un determinato intervallo di tempo. Una quantità elevata può portare ad una rilevazione del canale. \\ \hline
+    \textbf{Uso delle risorse} & Un uso delle risorse improprio (o sproporzionato) potrebbe andare in conflitto con le risorse legittime presenti nel sistema. \\ \hline
+    \textbf{Rumore} & L'uso dei servizi e/o delle risorse nel sistema potrebbe alterare il loro funzionamento. \\ \hline
+    \textbf{Indistinguibilità} & La trasmissione dei dati mantiene conforme e inalterato il funzionamento delle risorse utilizzate. Si riesce a rendersi indistinguibili dalla risorsa autorizzata. \\  \hline 
+\caption{Caratterisitche di un Covert Channel}  
+\end{longtable} 
+\endgroup
+\end{frame}
+\begin{frame} 
+    \frametitle{Furtività}  
+    \includegraphics[width=0.5\linewidth]{../Tesi/img/presentazione/thiefs_and_warden.jpg}
+\end{frame} 
+\begin{frame} 
+    \frametitle{Capacità di trasmissione} 
+    \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+    \begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{../Tesi/img/presentazione/covertChanne-pandaRossa.png}
+    \end{figure}
+    \column{0.48\textwidth}
+    \begin{figure}
+    \centering
+    %\includegraphics[height=0.6\textheight]{image1.png}
+    \includegraphics[width=\linewidth]{../Tesi/img/presentazione/covertChannel-camionRosso.png}
+    \end{figure}
+    \end{columns}
+\end{frame}
+%\begin{frame} 
+%    \frametitle{Uso delle risorse e Rumore} 
+%    \begin{columns}[T,onlytextwidth]
+%    \column{0.48\textwidth}
+%    \begin{figure}
+%    \centering
+%    \includegraphics[width=0.7\linewidth]{../Tesi/img/presentazione/5855191149722061057.jpg}
+%    \end{figure}
+%    \column{0.48\textwidth}
+%    \begin{figure}
+%    \centering
+    %\includegraphics[height=0.6\textheight]{image1.png}
+%    \includegraphics[width=0.7\linewidth]{../Tesi/img/presentazione/5855191149722061058.jpg}
+%    \end{figure}
+%    \end{columns}
+%\end{frame}  
+\begin{frame} 
+\frametitle{Indistinguibilità} 
+    \includegraphics[width=\linewidth]{../Tesi/img/presentazione/wheres-waldo-picture-8.jpg}
+\end{frame}
+
+\begin{frame}
+\frametitle{Timing Covert Channel} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\justifying
+I \textbf{Timing Covert Channel} sono metodi di 
+comunicazione che permettono ad un osservatore di 
+acquisire informazioni attraverso il cambiamento del 
+tempo di risposta di una risorsa. Qualsiasi metodo 
+che utilizza un orologio (o una misurazione del tempo) 
+per segnalare il valore può implementarlo.
+\column{0.48\textwidth} 
+\begin{figure}
+    \centering 
+    \includegraphics[width=0.7\textwidth]{../Tesi/img/telegrafo2.jpg} 
+    %\captionof{figure}{Codice Morse} 
+\end{figure}
+\end{columns}
+\end{frame} 
+
+\begin{frame}[fragile]
+\frametitle{Storage Covert Channel} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}  
+\justifying 
+Uno \textbf{Storage Covert Channel} viene creato scrivendo 
+dei dati su un'area di memoria condivisa accessibile da 
+tutte entità presenti. I veicoli saranno 
+tutte quelle risorse che consentiranno la scrittura 
+(diretta o indiretta) da parte di un processo e la 
+lettura (diretta o indiretta) da parte di un altro.
+\column{0.48\textwidth} 
+\begin{figure}
+    \centering 
+    \includegraphics[width=0.6\textwidth]{../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png} 
+    %\captionof{figure}{Cdocumento con inchiostro simpatico} 
+\end{figure} 
+\end{columns}  
+\end{frame} 
+\begin{frame}[fragile]
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\begin{figure}
+    \centering 
+    \includegraphics[width=\textwidth]{../Tesi/img/ICMP_storageCC/packet_destination_unreachable_HEX.png} 
+    \captionof{figure}{Hex dump di un paccheto} 
+\end{figure}
+\column{0.48\textwidth} 
+\begin{lstlisting} [basicstyle=\ttfamily\small]
+    $w..{t..Mt....E.
+    .8....@.........
+    .O........E.BORG
+    ..O.............
+    woGNAB
+\end{lstlisting} 
+\captionof{figure}{Decodifica ASCII di un paccheto} 
+\end{columns}  
+\end{frame} 
+
+\begin{frame}
+\frametitle{Behavioural Covert Channel} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\justifying
+Nei \textbf{Behavioural Covert Channel} le informazioni 
+vengono codificate modificando il comportamento del sitema. 
+Quindi i dati vengono ricavati osservando il comportamento 
+del sistema piuttosto che attraverso l'accesso ai dati.
+\column{0.48\textwidth} 
+\begin{figure}
+    \centering 
+    \includegraphics[width=\textwidth]{../Tesi/img/ICMP_behaveCC/semaforo.jpg} 
+    %\captionof{figure}{Hex dump di un paccheto} 
+\end{figure}
+\end{columns}
+\end{frame} 
+
+%\begin{frame}
+%\frametitle{Tipologie di Covert Channel}  
+%\subsubsection{Hybrid Covert Channel} 
+%Un Hybrid Covert Channel combina più tecniche per aumentare la capacità di trasmissione dei 
+%dati nascosti e rendere più difficile la loro rilevazione. 
+%\end{frame}

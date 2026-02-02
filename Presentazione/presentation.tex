@@ -1,0 +1,57 @@
+\documentclass[11pt,xcolor={dvipsnames},usepdftitle=false]{beamer}
+\usepackage{presentation} 
+\usepackage{import} 
+\usepackage{longtable}
+\usepackage{tabularx}  
+\usepackage{calc} 
+\usepackage{bytefield} 
+\usepackage{listings} 
+\usepackage{xcolor}
+\usepackage{ragged2e} % nel preambolo
+
+
+\hypersetup{pdfpagemode=UseNone,hidelinks,pdfdisplaydoctitle=true,%
+%
+% Enter presentation title to populate PDF metadata:
+pdftitle={Minimalist LaTeX Template for Academic Presentations}}
+
+% Enter path to PDF file with figures:
+\newcommand{\pdf}{figures.pdf}
+
+\begin{document}
+
+
+% Enter title:
+\title{Sviluppo di un covert Channel ICMP per l'esfiltrazione dei dati}
+
+\information%
+%
+% Enter URL to research paper (can be commented out):
+[https://github.com/mcrmrc/Tesi-Magistrale---M.-Mecarelli-F.-Santini.git]
+%
+% Enter authors:
+{F. Santini, M. Mecarelli}
+%
+% Enter location and date (can be commented out):
+{Perugia -- \today}
+
+\frame{\titlepage}
+
+% Enter content of presentation:  
+\import{frames}{introduzione} 
+\import{frames}{introduzione_ICMP} 
+\import{frames}{introduzione_Covert_Channel}  
+
+\import{frames}{strumenti_utilizzati} 
+
+\import{frames}{implementazione_struttura}  
+\import{frames}{implementazione_Timing_CC} 
+\import{frames}{implementazione_Storage_CC}  
+\import{frames}{implementazione_Behave_CC}  
+%\import{frames}{implementazione_Hybrid_CC}    
+\import{frames}{test_introduzione}    
+\import{frames}{conclusioni}  
+%\import{frames}{template_frame}  
+
+
+\end{document}
