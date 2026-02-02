@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.8)  13 JAN 2026 02:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.8)  24 JAN 2026 11:37
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1208,34 +1208,38 @@ Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
 tex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count434
-) (main.aux)
+) (main.aux
+
+LaTeX Warning: Label `code:covertStorage:data' multiply defined.
+
+)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 146.
-LaTeX Font Info:    ... okay on input line 146.
-Package hyperref Info: Link coloring OFF on input line 146.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 144.
+LaTeX Font Info:    ... okay on input line 144.
+Package hyperref Info: Link coloring OFF on input line 144.
  (main.out) (main.out)
 \@outlinefile=\write5
 \openout5 = `main.out'.
 
-LaTeX Info: Redefining \it@ocap on input line 146.
-LaTeX Info: Redefining \it@ccap on input line 146.
+LaTeX Info: Redefining \it@ocap on input line 144.
+LaTeX Info: Redefining \it@ccap on input line 144.
 
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
 ii
@@ -1282,7 +1286,7 @@ Package caption Info: End \AtBeginDocument code.
 Package todonotes Warning: The length marginparwidth is less than 2cm and will 
 most likely cause issues with the appearance of inserted todonotes. The issue c
 an be solved by adding a line like \setlength {\marginparwidth }{2cm} prior to 
-loading the todonotes package. on input line 146.
+loading the todonotes package. on input line 144.
 
 (frontmatter.tex
 <img/frontmatter/logoDMI.png, id=102, 641.0349pt x 255.5949pt>
@@ -1350,14 +1354,18 @@ ut line 35.
 
 ]
 Capitolo 1.
-(main_background/icmp.tex
-
-Package natbib Warning: Citation `icmp' on page 7 undefined on input line 2.
-
-ignored error: Infinite glue shrinkage found in box being split [7
+(introduzione.tex) [7
 
 ]
-<./img/ICMP-packet-structure.png, id=274, 853.1875pt x 341.275pt>
+Capitolo 2.
+(main_background/icmp.tex
+
+Package natbib Warning: Citation `icmp' on page 8 undefined on input line 2.
+
+ignored error: Infinite glue shrinkage found in box being split [8
+
+]
+<./img/ICMP-packet-structure.png, id=280, 853.1875pt x 341.275pt>
 File: ./img/ICMP-packet-structure.png Graphic file (type png)
 <use ./img/ICMP-packet-structure.png>
 Package pdftex.def Info: ./img/ICMP-packet-structure.png  used on input line 94
@@ -1370,21 +1378,21 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `img_icmp_packet_structure' on page 8 undefine
+Package natbib Warning: Citation `img_icmp_packet_structure' on page 9 undefine
 d on input line 95.
 
 
-Package natbib Warning: Citation `img_icmp_packet_structure' on page 8 undefine
+Package natbib Warning: Citation `img_icmp_packet_structure' on page 9 undefine
 d on input line 95.
 
-[8 <./img/ICMP-packet-structure.png>]
+[9 <./img/ICMP-packet-structure.png>]
 
-Package natbib Warning: Citation `icmpv4_message_type' on page 9 undefined on i
-nput line 112.
+Package natbib Warning: Citation `icmpv4_message_type' on page 10 undefined on 
+input line 112.
 
 
-Package natbib Warning: Citation `icmpv6_message_type' on page 9 undefined on i
-nput line 112.
+Package natbib Warning: Citation `icmpv6_message_type' on page 10 undefined on 
+input line 112.
 
 \width=\dimen336 (locally)
 \height=\dimen337 (locally)
@@ -1440,7 +1448,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 209.
 See the caption package documentation for explanation.
 
-[9] [10]
+[10] [11]
 \width=\dimen336 (locally)
 \height=\dimen337 (locally)
 \depth=\dimen338 (locally)
@@ -1554,7 +1562,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 344.
 See the caption package documentation for explanation.
 
-[11]
+[12]
 \width=\dimen336 (locally)
 \height=\dimen337 (locally)
 \depth=\dimen338 (locally)
@@ -1581,7 +1589,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 409.
 See the caption package documentation for explanation.
 
-[12]
+[13]
 \width=\dimen336 (locally)
 \height=\dimen337 (locally)
 \depth=\dimen338 (locally)
@@ -1667,10 +1675,10 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `max_MTU_capacity' on page 13 undefined on inp
+Package natbib Warning: Citation `max_MTU_capacity' on page 14 undefined on inp
 ut line 527.
 
-[13]
+[14]
 \width=\dimen336 (locally)
 \height=\dimen337 (locally)
 \depth=\dimen338 (locally)
@@ -1713,7 +1721,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 569.
 See the caption package documentation for explanation.
 
-[14]
+[15]
 \width=\dimen336 (locally)
 \height=\dimen337 (locally)
 \depth=\dimen338 (locally)
@@ -1769,47 +1777,47 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 659.
 See the caption package documentation for explanation.
 
-[15]) (main_background/covert.tex
+[16]) (main_background/covert.tex
 
-Package natbib Warning: Citation `covert_channel_tipologie1' on page 16 undefin
+Package natbib Warning: Citation `covert_channel_tipologie1' on page 17 undefin
 ed on input line 2.
 
 
-Package natbib Warning: Citation `covert_channel_tipologie2' on page 16 undefin
+Package natbib Warning: Citation `covert_channel_tipologie2' on page 17 undefin
 ed on input line 2.
 
-[16] [17]) [18]
-Capitolo 2.
+[17] [18]) [19]
+Capitolo 3.
 (main_strumenti.tex
 
-Package natbib Warning: Citation `virtualbox' on page 19 undefined on input lin
+Package natbib Warning: Citation `virtualbox' on page 20 undefined on input lin
 e 2.
 
 
-Package natbib Warning: Citation `scapy' on page 19 undefined on input line 36.
+Package natbib Warning: Citation `scapy' on page 20 undefined on input line 36.
 
 
 
-Package natbib Warning: Citation `scapy-inet' on page 19 undefined on input lin
+Package natbib Warning: Citation `scapy-inet' on page 20 undefined on input lin
 e 54.
 
 
-Package natbib Warning: Citation `scapy-sniffing' on page 19 undefined on input
+Package natbib Warning: Citation `scapy-sniffing' on page 20 undefined on input
  line 56.
 
-[19
+[20
 
 ]
 
-Package natbib Warning: Citation `rita' on page 20 undefined on input line 64.
+Package natbib Warning: Citation `rita' on page 21 undefined on input line 64.
 
 
-Package natbib Warning: Citation `icmp-door' on page 20 undefined on input line
+Package natbib Warning: Citation `icmp-door' on page 21 undefined on input line
  116.
 
-[20]
+[21]
 
-Package natbib Warning: Citation `icmp-exfill' on page 21 undefined on input li
+Package natbib Warning: Citation `icmp-exfill' on page 22 undefined on input li
 ne 148.
 
 
@@ -1818,21 +1826,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 148--160
  []
 
 
-Package natbib Warning: Citation `icmp-tunnel' on page 21 undefined on input li
+Package natbib Warning: Citation `icmp-tunnel' on page 22 undefined on input li
 ne 165.
 
-[21]) [22]
-Capitolo 3.
+[22]) [23]
+Capitolo 4.
 (main_implementazione/introduzione.tex
 
-Package natbib Warning: Citation `repoGITHUB' on page 23 undefined on input lin
+Package natbib Warning: Citation `repoGITHUB' on page 24 undefined on input lin
 e 3.
 
 
-Package natbib Warning: Citation `icmp-tunnel' on page 23 undefined on input li
+Package natbib Warning: Citation `icmp-tunnel' on page 24 undefined on input li
 ne 7.
 
-<main_implementazione/../img/ICMPtunnel/architettura_generale.png, id=367, 612.
+<main_implementazione/../img/ICMPtunnel/architettura_generale.png, id=394, 612.
 2875pt x 202.7575pt>
 File: main_implementazione/../img/ICMPtunnel/architettura_generale.png Graphic 
 file (type png)
@@ -1845,7 +1853,7 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 11.
 See the caption package documentation for explanation.
 
-<main_implementazione/../img/ICMPtunnel/architettura_vittima.png, id=369, 480.7
+<main_implementazione/../img/ICMPtunnel/architettura_vittima.png, id=396, 480.7
 9625pt x 135.50626pt>
 File: main_implementazione/../img/ICMPtunnel/architettura_vittima.png Graphic f
 ile (type png)
@@ -1858,11 +1866,11 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 19.
 See the caption package documentation for explanation.
 
-[23
+[24
 
  <./main_implementazione/../img/ICMPtunnel/architettura_generale.png> <./main_i
 mplementazione/../img/ICMPtunnel/architettura_vittima.png>]
-<main_implementazione/../img/ICMPtunnel/architettura_proxy.png, id=377, 518.938
+<main_implementazione/../img/ICMPtunnel/architettura_proxy.png, id=405, 518.938
 75pt x 135.50626pt>
 File: main_implementazione/../img/ICMPtunnel/architettura_proxy.png Graphic fil
 e (type png)
@@ -1876,10 +1884,10 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 28.
 See the caption package documentation for explanation.
 
-[24 <./main_implementazione/../img/ICMPtunnel/architettura_proxy.png>])
-(main_implementazione/struttura_comunicazione.tex [25]
+[25 <./main_implementazione/../img/ICMPtunnel/architettura_proxy.png>])
+(main_implementazione/struttura_comunicazione.tex [26]
 <main_implementazione/../img/implementazione/diagramma_struttura_entita.jpg, id
-=398, 770.88pt x 805.0075pt>
+=428, 770.88pt x 805.0075pt>
 File: main_implementazione/../img/implementazione/diagramma_struttura_entita.jp
 g Graphic file (type jpg)
 <use main_implementazione/../img/implementazione/diagramma_struttura_entita.jpg
@@ -1893,10 +1901,10 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 26.
 See the caption package documentation for explanation.
 
-[26 <./main_implementazione/../img/implementazione/diagramma_struttura_entita.j
+[27 <./main_implementazione/../img/implementazione/diagramma_struttura_entita.j
 pg>]
 <main_implementazione/../img/implementazione/struttura attacker.proxy.victim 3.
-jpg, id=406, 522.95375pt x 362.35374pt>
+jpg, id=436, 522.95375pt x 362.35374pt>
 File: main_implementazione/../img/implementazione/struttura attacker.proxy.vict
 im 3.jpg Graphic file (type jpg)
 <use main_implementazione/../img/implementazione/struttura attacker.proxy.victi
@@ -1910,27 +1918,27 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 58.
 See the caption package documentation for explanation.
 
-[27 <./main_implementazione/../img/implementazione/struttura attacker.proxy.vic
-tim 3.jpg>] [28] [29]) (main_implementazione/icmp_timing.tex
+[28 <./main_implementazione/../img/implementazione/struttura attacker.proxy.vic
+tim 3.jpg>] [29] [30]) (main_implementazione/icmp_timing.tex
 
-Package natbib Warning: Citation `icmp-exfill' on page 30 undefined on input li
+Package natbib Warning: Citation `icmp-exfill' on page 31 undefined on input li
 ne 19.
 
-[30]
-ignored error: Infinite glue shrinkage found in box being split [31]
+[31]
+ignored error: Infinite glue shrinkage found in box being split [32]
 
-Package natbib Warning: Citation `packet_delay1' on page 32 undefined on input 
+Package natbib Warning: Citation `packet_delay1' on page 33 undefined on input 
 line 69.
 
 
-Package natbib Warning: Citation `packet_delay2' on page 32 undefined on input 
+Package natbib Warning: Citation `packet_delay2' on page 33 undefined on input 
 line 69.
 
 
-Package natbib Warning: Citation `latency_statistics' on page 32 undefined on i
+Package natbib Warning: Citation `latency_statistics' on page 33 undefined on i
 nput line 80.
 
-<./img/timing_channel/timing_channel_times_nonoverlapping.png, id=441, 1217.046
+<./img/timing_channel/timing_channel_times_nonoverlapping.png, id=474, 1217.046
 88pt x 327.2225pt>
 File: ./img/timing_channel/timing_channel_times_nonoverlapping.png Graphic file
  (type png)
@@ -1944,10 +1952,10 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `unicode_printable_char' on page 32 undefined 
+Package natbib Warning: Citation `unicode_printable_char' on page 33 undefined 
 on input line 119.
 
-[32 <./img/timing_channel/timing_channel_times_nonoverlapping.png>]
+[33 <./img/timing_channel/timing_channel_times_nonoverlapping.png>]
 Underfull \hbox (badness 2799) in paragraph at lines 162--162
 []|\T1/cmr/bx/n/12 Printable cha-rac-
  []
@@ -1958,18 +1966,18 @@ Underfull \hbox (badness 10000) in paragraph at lines 168--168
  []
 
 
-Package natbib Warning: Citation `time_normalization1' on page 33 undefined on 
+Package natbib Warning: Citation `time_normalization1' on page 34 undefined on 
 input line 181.
 
 
-Package natbib Warning: Citation `time_normalization2' on page 33 undefined on 
+Package natbib Warning: Citation `time_normalization2' on page 34 undefined on 
 input line 181.
 
 
-Package natbib Warning: Citation `time_normalization3' on page 33 undefined on 
+Package natbib Warning: Citation `time_normalization3' on page 34 undefined on 
 input line 181.
 
-<./img/timing_channel/timinmg_channel_2nd_function.png, id=454, 517.935pt x 626
+<./img/timing_channel/timinmg_channel_2nd_function.png, id=488, 517.935pt x 626
 .84187pt>
 File: ./img/timing_channel/timinmg_channel_2nd_function.png Graphic file (type 
 png)
@@ -1983,15 +1991,15 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `time_normalization4' on page 33 undefined on 
+Package natbib Warning: Citation `time_normalization4' on page 34 undefined on 
 input line 203.
 
 
-Package natbib Warning: Citation `time_normalization4' on page 33 undefined on 
+Package natbib Warning: Citation `time_normalization4' on page 34 undefined on 
 input line 203.
 
-[33] [34 <./img/timing_channel/timinmg_channel_2nd_function.png>]
-<./img/timing_channel/timinmg_channel_rumore.png, id=469, 1113.15875pt x 367.87
+[34] [35 <./img/timing_channel/timinmg_channel_2nd_function.png>]
+<./img/timing_channel/timinmg_channel_rumore.png, id=505, 1113.15875pt x 367.87
 437pt>
 File: ./img/timing_channel/timinmg_channel_rumore.png Graphic file (type png)
 <use ./img/timing_channel/timinmg_channel_rumore.png>
@@ -2004,154 +2012,195 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 244.
 See the caption package documentation for explanation.
 
-) (main_implementazione/icmp_storage.tex [35 <./img/timing_channel/timinmg_chan
+) (main_implementazione/icmp_storage.tex [36 <./img/timing_channel/timinmg_chan
 nel_rumore.png>]
-ignored error: Infinite glue shrinkage found in box being split [36]
+ignored error: Infinite glue shrinkage found in box being split [37]
 
-Package natbib Warning: Citation `icmpv4_message_type' on page 37 undefined on 
+Package natbib Warning: Citation `icmpv4_message_type' on page 38 undefined on 
 input line 91.
 
 
-Package natbib Warning: Citation `icmpv6_message_type' on page 37 undefined on 
+Package natbib Warning: Citation `icmpv6_message_type' on page 38 undefined on 
 input line 91.
 
-<./img/ICMP_storageCC/destination_CC_errscapy.png, id=483, 896.34875pt x 211.28
-937pt>
-File: ./img/ICMP_storageCC/destination_CC_errscapy.png Graphic file (type png)
-<use ./img/ICMP_storageCC/destination_CC_errscapy.png>
-Package pdftex.def Info: ./img/ICMP_storageCC/destination_CC_errscapy.png  used
- on input line 98.
-(pdftex.def)             Requested size: 433.62pt x 102.21407pt.
+<./img/ICMP_storageCC/immagine_parameterproblem.png, id=524, 683.55376pt x 854.
+44218pt>
+File: ./img/ICMP_storageCC/immagine_parameterproblem.png Graphic file (type png
+)
+<use ./img/ICMP_storageCC/immagine_parameterproblem.png>
+Package pdftex.def Info: ./img/ICMP_storageCC/immagine_parameterproblem.png  us
+ed on input line 98.
+(pdftex.def)             Requested size: 216.81pt x 271.00206pt.
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 99.
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `struct' on page 37 undefined on input line 10
+Package natbib Warning: Citation `struct' on page 38 undefined on input line 10
 4.
 
-<./img/ICMP_storageCC/destination_unused_CC_1.png, id=485, 894.34125pt x 164.11
-313pt>
-File: ./img/ICMP_storageCC/destination_unused_CC_1.png Graphic file (type png)
-<use ./img/ICMP_storageCC/destination_unused_CC_1.png>
-Package pdftex.def Info: ./img/ICMP_storageCC/destination_unused_CC_1.png  used
- on input line 113.
-(pdftex.def)             Requested size: 433.62pt x 79.57222pt.
+<./img/ICMP_storageCC/immagine_parameterproblem_unused.png, id=526, 680.5425pt 
+x 850.67813pt>
+File: ./img/ICMP_storageCC/immagine_parameterproblem_unused.png Graphic file (t
+ype png)
+<use ./img/ICMP_storageCC/immagine_parameterproblem_unused.png>
+Package pdftex.def Info: ./img/ICMP_storageCC/immagine_parameterproblem_unused.
+png  used on input line 112.
+(pdftex.def)             Requested size: 216.81pt x 271.0154pt.
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 114.
+(caption)                particular \caption on input line 113.
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `icmpv4_message_type' on page 37 undefined on 
-input line 118.
+Package natbib Warning: Citation `icmpv4_message_type' on page 38 undefined on 
+input line 117.
 
 
-Package natbib Warning: Citation `icmpv6_message_type' on page 37 undefined on 
-input line 118.
+Package natbib Warning: Citation `icmpv6_message_type' on page 38 undefined on 
+input line 117.
 
-[37 <./img/ICMP_storageCC/destination_CC_errscapy.png> <./img/ICMP_storageCC/de
-stination_unused_CC_1.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 139--140
+[38 <./img/ICMP_storageCC/immagine_parameterproblem.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 138--139
 []|\T1/cmr/m/n/12 Dimensione del-l'in-te-ro
  []
 
-<./img/ICMP_storageCC/ttl_CC_header.png, id=495, 781.92125pt x 204.26312pt>
-File: ./img/ICMP_storageCC/ttl_CC_header.png Graphic file (type png)
-<use ./img/ICMP_storageCC/ttl_CC_header.png>
-Package pdftex.def Info: ./img/ICMP_storageCC/ttl_CC_header.png  used on input 
-line 163.
-(pdftex.def)             Requested size: 433.62pt x 113.27698pt.
+ignored error: Infinite glue shrinkage found in box being split [39 <./img/ICMP
+_storageCC/immagine_parameterproblem_unused.png>]
+<./img/ICMP_storageCC/immagie_header_64bit.png, id=545, 521.69907pt x 782.17218
+pt>
+File: ./img/ICMP_storageCC/immagie_header_64bit.png Graphic file (type png)
+<use ./img/ICMP_storageCC/immagie_header_64bit.png>
+Package pdftex.def Info: ./img/ICMP_storageCC/immagie_header_64bit.png  used on
+ input line 162.
+(pdftex.def)             Requested size: 216.81pt x 325.06087pt.
+
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 164.
+(caption)                particular \caption on input line 163.
 See the caption package documentation for explanation.
 
 
-Overfull \hbox (14.45377pt too wide) in paragraph at lines 161--167
+Overfull \hbox (14.45377pt too wide) in paragraph at lines 160--166
 []$[]$ 
  []
 
-[38]
-Underfull \hbox (badness 10000) in paragraph at lines 169--177
+[40]
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 176.
+See the caption package documentation for explanation.
+
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
+nput line 176.
+
+Underfull \hbox (badness 10000) in paragraph at lines 182--190
 
  []
 
 
-Underfull \hbox (badness 1577) in paragraph at lines 184--185
+Underfull \hbox (badness 1577) in paragraph at lines 197--198
 []|\T1/cmr/m/n/12 Decrementato di 1 per
  []
 
-File: ./img/ICMP_storageCC/ttl_CC_header.png Graphic file (type png)
-<use ./img/ICMP_storageCC/ttl_CC_header.png>
-Package pdftex.def Info: ./img/ICMP_storageCC/ttl_CC_header.png  used on input 
-line 208.
-(pdftex.def)             Requested size: 433.62pt x 113.27698pt.
+[41 <./img/ICMP_storageCC/immagie_header_64bit.png>]
+<./img/ICMP_storageCC/immagine_pointer.png, id=569, 668.4975pt x 334.24875pt>
+File: ./img/ICMP_storageCC/immagine_pointer.png Graphic file (type png)
+<use ./img/ICMP_storageCC/immagine_pointer.png>
+Package pdftex.def Info: ./img/ICMP_storageCC/immagine_pointer.png  used on inp
+ut line 221.
+(pdftex.def)             Requested size: 260.17464pt x 130.09126pt.
+
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 209.
+(caption)                particular \caption on input line 222.
 See the caption package documentation for explanation.
 
-[39 <./img/ICMP_storageCC/ttl_CC_header.png>]
-
-Package natbib Warning: Citation `icmpv4_message_type' on page 40 undefined on 
-input line 216.
-
-File: ./img/ICMP_storageCC/ttl_CC_header.png Graphic file (type png)
-<use ./img/ICMP_storageCC/ttl_CC_header.png>
-Package pdftex.def Info: ./img/ICMP_storageCC/ttl_CC_header.png  used on input 
-line 225.
-(pdftex.def)             Requested size: 433.62pt x 113.27698pt.
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 226.
+(caption)                particular \caption on input line 235.
 See the caption package documentation for explanation.
 
-<./img/ICMP_storageCC/echo_CC_payload.png, id=510, 653.94313pt x 147.55125pt>
-File: ./img/ICMP_storageCC/echo_CC_payload.png Graphic file (type png)
-<use ./img/ICMP_storageCC/echo_CC_payload.png>
-Package pdftex.def Info: ./img/ICMP_storageCC/echo_CC_payload.png  used on inpu
-t line 240.
-(pdftex.def)             Requested size: 433.62pt x 97.8389pt.
+[42 <./img/ICMP_storageCC/immagine_pointer.png>]
+
+Package natbib Warning: Citation `icmpv4_message_type' on page 43 undefined on 
+input line 243.
+
+<./img/ICMP_storageCC/imagine_identifier.png, id=581, 2110.88625pt x 1247.66125
+pt>
+File: ./img/ICMP_storageCC/imagine_identifier.png Graphic file (type png)
+<use ./img/ICMP_storageCC/imagine_identifier.png>
+Package pdftex.def Info: ./img/ICMP_storageCC/imagine_identifier.png  used on i
+nput line 252.
+(pdftex.def)             Requested size: 433.62pt x 256.28622pt.
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 241.
+(caption)                particular \caption on input line 253.
 See the caption package documentation for explanation.
 
-[40]
-Underfull \hbox (badness 10000) in paragraph at lines 246--255
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 280.
+See the caption package documentation for explanation.
+
+[43 <./img/ICMP_storageCC/imagine_identifier.png (PNG copy)>]
+<./img/ICMP_storageCC/immagine_payload.png, id=598, 732.48656pt x 359.09157pt>
+File: ./img/ICMP_storageCC/immagine_payload.png Graphic file (type png)
+<use ./img/ICMP_storageCC/immagine_payload.png>
+Package pdftex.def Info: ./img/ICMP_storageCC/immagine_payload.png  used on inp
+ut line 295.
+(pdftex.def)             Requested size: 303.53267pt x 148.80104pt.
+
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 296.
+See the caption package documentation for explanation.
+
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 311.
+See the caption package documentation for explanation.
+
+[44 <./img/ICMP_storageCC/immagine_payload.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 317--326
 
  []
 
 
 Package caption Warning: \setcaptiontype
-(caption)                outside box or environment on input line 264.
+(caption)                outside box or environment on input line 335.
 See the caption package documentation for explanation.
 
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 264.
+(caption)                particular \caption on input line 335.
 See the caption package documentation for explanation.
 
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 264.
-<./img/ICMP_storageCC/timestamp_CC_originitime_crop.png, id=522, 458.71375pt x 
-157.08687pt>
-File: ./img/ICMP_storageCC/timestamp_CC_originitime_crop.png Graphic file (type
- png)
-<use ./img/ICMP_storageCC/timestamp_CC_originitime_crop.png>
-Package pdftex.def Info: ./img/ICMP_storageCC/timestamp_CC_originitime_crop.png
-  used on input line 280.
-(pdftex.def)             Requested size: 346.89731pt x 118.79999pt.
+
+Package natbib Warning: Citation `ascii-table' on page 45 undefined on input li
+ne 351.
+
+<./img/ICMP_storageCC/immagine_timestamp.png, id=634, 553.31718pt x 368.87813pt
+>
+File: ./img/ICMP_storageCC/immagine_timestamp.png Graphic file (type png)
+<use ./img/ICMP_storageCC/immagine_timestamp.png>
+Package pdftex.def Info: ./img/ICMP_storageCC/immagine_timestamp.png  used on i
+nput line 355.
+(pdftex.def)             Requested size: 260.17464pt x 173.4459pt.
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
-(caption)                particular \caption on input line 281.
+(caption)                particular \caption on input line 356.
 See the caption package documentation for explanation.
 
-[41 <./img/ICMP_storageCC/echo_CC_payload.png>])
-(main_implementazione/icmp_behave.tex
-<./img/ICMP_behaveCC/behavioural_channel_1.png, id=541, 1089.06876pt x 333.245p
+[45]
+
+Package caption Warning: The option `hypcap=true' will be ignored for this
+(caption)                particular \caption on input line 374.
+See the caption package documentation for explanation.
+
+) (main_implementazione/icmp_behave.tex
+<./img/ICMP_behaveCC/behavioural_channel_1.png, id=664, 1089.06876pt x 333.245p
 t>
 File: ./img/ICMP_behaveCC/behavioural_channel_1.png Graphic file (type png)
 <use ./img/ICMP_behaveCC/behavioural_channel_1.png>
@@ -2165,39 +2214,39 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `francesco_santini' on page 42 undefined on in
+Package natbib Warning: Citation `francesco_santini' on page 46 undefined on in
 put line 18.
 
 
-Package natbib Warning: Citation `francesco_santini' on page 42 undefined on in
+Package natbib Warning: Citation `francesco_santini' on page 46 undefined on in
 put line 18.
 
-[42 <./img/ICMP_storageCC/timestamp_CC_originitime_crop.png> <./img/ICMP_behave
-CC/behavioural_channel_1.png>]
+[46 <./img/ICMP_storageCC/immagine_timestamp.png>] [47 <./img/ICMP_behaveCC/beh
+avioural_channel_1.png>]
 
 Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 49.
 See the caption package documentation for explanation.
 
 
-Package natbib Warning: Citation `icmp_deprecated' on page 43 undefined on inpu
+Package natbib Warning: Citation `icmp_deprecated' on page 48 undefined on inpu
 t line 64.
 
 
-Package natbib Warning: Citation `rfc6918_deprecated_types' on page 43 undefine
+Package natbib Warning: Citation `rfc6918_deprecated_types' on page 48 undefine
 d on input line 64.
 
 
-Package natbib Warning: Citation `rfc6633_sourcequench' on page 43 undefined on
+Package natbib Warning: Citation `rfc6633_sourcequench' on page 48 undefined on
  input line 64.
 
-[43] [44]
+[48]
 
-Package natbib Warning: Citation `rfc2131_DHCP' on page 45 undefined on input l
+Package natbib Warning: Citation `rfc2131_DHCP' on page 49 undefined on input l
 ine 161.
 
-) (main_implementazione/icmp_hybrid.tex
-<./img/hybrid_channel/receiver_hybridChannel.jpg, id=584, 646.66594pt x 399.743
+) (main_implementazione/icmp_hybrid.tex [49]
+<./img/hybrid_channel/receiver_hybridChannel.jpg, id=729, 646.66594pt x 399.743
 44pt>
 File: ./img/hybrid_channel/receiver_hybridChannel.jpg Graphic file (type jpg)
 <use ./img/hybrid_channel/receiver_hybridChannel.jpg>
@@ -2210,17 +2259,17 @@ Package caption Warning: The option `hypcap=true' will be ignored for this
 (caption)                particular \caption on input line 22.
 See the caption package documentation for explanation.
 
-[45]) [46 <./img/hybrid_channel/receiver_hybridChannel.jpg>]
-Capitolo 4.
-(file/ids/RITA/test_RITA.tex [47
+) [50 <./img/hybrid_channel/receiver_hybridChannel.jpg>]
+Capitolo 5.
+(file/ids/RITA/test_RITA.tex [51
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 63--63
 []|\T1/cmr/bx/n/12 Covert
  []
 
-ignored error: Infinite glue shrinkage found in box being split [48] [49]
-[50]
+ignored error: Infinite glue shrinkage found in box being split [52] [53]
+[54]
 Underfull \hbox (badness 1168) in paragraph at lines 167--167
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
@@ -2230,7 +2279,7 @@ Underfull \hbox (badness 1168) in paragraph at lines 173--173
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
 
-[51]
+[55]
 Underfull \hbox (badness 1168) in paragraph at lines 255--255
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
@@ -2240,7 +2289,7 @@ Underfull \hbox (badness 1168) in paragraph at lines 261--261
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
 
-ignored error: Infinite glue shrinkage found in box being split [52]
+ignored error: Infinite glue shrinkage found in box being split [56]
 Underfull \hbox (badness 1168) in paragraph at lines 290--290
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
@@ -2250,7 +2299,7 @@ Underfull \hbox (badness 1168) in paragraph at lines 296--296
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
 
-ignored error: Infinite glue shrinkage found in box being split [53]
+ignored error: Infinite glue shrinkage found in box being split [57]
 Underfull \hbox (badness 1168) in paragraph at lines 318--318
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
@@ -2260,7 +2309,7 @@ Underfull \hbox (badness 1168) in paragraph at lines 324--324
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
 
-[54] [55]
+[58] [59]
 Underfull \hbox (badness 1168) in paragraph at lines 391--391
 []|\T1/cmr/m/n/12 Pausa di un ora e
  []
@@ -2280,17 +2329,17 @@ Overfull \hbox (32.29799pt too wide) in alignment at lines 381--493
  [] [] [] [] 
  []
 
-[56]) [57]
-Capitolo 5.
-(conclusioni.tex [58
+[60]) [61]
+Capitolo 6.
+(conclusioni.tex [62
 
-] [59])
+] [63])
 No file main.bbl.
 
 Package natbib Warning: There were undefined citations.
 
-[60]
-runsystem(latexminted cleantemp  --timestamp 20260113024257 FAD58DE7366495DB465
+[64]
+runsystem(latexminted cleantemp  --timestamp 20260124113724 FAD58DE7366495DB465
 0CFEFAC2FCD61)...disabled (restricted).
 
  (main.aux)
@@ -2300,19 +2349,25 @@ L3 programming layer <2025-12-24>
  ***********
 
 
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+LaTeX Warning: There were multiply-defined labels.
 
-Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 77AAB1362122721D51004C6844171DB4;4833.
+
+Package rerunfilecheck Warning: File `main.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `main.out':
+(rerunfilecheck)             Before: 77AAB1362122721D51004C6844171DB4;4833
+(rerunfilecheck)             After:  F31C9E4CDE9C613537E7646587E15DDE;5021.
  ) 
 Here is how much of TeX's memory you used:
- 42480 strings out of 467870
- 975370 string characters out of 5418356
- 1574827 words of memory out of 5000000
- 70359 multiletter control sequences out of 15000+600000
- 648752 words of font info for 97 fonts, out of 8000000 for 9000
+ 42635 strings out of 467870
+ 978036 string characters out of 5418356
+ 1611828 words of memory out of 5000000
+ 70385 multiletter control sequences out of 15000+600000
+ 649378 words of font info for 99 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 99i,14n,118p,727b,1019s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 99i,14n,118p,727b,1928s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 pdfTeX warning (dest): name{Hfootnote.9} has been referenced but does not exist
 , replaced by a fixed one
@@ -2322,12 +2377,20 @@ pdfTeX warning (dest): name{Hfootnote.8} has been referenced but does not exist
 , replaced by a fixed one
 
 
+pdfTeX warning (dest): name{lstlisting.3.7} has been referenced but does not ex
+ist, replaced by a fixed one
+
+
 pdfTeX warning (dest): name{Hfootnote.7} has been referenced but does not exist
 , replaced by a fixed one
 
 
 pdfTeX warning (dest): name{Hfootnote.6} has been referenced but does not exist
 , replaced by a fixed one
+
+
+pdfTeX warning (dest): name{lstlisting.3.5} has been referenced but does not ex
+ist, replaced by a fixed one
 
 
 pdfTeX warning (dest): name{Hfootnote.5} has been referenced but does not exist
@@ -2349,31 +2412,272 @@ pdfTeX warning (dest): name{Hfootnote.2} has been referenced but does not exist
 pdfTeX warning (dest): name{Hfootnote.1} has been referenced but does not exist
 , replaced by a fixed one
 
- <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm10
+
+pdfTeX warning (dest): name{table.3.9} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.8} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.7} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.6} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.5} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.4} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.3} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.2} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.3.1} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.1.5} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.1.4} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.1.3} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.1.2} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{table.1.1} has been referenced but does not exist, 
+replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.17} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.16} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.15} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.14} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.13} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.12} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.11} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.10} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.9} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.8} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.7} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.6} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.5} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.4} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.3} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.2} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.3.1} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.14} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.13} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.12} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.11} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.10} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.9} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.8} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.7} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.6} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.5} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.4} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.3} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.2} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{figure.1.1} has been referenced but does not exist,
+ replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.3.5} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.3.4} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.3.3.1} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.3.3} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.3.2.2} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.3.2.1} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.3.2} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.3.1.3} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.3.1.2} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.3.1.1} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.3.1} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.1.2.1} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.1.2} has been referenced but does not exist
+, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.1.1.1} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{section.1.1} has been referenced but does not exist
+, replaced by a fixed one
+
+ <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt08
 00.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\
-ecrm0700.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/d
-pi600\ecrm0800.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappe
-n/ec/dpi600\ecrm0600.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/j
-knappen/ec/dpi600\ecbx1440.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/lj
-four/jknappen/ec/dpi600\tcrm1200.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts
-/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\Marco\AppData\Local\MiKTeX
-\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Marco\AppData\Local\
-MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk> <C:\Users\Marco\AppData\
-Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\Marco\Ap
-pData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Users\Ma
-rco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2488.pk> <C:\Us
-ers\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc1440.pk> 
-<C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm144
+ecrm1000.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/d
+pi600\ecrm0700.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappe
+n/ec/dpi600\ecrm0800.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/j
+knappen/ec/dpi600\ecrm0600.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/lj
+four/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts
+/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk> <C:\Users\Marco\AppData\Local\MiKTeX
+\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\Marco\AppData\Local\
+MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Marco\AppData\
+Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk> <C:\Users\Marco\Ap
+pData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\Ma
+rco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Us
+ers\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2488.pk> 
+<C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\eccc144
 0.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\e
-ccc1728.pk><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
-fonts/cm/cmmi12.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/p
-ublic/amsfonts/cm/cmr10.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts
-/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Marco/AppData/Local/Programs/MiKT
-eX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/Marco/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on main.pdf (60 pages, 1189432 bytes).
+crm1440.pk> <C:\Users\Marco\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dp
+i600\eccc1728.pk><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/publ
+ic/amsfonts/cm/cmmi12.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/amsfonts/cm/cmr10.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX
+/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/Marco/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/Marco/AppData/Local/
+Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on main.pdf (64 pages, 1803401 bytes).
 PDF statistics:
- 1235 PDF objects out of 1440 (max. 8388607)
- 228 named destinations out of 1000 (max. 500000)
- 290 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1461 PDF objects out of 1728 (max. 8388607)
+ 351 named destinations out of 1000 (max. 500000)
+ 300 words of extra memory for PDF output out of 10000 (max. 10000000)
 

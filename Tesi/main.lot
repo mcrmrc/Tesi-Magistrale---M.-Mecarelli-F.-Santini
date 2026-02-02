@@ -1,27 +1,28 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {1.1}{\ignorespaces Utilizzi del protocollo ICMP}}{8}{table.1.1}%
-\contentsline {table}{\numberline {1.2}{\ignorespaces Motivi del messaggio Destination Unreachable}}{9}{table.1.2}%
-\contentsline {table}{\numberline {1.3}{\ignorespaces Motivi del mesaaggio Time Exceeded}}{10}{table.1.3}%
-\contentsline {table}{\numberline {1.4}{\ignorespaces Motivi del messaggio Redirect}}{13}{table.1.4}%
-\contentsline {table}{\numberline {1.5}{\ignorespaces Caratterisitche di un Covert Channel}}{17}{table.1.5}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Utilizzi del protocollo ICMP}}{9}{table.2.1}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces Motivi del messaggio Destination Unreachable}}{10}{table.2.2}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Motivi del mesaaggio Time Exceeded}}{11}{table.2.3}%
+\contentsline {table}{\numberline {2.4}{\ignorespaces Motivi del messaggio Redirect}}{14}{table.2.4}%
+\contentsline {table}{\numberline {2.5}{\ignorespaces Caratterisitche di un Covert Channel}}{18}{table.2.5}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Opzioni richieste nel comando dell'attaccante}}{28}{table.3.1}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces Opzioni richieste nel comando del proxy}}{29}{table.3.2}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Opzioni richieste nel comando della vittima}}{30}{table.3.3}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Parametri della prima funzione (Timing Channel)}}{32}{table.3.4}%
-\contentsline {table}{\numberline {3.5}{\ignorespaces Struttura della tabella ASCII}}{33}{table.3.5}%
-\contentsline {table}{\numberline {3.6}{\ignorespaces Tipologie di messaggi ICMPv4 usati}}{36}{table.3.6}%
-\contentsline {table}{\numberline {3.7}{\ignorespaces Tipologie di messaggi ICMPv6 usati}}{37}{table.3.7}%
-\contentsline {table}{\numberline {3.8}{\ignorespaces Uso del Header+64 bits nel caso di IP/ICMP}}{38}{table.3.8}%
-\contentsline {table}{\numberline {3.9}{\ignorespaces Struttura del campo Invoking Packet}}{39}{table.3.9}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Opzioni richieste nel comando dell'attaccante}}{29}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Opzioni richieste nel comando del proxy}}{30}{table.4.2}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Opzioni richieste nel comando della vittima}}{31}{table.4.3}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Parametri della prima funzione (Timing Channel)}}{33}{table.4.4}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces Struttura della tabella ASCII}}{34}{table.4.5}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Tipologie di messaggi ICMPv4 usati}}{37}{table.4.6}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces Tipologie di messaggi ICMPv6 usati}}{38}{table.4.7}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces Uso del Header+64 bits nel caso di IP/ICMP}}{40}{table.4.8}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Struttura del campo Invoking Packet}}{42}{table.4.9}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Test tramite un singolo invio dei dati}}{49}{table.4.1}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Test con payload fisso, 1MB di dati e un delay durante l'invio}}{51}{table.4.2}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Test con payload fisso, 1MB di dati e nessun delay durante l'invio}}{53}{table.4.3}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces Test con payload fisso, 100KB di dati e un delay durante l'invio}}{54}{table.4.4}%
-\contentsline {table}{\numberline {4.5}{\ignorespaces Test con payload randomico, 100KB di dati e un delay durante l'invio}}{54}{table.4.5}%
-\contentsline {table}{\numberline {4.6}{\ignorespaces Test con payload randomico, 1MB di dati e un delay durante l'invio}}{56}{table.4.6}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Test tramite un singolo invio dei dati}}{53}{table.5.1}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Test con payload fisso, 1MB di dati e un delay durante l'invio}}{55}{table.5.2}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces Test con payload fisso, 1MB di dati e nessun delay durante l'invio}}{57}{table.5.3}%
+\contentsline {table}{\numberline {5.4}{\ignorespaces Test con payload fisso, 100KB di dati e un delay durante l'invio}}{58}{table.5.4}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Test con payload randomico, 100KB di dati e un delay durante l'invio}}{58}{table.5.5}%
+\contentsline {table}{\numberline {5.6}{\ignorespaces Test con payload randomico, 1MB di dati e un delay durante l'invio}}{60}{table.5.6}%
 \addvspace {10\p@ }
