@@ -23,25 +23,6 @@
 %\captionof{figure}{Comunicazione proxy-internet in \textbf{icmp tunnel}}     
 %\end{frame}
 
-\begin{frame} 
-\frametitle{Implementazione}
-Alcuni aspetti relativi all'implementazione della comunicazione, sono stati ricavati 
-analizzando i progetti che già hanno affrontato il problema: 
-\begin{enumerate}
-\item La \textbf{presenza di più proxy intermediari} fra l'attaccante e la vittima. 
-Così da distribuire il carico sulla rete dato dall'invio dei dati. 
-\item Un limite alla \textbf{quantità di dati} inviabili in un intervallo 
-di tempo. %Ed esfiltrare grandi quantità di dati evitando di 
-%congestionare il canale di comunicazione.
-\item Trasmettere i \textbf{dati in chiaro} permette a chiunque di leggerne il contenuto. 
-Mentre la trasmissione di dati cifrati potrebbe destare sospetti.
-\item I \textbf{messaggi di tipo Request}, inviano un messaggio di richiesta e poi aspettano una risposta; 
-che sarà uguale al messaggio inviato. Una soluzione è l'invio solo 
-di messaggi di tipo Reply oppure la disabilitazione delle risposte (e 
-inviare noi stessi una risposta).
-\end{enumerate} 
-\end{frame} 
-
 \begin{frame}
 \frametitle{Struttura dela comunicazione}
 \includegraphics[width=0.6\textwidth]{../Tesi/img/implementazione/diagramma_struttura_entita.jpg} 
@@ -49,11 +30,8 @@ inviare noi stessi una risposta).
 \end{frame} 
 
 \begin{frame}
-\frametitle{Struttura dell'attaccante}
-Tramite un parser rileva se nella linea di comando sono state inserite le 
-opzioni necessarie alla sua inizializzazione: 
-%\begingroup
-%\small
+\frametitle{Struttura dell'attaccante} 
+\scriptsize 
 \begin{longtable}{|p{0.15\textwidth}|p{0.8\textwidth}|} 
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
@@ -64,55 +42,52 @@ opzioni necessarie alla sua inizializzazione:
     \\ \hline 
     %\caption{Opzioni richieste nel comando dell'attaccante} 
 \end{longtable} 
-%\endgroup 
-Da questo carica un file di configurazione nel quale viene definito l'
-\textbf{indirizzo IP della vittima}, il \textbf{metodo di attacco} e i 
-\textbf{proxy utilizzabili} per farlo. 
-\end{frame} 
-\begin{frame} 
-Procede poi a verificare quali proxy (fra queli presenti) siano disponibili; 
-ovvero quali riescono a comunicare sia con l'attaccante checon la vittima. 
-Ciò viene effettuato stabilendo una coneessione o tramite protocollo TCP/IP 
-o ICMP (lo stesso che il proxy userà con la vittima) e invia un messagio che 
-indica l'intento di stabilire una canale di comunicazione. Rimane  poi in 
-attesa che il proxy confermi la connesisone. 
+\normalsize
+%Tramite la linea di comando, che ha lanciato lo script, 
+%si ricava il valore del percorso per il file di  
+Tramite il file di configurazione specificato, l'attaccante definisce
+%configurazione dell'attacccante. In esso viene definito 
+l'\textbf{indirizzo IP della vittima}, il 
+\textbf{metodo di attacco} per l'esfiltrazione dei dati ed 
+i \textbf{proxy che si vogliono utilizzare} 
+verificando successivamente quali (fra quelli 
+specificati) sono utiizzabili. 
 \vspace{1ex} \newline
-Dopodichè inserirà il comando che la vittima dovrà eseguire (o il dato che 
-gli si vuole mandare). Nel caso utilizzasse dei proxy, aspettera che essi 
-inoltrino i dati che la vittima ha inviato a ciascuno di essi. Una volta 
-ricevuti tutti i dati dai proxy, l'attaccante li riordinerà per ricavare 
-il messaggio correttamente. Infine l'attaccante potrà decidere se invire 
-un ulteriore comando o se terminare la comunicazione. In quest'ultimo caso, 
-notificherà l'evento a ciascuno dei proxy. 
-%Inoltre se si volesse mandare un altro comando, si dovranno reimpostare le 
-%variabili necessarie per farlo.Altrimenti si può decidere di interrompere 
-%la comunicazione e in quel caso i proxy ne verranno aggiornati. 
-\end{frame} 
-\begin{frame} 
-\begin{columns}[T,onlytextwidth]
-\column{0.48\textwidth}   
-\justifying 
-Per la comunicazione l'attaccante potrà usare uno 
-(nel caso standard) o più proxy per comunicare con 
-la vittima. In questo caso si prevederà un metodo 
-per poter riordinare i messaggi che l'attaccante ha 
-ricevuto dai proxy. 
-\column{0.48\textwidth} 
-\includegraphics[width=\textwidth]{../Tesi/img/implementazione/struttura attacker.proxy.victim 3.jpg} 
-%\captionof{figure}{Struttura e dialogo delle entità presenti}
-\end{columns} 
-\vspace{5ex} 
-Tuttavia sarà possibile (per l'attaccante) anche 
-comunicare direttamente con la vittima. In questo caso 
-alcune funzioni presenti nel proxy verranno eseguite 
-dall'attaccante (e.g connettersi alla vittima). 
-\end{frame} 
+Dopodichè inserirà il 
+comando che si vorrà far eseguire dalla vititma (o 
+i dati che gli si vuole mandare).  
+Una volta ricevuti tutti i pacchetti, %dai proxy, 
+li riordinerà per ricavare correttamente il dato  
+esfiltrato ed infine potrà decidere se invire un 
+ulteriore comando o se terminare la comunicazione. 
+%In quest'ultimo caso, notificherà l'evento a ciascuno 
+%dei proxy. 
+\end{frame}  
+%\begin{frame} 
+%\begin{columns}[T,onlytextwidth]
+%\column{0.48\textwidth}   
+%\justifying 
+%%Nel caso non si abia una connessione diretta con la 
+%%vittima ma si utilizzino dei proxy come intermediari, 
+%%si aspetterà che essi inoltrino i dati che la vittima 
+%%ha inviato a ciascuno di essi. 
+%Una volta ricevuti tutti i pacchetti, %dai proxy, 
+%l'attaccante li riordinerà per ricavare il messaggio 
+%correttamente. Infine potrà decidere se invire un 
+%ulteriore comando o se terminare la comunicazione. 
+%%In quest'ultimo caso, notificherà l'evento a ciascuno 
+%%dei proxy. 
+%\column{0.48\textwidth} 
+%%\begin{figure}
+%\includegraphics[width=\textwidth]{../Tesi/img/implementazione/struttura attacker.proxy.victim 3.jpg} 
+%%\captionof{figure}{Struttura e dialogo delle entità presenti} 
+%%\end{figure} 
+%\end{columns}  
+%\end{frame} 
 
 \begin{frame} 
 \frametitle{Struttura del Proxy} 
-Durante la fase di inizializzazione, il proxy ha bisogno di sapere l'indirizzo 
-IP dell'attaccante. Questo così da poter accettare solamente la sua connessione; tutte 
-le altre veranno ignorate o scartate. 
+\scriptsize 
 \begin{longtable}{|p{0.2\textwidth}|p{0.75\textwidth}|} 
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
@@ -122,58 +97,99 @@ le altre veranno ignorate o scartate.
     \\ \hline 
     %\caption{Opzioni richieste nel comando del proxy} 
 \end{longtable} 
-Una volta stabilita la connesisone con l'attaccante; che può avvenire sia 
-tramite il protocollo TCP/IP che ICMP, aspetterà che gli venga indicato 
-l'indirizzo IP della vittima, oltre al metodo di attaco scelto. 
+\normalsize 
+Durante la fase di inizializzazione il proxy necessita 
+di sapere l'indirizzo IP dell'attaccante così da 
+stabilire una connessione solamente con lui; 
+tutti i tentativi di connessione provenienti da 
+indirizzi diversi verranno scartati. 
 \vspace{1ex} \newline 
-Ricevuto l'indirizzo ci si assicura che sia possibile comunicare con la 
-vititma. Incaso negativo l'attaccante verrà aggiornato che il proxy non sarà 
-utilizzabile per l'esfiltrazione dei dati. 
-%Altrimenti verrà utilizzato per l'esfiltrazione dei dati dalla vittima. 
-%si occuperà di inoltrare i dati che le due entità si scambiano. 
+Una volta stabilita la connessione, il proxy aspetterà 
+che l'attaccante gli invii l'indirizzo IP della 
+vittima ed il metodo di attaco scelto. 
+Ricevuto l'indirizzo il proxy si assicurerà che la 
+comunicazione con esso sia possibile. Nel caso non 
+sia possibile, il proxy aggiornerà l'attaccante che 
+non potrà essere utilizzato per l'esfiltrazione dei 
+dati dalla vittima. Entrambe le entità procederanno 
+poi alla chiusura della comunicazione.
 \end{frame} 
 \begin{frame} 
-Rimane poi in ascolto che l'attaccante gli invii il comando per la vittima 
-oppure gli notifichi di aspettare direttamente i dati. Questo perchè solo 
-un proxy riceverà il comando da inoltrare. 
-Aspetta poi che la vittima inizi ad inviare i dati da esfiltrare; i quali 
-verranno inoltrati all'attaccante. 
+I successivi messaggi da parte dell'attaccante 
+potranno essere: 
+\begin{itemize} 
+    \item Il messaggio indicante il comando da inoltrare alla vittima. 
+    \item Il messagio indicante che il proxy non ha 
+    ricevuto il comando e che dovrà procedere ad 
+    ascoltare i dati provenienti dalla vittima. 
+    \item Il messaggio indicante la terminazione 
+    della comunicazione. 
+\end{itemize} 
+Inoltrato il comando aspetta poi che la vittima 
+inizi ad inviare i dati che dovranno essere poi 
+inoltrati all'attaccante. 
 \vspace{1ex} \newline 
 Un volta terminato, rimarrà in ascolto di aggiornamenti da parte 
-dell'attaccante; che potranno essere o un nuovo comando oppure la notifica 
+dell'attaccante, che potranno essere o un nuovo comando oppure la notifica 
 sulla chiusura della comunicazione. Nel secondo caso provvederà ad aggiornare 
-la vititma della cosa. 
-\end{frame}
+la vittima della cosa. 
+\end{frame} 
 
-\begin{frame}
+\begin{frame} 
 \frametitle{Vittima}
-\frametitle{Struttura Vittima} 
-La vittima dovrà sapere di quanti proxy connessi ha 
-bisogno (il cui valore minimo è uno). Essi sono necessari sia la ricezione dell 
-comando sia per l'esfiltrazione dei dati.
+\frametitle{Struttura Vittima}
+\scriptsize 
 \begin{longtable}{|p{0.3\textwidth}|p{0.65\textwidth}|} 
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
     \hline
-    Numero dei Proxy & 
-    Numero minimo di proxy necessari per l'esecuzione 
-    dell'attacco. 
+    Numero connesisoni & 
+    Numero minimo di connesisoni necessarie per 
+    l'esecuzione dell'attacco. 
     %Soddisfatto il requisito, la vittima continua con l'esecuzione del comando. 
     \\  \hline 
     %\caption{Opzioni richieste nel comando della vittima} 
 \end{longtable} 
-La vittima rimane in attesa di connessioni da parte 
-dei proxy (o dell'attaccante). Una volta definiti 
-tutti i proxy utilizzabili per la comunicazione, 
-aspetterà di ricevere da uno di loro un comando.
+\normalsize 
+Nella fase di inizializzazione alla vittima verranno 
+indicate la quantità di connessioni attive necessarie 
+per l'esecuzione dell'attacco. Queste connessioni 
+verranno poi usate sia per la ricezione del comando 
+che per l'esfiltrazione dei dati. 
 \vspace{1ex} \newline 
-Una volta ricevuto lo eseguirà ed i dati ricavati (sia 
-quelli relativi all'output che ad eventuali errori) 
-verranno inviati all'attaccante tramite i proxy connessi. 
+In questa fase, il proxy (o l'attaccante) che 
+si vuole connettere indicherà alla vittima anche 
+l'attacco che si userà per lo scambio dei dati. 
+\vspace{1ex} \newline 
+Definiti i porxy disponibili, la vittima aspetterà di 
+ricevere un comando. Alla sua ricezione, lo eseguirà 
+ed i dati ricavati verranno inviati all'attaccante 
+tramite le connessioni precedentemente stabilite. 
 \end{frame}
 
-
-
+\begin{frame}  
+\frametitle{Ulteriori aspetti relativi all'implementazione}
+Si ritiene fondamentale la presenza di più 
+\textbf{proxy intermediari} fra l'attaccante e la 
+vittima. Ciò permette di distribuire in modo 
+omogeneo il carico sulla rete che verrà generato 
+dall'esfiltrazione dei dati. %Se invece si usasse 
+%un singolo proxy, tutto il flusso verrà indirizzato 
+%verso un'unica destinazione
+\vspace{1ex} \newline 
+Un limite alla \textbf{quantità di dati} inviabili 
+in un intervallo di tempo ed un periodo di riposo 
+prima di poterne inviare degli altri. Questo per 
+permettere l'invio di file di grosse dimensioni 
+evitando di congestionare il canale di comunicazione. 
+\vspace{1ex} \newline 
+L'invio di un \textbf{messaggi di tipo Request} 
+richiede la ricezione di una risposta; che 
+normalmente sarà uguale al messaggio inviato. Una 
+soluzione può essere l'invio di soli messaggi di 
+tipo Reply oppure la disabilitazione delle risposte 
+così da poterne inviare una noi stessi. 
+\end{frame} 
 
 
 
