@@ -1,20 +1,28 @@
+\frametitle{Test e Risultati}
+Inizialmente si sono effettuati test in cui si inviava
+il dato una singola volta. Dai risultati ottenuti si
+ottiene che RITA non ha mostrato la presenza dei
+Covert Channel.
+%siccome i dati sono stati mandati
+%una singola volta.
+\vspace{2ex} \newline
+Uno step successivo per l'esecuzione dei test è l'invio
+degli stessi dati più volte (in particolare tre volte).
+Inoltre al test si aggiungeranno dei parametri così da
+poter verificare meglio cosa avviene. L'obbiettivo è
+determinare come RITA risponde alle comunicazioni con
+queste caratteristiche.
 \scriptsize
-\begin{lstlisting}
-data='m'
-data.hex=0x6D
-data.bytes=b'0110 1101'
-
-#PRIMO EVENTO
-Maschera il byte con b'11110000' per ottenere: 0x60
-Effettua lo shift a destra per ottenere: 0x06 (0110)
-Si ottiene come tipologia: Time Exceeded (tipo 11)
-Si ottiene come codice: 0 (Time to Live exceeded in Transit)
-Invia un messaggio ICMP Time Exceeded con codice 0
-
-#SECONDO EVENTO
-Maschera il byte con b'00001111' per ottenere: 0x0D (1101)
-Si ottiene come tipologia: Redirect (tipo 5)
-Si ottiene come codice: 3 (Redirect for the host)
-Invia un messaggio ICMP Redirect con codice 3
-\end{lstlisting}
-\captionof{lstlisting}{Esempio dell'invio di un byte}
+\begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+    \hline
+    \textbf{Parametro} & \textbf{Possibili valori} \\
+    \hline
+    Quantità di dati inviati & 1KB, 10KB, 100KB, 1MB \\  \hline
+    L'utilizzo dei campi usati nei messagi ICMP & unused, data \\ \hline
+    Delay fra i blocchi di dati &  Nessuno, 15 secondi \\ \hline
+    Attesa prima di un nuovo invio & 1 ora, 30 minuti, 15 minuti \\  \hline
+    Il mittente del messaggio & IP dell'host, IP assegnati nell rete, IP non assegnati nella rete \\ \hline
+    \caption{Parametri usati nei test}
+\end{longtable}
+%Il Covert Channel utilizzato durante la fase di test
+%è quello che utilizza i messaggi ICMP ECHO.
