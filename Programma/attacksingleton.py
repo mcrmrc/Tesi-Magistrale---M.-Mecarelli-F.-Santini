@@ -250,13 +250,14 @@ class SendSingleton:
                 case _: raise Exception(f"Tipologia non conosciuta: {self.tipologia}") 
         else: raise Exception("IP destinazione non valido: ",ip_dst)
         self.send_host_attivi(ip_dst) 
+        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
         for i in range(0, len(data), block_size): 
             if self.use_delay: 
                 print("#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n")
                 print("Waiting...")
                 time.sleep(random.uniform(min_wait,max_wait)) 
             try:
-                sender.send(data[i:i+block_size],self.type_attacco) 
+                sender.send(data[i:i+block_size],self.type_attacco,ip_src) 
             except Exception as e: 
                 print("send data IPV4: ",e) 
         sender.send_last()
@@ -584,8 +585,8 @@ class IPV4_INFORMATION(_IPx):
     def wait(self):
         super().wait([self.INFORMATION_REQ, self.INFORMATION_REP]) 
     
-    def send(self, data:bytes=None, type_attacco:Enum=None): 
-    #def ipv4_information(self, data:bytes=None): 
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None): 
+        #def ipv4_information(self, data:bytes=None): 
         if not IS_TYPE.bytes(data):
             raise Exception(f"data non byte") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=4: 
@@ -594,7 +595,8 @@ class IPV4_INFORMATION(_IPx):
             self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
             self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4: #ip_src:ipaddress.IPv4Address=None
+            raise Exception("ip_src non valido") 
         for index in range(0, len(data), 2): 
             if index==len(data)-1 and len(data)%2!=0:
                 icmp_id=(data[index]<<8)
@@ -642,7 +644,7 @@ class IPV4_TIMESTAMP(_IPx):
     def wait(self):
         super().wait([self.TIMESTAMP_REQ, self.TIMESTAMP_REP])  
     
-    def send(self, data:bytes=None, type_attacco:Enum=None):  
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None):  
         if not IS_TYPE.bytes(data): 
             raise Exception("data non validi")
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=4:
@@ -651,7 +653,8 @@ class IPV4_TIMESTAMP(_IPx):
             self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
             self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface  
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         for index in range(0, len(data), 5): 
             try:
                 icmp_id=icmp_id=(data[index]<<8)+data[index+1]  
@@ -730,7 +733,7 @@ class IPV4_REDIRECT(_IPx):
     def wait(self):
         super().wait([self.REDIRECT]) 
     
-    def send(self, data:bytes=None, type_attacco:Enum=None):  
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None):  
         if not IS_TYPE.bytes(data): 
             raise Exception(f"data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=4:
@@ -739,7 +742,8 @@ class IPV4_REDIRECT(_IPx):
             self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
             self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface     
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         for index in range(0, len(data), 9): 
             #icmp_id=(data[index]<<8)+data[index+1]
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", proto=1 ,
@@ -793,7 +797,7 @@ class IPV4_SOURCE_QUENCH(_IPx):
     def wait(self):
         super().wait([self.SOURCE_QUENCH]) 
     
-    def send(self, data:bytes=None, type_attacco:Enum=None): 
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None): 
         def get_packet(): 
             #nonlocal self, data, index, ip_src
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", proto=1, 
@@ -850,7 +854,8 @@ class IPV4_SOURCE_QUENCH(_IPx):
         if type_attacco.name.endswith("_unused"): 
             step_data=13
         else: step_data=9
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         for index in range(0, len(data), step_data): 
             if type_attacco.name.endswith("_unused"): pkt=get_packet_unused()
             else: pkt=get_packet()
@@ -903,7 +908,7 @@ class IPV4_PARAMETER_PROBLEM(_IPx):
     def wait(self):
         super().wait([self.PARAMETER_PROBLEM]) 
     
-    def send(self, data:bytes=None, type_attacco:Enum=None): 
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None): 
         def get_packet(): 
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", proto=1, 
                     len=int.from_bytes(data[index+1:index+3]), 
@@ -960,7 +965,8 @@ class IPV4_PARAMETER_PROBLEM(_IPx):
         if type_attacco.name.endswith("_unused"): 
             step_data=13
         else: step_data=10 
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         for index in range(0, len(data), step_data): 
             if type_attacco.name.endswith("_unused"): pkt=get_packet_unused()
             else: pkt=get_packet()
@@ -1006,7 +1012,7 @@ class IPV4_TIME_EXCEEDED(_IPx):
     def wait(self): 
         super().wait([self.TIME_EXCEEDED])  
         
-    def send(self, data:bytes=None, type_attacco:Enum=None):  
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None):  
         def get_packet(): 
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", proto=1, 
                         len=int.from_bytes(data[index:index+2]), 
@@ -1060,8 +1066,9 @@ class IPV4_TIME_EXCEEDED(_IPx):
             raise Exception("type_attacco non valido: ") 
         if "_unused" in type_attacco.name: 
             step_data=13
-        else: step_data=9
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+        else: step_data=9 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4: 
+            raise Exception("ip_src non valido")  
         for index in range(0, len(data), step_data):
             if step_data==13: pkt=get_packet_unused()
             else: pkt=get_packet()
@@ -1080,7 +1087,7 @@ class IPV4_TIME_EXCEEDED(_IPx):
 
 class IPV4_DESTINATION_UNRECHABLE(_IPx): 
     DESTINATION_UNREACHABLE=ICMP_TYPE.v4_DestinationUnreachable 
-
+    
     def get_callback(self): 
         def callback(packet): 
             nonlocal self 
@@ -1113,7 +1120,7 @@ class IPV4_DESTINATION_UNRECHABLE(_IPx):
     def wait(self):
         super().wait([self.DESTINATION_UNREACHABLE])  
     
-    def send(self, data:bytes=None, type_attacco:Enum=None):  
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None):  
         def get_packet():
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", proto=1 ,
                     len=int.from_bytes(data[index:index+2]), 
@@ -1167,8 +1174,9 @@ class IPV4_DESTINATION_UNRECHABLE(_IPx):
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_unused"): 
             step_data=13
-        else: step_data=9
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+        else: step_data=9 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         for index in range(0, len(data), step_data):
             #if step_data==13: pkt=get_packet_unused()
             if type_attacco.name.endswith("_unused"): pkt=get_packet_unused()
@@ -1229,7 +1237,7 @@ class IPV4_ECHO(_IPx):
     def wait(self):  
         super().wait([self.ECHO_REQ, self.ECHO_REP])  
     
-    def send(self, data:bytes=None, type_attacco:Enum=None): 
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None): 
         def get_packet_campi(): 
             nonlocal identifier
             if index==len(data)-1 and len(data)%2!=0:
@@ -1306,7 +1314,8 @@ class IPV4_ECHO(_IPx):
         elif type_attacco.name.endswith("_random_payload"):
             step_data=random.choice([32+2,64+2,128+2])
         else: raise Exception("args non valido") 
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         identifier=0
         for index in range(0, len(data), step_data): 
             #if step_data==2: pkt=get_packet_campi()
@@ -1385,7 +1394,7 @@ class IPV4_TIMING(_IPx):
         else: type_list=[x for x in type_list if IS_TYPE.integer(x)] 
         super().wait(type_list)  
     
-    def send(self, data:bytes=None, type_attacco:Enum=None): 
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None): 
         def old_send(): 
             bit_data=[]
             for piece_data in data: #dal byte estraggo i bit  
@@ -1422,8 +1431,9 @@ class IPV4_TIMING(_IPx):
         if not self.dst_mac:
             self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
+            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         if not ip_src: 
             raise ValueError("ip_src non valido") 
         pkt= Ether(dst=self.dst_mac)/\
@@ -1549,7 +1559,7 @@ class IPV4_TIMING_8BIT(_IPx):
             for b in self.data
         )
 
-    def send(self, data:bytes=None, type_attacco:Enum=None):
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None):
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=4: 
@@ -1571,7 +1581,8 @@ class IPV4_TIMING_8BIT(_IPx):
             ICMP(id=self.stop_integer, seq=self.stop_integer)/\
             Raw("hello neighour!!!") 
         sendp(pkt, verbose=1, iface=interface) 
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         for byte in data:   
             delay=self.min_delay+(byte/255)*(self.max_delay-self.min_delay)
             print(f"Delay :{byte}\t{delay}\n")
@@ -1689,7 +1700,7 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
         power_sleep.keep_preventing_sleep=False
         power_sleep.allow_sleep()
     
-    def send(self, data:bytes=None, type_attacco:Enum=None): 
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None): 
         #Il rumore serve per non mandare sempre con lo stesso intervallo di tempo. 
         #tuttavia andrà aggiunto al minimo e al massimo per evitare errori nel calcolo del delay
         if not IS_TYPE.bytes(data): 
@@ -1722,7 +1733,8 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
             ICMP(id=self.stop_integer, seq=self.stop_integer)/\
             Raw(load=(0).to_bytes(signed=True)) 
         sendp(pkt, verbose=1, iface=self.interface) 
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=4:  
+            raise Exception("ip_src non valido")  
         for byte in data:   
             delay=self.min_delay+(byte/255)*(self.max_delay-self.min_delay)
             #print(f"Delay:{chr(byte)} {byte}\t{delay}") 
@@ -1773,7 +1785,7 @@ class IPV6_ECHO(_IPx):
     def wait(self): 
         super().wait([self.ECHO_REQ, self.ECHO_REP])  
     
-    def send(self, data:bytes=None): 
+    def send(self, data:bytes=None, ip_src:ipaddress.IPv4Address=None): 
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=6: 
@@ -1781,8 +1793,9 @@ class IPV6_ECHO(_IPx):
         if not self.dst_mac: 
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
-            raise ValueError("interface non valida")
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
+            raise ValueError("interface non valida") 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=6:  
+            raise Exception("ip_src non valido")  
         if not IS_TYPE.ipaddress(ip_src): 
             raise ValueError("ip_src non valido")
         src_mac=(
@@ -1851,7 +1864,7 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
     def wait(self):      
         super().wait([self.PARAMETER_PROBLEM]) 
     
-    def send(self, data:bytes=None):  
+    def send(self, data:bytes=None, ip_src:ipaddress.IPv4Address=None):  
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=6: 
@@ -1860,8 +1873,9 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
             raise ValueError("interface non valida")
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
-        ip_src=NETWORK.IP.find_local_IP() 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=6:  
+            raise Exception("ip_src non valido")  
+        #ip_src=NETWORK.IP.find_local_IP() 
         if not IS_TYPE.ipaddress(ip_src): 
             raise ValueError("ip_src non valido")
         src_mac=(
@@ -1951,7 +1965,7 @@ class IPV6_TIME_EXCEEDED(_IPx):
     def wait(self, type_list:list[int]=None):      
         super().wait([self.TIME_EXCEEDED]) 
     
-    def send(self, data:bytes=None): 
+    def send(self, data:bytes=None, ip_src:ipaddress.IPv4Address=None): 
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=6: 
@@ -1959,8 +1973,9 @@ class IPV6_TIME_EXCEEDED(_IPx):
         if not self.dst_mac: 
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
-            raise ValueError("interface non valida")
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
+            raise ValueError("interface non valida") 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=6:  
+            raise Exception("ip_src non valido")  
         if not IS_TYPE.ipaddress(ip_src): 
             raise ValueError("ip_src non valido")
         src_mac=(
@@ -2045,7 +2060,7 @@ class IPV6_PACKET_BIG(_IPx):
     def wait(self, type_list:list[int]=None):      
         super().wait([self.PACKET_BIG]) 
     
-    def send(self, data:bytes=None): 
+    def send(self, data:bytes=None, p_src:ipaddress.IPv4Address=None): 
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=6: 
@@ -2053,8 +2068,9 @@ class IPV6_PACKET_BIG(_IPx):
         if not self.dst_mac: 
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
-            raise ValueError("interface non valida")
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)) if self.host_attivi else None 
+            raise ValueError("interface non valida") 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=6:  
+            raise Exception("ip_src non valido")  
         if not IS_TYPE.ipaddress(ip_src): 
             raise ValueError("ip_src non valido")
         src_mac=(
@@ -2143,7 +2159,7 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
     def wait(self, type_list:list[int]=None):      
         super().wait([self.DESTINATION_UNREACHABLE])  
     
-    def send(self, data:bytes=None):  
+    def send(self, data:bytes=None, ip_src:ipaddress.IPv4Address=None):  
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=6: 
@@ -2152,7 +2168,8 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
             raise ValueError("interface non valida")
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)) if self.host_attivi else None 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=6:  
+            raise Exception("ip_src non valido")  
         if not IS_TYPE.ipaddress(ip_src): 
             raise ValueError("ip_src non valido")
         src_mac=(
@@ -2264,7 +2281,7 @@ class IPV6_TIMING(_IPx):
     def wait(self, type_list:list[int]=None):      
         super().wait(type_list) 
     
-    def send(self, data:bytes=None, type_attacco:Enum=None): 
+    def send(self, data:bytes=None, type_attacco:Enum=None, ip_src:ipaddress.IPv4Address=None): 
         def old_send(): 
             bit_data=[] 
             for piece_data in data: #BIG ENDIAN
@@ -2292,8 +2309,9 @@ class IPV6_TIMING(_IPx):
         if not self.dst_mac: 
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
-            raise ValueError("interface non valida")
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None 
+            raise ValueError("interface non valida") 
+        if not IS_TYPE.ipaddress(self.ip_src) or self.ip_src.version!=6:  
+            raise Exception("ip_src non valido")  
         if not IS_TYPE.ipaddress(ip_src): 
             raise ValueError("ip_src non valido")
         src_mac=(
