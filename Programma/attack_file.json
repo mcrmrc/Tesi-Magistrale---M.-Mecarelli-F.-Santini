@@ -16,4 +16,5 @@
         "192.168.56.xxx"
     ]
     ,"attack_function":"1"
+    ,"proxy_port":"7654" 
 }
