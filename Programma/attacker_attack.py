@@ -24,80 +24,72 @@ from scapy.all import *
 #import attacksingleton 
 from attacksingleton import * 
 
-
-#-----------------------------------------
-def separa_dati_byID(received_data:dict[str,list]):
-    dati_separati:dict[str,list]=[]
-    unindent_data=[]
-    ## dati_separati={id:lista}
-    for list_data in received_data.values(): 
-        if isinstance(list_data, bytes):
-                list_data=list_data.decode()
-        else: print(type(data))
-        for data in list_data.split("||"): 
-            unindent_data.append([x for x in data])
-    #print("unindent_data: ",unindent_data)    
-    for list_data in unindent_data:
-        #print("list_data: ",list_data)
-        #print(f"\t***{list_data}")
-        if isinstance(list_data, bytes):
-                list_data=list_data.decode()
-        else: print(type(data))
-        list_data=list_data.split("&&")
-        if len(list_data)!=2:
-            print(f"Errore. Length is {len(list_data)}\t{list_data}")
-            continue
-        if dati_separati.get(list_data[0]) is None:
-            dati_separati.update({list_data[0]:[]}) 
-        dati_separati.get(list_data[0]).append(list_data[1]) 
-    return dati_separati
-
-def old_separa_dati_byID(received_data:dict[str,list], dati_separati:dict[str,list]):
-    unindent_data=[]
-    ## dati_separati={id:lista}
-    for list_data in received_data.values():
-        for data in list_data:
-            if isinstance(data, bytes):
-                data=data.decode()
-            if isinstance(data, str):
-                data=data.split("||")
+class Methods_Analyze_Data:
+    def separa_dati_byID(received_data:dict[str,list]):
+        dati_separati:dict[str,list]=[]
+        unindent_data=[]
+        ## dati_separati={id:lista}
+        for list_data in received_data.values(): 
+            if isinstance(list_data, bytes):
+                    list_data=list_data.decode()
             else: print(type(data))
-            #print("Separa: ",data) 
-            unindent_data.append([x for x in data])
-    #print("unindent_data: ",unindent_data)    
-    for list_data in unindent_data:
-        #print("list_data: ",list_data)
-        #print(f"\t***{list_data}")
-        for index in range(len(list_data)):
-            #print(f"AAAA: {index}/{len(list_data)}")
-            if not list_data[index]: 
+            for data in list_data.split("||"): 
+                unindent_data.append([x for x in data])
+        #print("unindent_data: ",unindent_data)    
+        for list_data in unindent_data:
+            #print("list_data: ",list_data)
+            #print(f"\t***{list_data}")
+            if isinstance(list_data, bytes):
+                    list_data=list_data.decode()
+            else: print(type(data))
+            list_data=list_data.split("&&")
+            if len(list_data)!=2:
+                print(f"Errore. Length is {len(list_data)}\t{list_data}")
                 continue
-            #print(f"\t***{list_data[index]}") 
-            if isinstance(list_data[index],bytes):
-                data=list_data[index].decode()
-            if isinstance(list_data[index],str): 
-                data=list_data[index].split("\t")
-            #print("***DATA: ",data) 
-            if dati_separati.get(data[1]) is None:
-                dati_separati.update({data[1]:[]}) 
-            dati_separati.get(data[1]).append(data)   
+            if dati_separati.get(list_data[0]) is None:
+                dati_separati.update({list_data[0]:[]}) 
+            dati_separati.get(list_data[0]).append(list_data[1]) 
+        return dati_separati
 
-def unisciDati(dati_separati:dict[str:list]):
-    payload=[] 
-    for index in range(len(dati_separati)): 
-        #print("DATI: ",dati_separati.get(str(index))) 
-        for data in dati_separati.get(str(index)):
-            if data[2]==MSG.LAST_PACKET:
-                continue
-            payload.append(data[2])
-    return payload
+    def old_separa_dati_byID(received_data:dict[str,list], dati_separati:dict[str,list]):
+        unindent_data=[]
+        ## dati_separati={id:lista}
+        for list_data in received_data.values():
+            for data in list_data:
+                if isinstance(data, bytes):
+                    data=data.decode()
+                if isinstance(data, str):
+                    data=data.split("||")
+                else: print(type(data))
+                #print("Separa: ",data) 
+                unindent_data.append([x for x in data])
+        #print("unindent_data: ",unindent_data)    
+        for list_data in unindent_data:
+            #print("list_data: ",list_data)
+            #print(f"\t***{list_data}")
+            for index in range(len(list_data)):
+                #print(f"AAAA: {index}/{len(list_data)}")
+                if not list_data[index]: 
+                    continue
+                #print(f"\t***{list_data[index]}") 
+                if isinstance(list_data[index],bytes):
+                    data=list_data[index].decode()
+                if isinstance(list_data[index],str): 
+                    data=list_data[index].split("\t")
+                #print("***DATA: ",data) 
+                if dati_separati.get(data[1]) is None:
+                    dati_separati.update({data[1]:[]}) 
+                dati_separati.get(data[1]).append(data)   
 
-#----------------------------------------- 
-
-
-def restart_thread(thread_list:dict[str:threading.Thread]): 
-    for thread in thread_list.values():
-        thread.start()
+    def unisciDati(dati_separati:dict[str:list]):
+        payload=[] 
+        for index in range(len(dati_separati)): 
+            #print("DATI: ",dati_separati.get(str(index))) 
+            for data in dati_separati.get(str(index)):
+                if data[2]==MSG.LAST_PACKET:
+                    continue
+                payload.append(data[2])
+        return payload
 
 class Proxy_Data: 
     def __init__(self, proxy:ipaddress._IPAddressBase): 
@@ -225,42 +217,61 @@ def load_config_file(path_of_file):
         print(f"File di configurazione {path_of_file} caricato correttamente") 
         return json.load(file) 
 
-class GET_ARGS:  
-    def from_parser(oggetto=None): 
-        if isinstance(oggetto,Attacker): 
-            print("_attacker_get_args_from_parser") 
+class Get_Command_Args: 
+    def init__(self, oggetto=None): 
+        def _attaccante(): 
             parser = argparse.ArgumentParser()
             parser.add_argument("--file_path",type=str, help="File di configurazione")  
+            try: 
+                args,unknown =PARSER.check_arguments(parser) 
+                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
+                if not args.file_path or not IS_TYPE.string(args.file_path): 
+                    print(f"--file_path non specificato") 
+                    return None 
+                return args 
+            except Exception as e: 
+                print(e) 
+                PARSER.print_supported_arguments(parser) 
+        def _proxy(): 
+            parser = argparse.ArgumentParser()
+            parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante") 
             try:
                 args,unknown =PARSER.check_arguments(parser) 
                 if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                return args if GET_ARGS.check_value_in_parser(oggetto, args) else None
-            except Exception as e:
+                if not args.ip_attaccante or not IS_TYPE.string(args.ip_attaccante): 
+                    print(f"--ip_attaccante non specificato") 
+                    return None
+                return args 
+            except Exception as e: 
                 print(e)
                 PARSER.print_supported_arguments(parser) 
-        #elif isinstance(oggetto,Proxy): 
-        #    print("Proxy") 
-        #elif isinstance(oggetto,Victim): 
-        #    print("Proxy") 
-        return None
-    
-    def check_value_in_parser(oggetto, args): 
-        if not isinstance(args,argparse.Namespace): 
-            print(f"args non valido") 
-        if isinstance(oggetto,Attacker):  
-            if not args.file_path or not IS_TYPE.string(args.file_path): 
-                print(f"--file_path non specificato") 
-            else: return True 
-        #elif isinstance(oggetto,Proxy):  
-        #    if not args.file_path or not IS_TYPE.string(args.file_path): 
-        #        print(f"--file_path non specificato") 
-        #    else: return True 
-        #elif isinstance(oggetto,Victim):  
-        #    if not args.file_path or not IS_TYPE.string(args.file_path): 
-        #        print(f"--file_path non specificato") 
-        #    else: return True
-        return False
+        def _victim(): 
+            parser = argparse.ArgumentParser()
+            parser.add_argument("--num_proxy",type=int, help="Numero dei proxy necessari")
+            try:
+                args,unknown =PARSER.check_arguments(parser) 
+                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
+                if not args.num_proxy or not IS_TYPE.integer(args.num_proxy): 
+                    print(f"--num_proxy non specificato") 
+                    return None
+                return args 
+            except Exception as e: 
+                print(e)
+                PARSER.print_supported_arguments(parser) 
+        #------------------------------
+        if not isinstance(oggetto,Attacker): #TODO Aggiungere or not isinstance(oggetto,Proxy) or not isinstance(oggetto,Victim):
+            raise TypeError(f"Oggetto {oggetto} non valido")
+        self.oggetto=oggetto 
+        if isinstance(self.oggetto,Attacker): 
+            self.args=_attaccante()
+        #elif isinstance(self.oggetto,Proxy): 
+        #    self.args=_proxy()
+        #elif isinstance(self.oggetto,Victim): 
+        #    self.args=_victim()  
+        return None 
 
 class MSG_CONFIG(Enum): 
     attack_method="attack_function" 
@@ -315,14 +326,13 @@ class ICMP_THREAD:
             #thread.wait()  
             thread.join()  
         print("Thread ICMP terminati")
-
 #-----------------------------------------  
 default_file_path:str = "./attack_file.json" 
 proxy_port=4567 
 
 class Attacker: 
     dati_separati={} 
-    connected_proxy:CONNECTED_PROXY=None 
+    connected_proxy:Connected_Proxy=None 
 
     attack_type:AttackType=None
     ip_vittima:ipaddress._IPAddressBase=None
@@ -364,7 +374,7 @@ class Attacker:
             print(f"Lista proxy sanificata") 
             return proxy_list 
         #--------------------------
-        args=GET_ARGS.from_parser(self)  
+        args=Get_Command_Args().args   
         if not IS_TYPE.namespace(args): 
             exit(-1) 
         try: 
@@ -380,7 +390,7 @@ class Attacker:
         #while not IS_TYPE.ipaddress(self.ip_host): 
         #    self.ip_host=get_ip_host() 
         print(f"ip_host: {type(self.ip_host)} {self.ip_host}") 
-        self.connected_proxy=CONNECTED_PROXY(get_proxy_list()) 
+        self.connected_proxy=Connected_Proxy(get_proxy_list()) 
         print(f"Got all connected proxy") 
         if len(self.connected_proxy.proxy_list)<=0: 
             print("Nessun Proxy disponibile")
@@ -420,14 +430,14 @@ class Attacker:
             print("Separazione dati per SEQ") 
             try:
                 print("ABCDEFG: ",self.received_data)
-                self.dati_separati= separa_dati_byID(self.received_data) 
+                self.dati_separati= Methods_Analyze_Data.separa_dati_byID(self.received_data) 
                 print("ABCDEFG: ",self.dati_separati)
             except Exception as e:
                 print(f"send_command_to_victim separa: {e}")
             #print("\n***dati_separati: ", self.dati_separati) 
             print("Dati separati per Sequenza")   
             try:
-                payload=unisciDati(self.dati_separati)
+                payload=Methods_Analyze_Data.unisciDati(self.dati_separati)
                 print(payload)
             except Exception as e:
                 print("aiuto eccezzione: ",e) 
@@ -441,18 +451,13 @@ class Attacker:
             socket_proxy.sendall(MSG.END_COMMUNICATION.encode()) 
             socket_proxy.close()
 
-    
-    
     def wait_data_from_proxy(self,proxy:ipaddress.IPv4Address|ipaddress.IPv6Address):  
         print("wait_data_from_proxy")
         self.data_lock.acquire()
         proxy_data=self.received_data.get(proxy.compressed)
-        self.data_lock.release()
-
-        proxy_socket=self.dict_proxy_socket.get(proxy.compressed)
-        #print("UUU: ",proxy_socket)
-        while(data:=proxy_socket.recv(1024)): 
-            #print(f"AAA:{proxy.compressed}: {data}",file=sys.stdout,flush=True)
+        self.data_lock.release() 
+        proxy_socket=self.dict_proxy_socket.get(proxy.compressed) 
+        while(data:=proxy_socket.recv(1024)):  
             #print("proxy_data: ",proxy_data)
             self.data_lock.acquire() 
             proxy_data.append(data) 
@@ -463,8 +468,7 @@ class Attacker:
         print("Received all data") 
         return 
     
-    def reset_variables(self):
-        reset_event_update_foreach_proxy(self.proxy_list, self.event_thread_update) 
+    def reset_variables(self): 
         self.thread_list={}
         self.dati_separati={}
         self.received_data:dict[str,list]={}
@@ -481,23 +485,12 @@ class Attacker:
             self.thread_list.update({proxy.compressed:thread})
         for proxy in self.proxy_list:
             self.event_thread_update.get(proxy.compressed).clear() 
-        restart_thread(self.thread_list) 
-
-        #mythread.setup_thread_foreach_address(self.proxy_list, self.wait_data_from_proxy)
-        
-        #thread=threading.Thread(
-        #    target= callback_function #wait_proxy_update
-        #    ,args=[proxy]
-        #) 
-        #thread_list.update({proxy.compressed:thread})
-        #thread.start() 
-        
+        for thread in self.thread_list.values():
+            thread.start() 
         #if want_to_choose_new_attack():
         #    self.attack_function=choose_new_attack() 
         #if want_to_choose_new_victim:
-        #   self.ip_vittima= choose_new_victim() 
-    
-    
+        #   self.ip_vittima= choose_new_victim()  
 
 if __name__=="__main__": 
     attacker=Attacker() 
