@@ -218,12 +218,12 @@ class Get_Command_Args:
                 if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
                 if not args.file_path or not IS_TYPE.string(args.file_path): 
-                    print(f"--file_path non specificato") 
-                    return None 
+                    raise ValueError(f"--file_path non specificato") 
                 return args 
             except Exception as e: 
                 print(e) 
                 PARSER.print_supported_arguments(parser) 
+            return None 
         def _proxy(): 
             parser = argparse.ArgumentParser()
             parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante") 
@@ -232,12 +232,12 @@ class Get_Command_Args:
                 if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
                 if not args.ip_attaccante or not IS_TYPE.string(args.ip_attaccante): 
-                    print(f"--ip_attaccante non specificato") 
-                    return None
+                    raise ValueError(f"--ip_attaccante non specificato") 
                 return args 
             except Exception as e: 
                 print(e)
                 PARSER.print_supported_arguments(parser) 
+            return None
         def _victim(): 
             parser = argparse.ArgumentParser()
             parser.add_argument("--num_proxy",type=int, help="Numero dei proxy necessari")
@@ -246,22 +246,22 @@ class Get_Command_Args:
                 if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
                 if not args.num_proxy or not IS_TYPE.integer(args.num_proxy): 
-                    print(f"--num_proxy non specificato") 
-                    return None
+                    raise ValueError(f"--num_proxy non specificato") 
                 return args 
             except Exception as e: 
                 print(e)
                 PARSER.print_supported_arguments(parser) 
+            return None 
         #------------------------------
         if not isinstance(oggetto,Attacker): #TODO Aggiungere or not isinstance(oggetto,Proxy) or not isinstance(oggetto,Victim):
             raise TypeError(f"Oggetto {oggetto} non valido")
         self.oggetto=oggetto 
         if isinstance(self.oggetto,Attacker): 
-            self.args=_attaccante()
+            return _attaccante()
         #elif isinstance(self.oggetto,Proxy): 
-        #    self.args=_proxy()
+        #    return _proxy()
         #elif isinstance(self.oggetto,Victim): 
-        #    self.args=_victim()  
+        #    return _victim()  
         return None 
 
 class MSG_CONFIG(Enum): 
@@ -425,10 +425,10 @@ class Attacker:
         print(f"Got all connected proxy") 
         if len(self.connected_proxy.proxy_list)<=0: 
             print("Nessun Proxy disponibile")
-            exit(0)  
-        self.connected_proxy.connect2proxies(config_args.ip_vittima,config_args.attack_type)
-        self.connected_proxy.start() 
-        self.connected_proxy.wait() 
+            exit(0) 
+        self.connected_proxy.connect2proxies(
+            config_args.ip_vittima,config_args.attack_type
+        )
         #thread_list=connected_proxy.Proxy_Thread
         #dict_proxy_socket=connected_proxy.Proxy_Socket 
     
