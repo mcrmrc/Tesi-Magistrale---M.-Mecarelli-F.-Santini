@@ -6,8 +6,7 @@ import sys
 import os 
 import argparse 
 import random
-import threading
-from functools import partial 
+import threading 
 import json 
 import socket 
 
@@ -22,7 +21,7 @@ from get_type import *
 #sys.path.insert(0, directory)
 #import attacksingleton 
 from attacksingleton import *  
-
+from network import IP
 
 
 class DATA: 
@@ -394,7 +393,7 @@ class ARGS_CONFIG:
             return None 
         
         def get_ip_host(self): 
-            ip_host, errore=NETWORK.IP.find_local_IP() 
+            ip_host, errore=IP.find_local_IP() 
             if errore:
                 print("errore:",errore)  
                 msg="Inserire indirizzo IP dell'host:\n\t#" 

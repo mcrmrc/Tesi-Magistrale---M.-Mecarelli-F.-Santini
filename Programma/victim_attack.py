@@ -12,6 +12,7 @@ import ipaddress
 
 from mymethods import *
 from custom_enum import * 
+from network import *
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)
@@ -115,7 +116,7 @@ def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Even
 class ADD_TO_METHODS:
     def get_ip_host(): 
         while True: 
-            ip_host, errore=NETWORK.IP.find_local_IP() 
+            ip_host, errore=IP.find_local_IP() 
             if errore:
                 print("errore:",errore)  
                 msg="Inserire indirizzo IP dell'host:\n\t#" 
@@ -416,7 +417,7 @@ class Victim:
                 raise TypeError("ip_host non valido") 
             if not is_threading_Timer(timer): 
                 raise TypeError("non è threading.Timer",type(timer))
-            interface=NETWORK.DEFAULT_INTERFACE().default_iface 
+            interface=DEFAULT_INTERFACE().default_iface 
             if interface is None: 
                 raise ValueError("interface is None",interface) 
             print("Monitoring interface->",interface) 
@@ -479,7 +480,7 @@ class Victim:
         print("IP della macchina:", self.ip_host) 
         print("Proxy richiesti:",self.num_proxy) 
         try: 
-            #NETWORK.FIREWALL.disable() #TODO decommentare 
+            #FIREWALL.disable() #TODO decommentare 
             self.wait_connections() 
             if DEBUG: 
                 print("DEBUG -> check_num_proxy")
@@ -517,10 +518,10 @@ class Victim:
             print("Closing connection")
         except Exception as e:
             print(e)
-            NETWORK.FIREWALL.enable()
+            FIREWALL.enable()
             exit(1) 
         finally: 
-            NETWORK.FIREWALL.enable() 
+            FIREWALL.enable() 
     
     
     def wait_command(self)->str: 
