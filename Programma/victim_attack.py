@@ -19,7 +19,8 @@ from custom_enum import *
 #import attacksingleton 
 from attacksingleton import * 
 from attacksingleton import _IPx
-from custom_enum import SENDER_TRUE_SENDER, MSG
+from custom_enum import SENDER_TRUE_SENDER, MSG 
+from get_type import *
 
 #---------------------
 
@@ -143,8 +144,8 @@ class CONNECTED_PROXY:
 
     def __init__(self): 
         self.proxy_list=[]
-        self.lock=GET.threading_Lock() 
-        self.enough_event=GET.threading_Event()
+        self.lock=get_threading_Lock() 
+        self.enough_event=get_threading_Event()
 
 class GET_ARGS:  
     def from_parser(oggetto=None): 
@@ -228,7 +229,7 @@ class Victim:
                 raise TypeError("numero non valido->",num_proxy)  
             self.vittima=vittima 
             self.num_proxy=num_proxy
-            self.event_enough_proxy=GET.threading_Event() 
+            self.event_enough_proxy=get_threading_Event() 
             if not is_threading_Event(self.event_enough_proxy): 
                 raise TypeError("non threading.Event",type(self.event_enough_proxy))
             self.connected_proxy=CONNECTED_PROXY() 
@@ -266,7 +267,7 @@ class Victim:
                     print("Continuo ad aspettare...") 
                     if is_threading_Timer(self.timer): 
                         self.timer.cancel()
-                    self.timer=GET.timer(WAITING_TIME, self.callback_timer()) 
+                    self.timer=get_timer(WAITING_TIME, self.callback_timer()) 
                     if not is_threading_Timer(self.timer): 
                         raise TypeError("non è threading.Timer",type(self.timer))
                     self.timer.start() 
@@ -410,7 +411,7 @@ class Victim:
                     #,"store":False 
                     ,"iface":interface
                 } 
-                return GET.AsyncSniffer(sniff_args) 
+                return get_AsyncSniffer(sniff_args) 
             if not is_ipaddress(ip_host): 
                 raise TypeError("ip_host non valido") 
             if not is_threading_Timer(timer): 
@@ -445,7 +446,7 @@ class Victim:
         object_wait_proxy=self.WAIT_PROXIES(
             self, self.num_proxy
         ) 
-        object_wait_proxy.timer:threading.Timer=GET.timer(
+        object_wait_proxy.timer:threading.Timer=get_timer(
             WAITING_TIME, 
             lambda:object_wait_proxy.callback_timer()
         ) 
@@ -570,7 +571,7 @@ class Victim:
             raise ValueError("comando non stringa",comando) 
         #comando=append_END_DATA(comando) 
         print("COMANDO",comando)
-        process_shell=GET.shellProcess_command(comando)  
+        process_shell=get_shellProcess_command(comando)  
         if not is_subprocess_Popen(process_shell): 
             raise Exception("shell non valida:",type(process_shell)) 
         if not process_shell.stdout: 

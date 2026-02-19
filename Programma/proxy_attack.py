@@ -20,6 +20,7 @@ from attacksingleton import *
 from attacksingleton import _IPx 
 from check_type import * 
 from custom_enum import SENDER_TRUE_SENDER 
+from get_type import *
 
 
 
@@ -75,7 +76,7 @@ class THREAD_VAR:
             raise TypeError("callback_function non valido") 
         if args and not is_list(args): 
             raise TypeError("args non valido") 
-        self.lock=GET.threading_Lock()  
+        self.lock=get_threading_Lock()  
         self.response=False  
         if args is None: 
             self.thread=threading.Thread(target=callback_function)  
@@ -375,7 +376,7 @@ class Proxy:
                 oggetto.thread_data.update_response(False) 
                 THREADING_EVENT.set(event_pktconn) 
             def _old_sniff(): 
-                timer:threading.Timer=GET.timer(timeout_time, lambda: timeout_timer()) 
+                timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
                 timer.start() 
                 confirm_text=(
                     MSG.CONFIRM_VICTIM.value+
@@ -404,10 +405,10 @@ class Proxy:
                 raise TypeError("response non valida") 
             
             print("START wait_conn_from_victim")
-            event_pktconn=GET.threading_Event() 
+            event_pktconn=get_threading_Event() 
             if not is_threading_Event(event_pktconn): 
                 raise TypeError("event_pktconn is not threading.Event",type(event_pktconn)) 
-            timer:threading.Timer=GET.timer(timeout_time, lambda: timeout_timer())  
+            timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer())  
             if not is_threading_Timer(timer): 
                 raise TypeError("timer is not threading.Timer",type(timer))  
             interface=NETWORK.INTERFACE_FROM_IP(oggetto.ip_vittima).interface 
@@ -421,7 +422,7 @@ class Proxy:
                 #,"store":True 
                 ,"iface":interface
             } 
-            sniffer:AsyncSniffer=GET.AsyncSniffer(sniff_args) 
+            sniffer:AsyncSniffer=get_AsyncSniffer(sniff_args) 
             if not is_AsyncSniffer(sniffer): 
                 raise TypeError("sniffer is AsyncSniffer",type(sniffer)) 
             sniffer.start()
