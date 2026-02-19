@@ -12,7 +12,7 @@ import ipaddress
 
 from mymethods import *
 from custom_enum import * 
-from network import *
+from network_methods import *
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)

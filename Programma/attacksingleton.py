@@ -9,7 +9,7 @@ from enum import Enum
 from abc import ABC, abstractmethod 
 from check_type import * 
 from get_type import * 
-from network import *
+from network_methods import *
 
 #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
 #print("IP_GOOGLE: ",ip_google)  
