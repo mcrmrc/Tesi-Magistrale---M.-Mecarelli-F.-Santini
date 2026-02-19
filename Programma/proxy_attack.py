@@ -20,7 +20,7 @@ from network_methods import *
 from attacksingleton import * 
 from attacksingleton import _IPx 
 from check_type import * 
-from custom_enum import SENDER_TRUE_SENDER 
+from custom_enum import SENDER_TRUE_SENDER, ATTACK_TYPE
 from get_type import *
 
 
@@ -131,7 +131,7 @@ class Proxy:
     ip_attaccante:ipaddress._IPAddressBase=None 
     ip_host:ipaddress._IPAddressBase=None 
     ip_vittima=None 
-    attack_function:AttackType=None 
+    attack_function:ATTACK_TYPE=None 
     data_received:list=None
 
     socket_attacker:socket=None #tuple[socket, _RetAddress]
@@ -201,7 +201,7 @@ class Proxy:
             if attacker_mode: 
                 print("ATTACKER MODE -> SendSingleton")
                 SendSingleton(
-                    AttackType.ipv4_echo_payload, 
+                    ATTACK_TYPE.ipv4_echo_payload, 
                     SENDER_TRUE_SENDER, 
                     False 
                 ).send_data(data.encode(), self.ip_host) 
@@ -267,9 +267,9 @@ class Proxy:
             with open(default_file_path, 'r') as file: 
                 print(f"File di configurazione {default_file_path} caricato correttamente") 
                 config_file= json.load(file) 
-            self.attack_function=AttackType.get_attack_method(config_file.get("attack_function"))
-            if not is_enum_member(self.attack_function,AttackType): 
-                self.attack_function=AttackType.choose_attack_function() 
+            self.attack_function=ATTACK_TYPE.get_attack_method(config_file.get("attack_function"))
+            if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+                self.attack_function=ATTACK_TYPE.choose_attack_function() 
             print(f"ATTACCO:",self.attack_function) 
             self.ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))   
             if not is_ipaddress(self.ip_vittima):
@@ -295,13 +295,13 @@ class Proxy:
                 print(f"IP vittima: {type(self.ip_vittima)} : {self.ip_vittima}")
             elif MSG.ATTACK_FUNCTION.value in data: 
                 extracted_function=data.replace(MSG.ATTACK_FUNCTION.value,"").strip()
-                self.attack_function=AttackType.get_attack_method(extracted_function)
+                self.attack_function=ATTACK_TYPE.get_attack_method(extracted_function)
                 print(f"Func attacco: {type(self.attack_function)} : {self.attack_function}") 
             else: print("UNKNOWN DATA",data) 
         if not is_ipaddress(self.ip_vittima): 
             raise TypeError("non ipaddress",self.ip_vittima)  
-        if not is_enum_member(self.attack_function,AttackType): 
-            raise TypeError("non AttackType",self.attack_function)  
+        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+            raise TypeError("non ATTACK_TYPE",self.attack_function)  
         data=(MSG.CONFIRM_PROXY.value+
               self.ip_vittima.compressed+
               self.ip_host.compressed
@@ -448,7 +448,7 @@ class Proxy:
             lambda: wait_conn_from_victim(self) 
         ) 
         self.thread_data.start() 
-        if not is_enum_member(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
             raise TypeError("attack_function non valida")  
         #int_version=self.attack_function.name.replace("ipv","").split("_")[0]  
         #int_code=self.attack_function.value  
@@ -461,7 +461,7 @@ class Proxy:
             self.attack_function.name
         )  
         SendSingleton(
-            AttackType.ipv4_echo_payload, 
+            ATTACK_TYPE.ipv4_echo_payload, 
             SENDER_TRUE_SENDER, 
             False 
         ).send_data(confirm_text.encode(), self.ip_vittima) 
@@ -524,8 +524,8 @@ class Proxy:
             raise TypeError("ip_vittima non ipaddress") 
         if not is_ipaddress(self.ip_host): 
             raise TypeError("ip_host non ipaddress")  
-        if not is_enum_member(self.attack_function,AttackType): 
-            raise TypeError("attack_function non AttackType") 
+        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+            raise TypeError("attack_function non ATTACK_TYPE") 
         if not is_list(self.data_received): 
             raise TypeError("data_received non lista")  
         

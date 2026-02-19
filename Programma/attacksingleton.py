@@ -9,7 +9,8 @@ from enum import Enum
 from abc import ABC, abstractmethod 
 from check_type import * 
 from get_type import * 
-from network_methods import *
+from network_methods import * 
+from custom_enum import ICMP_TYPE, SENDER_TYPE, ATTACK_TYPE
 
 #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
 #print("IP_GOOGLE: ",ip_google)  
@@ -87,30 +88,7 @@ def get_filter_connection_from_function(function_name:str=None, ip_src=None, che
         #        return aaa
         #    else: print(f"Caso non contemplato: {ip_src.version}") 
 
-class ICMP_TYPE(Enum): 
-    v4_DestinationUnreachable=3
-    v4_TimeExceeded=11 
-    v4_ParameterProblem=12 
-    v4_SourceQuench=4 
-    v4_Redirect=5 
-    v4_Echo_Request=8
-    v4_Echo_Reply=0 
-    v4_Timestamp_Request=13
-    v4_Timestamp_Reply=14
-    v4_Information_Request=15
-    v4_Information_Reply=16 
-    #
-    v6_DestinationUnreachable=1
-    v6_PacketTooBig=2
-    v6_TimeExceeded=3
-    v6_ParameterProblem=4
-    v6_Echo_Request=128
-    v6_Echo_Reply=129  
-class SENDER_TYPE(Enum): 
-        TRUE_SENDER=1
-        FAKE_SENDER_ACTIVE=2 
-        FAKE_SENDER_INACTIVE=3
-        FAKE_SENDER_BOTH=4 
+
 block_size=1024 #bytes (1KB) 
 min_wait=2 #sec
 max_wait=15 #sec
@@ -123,8 +101,8 @@ class SendSingleton:
     use_delay=None  
     
     def __init__(self, type_attacco:Enum=None, type_sender:Enum=None, use_delay:bool=False): 
-        if not is_enum_member(type_attacco, AttackType): 
-            raise Exception("type_attacco non AttackType: ") 
+        if not is_enum_member(type_attacco, ATTACK_TYPE): 
+            raise Exception("type_attacco non ATTACK_TYPE: ") 
         self.type_attacco=type_attacco  
         if not is_enum_member(type_sender, SENDER_TYPE): 
             raise Exception("type_sender non SENDER_TYPE") 
@@ -174,7 +152,7 @@ class SendSingleton:
             case _: raise Exception("Tipo di sender non valido: ", type_sender) 
     
     def check_self_var(self): 
-        if not is_enum_member(self.type_attacco, AttackType): 
+        if not is_enum_member(self.type_attacco, ATTACK_TYPE): 
             raise Exception("type_attacco non valido: ") 
         if not is_enum_member(self.type_sender, SENDER_TYPE): 
             raise Exception("type_sender non valido") 
@@ -237,42 +215,42 @@ class SendSingleton:
         sender=None
         if is_ipaddress(ip_dst) and ip_dst.version==4: 
             match self.type_attacco:
-                case AttackType.ipv4_destination_unreachable|AttackType.ipv4_destination_unreachable_unused: 
+                case ATTACK_TYPE.ipv4_destination_unreachable|ATTACK_TYPE.ipv4_destination_unreachable_unused: 
                     sender=IPV4_DESTINATION_UNRECHABLE(ip_dst, self.host_attivi) 
-                case AttackType.ipv4_time_exceeded|AttackType.ipv4_time_exceeded_unused: 
+                case ATTACK_TYPE.ipv4_time_exceeded|ATTACK_TYPE.ipv4_time_exceeded_unused: 
                     sender=IPV4_TIME_EXCEEDED(ip_dst, self.host_attivi) 
-                case AttackType.ipv4_parameter_problem|AttackType.ipv4_parameter_problem_unused: 
+                case ATTACK_TYPE.ipv4_parameter_problem|ATTACK_TYPE.ipv4_parameter_problem_unused: 
                     sender=IPV4_PARAMETER_PROBLEM(ip_dst, self.host_attivi) 
-                case AttackType.ipv4_source_quench|AttackType.ipv4_source_quench_unused: 
+                case ATTACK_TYPE.ipv4_source_quench|ATTACK_TYPE.ipv4_source_quench_unused: 
                     sender=IPV4_SOURCE_QUENCH(ip_dst, self.host_attivi) 
-                case AttackType.ipv4_redirect: 
+                case ATTACK_TYPE.ipv4_redirect: 
                     sender=IPV4_REDIRECT(ip_dst, self.host_attivi)
-                case AttackType.ipv4_echo_campi|AttackType.ipv4_echo_payload|AttackType.ipv4_echo_campi_payload|AttackType.ipv4_echo_random_payload: 
+                case ATTACK_TYPE.ipv4_echo_campi|ATTACK_TYPE.ipv4_echo_payload|ATTACK_TYPE.ipv4_echo_campi_payload|ATTACK_TYPE.ipv4_echo_random_payload: 
                     sender=IPV4_ECHO(ip_dst, self.host_attivi, self.type_attacco) 
-                case AttackType.ipv4_timestamp: 
+                case ATTACK_TYPE.ipv4_timestamp: 
                     sender=IPV4_TIMESTAMP(ip_dst, self.host_attivi)
-                case AttackType.ipv4_information: 
+                case ATTACK_TYPE.ipv4_information: 
                     sender=IPV4_INFORMATION(ip_dst, self.host_attivi)
-                case AttackType.ipv4_timing_channel_8bit: 
+                case ATTACK_TYPE.ipv4_timing_channel_8bit: 
                     sender=IPV4_TIMING_8BIT(ip_dst, self.host_attivi)
-                case AttackType.ipv4_timing_channel_8bit_noise: 
+                case ATTACK_TYPE.ipv4_timing_channel_8bit_noise: 
                     sender=IPV4_TIMING_8BIT_NOISE(
                         ip_dst, self.host_attivi, {"min_delay":1, "max_delay":30, "rumore":2, "seed":4582}
                     )
                 case _: raise Exception(f"Tipologia non conosciuta: {self.tipologia}") 
         elif is_ipaddress(ip_dst) and ip_dst.version==6: 
             match self.type_attacco: 
-                case AttackType.ipv6_echo: 
+                case ATTACK_TYPE.ipv6_echo: 
                     sender=IPV4_ECHO(ip_dst, self.host_attivi)
-                case AttackType.ipv6_parameter_problem: 
+                case ATTACK_TYPE.ipv6_parameter_problem: 
                     sender=IPV6_PARAMETER_PROBLEM(ip_dst, self.host_attivi)
-                case AttackType.ipv6_time_exceeded: 
+                case ATTACK_TYPE.ipv6_time_exceeded: 
                     sender=IPV6_TIME_EXCEEDED(ip_dst, self.host_attivi)
-                case AttackType.ipv6_packet_to_big: 
+                case ATTACK_TYPE.ipv6_packet_to_big: 
                     sender=IPV6_PACKET_BIG(ip_dst, self.host_attivi)
-                case AttackType.ipv6_destination_unreachable: 
+                case ATTACK_TYPE.ipv6_destination_unreachable: 
                     sender=IPV6_DESTINTION_UNREACHABLE(ip_dst, self.host_attivi)
-                case AttackType.ipv6_timing_cc:  
+                case ATTACK_TYPE.ipv6_timing_cc:  
                     sender=IPV6_TIMING(ip_dst, self.host_attivi) 
                 case _: raise Exception(f"Tipologia non conosciuta: {self.tipologia}") 
         else: raise Exception("IP destinazione non valido: ",ip_dst)
@@ -298,7 +276,7 @@ class ReceiveSingleton:
     wait_class=None
 
     def __init__(self, attacco:Enum=None): 
-        if not is_enum_member(attacco, AttackType): 
+        if not is_enum_member(attacco, ATTACK_TYPE): 
             raise TypeError("attacco non valido")  
         self.attacco=attacco  
         self.ip_dst,err=IP.find_local_IP() 
@@ -310,25 +288,25 @@ class ReceiveSingleton:
             raise ValueError("host_attivi non valido")
         if self.ip_dst.version==4: 
             match self.attacco: 
-                case AttackType.ipv4_information: 
+                case ATTACK_TYPE.ipv4_information: 
                     self.wait_class=IPV4_INFORMATION(self.ip_dst, self.host_attivi) 
-                case AttackType.ipv4_timestamp: 
+                case ATTACK_TYPE.ipv4_timestamp: 
                     self.wait_class=IPV4_TIMESTAMP(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_redirect: 
+                case ATTACK_TYPE.ipv4_redirect: 
                     self.wait_class=IPV4_REDIRECT(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_source_quench | AttackType.ipv4_source_quench_unused: 
+                case ATTACK_TYPE.ipv4_source_quench | ATTACK_TYPE.ipv4_source_quench_unused: 
                     self.wait_class=IPV4_SOURCE_QUENCH(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_parameter_problem | AttackType.ipv4_parameter_problem_unused: 
+                case ATTACK_TYPE.ipv4_parameter_problem | ATTACK_TYPE.ipv4_parameter_problem_unused: 
                     self.wait_class=IPV4_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_time_exceeded | AttackType.ipv4_time_exceeded_unused: 
+                case ATTACK_TYPE.ipv4_time_exceeded | ATTACK_TYPE.ipv4_time_exceeded_unused: 
                     self.wait_class=IPV4_TIME_EXCEEDED(self.ip_dst, self.host_attivi) 
-                case AttackType.ipv4_destination_unreachable | AttackType.ipv4_destination_unreachable_unused: 
+                case ATTACK_TYPE.ipv4_destination_unreachable | ATTACK_TYPE.ipv4_destination_unreachable_unused: 
                     self.wait_class=IPV4_DESTINATION_UNRECHABLE(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_echo_campi|AttackType.ipv4_echo_payload|AttackType.ipv4_echo_campi_payload|AttackType.ipv4_echo_random_payload: 
+                case ATTACK_TYPE.ipv4_echo_campi|ATTACK_TYPE.ipv4_echo_payload|ATTACK_TYPE.ipv4_echo_campi_payload|ATTACK_TYPE.ipv4_echo_random_payload: 
                     self.wait_class=IPV4_ECHO(self.ip_dst, self.host_attivi, self.attacco)
-                case AttackType.ipv4_timing_channel_8bit: 
+                case ATTACK_TYPE.ipv4_timing_channel_8bit: 
                     self.wait_class=IPV4_TIMING_8BIT(self.ip_dst, self.host_attivi)
-                case AttackType.ipv4_timing_channel_8bit_noise: 
+                case ATTACK_TYPE.ipv4_timing_channel_8bit_noise: 
                     self.wait_class=IPV4_TIMING_8BIT_NOISE(
                         self.ip_dst, 
                         self.host_attivi, 
@@ -337,15 +315,15 @@ class ReceiveSingleton:
                 case _: raise Exception(f"ReceiveSingleton: tipologia non conosciuta: {self.attacco}")
         elif self.ip_dst.version==6: 
             match self.attacco: 
-                case AttackType.ipv6_echo:  
+                case ATTACK_TYPE.ipv6_echo:  
                     self.wait_class=IPV6_ECHO(self.ip_dst, self.host_attivi)
-                case AttackType.ipv6_parameter_problem: 
+                case ATTACK_TYPE.ipv6_parameter_problem: 
                     self.wait_class=IPV6_PARAMETER_PROBLEM(self.ip_dst, self.host_attivi)
-                case AttackType.ipv6_time_exceeded: 
+                case ATTACK_TYPE.ipv6_time_exceeded: 
                     self.wait_class=IPV6_TIME_EXCEEDED(self.ip_dst, self.host_attivi)
-                case AttackType.ipv6_packet_to_big: 
+                case ATTACK_TYPE.ipv6_packet_to_big: 
                     self.wait_class=IPV6_PACKET_BIG(self.ip_dst, self.host_attivi)
-                case AttackType.ipv6_destination_unreachable: 
+                case ATTACK_TYPE.ipv6_destination_unreachable: 
                     self.wait_class=IPV6_DESTINTION_UNREACHABLE(self.ip_dst, self.host_attivi) 
                 case _: raise Exception(f"ReceiveSingleton: Tipologia non conosciuta: {self.attacco}")
         else:
@@ -354,7 +332,7 @@ class ReceiveSingleton:
             raise TypeError("wait_class non valida") 
     
     def check_self_var(self):  
-        if not is_enum_member(self.attacco, AttackType): 
+        if not is_enum_member(self.attacco, ATTACK_TYPE): 
             raise TypeError("attacco non valido") 
         #if not is_list(self.host_attivi) or len(self.host_attivi)<=0 or any(not is_ipaddress(ip) for ip in self.host_attivi): 
         #    raise ValueError("host_attivi non valida") 
@@ -877,7 +855,7 @@ class IPV4_SOURCE_QUENCH(_IPx):
             self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
             self.interface=INTERFACE_FROM_IP(self.ip_dst).interface 
-        if not is_enum_member(type_attacco, AttackType): 
+        if not is_enum_member(type_attacco, ATTACK_TYPE): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_unused"): 
             step_data=13
@@ -988,7 +966,7 @@ class IPV4_PARAMETER_PROBLEM(_IPx):
             self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
         if not self.interface:
             self.interface=INTERFACE_FROM_IP(self.ip_dst).interface   
-        if not is_enum_member(type_attacco, AttackType): 
+        if not is_enum_member(type_attacco, ATTACK_TYPE): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_unused"): 
             step_data=13
@@ -1090,7 +1068,7 @@ class IPV4_TIME_EXCEEDED(_IPx):
             self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
             self.interface=INTERFACE_FROM_IP(self.ip_dst).interface 
-        if not is_enum_member(type_attacco, AttackType): 
+        if not is_enum_member(type_attacco, ATTACK_TYPE): 
             raise Exception("type_attacco non valido: ") 
         if "_unused" in type_attacco.name: 
             step_data=13
@@ -1198,7 +1176,7 @@ class IPV4_DESTINATION_UNRECHABLE(_IPx):
             self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
             self.interface=INTERFACE_FROM_IP(self.ip_dst).interface 
-        if not is_enum_member(type_attacco, AttackType): 
+        if not is_enum_member(type_attacco, ATTACK_TYPE): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_unused"): 
             step_data=13
@@ -1230,7 +1208,7 @@ class IPV4_ECHO(_IPx):
     
     def __init__(self, ip_dst:ipaddress.IPv4Address, host_attivi:list[ipaddress.IPv4Address]=None, type_attacco:Enum=None): 
         super().__init__(ip_dst, host_attivi) 
-        if not is_enum_member(type_attacco, AttackType): 
+        if not is_enum_member(type_attacco, ATTACK_TYPE): 
             raise Exception("attacco non valida") 
         #type_attacco indicherà quali campi leggere 
         self.type_attacco=type_attacco 
@@ -1245,14 +1223,14 @@ class IPV4_ECHO(_IPx):
                     #THREADING_EVENT.set(self.event_pktconn) 
                     self.stop_flag["value"]=True 
                     return 
-                if self.type_attacco.name in [AttackType.ipv4_echo_campi.name, AttackType.ipv4_echo_campi_payload.name,AttackType.ipv4_echo_random_payload.name]: 
+                if self.type_attacco.name in [ATTACK_TYPE.ipv4_echo_campi.name, ATTACK_TYPE.ipv4_echo_campi_payload.name,ATTACK_TYPE.ipv4_echo_random_payload.name]: 
                     #print("ICMP ID")
                     icmp_id=packet[ICMP].id
                     byte1 = (icmp_id >> 8) & 0xFF 
                     byte2 = icmp_id & 0xFF 
                     #print("ICMP ID:",icmp_id,chr(byte1),chr(byte2))
                     self.data.append(chr(byte1)+chr(byte2)) 
-                if self.type_attacco.name in [AttackType.ipv4_echo_payload.name, AttackType.ipv4_echo_campi_payload.name,AttackType.ipv4_echo_random_payload.name]: 
+                if self.type_attacco.name in [ATTACK_TYPE.ipv4_echo_payload.name, ATTACK_TYPE.ipv4_echo_campi_payload.name,ATTACK_TYPE.ipv4_echo_random_payload.name]: 
                     #print("ICMP PAYLOAD")
                     if packet.haslayer(Raw): 
                         #print("ICMP payload:",packet[Raw].load)
@@ -1329,7 +1307,7 @@ class IPV4_ECHO(_IPx):
             self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
             self.interface=INTERFACE_FROM_IP(self.ip_dst).interface
-        if not is_enum_member(type_attacco, AttackType): 
+        if not is_enum_member(type_attacco, ATTACK_TYPE): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_campi"): 
             step_data=2 
@@ -2384,145 +2362,6 @@ class IPV6_TIMING(_IPx):
                 int_data=int_data<<1|int(bit)
             data+=chr(int_data) 
 
-class AttackType(Enum): 
-    ipv4_destination_unreachable=0
-    ipv4_destination_unreachable_unused=1
-    ipv4_time_exceeded=2
-    ipv4_time_exceeded_unused=3
-    ipv4_parameter_problem=4
-    ipv4_parameter_problem_unused=5
-    ipv4_source_quench=6
-    ipv4_source_quench_unused=7
-    ipv4_redirect=8
-    ipv4_echo_campi=9
-    ipv4_echo_payload=10
-    ipv4_echo_campi_payload=11
-    ipv4_timestamp=12
-    ipv4_information=13
-    ipv4_timing_channel_8bit=14
-    ipv4_timing_channel_8bit_noise=15 
-    ipv4_echo_random_payload=16  
-
-    ipv6_echo=20
-    ipv6_parameter_problem=21
-    ipv6_time_exceeded=22
-    ipv6_packet_to_big=23
-    ipv6_destination_unreachable=24 
-    ipv6_timing_cc=25  
-
-    def choose_attack_function(): 
-        attack_enum=None
-        while True: 
-            print(AttackType.print_available_attack(),"\n")
-            msg="Scegli il nome o il codice della funzione:\t" 
-            scelta=str(input(msg)).lower().strip() 
-            print("Hai scelto: ",scelta if str(scelta)!="" else "<empty>") 
-            attack_enum=AttackType.get_attack_method(scelta) 
-            if is_enum_member(attack_enum,AttackType): 
-                break
-            msg="\n\nNessuna funzione trovata. Si vuole continuare? S/N\t" 
-            if not ask_bool_choice(msg): 
-                break
-        return attack_enum 
-
-    def get_attack_method(attack=None)->Enum: 
-        #Data in input una qualsiasi variabile ritorna l'enum associato quando possibile
-        if is_enum_member(attack, AttackType): 
-            return attack  
-        elif is_enum_member(attack,Enum): 
-            try: 
-                return AttackType[attack.name] 
-            except KeyError as k: 
-                print("STRINGA NON VALIDA",k)
-            try: 
-                return AttackType(attack.value)
-            except ValueError as v: 
-                print("INTEGER NON VALIDO",v) 
-        elif is_integer(attack): 
-            try:
-                return AttackType(attack)
-            except ValueError as v:
-                print("INTEGER NON VALIDO",v)
-        elif is_string(attack): 
-            try:
-                return AttackType(int(attack))
-            except ValueError as k: 
-                print("STRINGA NON VALIDA",k)
-            try:
-                return AttackType[attack]
-            except KeyError as k: 
-                print("STRINGA NON VALIDA",k)
-        
-        return None
     
-    def get_description(attack:Enum=None)->str: 
-        if is_enum_member(attack, AttackType): 
-            match attack: 
-                case AttackType.ipv4_destination_unreachable: 
-                    return "Usa i campi di ICMP Destination Unreachable"
-                case AttackType.ipv4_destination_unreachable_unused: 
-                    return "Usa icampi di ICMP Destination Unreachable. In particolare 'unused'"
-                case AttackType.ipv4_time_exceeded: 
-                    return "Usa i campi di ICMP Time Exceeded"
-                case AttackType.ipv4_time_exceeded_unused: 
-                    return "Usa i campi di ICMP Time Exceeded. In particolare 'unused'"
-                case AttackType.ipv4_parameter_problem: 
-                    return "Usa i campi di ICMP Parameter Problem"
-                case AttackType.ipv4_parameter_problem_unused: 
-                    return "Usa i campi di ICMP Parameter Problem. In particolare 'unused'"
-                case AttackType.ipv4_source_quench: 
-                    return "Usa i campi di ICMP Source Quench"
-                case AttackType.ipv4_source_quench_unused: 
-                    return "Usa i campi di ICMP Source Quench. In particolare 'unused'"
-                case AttackType.ipv4_redirect: 
-                    return "Usa i campi di ICMP Redirect"
-                case AttackType.ipv4_echo_campi: 
-                    return "Usa i campi di ICMP Echo. In particolare 'identifier'"
-                case AttackType.ipv4_echo_payload: 
-                    return "Usa i campi di ICMP Echo. In particolare 'payload'"
-                case AttackType.ipv4_echo_random_payload: 
-                    return "Usa i campi di ICMP Echo. In particolare 'payload' con dimensione variabile"
-                case AttackType.ipv4_echo_campi_payload: 
-                    return "Usa i campi di ICMP Echo. In particolare 'idnetifier' e 'payload'"
-                case AttackType.ipv4_timestamp: 
-                    return "Usa i campi di ICMP Timestamp"
-                case AttackType.ipv4_information: 
-                    return "Usa i campi di ICMP Information"
-                case AttackType.ipv4_timing_channel_8bit: 
-                    return "Usa i campi di ICMP per inviare dati tramite il tempo"
-                case AttackType.ipv4_timing_channel_8bit_noise: 
-                    return "Usa i campi di ICMP per inviare dati tramite il tempo aggiungendo del rumore di sottofondo"
-                #------------------------------------------------
-                case AttackType.ipv6_echo: 
-                    return "Usa i campi di ICMP v6 Echo"
-                case AttackType.ipv6_parameter_problem: 
-                    return "Usa i campi di ICMP v6 Parameter Problem"
-                case AttackType.ipv6_time_exceeded: 
-                    return "Usa i campi di ICMP v6 Time Exceeded"
-                case AttackType.ipv6_packet_to_big: 
-                    return "Usa i campi di ICMP v6 Packet to Big"
-                case AttackType.ipv6_destination_unreachable: 
-                    return "Usa i campi di ICMP v6 Destination Unreachable"
-                case AttackType.ipv6_timing_cc: 
-                    return "Usa i campi di ICMP v6 per inviare dati tramite il tempo"
-                #------------------------------------------------
-        raise Exception("Attacco immesso non valido: ",attack) 
-    
-    def print_available_attack(): 
-        time.sleep(0.5)
-        print("Gli attacchi disponibili sono:\n")
-        for enumerator in list(AttackType): 
-            time.sleep(2) 
-            print(f" *{enumerator.name}:{enumerator.value}\n\t{AttackType.get_description(enumerator)}\n") 
-        time.sleep(0.5) 
-        print("\n Per scegliere un attacco, usa il nome o il numero corrispondente.") 
-        time.sleep(1) 
-        print(""" 
-            \nAd esempio per l'attacco ICMPv4 Destination Unreachable, puoi scegliere: 
-            \n\t*Il nome 'ipv4_destination_unreachable' 
-            \n\t\toppure'.
-            \n\t*Il numero '0'.
-        """) 
-        
 
 

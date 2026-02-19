@@ -20,7 +20,7 @@ from network_methods import *
 #import attacksingleton 
 from attacksingleton import * 
 from attacksingleton import _IPx
-from custom_enum import SENDER_TRUE_SENDER, MSG 
+from custom_enum import SENDER_TRUE_SENDER, MSG, ATTACK_TYPE
 from get_type import *
 
 #---------------------
@@ -185,7 +185,7 @@ type_sender=SENDER_TRUE_SENDER
 use_delay=False
 class Victim: 
     ip_host:ipaddress=None 
-    attack_function:AttackType=None 
+    attack_function:ATTACK_TYPE=None 
     num_proxy:int=None 
 
     connected_proxy:CONNECTED_PROXY=None 
@@ -205,8 +205,8 @@ class Victim:
     def check_variables(self): 
         if not is_ipaddress(self.ip_host): 
             raise TypeError("ip_host non valido")  
-        if not is_enum_member(self.attack_function,AttackType): 
-            raise TypeError("attack_function non AttackType") 
+        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+            raise TypeError("attack_function non ATTACK_TYPE") 
         if not is_integer(self.num_proxy): 
             raise TypeError("numero proxy non valido") 
         if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
@@ -315,7 +315,7 @@ class Victim:
                     raise TypeError("non ipaddress->",type(ip_src))
                 if not is_string(str_attacco): 
                     raise TypeError("non stringa->",type(str_attacco))
-                attack_function=AttackType.get_attack_method(str_attacco) 
+                attack_function=ATTACK_TYPE.get_attack_method(str_attacco) 
                 connected_proxy.lock.acquire() 
                 connected_proxy.type_attack[ip_src.compressed]=attack_function 
                 connected_proxy.lock.release() 
@@ -328,7 +328,7 @@ class Victim:
                 if not is_ipaddress(ip_src): 
                     raise TypeError("non ipaddress->",type(ip_src)) 
                 SendSingleton(
-                    AttackType.ipv4_echo_payload, 
+                    ATTACK_TYPE.ipv4_echo_payload, 
                     SENDER_TRUE_SENDER, 
                     use_delay=False
                 ).send_data(msg_conferma.encode(), ip_src) 
@@ -457,7 +457,7 @@ class Victim:
         if DEBUG: 
             print("DEBUG -> wait-connections")
             return
-        if not is_enum_member(self.attack_function, AttackType): 
+        if not is_enum_member(self.attack_function, ATTACK_TYPE): 
             raise TypeError("attack_function non valida")  
 
     def start(self):  
@@ -526,8 +526,8 @@ class Victim:
     
     def wait_command(self)->str: 
         #start wait_attacker_command
-        if not is_enum_member(self.attack_function,AttackType): 
-            raise TypeError("attack_function non AttackType") 
+        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+            raise TypeError("attack_function non ATTACK_TYPE") 
         if not is_ipaddress(self.ip_host): 
             raise TypeError("ip_host non valido") 
         
@@ -615,10 +615,10 @@ class Victim:
     #def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4Address], attack_function:dict): 
         if not is_string(data) or data.strip()=="": 
             raise TypeError("data non valido") 
-        if not is_enum_member(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
             if DEBUG: 
                 print("DEBUG: send_data -> attack_function")
-            else: raise TypeError("attack_function non AttackType") 
+            else: raise TypeError("attack_function non ATTACK_TYPE") 
         if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
             raise TypeError("connected_proxy is not CONNECTED_PROXY",type(self.connected_proxy))
         if not is_list(self.connected_proxy.proxy_list) or len(self.connected_proxy.proxy_list)<=0: 
@@ -673,8 +673,8 @@ class Victim:
         def send_last_packet(proxy): 
             if not is_ipaddress(proxy): 
                 raise TypeError("proxy non valido")   
-            if not is_enum_member(self.attack_function,AttackType): 
-                raise TypeError("attack_function non AttackType") 
+            if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+                raise TypeError("attack_function non ATTACK_TYPE") 
             print("SEND LAST PACKET:",proxy) 
             data=MSG.LAST_PACKET.value  
             try: 
@@ -692,10 +692,10 @@ class Victim:
             raise TypeError("proxy_data non lista") 
         if all(not is_string(stringa) for stringa in proxy_data): 
             raise TypeError("data non string",type(proxy_data)) 
-        if not is_enum_member(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
             if DEBUG: 
                 print("DEBUG: send_data -> attack_function")
-            else: raise TypeError("attack_function non AttackType")  
+            else: raise TypeError("attack_function non ATTACK_TYPE")  
         print("LEN PROXY DATA",len(proxy_data))
         for index in range(len(proxy_data)):
             print("INDEX",index) 
@@ -714,7 +714,7 @@ class Victim:
             print("PROXY",proxy) 
             if DEBUG: 
                 print("DEBUG: send_data -> attack_function")
-                self.attack_function=AttackType.ipv4_destination_unreachable 
+                self.attack_function=ATTACK_TYPE.ipv4_destination_unreachable 
             SendSingleton(
                 self.attack_function, 
                 type_sender, 
