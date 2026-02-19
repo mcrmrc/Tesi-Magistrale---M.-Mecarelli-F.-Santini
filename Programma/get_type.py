@@ -5,13 +5,13 @@ from check_type import *
 from mymethods import SNIFFER
 
 #class GET: 
-def threading_Event()->threading.Event: 
+def get_threading_Event()->threading.Event: 
     return threading.Event() 
 
-def threading_Lock()->threading.Lock: 
+def get_threading_Lock()->threading.Lock: 
     return threading.Lock()
 
-def AsyncSniffer(args:dict=None): 
+def get_AsyncSniffer(args:dict=None): 
     if not is_dictionary(args): 
         raise Exception(f"GET:AsyncSniffer\targs is not a dictionary") 
     if SNIFFER.check_args(args):
@@ -19,12 +19,12 @@ def AsyncSniffer(args:dict=None):
     print("AHAHAHAH")
     return None
 
-def timer(timeout_time=60, callback_function=None): 
+def get_timer(timeout_time=60, callback_function=None): 
     if is_callable_function(callback_function) and (timeout_time is None or is_time(timeout_time)): 
         return threading.Timer(timeout_time, callback_function)
     return None 
 
-def shellProcess():
+def get_shellProcess():
     if sys.platform == "win32":
         print("Il sistema è Windows...")
         return subprocess.Popen(
@@ -47,7 +47,7 @@ def shellProcess():
         )
     print("Sistema operativo non supportato per l'apertura della shell.") 
 
-def shellProcess_command(command:str): 
+def get_shellProcess_command(command:str): 
     if not is_string(command): 
         print("Il comando non è una stringa")
         return  
