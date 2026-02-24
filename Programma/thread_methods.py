@@ -1,5 +1,6 @@
 from check_type import * 
-from custom_enum import MSG 
+from custom_enum import MSG, ATTACK_TYPE 
+from mymethods import DATA
 from get_type import *
 
 class THREAD: 
