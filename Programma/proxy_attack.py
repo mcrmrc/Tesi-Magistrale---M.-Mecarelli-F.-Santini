@@ -99,6 +99,8 @@ class THREAD_VAR:
 
 class PROXY_THREAD: 
     class VICTIM_CONNECTION: 
+        thread:threading.Thread=None 
+        
         def __init__(self): 
             def timeout_timer(): 
                 #if not isinstance(oggetto.thread_data,THREAD_VAR): 
@@ -110,6 +112,8 @@ class PROXY_THREAD:
                 #oggetto.stop_flag["value"]=True 
                 #oggetto.thread_data.update_response(False) 
                 THREADING_EVENT.set(self.event_pktconn) 
+            self.lock:threading.Lock=get_threading_Lock()  
+            self.response:bool=False  
             self.event_pktconn=get_threading_Event() 
             #if not is_threading_Event(event_pktconn): 
             #    raise TypeError("event_pktconn is not threading.Event",type(event_pktconn)) 
@@ -229,6 +233,13 @@ class PROXY_THREAD:
                 raise RuntimeError("SNIFFER NOT STOPPED",self.sniffer.running)
             print("Sniffer stopped...") 
 
+        def update_response(self, response:bool=False): 
+            if not is_boolean(response): 
+                raise TypeError("response non boolean")
+            if not is_threading_Lock(self.lock): 
+                raise TypeError("lock non valido")  
+            with self.lock:
+                self.response=response 
 
 attacker_mode=True 
 localhost="127.0.0.1" 
