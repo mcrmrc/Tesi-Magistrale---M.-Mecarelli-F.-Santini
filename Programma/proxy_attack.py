@@ -111,7 +111,11 @@ class PROXY_THREAD:
                 #oggetto.thread_data.update_response(False) 
                 THREADING_EVENT.set(self.event_pktconn) 
             self.event_pktconn=get_threading_Event() 
-            self.timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer())  
+            #if not is_threading_Event(event_pktconn): 
+            #    raise TypeError("event_pktconn is not threading.Event",type(event_pktconn)) 
+            self.timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
+            #if not is_threading_Timer(timer): 
+            #    raise TypeError("timer is not threading.Timer",type(timer))  
         
         def start(self, ip_vittima:ipaddress.IPv4Address=None, ip_host:ipaddress.IPv4Address=None): 
             def get_filter(): 
@@ -194,6 +198,8 @@ class PROXY_THREAD:
             if not is_ipaddress(ip_host): 
                 raise TypeError("Host non ha un IP valido") 
             self.interface=INTERFACE_FROM_IP(ip_vittima).interface 
+            if self.interface is None: 
+                raise ValueError("interface is None",self.interface) 
             sniff_args={
                 "filter":get_filter()
                 #,"count":1 
@@ -214,13 +220,13 @@ class PROXY_THREAD:
         
         def wait(self): 
             print("Waiting thread to end...") 
-            THREADING_EVENT.wait(event_pktconn) 
-            if timer.is_alive(): 
-                timer.cancel()
+            THREADING_EVENT.wait(self.event_pktconn) 
+            if self.timer.is_alive(): 
+                self.timer.cancel()
                 print("Timer stopped...") 
-            sniffer.stop()
-            if sniffer.running: 
-                raise RuntimeError("SNIFFER NOT STOPPED",sniffer.running)
+            self.sniffer.stop()
+            if self.sniffer.running: 
+                raise RuntimeError("SNIFFER NOT STOPPED",self.sniffer.running)
             print("Sniffer stopped...") 
 
 
@@ -402,138 +408,6 @@ class Proxy:
             #FIREWALL.enable() 
     
     def connessione_vittima(self): 
-        def wait_conn_from_victim(oggetto=None): 
-            def get_filter(): 
-                #checksum=CALC.checksum(confirm_text.strip().encode()) 
-                IPv4_ECHO_REQU=8 
-                IPv4_ECHO_REP=0 
-                if oggetto.ip_vittima.version==4: 
-                    icmp="icmp " 
-                elif oggetto.ip_vittima.version==6: 
-                    icmp="icmp6 "  
-                if DEBUG: 
-                    filter=f"({icmp} or tcp) "
-                    #filter+=f" and src {oggetto.ip_vittima.compressed} "
-                    filter+=f" and dst {oggetto.ip_host.compressed}"
-                    print("FILTER",filter)
-                    return filter
-                else: 
-                    filter=icmp 
-                    filter+=f" and (icmp[0]=={IPv4_ECHO_REQU} or icmp[0]=={IPv4_ECHO_REP}) " 
-                    filter+=f" and src {oggetto.ip_vittima.compressed} "
-                    filter+=f" and dst {oggetto.ip_host.compressed}"
-                #filter+=f"and icmp[4:2]={checksum} "
-                print("FILTER",filter)
-                return filter 
-            def callback_connessione(packet):  
-                #print(packet.summary()) 
-                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
-                    #and (pkt["ICMP"].type==8 or pkt["ICMP"].type==0): 
-                    if not oggetto.ip_vittima.compressed==packet[IP].src: 
-                        return 
-                    confirm_text=(
-                        MSG.CONFIRM_VICTIM.value+
-                        oggetto.ip_vittima.compressed+
-                        oggetto.ip_host.compressed
-                    )
-                    check_sum=CALC.checksum(confirm_text.encode()) 
-                    if confirm_text in packet[Raw].load.decode(): 
-                        print("CONNESSIONE VITTIMA CONFERMATA") 
-                        oggetto.thread_data.update_response(True) 
-                        oggetto.stop_flag["value"]=True 
-                        THREADING_EVENT.set(event_pktconn) 
-                        return        
-            def _old_get_callback(event_pktconn:threading.Event): 
-                #print("MONITORO IL TRAFFICO PER CONFERME DALLA VITTIMA")
-                def callback(packet): 
-                    print(packet.summary()) 
-                    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):   
-                        if not oggetto.ip_vittima.compressed==packet[IP].src: 
-                            return
-                        confirm_text=(
-                            MSG.CONFIRM_VICTIM.value+
-                            oggetto.ip_vittima.compressed+
-                            oggetto.ip_host.compressed
-                        )
-                        check_sum=CALC.checksum(confirm_text.encode()) 
-                        if confirm_text in packet[Raw].load.decode(): 
-                            print("CONNESSIONE VITTIMA CONFERMATA") 
-                            THREADING_EVENT.set(event_pktconn) 
-                            return 
-                return callback 
-            def stop_filter(pkt): 
-                return oggetto.stop_flag["value"]  
-            def timeout_timer(): 
-                print("TIMEOUT TIMER") 
-                oggetto.stop_flag["value"]=True 
-                oggetto.thread_data.update_response(False) 
-                THREADING_EVENT.set(event_pktconn) 
-            def _old_sniff(): 
-                timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
-                timer.start() 
-                confirm_text=(
-                    MSG.CONFIRM_VICTIM.value+
-                    oggetto.ip_vittima.compressed+
-                    oggetto.ip_host.compressed
-                )  
-                sniff( 
-                    filter=get_filter(confirm_text)
-                    ,prn=get_callback()
-                    ,store=False 
-                    ,stop_filter=stop_filter 
-                ) 
-                #--------------------------
-            #--------------------------------
-            if not isinstance(oggetto, Proxy): 
-                raise TypeError("oggetto non è Proxy",type(oggetto)) 
-            if not is_ipaddress(oggetto.ip_vittima): 
-                raise TypeError("ip_vittima non valido") 
-            if not is_ipaddress(oggetto.ip_host): 
-                raise TypeError("ip_host non valido") 
-            if not isinstance(oggetto.thread_data,THREAD_VAR): 
-                raise TypeError("oggetto non è THREAD_VAR",type(oggetto.thread_data)) 
-            if not is_threading_Lock(oggetto.thread_data.lock): 
-                raise TypeError("lock non valido") 
-            if not is_boolean(oggetto.thread_data.response): 
-                raise TypeError("response non valida") 
-            
-            print("START wait_conn_from_victim")
-            event_pktconn=get_threading_Event() 
-            if not is_threading_Event(event_pktconn): 
-                raise TypeError("event_pktconn is not threading.Event",type(event_pktconn)) 
-            timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer())  
-            if not is_threading_Timer(timer): 
-                raise TypeError("timer is not threading.Timer",type(timer))  
-            interface=INTERFACE_FROM_IP(oggetto.ip_vittima).interface 
-            if interface is None: 
-                raise ValueError("interface is None",interface) 
-            print("INTERFACE",interface) 
-            sniff_args={
-                "filter":get_filter()
-                #,"count":1 
-                ,"prn":callback_connessione
-                #,"store":True 
-                ,"iface":interface
-            } 
-            sniffer:AsyncSniffer=get_AsyncSniffer(sniff_args) 
-            if not is_AsyncSniffer(sniffer): 
-                raise TypeError("sniffer is AsyncSniffer",type(sniffer)) 
-            sniffer.start()
-            if sniffer.running: 
-                print("Sniffer started...") 
-            else: raise RuntimeError("SNIFFER NOT STARTED") 
-            timer.start() 
-            if timer.is_alive(): 
-                print("Timer started...") 
-            print("Waiting thread to end...")
-            THREADING_EVENT.wait(event_pktconn) 
-            if timer.is_alive(): 
-                timer.cancel()
-                print("Timer stopped...") 
-            sniffer.stop()
-            if sniffer.running: 
-                raise RuntimeError("SNIFFER NOT STOPPED",sniffer.running)
-            print("Sniffer stopped...") 
         #------------------------ 
         self.thread_data=THREAD_VAR( 
             lambda: wait_conn_from_victim(self) 
