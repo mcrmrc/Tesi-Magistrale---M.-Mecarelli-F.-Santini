@@ -3,15 +3,13 @@
 %\begin{columns}[T,onlytextwidth]
 %\column{0.48\textwidth} 
 \justifying
-ICMP è un protocollo che opera al livello di rete 
-(livello 3 modello ISO/OSI), e permette la segnalazione 
-di  errori, la diagnostica della rete e la messaggistica 
-di controllo. Queste caratteristiche lo rendono 
-fondamentale nelle reti e proprio per questo, non può 
-essere completamente disabilitato o filtrato senza 
-compromettere l'operatività della rete stessa. Ciò 
-lo rende un candidato ideale per la creazione di 
-canali di comunicazione nascosti. 
+ICMP è un protocollo che opera al livello di rete e permette: 
+\begin{itemize}
+\item \textbf{Diagnostica della rete}  
+\item \textbf{Segnalazione di errori}
+\item \textbf{Risoluzione dei problemi}
+\item \textbf{Ottenimento di informazioni} 
+\end{itemize} 
 %\column{0.48\textwidth} 
 \begin{figure}
 \includegraphics[width=0.7\textwidth]{../Tesi/img/ICMP-packet-structure.png} 
@@ -19,19 +17,22 @@ canali di comunicazione nascosti.
 \end{figure}
 %\end{columns}
 \end{frame}  
-\begin{frame} 
-\begin{longtable}{|p{0.2\textwidth}|p{0.7\textwidth}|} 
-    \hline
-    \textbf{Utilizzi} & \textbf{Descrizione} \\
-    \hline
-    Diagnostica della rete & Fornisce metriche critiche per il monitoraggio continuo delle prestazioni della rete  
-    \\ \hline 
-    Segnalazione di errori &  Rileva e segnala i problemi riscontrati durante la trasmissione dei dati tra i dispositivi sulla rete 
-    \\ \hline
-    Risoluzione dei problemi & Gli amministratori di rete possono ricevere avvisi in tempo reale e rispondere rapidamente ai problemi di rete grazie agli strumenti di monitoraggio basati su ICMP. 
-    \\ \hline
-    Ottenimento di informazioni & Invia messaggi e informazioni senza la necessità di una connessione preventiva. 
-    \\ \hline 
-\caption{Utilizzi del protocollo ICMP}  
-\end{longtable} 
+
+\begin{frame}
+\frametitle{Tipologie di messaggi ICMP} 
+\textbf{Messaggi di errore}
+\begin{itemize}
+\item Destination Unreachable (IPv4, IPv6)
+\item Time Exceeded (IPv4, IPv6)
+\item Parameter Problem (IPv4, IPv6)
+\item Source Quench (IPv4)
+\item Redirect (IPv4)
+\item Packet Too Big (IPv6)
+\end{itemize} 
+\textbf{Messaggi di informazione}
+\begin{itemize}
+\item Echo Request/Reply (IPv4, IPv6)
+\item Timestamp Request/Reply (IPv4)
+\item Information Request/Reply (IPv4)
+\end{itemize} 
 \end{frame} 
