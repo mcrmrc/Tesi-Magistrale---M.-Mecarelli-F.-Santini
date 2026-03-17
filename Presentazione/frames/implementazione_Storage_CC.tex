@@ -1,109 +1,114 @@
+\begin{frame}
+\vfill
+\begin{center}
+{\huge Implementazione dello Storage Covert Channel}
+\end{center}
+\vfill 
+\end{frame}
 \begin{frame} [fragile]
 \frametitle{Implementazione Storage Covert Channel}
-In questo Storage Covert Channel la risorsa condivisa 
-sarà il pacchetto ICMP inviato. Il mittente 
-memorizzerà i dati da esfiltrare nei campi presenti 
-nel messaggio mentre il destinatario, una volta 
-ricevuto, leggerà i valori codificati all'interno dei 
-pacchetti. 
 \scriptsize 
-\begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\begin{longtable}{|p{0.25\textwidth}|p{0.2\textwidth}|p{0.4\textwidth}|}
     \hline 
-    \textbf{Tipologia} & \textbf{Byte per pacchetto} & \textbf{Campi Sfruttatti} 
+    \textbf{Campo del pacchetto} & \textbf{Byte inseribili} & \textbf{Messaggi ICMP che lo utilizzano} 
     \\ \hline 
-    Packet Too Big 
+    Invoking Packet 
     & 
-    40+8+41 \par 
-    $\rightarrow$min 89 byte 
+    7 byte
     & 
-    mtu \par  
-    invoking packet 
-    \\ \hline %messaggi di errore
-    Destination Unreachable \par 
-    Time Exceeded 
-    & 
-    40+8+41\par 
-    $\rightarrow$min 89 byte
-    & 
-    unused \par
-    invoking packet 
-    \\ \hline %messaggi di errore 
+    Packet Too Big\par 
+    Destination Unreachable\par
+    Time Exceeded\par 
     Parameter Problem 
+    \\ \hline 
+    MTU
     & 
-    40+8+41 \par 
-    $\rightarrow$min 89 byte 
+    4 Byte
     & 
-    pointer \par 
-    invoking packet 
-    \\ \hline %messaggi di errore
-    Echo Request/Reply 
+    Packet to Big
+    \\ \hline 
+    Unused
     & 
-    40+8+32 \par 
-    $\rightarrow$min 80 byte 
+    4 Byte
     & 
-    identifier \par 
-    data 
-    \\ \hline %messaggi di informazione
-    \caption{Tipologie di messaggi ICMPv6 usati}  
+    Destination Unreachable\par
+    Time Exceeded
+    \\ \hline 
+    Pointer
+    & 
+    4 Byte
+    & 
+    Parameter Problem 
+    \\ \hline 
+    Identifier
+    & 
+    2 Byte
+    & 
+    Echo Req/rep
+    \\ \hline 
+    Data
+    & 
+    32/64 Byte
+    & 
+    Echo Req/rep
+    \\ \hline  
+    \caption{Campi utilizzati con i messaggi ICMPv6}  
 \end{longtable} 
 \end{frame} 
-\begin{frame} [allowframebreaks]
+
+\begin{frame} [fragile]
 \scriptsize 
-\begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+\begin{longtable}{|p{0.25\textwidth}|p{0.2\textwidth}|p{0.4\textwidth}|}
     \hline 
-    \textbf{Tipologia} & \textbf{Byte per pacchetto} & \textbf{Campi Utilizzati}  
-    \\ \hline
-    Redirect Message 
-    & 
-    20+8+21 \par 
-    $\rightarrow$min 49 byte 
-    & 
-    header+64 bits 
+    \textbf{Campo del pacchetto} & \textbf{Byte inseribili} & \textbf{Messaggi ICMP che lo utilizzano} 
     \\ \hline 
-    Destination Unreachable \par 
-    Time Exceeded \par 
-    Source Quench
+    Header+64 Bits 
     & 
-    20+8+21 \par
-    $\rightarrow$min 49 byte 
+    9 byte
     & 
-    unused \par 
-    header+64 bits  
-    \\ \hline  
+    Redirect\par 
+    Destination Unreachable\par 
+    Time Exceeded\par 
+    Source Quench\par 
     Parameter Problem 
-    & 
-    20+8+21 \par 
-    $\rightarrow$min 49 byte
-    & 
-    pointer \par 
-    unused \par 
-    header+64 bits 
     \\ \hline 
-    Information Request/Reply 
+    Unused
     & 
-    20+8 \par 
-    $\rightarrow$28 byte 
+    4 Byte (3 in Paramter Proble)
     & 
-    identifier 
+    Destination Unreachable\par 
+    Time Exceeded\par 
+    Source Quench\par 
+    Parameter Problem 
+    \\ \hline 
+    Pointer
+    & 
+    1 Byte
+    & 
+    Parameter Problem 
+    \\ \hline 
+    Identifier
+    & 
+    2 Byte
+    & 
+    Information Req/Rep\par
+    Echo Req/rep\par
+    Timestamp Req/Rep
+    \\ \hline 
+    Data
+    & 
+    32/64 Byte
+    & 
+    Echo Req/rep\par
+    Timestamp Req/Rep
+    \\ \hline 
+    Timestamp
+    & 
+    1 Byte a timestmap
+    & 
+    Timestamp Req/Rep
     \\ \hline  
-    Echo Request/Reply 
-    & 
-    20+8+32 \par 
-    $\rightarrow$min 60 byte
-    & 
-    identifier  \par 
-    data 
-    \\ \hline 
-    Timestamp Request/Reply 
-    & 
-    20+8+12+32 \par 
-    $\rightarrow$min 72 byte
-    & 
-    identifier \par 
-    timestamp \par 
-    data 
-    \\ \hline 
-    \caption{Tipologie di messaggi ICMPv4 usati} 
+    \caption{Campi utilizzati con i messaggi ICMPv4}  
 \end{longtable} 
 \end{frame} 
-\import{frames}{storage_CC_tipologieICMP} 
+%\import{frames}{storage_CC_tipologieICMP} 
