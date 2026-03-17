@@ -2,14 +2,14 @@ Il presente capitolo descrive gli strumenti software ed i framework adottati per
 creazione degli ambienti di test che verranno  successivamente nella tesi. 
 %In particolare, vengono illustrate le tecnologie utilizzate per la realizzazione di un'infrastruttura 
 %controllata e riproducibile, necessaria all'analisi e alla sperimentazione di covert channel basati su ICMP. 
-L%a scelta degli strumenti è stata guidata dalla necessità di creare uno scenario di rete isolato ma rappresentativo di contesti reali, 
+%La scelta degli strumenti è stata guidata dalla necessità di creare uno scenario di rete isolato ma rappresentativo di contesti reali, 
 %in grado di supportare sia la fase di sviluppo che quella di testing del sistema proposto. 
 \vspace{2ex} \newline 
 Il capitolo si articolerà in diverse sezione; ciascuna delle quali viene dedicata a un componente specifico dell'infrastruttura. 
-L'ambiente operativo si compone di una piattaforma di virtualizzazione per la creazione di macchine virtuali\ref{strumenti:virtualbox}, 
-di un framework per la manipolazione e l'analisi dei pacchetti di rete\ref{strumenti:scapy}, e di strumenti per il rilevamento di 
-potenziali minacce informatiche\ref{strumenti:RITA}.
-Particolare attenzione sarà anche dedicata all'analisi di progetti esistenti \ref{strumenti:ICMPdoor} \ref{strumenti:ICMPexfill} \ref{strumenti:ICMPtunnel} 
+L'ambiente operativo si compone di una piattaforma di virtualizzazione per la creazione di macchine virtuali, 
+di un framework per la manipolazione e l'analisi dei pacchetti di rete, e di strumenti per il rilevamento di 
+potenziali minacce informatiche.
+Particolare attenzione sarà anche dedicata all'analisi di progetti esistenti. 
 che hanno già affrontato la tematica dei covert channel tramite ICMP.
 L'analisi di questi progetti ha permesso di identificare i requisiti fondamentali, i punti di forza e le criticità delle diverse 
 implementazioni, fornendo una base solida per la progettazione delle soluzione proposte. 
@@ -180,7 +180,9 @@ Di solito per ogni Echo Request corrisponde una singola Echo Reply in cui la ris
 Si è analizzato ICMP Exfil \cite{icmp-exfill} per vedere come un Covert Channel temporalizzato postesse funzionare. 
 Riceve un dato, lo converte in binario e dopodichè avrà una lista di numeri binari. 
 Per mandare il dato, invia un ping con un timeout pari a \textbf{binary\_number+leway}. 
-Il valore leway viene utilizzato per rallentare il numero di pacchetti inviati ed avere una connesisone maggiormente silenziosa. 
+\vspace{1ex} \newline 
+\textit{binary\_number} indica il valore intero associato ad al byte (in binario). 
+Il valore \textit{leway} viene utilizzato per rallentare il numero di pacchetti inviati ed avere una connesisone maggiormente silenziosa. 
 L'autore infine indica come miglioria, la crittografia dei dati per aggiungere del rumore, dell'entropia. 
 \vspace{1ex} \newline 
 Ciò su cui si affida è che un osservatore, vedendo i pacchetti ICMP, li veda come vailidi; 
