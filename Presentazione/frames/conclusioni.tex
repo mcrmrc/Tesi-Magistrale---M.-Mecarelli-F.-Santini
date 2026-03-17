@@ -1,41 +1,26 @@
 \begin{frame}
-\frametitle{Conclusioni finali}
-In queste diapositive si è quindi presentato lo sviluppo e l'implementazione 
-di un canale nascosto tramite il protocollo ICMP. L’obbiettivo era dimostrare 
-come il protocollo, fondamentale per il funzionamento delle reti, potesse 
-essere sfruttabile per la creazione di un Covert Channel che possa esfiltrare 
-delle informazioni. 
-\vspace{1ex} \newline 
-Si è descritto l’implementazione della comunicazione fra le entità presenti 
-nel sistema e successivamente l'implementazione delle seguenti tipologie di 
-Cover Channel: 
+\frametitle{Conclusioni e sviluppi futuri} 
+\footnotesize
+Abbiamo visto che: 
+\begin{itemize} 
+\item ICMP può essere sfruttato per l'implementazione
+di Covert channel 
+\end{itemize}
+\vspace{1ex} 
+Inoltre dai test risulta che la rilevabilità viene diminuita: 
 \begin{itemize}
-    \item Storage Covert Channel: inserendo i dati ne campi dei 
-    messaggi ICMP. 
-    \item Timing Covert Channel: codificando le informazioni 
-    tramite una funzione 
-    %$\text{min\_delay}+(\text{byte}/255)*(\text{max\_delay}-\text{min\_delay})$
-    al cui valore finale verrà agiunto del rumore casuale.  
-    \item Behavioural Covert Channel: codifica i dati attraverso 
-    degli eventi definiti dalla coppia Tipologia e Codice del 
-    messaggio ICMP.  
+    \item modificando il mitente del messaggio 
+    \item attendendo del tempo prima di un ulteriore invio
 \end{itemize} 
-\end{frame} 
-\begin{frame}
-Dopodiché si sono testati i Covert Channel tramite RITA e dalle analisi 
-risulta che la rilevabilità di un Covert channel dipende dai seguenti fattori: 
+\vspace{4ex}  
+Ciò porta alle seguenti considerazioni
 \begin{itemize}
-    \item %L'utilizzo di un delay fra l'invio di un blocco di dati ed il 
-    %successivo permette di abbassare la visibilità del Covert Channel. 
-    La frequenza con cui si inviano i dati. 
-    \item La quantità di pacchetti mandati da una sorgente in uno o più 
-    intervalli di tempo. 
+    \item limitare le tipologie di messaggi ICMP nella rete
+    \item monitorare l'utilizzo dei messaggi ed il loro contenuto 
+    \item limitare il tasso di invio o ricezione 
+    dei messaggi ICMP
+    \item isolare/delimitare le reti cosi da non ricevere 
+    o inviare messaggi dall'esterno
 \end{itemize} 
-Sebbene sia un protocollo funzionale al monitoraggio di rete, i messaggi 
-ICMP devono essere limitati solo a quelle tipologie essenziali alla rete 
-E fra queste bisogna monitorare il loro utilizzo ed il loro 
-contenuto. Ciò richiederà un ispezione dei pacchetti presenti nel flusso, 
-un analisi statistica per la ricerca di pattern e la limitazione nella 
-rete dei messaggi ICMP. 
 \end{frame} 
 
