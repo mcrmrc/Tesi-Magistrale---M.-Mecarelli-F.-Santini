@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.8)  6 FEB 2026 23:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.8)  15 MAR 2026 00:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1373,38 +1373,38 @@ Package: ragged2e 2023/06/22 v3.6 ragged2e Package
 \RaggedRightParindent=\skip106
 \JustifyingParindent=\skip107
 )
-Package hyperref Info: Option `pdfdisplaydoctitle' set `true' on input line 16.
+Package hyperref Info: Option `pdfdisplaydoctitle' set `true' on input line 18.
 
 
 (presentation.aux)
 \openout1 = `presentation.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 21.
-LaTeX Font Info:    ... okay on input line 21.
-LaTeX Font Info:    Checking defaults for LY1/ptm/m/n on input line 21.
-LaTeX Font Info:    Trying to load font information for LY1+ptm on input line 2
-1.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 44.
+LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for LY1/ptm/m/n on input line 44.
+LaTeX Font Info:    Trying to load font information for LY1+ptm on input line 4
+4.
 
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/ly1\ly1ptm.fd
 File: ly1ptm.fd 2001/02/01 font definitions for LY1/ptm using Berry names.
 )
-LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    ... okay on input line 44.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1466,7 +1466,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 21.
+Package hyperref Info: Link coloring OFF on input line 44.
  (presentation.out) (presentation.out)
 \@outlinefile=\write5
 \openout5 = `presentation.out'.
@@ -1496,13 +1496,13 @@ Dictionary: translator-numbers-dictionary, Language: English
 heorem-dictionary-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 )
-LaTeX Info: Redefining \microtypecontext on input line 21.
-Package microtype Info: Applying patch `item' on input line 21.
-Package microtype Info: Applying patch `toc' on input line 21.
-Package microtype Info: Applying patch `eqnum' on input line 21.
-Package microtype Info: Applying patch `footnote' on input line 21.
-Package microtype Info: Applying patch `verbatim' on input line 21.
-LaTeX Info: Redefining \microtypesetup on input line 21.
+LaTeX Info: Redefining \microtypecontext on input line 44.
+Package microtype Info: Applying patch `item' on input line 44.
+Package microtype Info: Applying patch `toc' on input line 44.
+Package microtype Info: Applying patch `eqnum' on input line 44.
+Package microtype Info: Applying patch `footnote' on input line 44.
+Package microtype Info: Applying patch `verbatim' on input line 44.
+LaTeX Info: Redefining \microtypesetup on input line 44.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -1529,40 +1529,48 @@ Package caption Info: End \AtBeginDocument code.
 
 (presentation.nav)
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 20.74pt on input line 38.
+(Font)              scaled to size 20.74pt on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/sc' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/sc' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/sc' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/sc' will be
-(Font)              scaled to size 20.74pt on input line 38.
-
-Overfull \hbox (8.0pt too wide) in paragraph at lines 38--38
-[][]  
- []
-
+(Font)              scaled to size 20.74pt on input line 72.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/sc' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/sc' on input line 72.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/sc' will be
+(Font)              scaled to size 10.95pt on input line 72.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/sc' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/sc' on input line 72.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/sc' will be
+(Font)              scaled to size 14.4pt on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 12.0pt on input line 38.
+(Font)              scaled to size 12.0pt on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 9.0pt on input line 38.
+(Font)              scaled to size 10.0pt on input line 72.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 72.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 8.0pt on input line 72.
+
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
+Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/10
+.95'
+(microtype)             (new value: 10.95pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/9'
 
-(microtype)             (new value: 9.0pt) on input line 38.
+(microtype)             (new value: 9.0pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/7'
 
-(microtype)             (new value: 7.0pt) on input line 38.
-Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/5'
-
-(microtype)             (new value: 5.0pt) on input line 38.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 38.
+(microtype)             (new value: 7.0pt) on input line 72.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 72.
 
 
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
@@ -1571,7 +1579,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 38.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 72.
 
 
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
@@ -1580,51 +1588,55 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/9'
-(microtype)             (new value: 9.0pt) on input line 38.
+(microtype)             (new value: 9.0pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/7'
-(microtype)             (new value: 7.0pt) on input line 38.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/5'
-(microtype)             (new value: 5.0pt) on input line 38.
+(microtype)             (new value: 7.0pt) on input line 72.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/9'
-(microtype)             (new value: 9.0pt) on input line 38.
+(microtype)             (new value: 9.0pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/7'
-(microtype)             (new value: 7.0pt) on input line 38.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/5'
-(microtype)             (new value: 5.0pt) on input line 38.
+(microtype)             (new value: 7.0pt) on input line 72.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/9'
-(microtype)             (new value: 9.0pt) on input line 38.
+(microtype)             (new value: 9.0pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/7'
-(microtype)             (new value: 7.0pt) on input line 38.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/5'
-(microtype)             (new value: 5.0pt) on input line 38.
+(microtype)             (new value: 7.0pt) on input line 72.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/9'
-(microtype)             (new value: 9.0pt) on input line 38.
+(microtype)             (new value: 9.0pt) on input line 72.
 Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/7'
-(microtype)             (new value: 7.0pt) on input line 38.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/5'
-(microtype)             (new value: 5.0pt) on input line 38.
+(microtype)             (new value: 7.0pt) on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 7.0pt on input line 38.
+(Font)              scaled to size 9.0pt on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 5.0pt on input line 38.
+(Font)              scaled to size 7.0pt on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
-(Font)              scaled to size 9.0pt on input line 38.
+(Font)              scaled to size 10.95pt on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
-(Font)              scaled to size 7.0pt on input line 38.
+(Font)              scaled to size 9.0pt on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 38.
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 72.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
-(Font)              scaled to size 5.0pt on input line 38.
-LaTeX Font Info:    Trying to load font information for U+zeur on input line 38
+(Font)              scaled to size 7.0pt on input line 72.
+LaTeX Font Info:    Trying to load font information for U+zeur on input line 72
 .
 
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/eulervm\uzeur.fd
@@ -1633,169 +1645,37 @@ File: uzeur.fd 2005/01/11 v4.0 (WaS)
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-eur.cfg
 File: mt-eur.cfg 2006/07/31 v1.1 microtype config. file: AMS Euler Roman (RS)
 )
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 8.0pt on input line 38.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 4.0pt on input line 38.
+<../Tesi/img/frontmatter/logo_unipg.png, id=12, 169.38281pt x 169.38281pt>
+File: ../Tesi/img/frontmatter/logo_unipg.png Graphic file (type png)
+<use ../Tesi/img/frontmatter/logo_unipg.png>
+Package pdftex.def Info: ../Tesi/img/frontmatter/logo_unipg.png  used on input 
+line 72.
+(pdftex.def)             Requested size: 52.88002pt x 52.8803pt.
+<../Tesi/img/frontmatter/LOGOTIPODELDIPARTIMENTOACOLORI.png, id=14, 316.5426pt 
+x 171.5208pt>
+File: ../Tesi/img/frontmatter/LOGOTIPODELDIPARTIMENTOACOLORI.png Graphic file (
+type png)
+<use ../Tesi/img/frontmatter/LOGOTIPODELDIPARTIMENTOACOLORI.png>
+Package pdftex.def Info: ../Tesi/img/frontmatter/LOGOTIPODELDIPARTIMENTOACOLORI
+.png  used on input line 72.
+(pdftex.def)             Requested size: 52.88002pt x 28.65303pt.
 
+Overfull \vbox (42.9534pt too high) detected at line 72
+ []
+
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 72.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 4.0pt on input line 72.
 [1
 
 {C:/Users/Marco/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Marc
 o/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/sourcesanspro/a_4jropk.enc}{C:/
 Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/sourcesanspro/a_emkxm
-5.enc}] (frames/introduzione.tex
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 13.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 14.4pt on input line 13.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/sc' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/sc' on input line 13.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/sc' will be
-(Font)              scaled to size 14.4pt on input line 13.
- [2
-
-]) (frames/introduzione_ICMP.tex
-<../Tesi/img/ICMP-packet-structure.png, id=26, 853.1875pt x 341.275pt>
-File: ../Tesi/img/ICMP-packet-structure.png Graphic file (type png)
-<use ../Tesi/img/ICMP-packet-structure.png>
-Package pdftex.def Info: ../Tesi/img/ICMP-packet-structure.png  used on input l
-ine 21.
-(pdftex.def)             Requested size: 235.01881pt x 94.00453pt.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 21.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 10.0pt on input line 21.
- [3
-
- <../Tesi/img/ICMP-packet-structure.png>]
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 37.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
-(Font)              scaled to size 10.95pt on input line 37.
-
-Underfull \hbox (badness 10000) in paragraph at lines 37--37
-[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Diagnostica
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 37--37
-[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Segnalazione
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 37--37
-[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Risoluzione
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 37--37
-[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Ottenimento
- []
-
-[4
-
-]) (frames/introduzione_Covert_Channel.tex
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
-(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 38.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
-(Font)              scaled to size 8.0pt on input line 38.
-
-Overfull \hbox (8.41182pt too wide) in alignment at lines 38--38
- [] [] 
- []
-
-[5
-
-]
-<../Tesi/img/presentazione/wheres-waldo-picture-8.jpg, id=46, 2569.6pt x 1629.0
-8624pt>
-File: ../Tesi/img/presentazione/wheres-waldo-picture-8.jpg Graphic file (type j
-pg)
-<use ../Tesi/img/presentazione/wheres-waldo-picture-8.jpg>
-Package pdftex.def Info: ../Tesi/img/presentazione/wheres-waldo-picture-8.jpg  
-used on input line 101.
-(pdftex.def)             Requested size: 285.38327pt x 180.91522pt.
- [6
-
- <../Tesi/img/presentazione/wheres-waldo-picture-8.jpg>]
-Underfull \hbox (badness 7116) in paragraph at lines 124--124
-[]\T1/SourceSansPro-TLF/regular/n/10.95 (+20) I \T1/SourceSansPro-TLF/bold/n/10
-.95 (+20) Tim-ing Covert Chan-nel \T1/SourceSansPro-TLF/regular/n/10.95 (+20) s
-ono
- []
-
-
-Underfull \hbox (badness 3199) in paragraph at lines 124--124
-\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Qualsiasi metodo che uti-lizzi un
- []
-
-<../Tesi/img/telegrafo2.jpg, id=52, 2128.95375pt x 2759.30875pt>
-File: ../Tesi/img/telegrafo2.jpg Graphic file (type jpg)
-<use ../Tesi/img/telegrafo2.jpg>
-Package pdftex.def Info: ../Tesi/img/telegrafo2.jpg  used on input line 124.
-(pdftex.def)             Requested size: 128.9245pt x 167.06711pt.
-[7
-
- <../Tesi/img/telegrafo2.jpg>]
-\openout4 = `presentation.vrb'.
-
- (presentation.vrb
-<../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png, id=59, 1027.84pt
- x 1541.76pt>
-File: ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png Graphic file
- (type png)
-<use ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpati
-co.png  used on input line 15.
-(pdftex.def)             Requested size: 104.74977pt x 157.10217pt.
-) [8
-
- <../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png (PNG copy)>]
-Underfull \hbox (badness 10000) in paragraph at lines 166--166
-\T1/SourceSansPro-TLF/regular/n/10.95 (+20) I dati ver-ranno quindi ri-ca-vati
- []
-
-<../Tesi/img/ICMP_behaveCC/semaforo.jpg, id=65, 421.575pt x 316.18124pt>
-File: ../Tesi/img/ICMP_behaveCC/semaforo.jpg Graphic file (type jpg)
-<use ../Tesi/img/ICMP_behaveCC/semaforo.jpg>
-Package pdftex.def Info: ../Tesi/img/ICMP_behaveCC/semaforo.jpg  used on input 
-line 166.
-(pdftex.def)             Requested size: 161.15501pt x 120.86897pt.
-[9
-
- <../Tesi/img/ICMP_behaveCC/semaforo.jpg>])
-(frames/implementazione_struttura.tex
-<../Tesi/img/implementazione/diagramma_struttura_entita.jpg, id=71, 770.88pt x 
-805.0075pt>
-File: ../Tesi/img/implementazione/diagramma_struttura_entita.jpg Graphic file (
-type jpg)
-<use ../Tesi/img/implementazione/diagramma_struttura_entita.jpg>
-Package pdftex.def Info: ../Tesi/img/implementazione/diagramma_struttura_entita
-.jpg  used on input line 30.
-(pdftex.def)             Requested size: 201.44762pt x 210.36568pt.
- [10
-
- <../Tesi/img/implementazione/diagramma_struttura_entita.jpg>]
-Overfull \hbox (8.41182pt too wide) in alignment at lines 65--65
- [] [] 
- []
-
-[11
-
-]
-Overfull \hbox (8.4118pt too wide) in alignment at lines 116--116
- [] [] 
- []
-
-[12
-
-]
+5.enc} <../Tesi/img/frontmatter/logo_unipg.png> <../Tesi/img/frontmatter/LOGOTI
+PODELDIPARTIMENTOACOLORI.png>] (frames/introduzione_ICMP.tex
 LaTeX Font Info:    Trying to load font information for TS1+SourceSansPro-TLF o
-n input line 136.
+n input line 19.
 
 (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/sourcesanspro\ts1source
 sanspro-tlf.fd
@@ -1803,285 +1683,237 @@ File: TS1SourceSansPro-TLF.fd 2020/01/19 (autoinst) Font definitions for TS1/So
 urceSansPro-TLF.
 )
 LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 136.
+(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 19.
 LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 10.95pt on input line 136.
+(Font)              scaled to size 10.95pt on input line 19.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `SourceSansPro-TLF' (encoding: TS1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
- [13
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 19.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
+(Font)              scaled to size 10.95pt on input line 19.
+<../Tesi/img/ICMP-packet-structure.png, id=25, 853.1875pt x 341.275pt>
+File: ../Tesi/img/ICMP-packet-structure.png Graphic file (type png)
+<use ../Tesi/img/ICMP-packet-structure.png>
+Package pdftex.def Info: ../Tesi/img/ICMP-packet-structure.png  used on input l
+ine 19.
+(pdftex.def)             Requested size: 235.01881pt x 94.00453pt.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 19.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 14.4pt on input line 19.
+ [2
 
 {C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/sourcesanspro/a_5
-ponh6.enc}]
-Underfull \hbox (badness 5359) in paragraph at lines 168--168
-[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Numero min-imo di con-nesisoni nec-e
-s-sarie per l'esecuzione
- []
+ponh6.enc} <../Tesi/img/ICMP-packet-structure.png>] [3
 
-
-Overfull \hbox (8.4118pt too wide) in alignment at lines 168--168
- [] [] 
- []
-
-[14
-
-] [15
-
-]) (frames/implementazione_Timing_CC.tex [16
+])
+(frames/introduzione_Covert_Channel.tex [4
 
 ]
-<../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png, id=112, 12
-17.04688pt x 327.2225pt>
+<../Tesi/img/telegrafo2.jpg, id=44, 1578.89874pt x 2759.30875pt>
+File: ../Tesi/img/telegrafo2.jpg Graphic file (type jpg)
+<use ../Tesi/img/telegrafo2.jpg>
+Package pdftex.def Info: ../Tesi/img/telegrafo2.jpg  used on input line 51.
+(pdftex.def)             Requested size: 80.57935pt x 140.79446pt.
+<../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png, id=45, 827.09pt 
+x 1470.49374pt>
+File: ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png Graphic file
+ (type png)
+<use ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpati
+co.png  used on input line 51.
+(pdftex.def)             Requested size: 80.57935pt x 143.24355pt.
+<../Tesi/img/ICMP_behaveCC/semaforo.jpg, id=46, 166.6225pt x 296.10625pt>
+File: ../Tesi/img/ICMP_behaveCC/semaforo.jpg Graphic file (type jpg)
+<use ../Tesi/img/ICMP_behaveCC/semaforo.jpg>
+Package pdftex.def Info: ../Tesi/img/ICMP_behaveCC/semaforo.jpg  used on input 
+line 51.
+(pdftex.def)             Requested size: 80.57935pt x 143.2002pt.
+ [5
+
+ <../Tesi/img/telegrafo2.jpg> <../Tesi/img/ICMP_storageCC/documento_inchiostros
+impatico.png> <../Tesi/img/ICMP_behaveCC/semaforo.jpg>]) (frames/implementazion
+e_struttura.tex [6
+
+]
+<../Tesi/img/ICMPtunnel/architettura_vittima.png, id=58, 480.79625pt x 135.5062
+6pt>
+File: ../Tesi/img/ICMPtunnel/architettura_vittima.png Graphic file (type png)
+<use ../Tesi/img/ICMPtunnel/architettura_vittima.png>
+Package pdftex.def Info: ../Tesi/img/ICMPtunnel/architettura_vittima.png  used 
+on input line 47.
+(pdftex.def)             Requested size: 188.01576pt x 52.98988pt.
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 47.
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 8.0pt on input line 47.
+<../Tesi/img/ICMPtunnel/architettura_proxy.png, id=59, 518.93875pt x 135.50626p
+t>
+File: ../Tesi/img/ICMPtunnel/architettura_proxy.png Graphic file (type png)
+<use ../Tesi/img/ICMPtunnel/architettura_proxy.png>
+Package pdftex.def Info: ../Tesi/img/ICMPtunnel/architettura_proxy.png  used on
+ input line 47.
+(pdftex.def)             Requested size: 188.01576pt x 49.09648pt.
+ [7
+
+ <../Tesi/img/ICMPtunnel/architettura_vittima.png> <../Tesi/img/ICMPtunnel/arch
+itettura_proxy.png>]
+<../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_init.jpg, id=6
+8, 765.35938pt x 430.60875pt>
+File: ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_init.jpg 
+Graphic file (type jpg)
+<use ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_init.jpg>
+Package pdftex.def Info: ../Tesi/img/implementazione/UML-timeDiagram-flussoComu
+nicazione_init.jpg  used on input line 90.
+(pdftex.def)             Requested size: 268.59512pt x 151.11612pt.
+ [8
+
+ <../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_init.jpg>]
+<../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione.jp
+g, id=74, 868.74562pt x 488.82625pt>
+File: ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessio
+ne.jpg Graphic file (type jpg)
+<use ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connession
+e.jpg>
+Package pdftex.def Info: ../Tesi/img/implementazione/UML-timeDiagram-flussoComu
+nicazione_connessione.jpg  used on input line 96.
+(pdftex.def)             Requested size: 302.1663pt x 170.02512pt.
+ [9
+
+ <../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione.j
+pg>]
+<../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione.
+jpg, id=80, 806.51312pt x 453.695pt>
+File: ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltraz
+ione.jpg Graphic file (type jpg)
+<use ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazi
+one.jpg>
+Package pdftex.def Info: ../Tesi/img/implementazione/UML-timeDiagram-flussoComu
+nicazione_esfiltrazione.jpg  used on input line 151.
+(pdftex.def)             Requested size: 302.1663pt x 169.97598pt.
+ [10
+
+ <../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione
+.jpg>]
+<../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_parteFinale.jp
+g, id=86, 764.35562pt x 430.10687pt>
+File: ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_parteFina
+le.jpg Graphic file (type jpg)
+<use ../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_parteFinal
+e.jpg>
+Package pdftex.def Info: ../Tesi/img/implementazione/UML-timeDiagram-flussoComu
+nicazione_parteFinale.jpg  used on input line 231.
+(pdftex.def)             Requested size: 302.1663pt x 170.03145pt.
+ [11
+
+ <../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_parteFinale.j
+pg>]) (frames/implementazione_Timing_CC.tex
+[12
+
+]
+<../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png, id=97, 121
+7.04688pt x 327.2225pt>
 File: ../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png Graphi
 c file (type png)
 <use ../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png>
 Package pdftex.def Info: ../Tesi/img/timing_channel/timing_channel_times_nonove
-rlapping.png  used on input line 90.
-(pdftex.def)             Requested size: 268.59512pt x 72.21385pt.
-Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/10
-.95'
-(microtype)             (new value: 10.95pt) on input line 90.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/10.9
-5'
-(microtype)             (new value: 10.95pt) on input line 90.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/10.9
-5'
-(microtype)             (new value: 10.95pt) on input line 90.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/10.9
-5'
-(microtype)             (new value: 10.95pt) on input line 90.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/10.9
-5'
-(microtype)             (new value: 10.95pt) on input line 90.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 90.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
-(Font)              scaled to size 10.95pt on input line 90.
- [17
+rlapping.png  used on input line 40.
+(pdftex.def)             Requested size: 335.74263pt x 90.26857pt.
+ [13
 
 {C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
 C.enc} <../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png>]
-<../Tesi/img/timing_channel/timinmg_channel_2nd_function.png, id=121, 517.935pt
+<../Tesi/img/timing_channel/timinmg_channel_2nd_function.png, id=106, 517.935pt
  x 626.84187pt>
 File: ../Tesi/img/timing_channel/timinmg_channel_2nd_function.png Graphic file 
 (type png)
 <use ../Tesi/img/timing_channel/timinmg_channel_2nd_function.png>
 Package pdftex.def Info: ../Tesi/img/timing_channel/timinmg_channel_2nd_functio
-n.png  used on input line 112.
-(pdftex.def)             Requested size: 112.80801pt x 136.52829pt.
- [18
+n.png  used on input line 68.
+(pdftex.def)             Requested size: 100.7238pt x 121.90369pt.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 68.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
+(Font)              scaled to size 10.0pt on input line 68.
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 68.
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 10.0pt on input line 68.
+ [14
 
 {C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
 E.enc} <../Tesi/img/timing_channel/timinmg_channel_2nd_function.png>]
-<../Tesi/img/timing_channel/timinmg_channel_rumore.png, id=129, 1113.15875pt x 
+<../Tesi/img/timing_channel/timinmg_channel_rumore.png, id=114, 1113.15875pt x 
 367.87437pt>
 File: ../Tesi/img/timing_channel/timinmg_channel_rumore.png Graphic file (type 
 png)
 <use ../Tesi/img/timing_channel/timinmg_channel_rumore.png>
 Package pdftex.def Info: ../Tesi/img/timing_channel/timinmg_channel_rumore.png 
- used on input line 129.
+ used on input line 96.
 (pdftex.def)             Requested size: 268.59512pt x 88.76317pt.
- [19
 
- <../Tesi/img/timing_channel/timinmg_channel_rumore.png>]) (frames/implementazi
-one_Storage_CC.tex
-\openout4 = `presentation.vrb'.
+[15
 
-
-(presentation.vrb
-Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/8'
-
-(microtype)             (new value: 8.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/6'
-
-(microtype)             (new value: 6.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/8'
-(microtype)             (new value: 8.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/6'
-(microtype)             (new value: 6.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/8'
-(microtype)             (new value: 8.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/6'
-(microtype)             (new value: 6.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/8'
-(microtype)             (new value: 8.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/6'
-(microtype)             (new value: 6.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/8'
-(microtype)             (new value: 8.0pt) on input line 16.
-Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/6'
-(microtype)             (new value: 6.0pt) on input line 16.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 16.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
-(Font)              scaled to size 8.0pt on input line 16.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
-(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 16.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
-(Font)              scaled to size 6.0pt on input line 16.
-
-Overfull \hbox (4.02875pt too wide) in alignment at lines 9--47
- [] [] [] 
- []
-
-) [20
-
-{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
-A.enc}]
-Overfull \hbox (4.02875pt too wide) in alignment at lines 108--108
- [] [] [] 
- []
-
-[21
-
-] (frames/storage_CC_tipologieICMP.tex
-<../Tesi/img/ICMP_storageCC/immagie_header_64bit.png, id=150, 521.69907pt x 782
-.17218pt>
-File: ../Tesi/img/ICMP_storageCC/immagie_header_64bit.png Graphic file (type pn
-g)
-<use ../Tesi/img/ICMP_storageCC/immagie_header_64bit.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagie_header_64bit.png  u
-sed on input line 43.
-(pdftex.def)             Requested size: 112.80801pt x 169.13046pt.
- [22
-
- <../Tesi/img/ICMP_storageCC/immagie_header_64bit.png>]
-\openout4 = `presentation.vrb'.
-
- (presentation.vrb
-Underfull \hbox (badness 10000) in paragraph at lines 9--10
-[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Dimensione dell'intero pac-
- []
-
-
-Overfull \hbox (4.02875pt too wide) in alignment at lines 2--25
- [] [] [] 
- []
-
-) [23
+ <../Tesi/img/timing_channel/timinmg_channel_rumore.png>])
+(frames/implementazione_Storage_CC.tex [16
 
 ]
-Underfull \hbox (badness 2027) in paragraph at lines 140--140
-\T1/SourceSansPro-TLF/regular/n/10.95 (+20) uti-liz-zando i metodi pre-senti ne
-l
- []
-
-
-Underfull \hbox (badness 1946) in paragraph at lines 140--140
-\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Il prob-lema viene risolto tramite
- []
-
-<../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png, id=165, 680.5
-425pt x 850.67813pt>
-File: ../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png Graphic f
-ile (type png)
-<use ../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagine_parameterproblem_u
-nused.png  used on input line 140.
-(pdftex.def)             Requested size: 145.03853pt x 181.29565pt.
-[24
-
- <../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png>]
-<../Tesi/img/ICMP_storageCC/immagine_payload.png, id=172, 732.48656pt x 359.091
-57pt>
-File: ../Tesi/img/ICMP_storageCC/immagine_payload.png Graphic file (type png)
-<use ../Tesi/img/ICMP_storageCC/immagine_payload.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagine_payload.png  used 
-on input line 331.
-(pdftex.def)             Requested size: 161.15501pt x 79.00038pt.
- [25
-
- <../Tesi/img/ICMP_storageCC/immagine_payload.png>]
 \openout4 = `presentation.vrb'.
 
  (presentation.vrb
-<../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png, id=180, 549.55313pt x 3
-67.3725pt>
-File: ../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png Graphic file (type 
-png)
-<use ../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png 
- used on input line 15.
-(pdftex.def)             Requested size: 161.15501pt x 107.7293pt.
-) [26
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 5.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
+(Font)              scaled to size 8.0pt on input line 5.
+) [17
 
- <../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png>]
+]
 \openout4 = `presentation.vrb'.
 
- (presentation.vrb
-LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/m/n' aliased to
-(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 11.
-LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/regular/n' will be
-(Font)              scaled to size 8.0pt on input line 11.
-<../Tesi/img/ICMP_storageCC/immagine_timestamp.png, id=187, 553.31718pt x 368.8
-7813pt>
-File: ../Tesi/img/ICMP_storageCC/immagine_timestamp.png Graphic file (type png)
 
-<use ../Tesi/img/ICMP_storageCC/immagine_timestamp.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagine_timestamp.png  use
-d on input line 21.
-(pdftex.def)             Requested size: 161.15501pt x 107.43346pt.
-) [27
+(presentation.vrb) [18
 
- <../Tesi/img/ICMP_storageCC/immagine_timestamp.png>]
-<../Tesi/img/ICMP_storageCC/immagine_pointer.png, id=194, 668.4975pt x 334.2487
-5pt>
-File: ../Tesi/img/ICMP_storageCC/immagine_pointer.png Graphic file (type png)
-<use ../Tesi/img/ICMP_storageCC/immagine_pointer.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagine_pointer.png  used 
-on input line 472.
-(pdftex.def)             Requested size: 128.9245pt x 64.46165pt.
- [28
+]) (frames/implementazione_Behave_CC.tex [19
 
- <../Tesi/img/ICMP_storageCC/immagine_pointer.png>]
-Underfull \hbox (badness 2027) in paragraph at lines 501--501
-[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Decrementato di 1 per ogni
- []
-
-
-Overfull \hbox (4.02875pt too wide) in alignment at lines 501--501
- [] [] [] 
- []
-
-[29
-
-])) (frames/implementazione_Behave_CC.tex
-<../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png, id=208, 1089.06876pt x 33
-3.245pt>
-File: ../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png Graphic file (type pn
-g)
-<use ../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png>
-Package pdftex.def Info: ../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png  u
-sed on input line 17.
-(pdftex.def)             Requested size: 335.74263pt x 102.73027pt.
- [30
-
-{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
-D.enc} <../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png>]
+]
 \openout4 = `presentation.vrb'.
 
- (presentation.vrb) [31
+
+(presentation.vrb)
+Overfull \vbox (19.44162pt too high) detected at line 37
+ []
+
+[20
+
+]) (frames/test_introduzione.tex [21
 
 ]
 \openout4 = `presentation.vrb'.
 
  (presentation.vrb)
-[32
+Overfull \vbox (20.75581pt too high) detected at line 42
+ []
 
-]) (frames/test_introduzione.tex
-\openout4 = `presentation.vrb'.
+[22
 
- (presentation.vrb) [33
-
-] [34
-
-])
-(frames/conclusioni.tex [35
-
-] [36
+]) (frames/conclusioni.tex
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 25.
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 9.0pt on input line 25.
+ [23
 
 ])
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 98.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 24.88pt on input line 98.
+ [24
+
+]
 \tf@nav=\write6
 \openout6 = `presentation.nav'.
 
@@ -2100,23 +1932,20 @@ Package rerunfilecheck Info: File `presentation.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 33144 strings out of 467870
- 626362 string characters out of 5418356
- 985779 words of memory out of 5000000
- 60918 multiletter control sequences out of 15000+600000
- 865284 words of font info for 297 fonts, out of 8000000 for 9000
+ 32565 strings out of 467870
+ 618036 string characters out of 5418356
+ 978852 words of memory out of 5000000
+ 60511 multiletter control sequences out of 15000+600000
+ 841575 words of font info for 202 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,11n,131p,1011b,1556s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,11n,131p,1011b,973s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/public/mnsymbol/MnS
-ymbol10.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/public/mn
-symbol/MnSymbol8.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/
-adobe/sourcesanspro/SourceSansPro-Bold.pfb><C:/Users/Marco/AppData/Local/Progra
-ms/MiKTeX/fonts/type1/adobe/sourcesanspro/SourceSansPro-It.pfb><C:/Users/Marco/
-AppData/Local/Programs/MiKTeX/fonts/type1/adobe/sourcesanspro/SourceSansPro-Reg
-ular.pfb>
-Output written on presentation.pdf (36 pages, 6832863 bytes).
+ymbol10.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/adobe/sou
+rcesanspro/SourceSansPro-Bold.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX
+/fonts/type1/adobe/sourcesanspro/SourceSansPro-Regular.pfb>
+Output written on presentation.pdf (24 pages, 4197672 bytes).
 PDF statistics:
- 306 PDF objects out of 1000 (max. 8388607)
- 86 named destinations out of 1000 (max. 500000)
- 82043 words of extra memory for PDF output out of 89155 (max. 10000000)
+ 209 PDF objects out of 1000 (max. 8388607)
+ 53 named destinations out of 1000 (max. 500000)
+ 86134 words of extra memory for PDF output out of 89155 (max. 10000000)
 

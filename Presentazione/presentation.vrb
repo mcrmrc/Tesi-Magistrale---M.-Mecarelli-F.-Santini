@@ -1,28 +1,33 @@
 \frametitle{Test e Risultati}
-Inizialmente si sono effettuati test in cui si inviava
-il dato una singola volta. Dai risultati ottenuti si
-ottiene che RITA non ha mostrato la presenza dei
-Covert Channel.
-%siccome i dati sono stati mandati
-%una singola volta.
-\vspace{2ex} \newline
-Uno step successivo per l'esecuzione dei test è l'invio
-degli stessi dati più volte (in particolare tre volte).
-Inoltre al test si aggiungeranno dei parametri così da
-poter verificare meglio cosa avviene. L'obbiettivo è
-determinare come RITA risponde alle comunicazioni con
-queste caratteristiche.
 \scriptsize
 \begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|}
-    \hline
-    \textbf{Parametro} & \textbf{Possibili valori} \\
-    \hline
-    Quantità di dati inviati & 1KB, 10KB, 100KB, 1MB \\  \hline
-    L'utilizzo dei campi usati nei messagi ICMP & unused, data \\ \hline
-    Delay fra i blocchi di dati &  Nessuno, 15 secondi \\ \hline
-    Attesa prima di un nuovo invio & 1 ora, 30 minuti, 15 minuti \\  \hline
-    Il mittente del messaggio & IP dell'host, IP assegnati nell rete, IP non assegnati nella rete \\ \hline
-    \caption{Parametri usati nei test}
+    \multicolumn{2}{c}{Primo Test} \\ \hline
+    \textbf{Descrizione} & \textbf{Risultato} \\ \hline
+    Si inviano i dati una signola volta & RITA non ha rilevato il Covert Channel \\ \hline
+    \multicolumn{2}{c}{} \\[2ex]
+    \multicolumn{2}{c}{Secondo Test} \\ \hline
+    \textbf{Descrizione} & \textbf{Risultato} \\ \hline
+    Si inviano i dati più volte (in particolare 3) al variare di alcuni parametri\par
+    \begin{itemize}
+    \item quantità di dati inviati
+    \item campi utilizzati nel messaggio
+    \item delay durante l'invio dei dati
+    \item attesa prima di un nuovo invio
+    \item mittente reale o modificato
+    \end{itemize}
+    Usato lo stesso Covert Channel per ogni test
+    &
+    Riducono la gravita della comunicazione ed il tasso di beacon associato:
+    \begin{itemize}
+    \item modifica del mittente
+    \item tempi di attesa lunghi prima dell'invio successivo
+    \end{itemize}
+    \vspace{1ex}
+    Aumentano la gravità ed il beacon score:
+    \begin{itemize}
+    \item l'invio costante, ravvicinato e frequente di messaggi
+    \item una variazione scostante della dimensione del campo Data
+    \end{itemize}
+    \\ \hline
+    \caption{Mappatura degli eventi ai dati}
 \end{longtable}
-%Il Covert Channel utilizzato durante la fase di test
-%è quello che utilizza i messaggi ICMP ECHO.

@@ -7,38 +7,72 @@
 \usepackage{bytefield} 
 \usepackage{listings} 
 \usepackage{xcolor}
-\usepackage{ragged2e} % nel preambolo
+\usepackage{ragged2e} % nel preambolo 
+\usepackage{multirow} 
+\usepackage{array}
 
 
 \hypersetup{pdfpagemode=UseNone,hidelinks,pdfdisplaydoctitle=true,%
 %
 % Enter presentation title to populate PDF metadata:
-pdftitle={Minimalist LaTeX Template for Academic Presentations}}
+pdftitle={Presentazione testi laurea magisrale Marco Mecarelli}}
 
 % Enter path to PDF file with figures:
 \newcommand{\pdf}{figures.pdf}
+\setbeamertemplate{title page}{
+\begin{columns}
+\begin{column}{0.65\textwidth} % COLONNA SINISTRA
+{\usebeamerfont{title}\inserttitle\par}
+\vspace{1em}
+{\usebeamerfont{subtitle}\insertsubtitle\par}
+\vspace{2em}
+{\usebeamerfont{author}\insertauthor\par}
+\vspace{1em}
+{\usebeamerfont{institute}\insertinstitute\par}
+\vspace{1em}
+{\insertdate}
+\end{column}
+\begin{column}{0.35\textwidth} % COLONNA DESTRA
+\centering 
+\includegraphics[width=0.45\textwidth]{../Tesi/img/frontmatter/logo_unipg.png}
+\vspace{2em} \newline
+\includegraphics[width=0.45\textwidth]{../Tesi/img/frontmatter/LOGOTIPODELDIPARTIMENTOACOLORI.png}
+\end{column}
+\end{columns}
+}
 
 \begin{document}
 
 
 % Enter title:
-\title{Sviluppo di un covert Channel ICMP per l'esfiltrazione dei dati}
+\title{Tesi di Laurea Magistrale in Cybersecurity}
+\subtitle{
+\Large
+Sviluppo di un Covert Channel per l'esfiltrazione 
+dei dati tramite il protocollo ICMP
+}
 
 \information%
 %
 % Enter URL to research paper (can be commented out):
-[https://github.com/mcrmrc/Tesi-Magistrale---M.-Mecarelli-F.-Santini.git]
+%[https://github.com/mcrmrc/Tesi-Magistrale---M.-Mecarelli-F.-Santini.git]
 %
-% Enter authors:
-{F. Santini, M. Mecarelli}
+% Enter authors: 
+{\small
+Dipartimento di Matematica ed Informatica\\
+Università degli studi di Perugia\\
+Anno Accademico 2024--2025
+\vspace{2ex} \newline 
+Marco Mecarelli
+}  
 %
 % Enter location and date (can be commented out):
-{Perugia -- \today}
+%{Perugia -- \today}
 
 \frame{\titlepage}
 
 % Enter content of presentation:  
-\import{frames}{introduzione} 
+%\import{frames}{introduzione} 
 \import{frames}{introduzione_ICMP} 
 \import{frames}{introduzione_Covert_Channel}  
 
@@ -52,6 +86,15 @@ pdftitle={Minimalist LaTeX Template for Academic Presentations}}
 \import{frames}{test_introduzione}    
 \import{frames}{conclusioni}  
 %\import{frames}{template_frame}  
-
+\begin{frame}
+\vfill
+\begin{center}
+{\Huge Grazie per l'attenzione}
+\end{center}
+\vfill
+\begin{center}
+Marco Mecarelli
+\end{center}
+\end{frame}
 
 \end{document}
