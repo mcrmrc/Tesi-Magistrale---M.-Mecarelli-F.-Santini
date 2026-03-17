@@ -1,5 +1,5 @@
 \section{Covert Channel} 
-Un \textbf{Covert Channel}\cite{covert_channel_tipologie1}\cite{covert_channel_tipologie2} è un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta.  
+Un \textbf{Covert Channel} \cite{covert_channel_tipologie1}\cite{covert_channel_tipologie2} è un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta.  
 %Ciò avverrà fra processi e/o entità comunicanti senza che vengano rivelati ed evitando (se non violando) le normali politiche di sicurezza. 
 Solitamente operano al di fuori degli usuali meccanismi di comunicazioni sfruttando vulnerabilità o comportamenti non previsti nei sistemi. 
 %Non usando i normali protocolli e/o canali di comunicazione (es network sockets, emails) 
@@ -34,12 +34,18 @@ Qualsiasi risorsa condivisa può essere utilizzata per la creazione di un canale
 %Questo permetterà ai Covert Channel di esistere in qualsiasi sistema. 
 E per poter essere efficace, un Covert Channel deve possedere determinate caratterisitche. 
 Fra quelle indicate nella Tabella \ref{tabella:caratteristiche:covert:channel};  
-l'\textbf{indistinguibilità} è quella principale. 
+l'\textbf{indistinguibilità} è quella principale 
+non solo perchè racchiude tutte quelle precedenti; 
+ma perchè se non si riesce a distinguere un processo 
+autorizzazto da quello malevolo, l'identificazione del 
+Covert Channel avverrà con una difficoltà maggiore. 
 \vspace{2ex} \newline
 \MakeUppercase {è} estremamente importante riuscire a trasmettere informazioni mantenendo conforme lo stato del sistema. 
 L'obbiettivo è rendere il canale indistinguibile rispetto alle altre risorse presenti nel sistema così da risultare invisibili ai sistemi di monitoraggio. 
 \begin{center} 
 \begin{longtable}{|p{0.4\textwidth}|p{0.4\textwidth}|} 
+\caption{Caratterisitche di un Covert Channel} 
+\label{tabella:caratteristiche:covert:channel} \\
     \hline
     \textbf{Caratteristica} & \textbf{Descrizione} \\
     \hline
@@ -86,8 +92,6 @@ L'obbiettivo è rendere il canale indistinguibile rispetto alle altre risorse pr
     %    i requisiti di confidenzialità, di integrità o quelli di disponibilità.  
     %\\
     %\hline 
-\caption{Caratterisitche di un Covert Channel} 
-\label{tabella:caratteristiche:covert:channel} 
 \end{longtable} 
 \end{center} 
 
