@@ -149,37 +149,6 @@ class CONNECTED_PROXY:
         self.lock=get_threading_Lock() 
         self.enough_event=get_threading_Event()
 
-class GET_ARGS:  
-    def from_parser(oggetto=None): 
-        if isinstance(oggetto,Victim): 
-            print("_victim_get_args_from_parser") 
-            parser = argparse.ArgumentParser()
-            #parser.add_argument("--ip_host",type=str, help="L'IP dell host dove ricevere i pacchetti ICMP")
-            parser.add_argument("--num_proxy",type=int, help="Numero dei proxy necessari")
-            #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")    
-            try:
-                args,unknown =PARSER.check_arguments(parser) 
-                if not is_namespace(args) or not is_list(unknown) or len(unknown)>0:  
-                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                return args if GET_ARGS.check_value_in_parser(oggetto, args) else None
-            except Exception as e: 
-                print(e)
-                PARSER.print_supported_arguments(parser) 
-        #elif isinstance(oggetto,Proxy): 
-        #    print("Proxy") 
-        #elif isinstance(oggetto,Victim): 
-        #    print("Proxy") 
-        return None
-    
-    def check_value_in_parser(oggetto, args): 
-        if not isinstance(args,argparse.Namespace): 
-            print(f"args non vlaido")  
-        if isinstance(oggetto,Victim):  
-            if not args.num_proxy or not is_integer(args.num_proxy): 
-                print(f"--num_proxy non specificato") 
-            else: return True  
-        return False
-
 class EXCEUTE_COMMAND: 
     def __init__(self, comando:str=None): 
         def check_system_compatibility():
@@ -533,14 +502,13 @@ use_delay=False
 class Victim:  
     attack_function:ATTACK_TYPE=None  
 
-    def __init__(self): 
+    def __init__(self,num_proxy:int=None): 
         self.ip_host=ADD_TO_METHODS.get_ip_host() 
         if not is_ipaddress(self.ip_host): 
-            raise TypeError("ip_host non valido") 
-        args=GET_ARGS.from_parser(self) 
-        if not is_namespace(args): 
-            exit(0) 
-        self.num_proxy=args.num_proxy 
+            raise TypeError("ip_host non valido")  
+        if not is_integer(num_proxy): 
+            raise Exception("Numero connesisoni non valido:",num_proxy)
+        self.num_proxy=num_proxy 
         if not is_integer(self.num_proxy): 
             raise TypeError("num_proxy non valido")
         self.connected_proxy=CONNECTED_PROXY() 
@@ -603,6 +571,12 @@ class Victim:
             FIREWALL.enable() 
 
 if __name__ == "__main__": 
-    vittima=Victim() 
+    args=ARGS_CONFIG.FROM_COMMAND(ENTITY.VICTIM).args 
+    if not is_namespace(args): 
+        exit(-1) 
+    if not is_string(args.file_path):
+        config_args=ARGS_CONFIG.FROM_FILE(args.file_path) 
+    else: config_args=ARGS_CONFIG.FROM_FILE(None) 
+    vittima=Victim(config_args.num_proxy ) 
     vittima.start() 
     
