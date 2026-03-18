@@ -41,7 +41,8 @@ class THREAD:
             print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
             return thread_lock, thread_response, thread_list 
         raise Exception(f"Impossibile impostare il thread per ciascun proxy") 
-    
+
+class THREAD_ATTACCANTE:
     class PROXIES_CONECTION: 
         def __init__(self, proxy_list:dict[str,DATA.PROXY]):
             if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
@@ -206,7 +207,7 @@ class THREAD:
                     self.thread_list[key].start()  
             print("Definiti e avviati i thread che aspettano i dati dai proxy") 
 
-class THREADING_EVENT:
+class THREADING_EVENT: 
     def wait(event:threading.Event=None): 
         if not is_threading_Event(event): 
             raise Exception(f"Impossibile aspettare su una variabile non Event") 
