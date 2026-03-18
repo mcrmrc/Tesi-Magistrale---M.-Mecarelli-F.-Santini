@@ -5,7 +5,8 @@ import subprocess
 import threading 
 import os
 import time 
-import ctypes
+import ctypes 
+import json
 from custom_enum import MSG, ENTITY, ATTACK_TYPE, SEPARAZIONE_DATI
 from check_type import * 
 from get_type import *
