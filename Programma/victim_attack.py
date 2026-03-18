@@ -140,15 +140,11 @@ def check_value_in_parser(args):
 
 #---------------- 
 class CONNECTED_PROXY: 
-    proxy_list:list[ipaddress._IPAddressBase]=None 
-    lock:threading.Lock=None 
-    enough_event:threading.Event=None 
-    type_attack:dict[str:str]={}
-
     def __init__(self): 
-        self.proxy_list=[]
-        self.lock=get_threading_Lock() 
-        self.enough_event=get_threading_Event()
+        self.proxy_list:list[ipaddress._IPAddressBase]=[]
+        self.lock:threading.Lock=get_threading_Lock() 
+        self.enough_event:threading.Event=get_threading_Event() 
+        self.type_attack:dict[str:str]={}
 
 class EXCEUTE_COMMAND: 
     def __init__(self, comando:str=None): 
@@ -224,7 +220,6 @@ class EXCEUTE_COMMAND:
         self.data=data.strip()
         #if self.data=="": 
         #    self.data=None
-
 
 
 WAITING_TIME=20
