@@ -1,0 +1,152 @@
+\begin{frame} [fragile] 
+\frametitle{Messaggio ICMP Parameter Problem} 
+\begin{bytefield}[bitwidth=\linewidth/32]{32} 
+    \bitheader{0-31} \\
+    \bitbox{8}{Type} & \bitbox{8}{Code} & \bitbox{16}{Checksum} \\
+    \bitbox{8}{\textbf{Pointer}} & \bitbox{24}{\textbf{Unused}} \\
+    \bitbox{32}{\textbf{Internet Header+64 bits} of Original Datagram} \\
+\end{bytefield} 
+\end{frame} 
+
+\begin{frame}
+\frametitle{Inserimento dei dati nel campo Pointer e Unused} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+%\includegraphics[width=0.45\textwidth]{../Tesi/img/ICMP_storageCC/parameterproblem_unused1_msg1.jpeg}
+%\\
+%\includegraphics[width=0.45\textwidth]{../Tesi/img/ICMP_storageCC/parameterproblem_unused1_msg2.jpeg}
+\includegraphics[width=0.7\textwidth]{../Tesi/img/ICMP_storageCC/parameterproblem_unused1_msg_icmp.jpeg}
+\captionof{figure}{Messaggio ICMP Parameter Problem}
+\column{0.48\textwidth} 
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_storageCC/parameterproblem_unused1_hex.jpeg}
+\captionof{figure}{Dump esadecimale del messaggio}
+\end{columns} 
+\end{frame}  
+
+\begin{frame} [fragile] 
+\frametitle{Inserimento dei dati nel campo Header+64 bits} 
+%\begin{figure}  
+%\centering
+\scriptsize
+\begin{bytefield}[bitwidth=\linewidth/32]{32}  
+    \bitbox[]{32}{\textbf{IPv4 Header}} \\
+    \bitheader{0-31} \\
+    \bitbox{4}{Version} & \bitbox{4}{IHL} & \bitbox{8}{Type of Service} & \bitbox{16}{\textbf{Total Length}} \\
+    \bitbox{16}{\textbf{Identification}} & \bitbox{3}{Flags} & \bitbox{13}{Fragments Offset} \\
+    \bitbox{8}{\textbf{Time to Live}} & \bitbox{8}{Protocol} & \bitbox{16}{Header Checksum} \\
+    \bitbox{32}{Source Address} \\
+    \bitbox{32}{Destination Address} \\
+    %\bitbox{24}{Options} & \bitbox{8}{Padding} \\[0.3em]
+    \bitbox[]{32}{\textbf{First 64 bits}} \\
+    \bitheader{0-31} \\
+    \bitbox{8}{Type} & \bitbox{8}{Code} & \bitbox{16}{Checksum} \\
+    \bitbox{16}{\textbf{Identifier}} & \bitbox{16}{\textbf{Sequence Number}} \\
+\end{bytefield}
+\captionof{figure}{Struttura del campo \textit{Header+64 bits}}
+%\end{figure} 
+\end{frame} 
+\begin{frame} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_storageCC/immagie_header_64bit.jpeg}
+\captionof{figure}{Contenuto di \textit{Header+64 bits}}
+\column{0.48\textwidth} 
+\includegraphics[width=0.7\textwidth]{../Tesi/img/ICMP_storageCC/immagie_header_64bit_hex.jpeg}
+%\captionof{figure}{Dump esadecimale del messaggio}
+\scriptsize
+\begin{longtable}{|p{0.4\textwidth}|p{0.4\textwidth}|} 
+    \multicolumn{2}{c}{Header IPv4} \\ \hline 
+    \textbf{Campo} & \textbf{Byte} \\ \hline 
+    Total length & 2 byte \\ \hline
+    Identification & 2 byte \\ \hline 
+    Time to live & 1 byte \\ \hline 
+    \noalign{\vskip 2ex}
+    \multicolumn{2}{c}{Header ICMPv4} \\ \hline
+    \textbf{Campo} & \textbf{Byte} \\ \hline 
+    Identifier & 2 byte \\ \hline 
+    Sequence & 2 byte \\ \hline
+    %\caption{Uso del Header+64 bits nel caso di IP/ICMP} 
+\end{longtable}  
+\end{columns} 
+\end{frame} 
+
+\begin{frame} [fragile] 
+\frametitle{Messaggio ICMP Echo Request/Reply} 
+\begin{bytefield}[bitwidth=\linewidth/32]{32} 
+    \bitheader{0-31} \\
+    \bitbox{8}{Type} & \bitbox{8}{Code} & \bitbox{16}{Checksum} \\
+    \bitbox{16}{\textbf{Identifier}} & \bitbox{16}{Sequence Number} \\
+    \bitbox{32}{\textbf{Data}} \\
+\end{bytefield} 
+\end{frame} 
+
+\begin{frame} 
+\frametitle{Inserimento dei dati nel campo Identifier} 
+\begin{columns}[T,onlytextwidth] 
+\column{0.48\textwidth}  
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier1_msg_icmp.jpeg}
+\captionof{figure}{1° messaggio ICMP Echo Reply}
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier2_msg_icmp.jpeg}
+\captionof{figure}{2° messaggio ICMP Echo Reply}
+\column{0.48\textwidth}  
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier1_hex_testo.jpeg}
+\captionof{figure}{Dump esadecimale del messaggio}
+\vspace{4ex}
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier2_hex_testo.jpeg}
+\captionof{figure}{Dump esadecimale del messaggio}
+\end{columns} 
+\end{frame} 
+\begin{frame}[fragile] %allowframebreaks
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}  
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier3_msg_icmp.jpeg}
+\captionof{figure}{3° messaggio ICMP Echo Reply}
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier4_msg_icmp.jpeg}  
+\captionof{figure}{4° messaggio ICMP Echo Reply}
+\column{0.48\textwidth}  
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier3_hex_testo.jpeg}
+\captionof{figure}{Dump esadecimale del messaggio}
+\vspace{4ex}
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_identifier4_hex_testo.jpeg}
+\captionof{figure}{Dump esadecimale del messaggio}
+\end{columns} 
+\end{frame} 
+
+\begin{frame} 
+\frametitle{Inserimento dei dati nel campo Data} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}  
+\includegraphics[width=0.9\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_payload_msg.jpeg}
+\captionof{figure}{Messaggio ICMP Echo Reply}
+\column{0.48\textwidth} 
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_storageCC/packet_echo_payload_hex.jpeg}
+\captionof{figure}{Dump esadecimale messaggio ICMP Echo Reply}
+\end{columns}
+\end{frame}  
+
+
+\begin{frame} [fragile] 
+\frametitle{Messaggio ICMP Timestamp Request/Reply} 
+\begin{bytefield}[bitwidth=\linewidth/32]{32} 
+    \bitheader{0-31} \\
+    \bitbox{8}{Type} & \bitbox{8}{Code} & \bitbox{16}{Checksum} \\
+    \bitbox{16}{\textbf{Identifier}} & \bitbox{16}{Sequence Number} \\
+    \bitbox{32}{\textbf{Originate Timestamp}} \\
+    \bitbox{32}{\textbf{Receive Timestamp}} \\
+    \bitbox{32}{\textbf{Transmit Timestamp}} \\
+\end{bytefield} 
+%\bitbox{32}{Data ... ($\geq$ 0 byte)}  
+\end{frame}  
+
+\begin{frame} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth}   
+\includegraphics[width=0.9\textwidth]{../Tesi/img/ICMP_storageCC/timestamp_msg.jpg}
+\captionof{figure}{Messaggio ICMP Timestamp} 
+\column{0.48\textwidth}
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_storageCC/timestamp_hex.jpg}
+%\captionof{figure}{Dump esadecimale messaggio ICMP Timestamp}
+\vspace{4ex}
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_storageCC/timestamp_wireshark2.PNG}
+\end{columns}
+\end{frame} 
