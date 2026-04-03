@@ -4,57 +4,68 @@
 {\huge Implementazione della struttura di comunicazione}
 \end{center}
 \vfill 
-\end{frame}
+\end{frame} 
 \begin{frame}
-\frametitle{Implementazione della comunicazione} 
-Per una prima struttura, si è preso spunto da \textbf{icmp tunnel}.  
-\begin{columns}[T,onlytextwidth]
-\column{0.7\textwidth}   
-%\scriptsize  
-\begin{center}
-%\includegraphics[width=0.7\textwidth]{../Tesi/img/ICMPtunnel/architettura_generale.png} 
-%\captionof{figure}{Architettura generale in \textbf{icmp tunnel}} 
-\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMPtunnel/architettura_vittima.png} 
-\captionof{figure}{Architettura vittima in \textbf{icmp tunnel}} 
-\end{center} 
-\column{0.3\textwidth} 
-\scriptsize %\normalsize  
-%\justifying 
-ICMP tunnel lato vittima: 
+Spunti ricavati dall'analisi di ICMP Tunnel: 
 \begin{itemize}
-\item reindirizza il traffico IP ad un interfaccia virtuale
-\item poi invia il traffico al proxy tramite protocollo ICMP
-\end{itemize} 
-\end{columns} 
-\vspace{2ex} 
-\begin{columns}[T,onlytextwidth]
-\column{0.7\textwidth}   
-%\scriptsize  
-\begin{center}
-\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMPtunnel/architettura_proxy.png} 
-\captionof{figure}{Architettura proxy in \textbf{icmp tunnel}} 
-\end{center} 
-\column{0.3\textwidth} 
-\scriptsize %\normalsize  
-%\justifying 
-ICMP tunnel lato proxy: 
-\begin{itemize}
-\item rimane in ascolto dei messaggi ICMP 
-\item li invia tramite poi alla destinazione
-\item i dati ricevuti li rimanda poi alla vittima tramite ICMP
+\item Presenza di proxy intermediari fra le due macchine
+\item La quantità di dati che si invia
+\item Le tipologie di messaggi utilizzati ed i campi utilizzati
 \end{itemize}
-\end{columns} 
-\end{frame}  
+\vspace{2ex}
+\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMPtunnel/architettura_generale.png} 
+\captionof{figure}{Architettura generale di \textbf{icmp tunnel}} 
+\end{frame}
+%\begin{frame}
+%\frametitle{Implementazione della comunicazione} 
+%Per una prima struttura, si è preso spunto da \textbf{icmp tunnel}.  
+%\begin{columns}[T,onlytextwidth]
+%\column{0.7\textwidth}   
+%%\scriptsize  
+%\begin{center}
+%%\includegraphics[width=0.7\textwidth]{../Tesi/img/ICMPtunnel/architettura_generale.png} 
+%%\captionof{figure}{Architettura generale in \textbf{icmp tunnel}} 
+%\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMPtunnel/architettura_vittima.png} 
+%\captionof{figure}{Architettura vittima in \textbf{icmp tunnel}} 
+%\end{center} 
+%\column{0.3\textwidth} 
+%\scriptsize %\normalsize  
+%%\justifying 
+%ICMP tunnel lato vittima: 
+%\begin{itemize}
+%\item reindirizza il traffico IP ad un interfaccia virtuale
+%\item poi invia il traffico al proxy tramite protocollo ICMP
+%\end{itemize} 
+%\end{columns} 
+%\vspace{2ex} 
+%\begin{columns}[T,onlytextwidth]
+%\column{0.7\textwidth}   
+%%\scriptsize  
+%\begin{center}
+%\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMPtunnel/architettura_proxy.png} 
+%\captionof{figure}{Architettura proxy in \textbf{icmp tunnel}} 
+%\end{center} 
+%\column{0.3\textwidth} 
+%\scriptsize %\normalsize  
+%%\justifying 
+%ICMP tunnel lato proxy: 
+%\begin{itemize}
+%\item rimane in ascolto dei messaggi ICMP 
+%\item li invia tramite poi alla destinazione
+%\item i dati ricevuti li rimanda poi alla vittima tramite ICMP
+%\end{itemize}
+%\end{columns} 
+%\end{frame}  
 %\begin{frame}
 %\frametitle{Struttura dela comunicazione}
 %\includegraphics[width=0.6\textwidth]{../Tesi/img/implementazione/diagramma_struttura_entita.jpg} 
 %\includegraphics[width=0.6\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione.jpg} 
 %\captionof{figure}{Flusso di comunicazione fra le entita}
 %\end{frame} 
-\begin{frame}
-\frametitle{Inizializzazione delle entità}
-\includegraphics[width=0.8\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_init.jpg} 
-\captionof{figure}{Fase di inizializzazione delle entita} 
+%\begin{frame}
+%\frametitle{Inizializzazione delle entità}
+%\includegraphics[width=0.8\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_init.jpg} 
+%\captionof{figure}{Fase di inizializzazione delle entita} 
 %In questa fase, tramite un file di configurazione, le entità definiscono:
 %\begin{columns}[T,onlytextwidth]
 %\column{0.32\textwidth}   
@@ -87,13 +98,93 @@ ICMP tunnel lato proxy:
 %\item la quantità minima di connessioni necessarie per l'esecuzione dell'attacco. 
 %\end{itemize} 
 %\end{columns} 
+%\end{frame} 
+
+\begin{frame} 
+\frametitle{Flusso dell'entità attaccante (che richiede i dati)} 
+\begin{enumerate}
+\item Definisce: 
+\begin{itemize} 
+\item l'indirizzo IP della vittima 
+\item la lista dei proxy da utilizzare
+\item il Covert Channel per lo scambio dei dati
+\end{itemize} 
+\item Ricava i proxy disponibili
+\item Invia delle informazioni
+\item Aspetta di ricevere delle informazioni
+\end{enumerate}
+\end{frame} 
+\begin{frame}  
+%\frametitle{Impostazione della comunicazione fra le entità} 
+\includegraphics[width=\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione_attaccante1.jpg} 
+\end{frame} 
+\begin{frame}  
+\includegraphics[width=\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione_attaccante2.jpg} 
+\end{frame} 
+\begin{frame}  
+\includegraphics[width=\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione_attaccante3.jpg} 
+\end{frame} 
+\begin{frame} 
+\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_attaccante1.jpg} 
+\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+\end{frame} 
+\begin{frame} 
+\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_attaccante2.jpg} 
+\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
 \end{frame} 
 
 \begin{frame} 
-\frametitle{Impostazione della comunicazione fra le entità} 
-\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione.jpg} 
-\captionof{figure}{Flusso per la preparazione della comunicazione fra le entità} 
+\frametitle{Flusso dell'entità proxy (che inoltra i dati)} 
+\begin{enumerate}
+\item Definisce: 
+\begin{itemize} 
+\item l'indirizzo IP della attaccante
+\end{itemize} 
+\item Stabilisce una connesisone cone le macchine di cui farà da tramite 
+\item Aspetta di ricevere delle informazioni  da una machcina
+\item Inoltra le informazioni ricevute all'altra macchina
+\end{enumerate}
 \end{frame} 
+\begin{frame}  
+\includegraphics[width=\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione_proxy1.jpg} 
+\end{frame} 
+\begin{frame}  
+\includegraphics[width=\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione_proxy2.jpg} 
+\end{frame} 
+\begin{frame} 
+\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_proxy1.jpg} 
+\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+\end{frame} 
+\begin{frame} 
+\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_proxy2.jpg} 
+\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+\end{frame} 
+
+\begin{frame} 
+\frametitle{Flusso dell'entità vittima (che invia i dati)} 
+\begin{enumerate}
+\item Definisce: 
+\begin{itemize} 
+\item minimo numero di entità connesse necessarie per l'invio de dati.
+\end{itemize} 
+\item Attende che i proxy si connettano con essa
+\item Attende di ricevere delle informazioni da una delle macchine connesse
+\item Invia la conferma della ricezione dell'informazione o i risultati dell'comando ricevuto
+\end{enumerate}
+\end{frame} 
+\begin{frame}  
+\includegraphics[width=\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_connessione_vittima1.jpg} 
+\end{frame} 
+\begin{frame} 
+\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_vittima1.jpg} 
+\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+\end{frame} 
+\begin{frame} 
+\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_vittima2.jpg} 
+\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+\end{frame} 
+
+
 
 %\begin{frame}
 %\begin{columns}[T,onlytextwidth]
@@ -145,10 +236,7 @@ ICMP tunnel lato proxy:
 %\end{columns} 
 %\end{frame} 
 
-\begin{frame} 
-\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione.jpg} 
-\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
-\end{frame} 
+
 
 %\begin{frame}
 %\begin{columns}[T,onlytextwidth]
@@ -188,8 +276,8 @@ ICMP tunnel lato proxy:
 %\end{columns} 
 %\end{frame} 
 
-\begin{frame}
-\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_parteFinale.jpg} 
+%\begin{frame}
+%\includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_parteFinale.jpg} 
 %\captionof{figure}{Flusso finale della comunicazione fra le entità} 
 %\newline 
 %Una volta terminata l'esfiltrazione dei dati: 
@@ -228,7 +316,7 @@ ICMP tunnel lato proxy:
 %\item aggiornamenti sulla comunicazione
 %\end{itemize}  
 %\end{columns} 
-\end{frame} 
+%\end{frame} 
 
 %\begin{frame}  
 %\frametitle{Ulteriori aspetti relativi all'implementazione} 
