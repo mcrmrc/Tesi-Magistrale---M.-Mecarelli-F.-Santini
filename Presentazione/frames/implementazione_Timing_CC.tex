@@ -1,50 +1,165 @@
-\begin{frame}
-\vfill
-\begin{center}
-{\huge Implementazione Timing Covert Channel}
-\end{center}
-\vfill 
-\end{frame}
 %\begin{frame}
+%\frametitle{Prima codifica} 
 %\frametitle{Implementazione Timing Covert Channel} 
-%Per poter temporizzare i dati da inviare, c'è bisogno di definire:
+%\begin{center}
+%\includegraphics[width=1\textwidth]{../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png}
+%%$\text{tempo\_base}+\text{indice}*\text{distanza\_tempi}$ 
+%\end{center}
+%\begin{columns}[T,onlytextwidth]
+%\column{0.48\textwidth} 
+%%\small \scriptsize 
+%%\justifying  
+%%\centering 
+%\textbf{SVANTAGGI}
 %\begin{itemize}
-%\item un metodo di \textbf{codifica} degli intervalli temporali
-%\item un metodo di \textbf{decodifica} degli intervalli temporali
+%\item tempi di attesa
+%\end{itemize}
+%\column{0.48\textwidth} 
+%%\scriptsize 
+%%\justifying  
+%\textbf{VANTAGGI}
+%\begin{itemize}
+%\item resistente ai ritardi di rete
 %\end{itemize} 
+%\end{columns} 
 %\end{frame} 
 
-\begin{frame}
-\frametitle{Prima codifica} 
-\begin{center}
-\includegraphics[width=1\textwidth]{../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png}
-$\text{tempo\_base}+\text{indice}*\text{distanza\_tempi}$ 
-\end{center}
+%\begin{frame} 
+%\frametitle{Timing con un bit} 
+%\begin{columns}[T,onlytextwidth]
+%\column{0.48\textwidth} 
+%\includegraphics[width=0.9\textwidth]{../Tesi/img/ICMP_timing/invio_1bit_tempi.PNG}
+%\captionof{figure}{Invio con un bit}
+%\column{0.48\textwidth}  
+%\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_1bit.PNG}
+%\captionof{figure}{Tempi di invio con 1 bit}
+%\end{columns} 
+%\end{frame} 
+
+%\begin{frame} 
+%\frametitle{Timing con due bit} 
+%\begin{columns}[T,onlytextwidth]
+%\column{0.48\textwidth} 
+%\includegraphics[width=0.85\textwidth]{../Tesi/img/ICMP_timing/invio_2bit_tempi.PNG}
+%\captionof{figure}{Invio con due bit}
+%\column{0.48\textwidth} 
+%\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_2bit.PNG}
+%\captionof{figure}{Tempi di invio con 2 bit}
+%\end{columns} 
+%\end{frame} 
+
+\begin{frame} 
+\frametitle{Timing con quattro bit} 
+\frametitle{Implementazione Timing Covert Channel} 
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_4bit_tempi_2.PNG}
+%\captionof{figure}{Invio di quattro bit}
+\column{0.48\textwidth} 
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_4bit.PNG}
+%\captionof{figure}{Tempi di invio con 4 bit}
+\end{columns} 
+\vspace{2em}
 \begin{columns}[T,onlytextwidth]
 \column{0.48\textwidth} 
 %\small \scriptsize 
 %\justifying  
 %\centering 
-\textbf{SVANTAGGI}
-\begin{itemize}
-\item tempi di attesa
-\end{itemize}
-\column{0.48\textwidth} 
-%\scriptsize 
-%\justifying  
 \textbf{VANTAGGI}
 \begin{itemize}
 \item resistente ai ritardi di rete
 \end{itemize} 
+\column{0.48\textwidth} 
+%\scriptsize 
+%\justifying  
+\textbf{SVANTAGGI}
+\begin{itemize}
+\item tempi di attesa
+\end{itemize}
+\end{columns} 
+\end{frame} 
+
+\begin{frame}  
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\begin{tikzpicture}
+\begin{axis}[
+    %xlabel={Bit utilizzati},
+    ylabel={Tempo attesa medio},
+    grid=major,
+    width=\textwidth,
+    %height=0.618\textwidth, 
+    ymin=200,
+    ymax=2300,
+    domain=0.75:5,
+    xticklabels=\empty,
+    yticklabels=\empty, 
+    %xlabel style={at={(axis description cs:0.5,0.15)}},
+    ylabel style={at={(axis description cs:0.25,0.5)}}
+]
+% Plot points
+\addplot[only marks, mark=*, mark size=3pt, red] 
+coordinates {(1,320) (2,576) (4,2112)}; 
+% Plot interpolated function (quadratic through 3 points)
+\addplot[blue, thick, samples=100]  
+%{113.5*x^2 - 384.5*x + 628}; 
+{170.7*x^2 - 256*x + 405.3}; 
+% Add labels for the points 
+\node[above right] at (axis cs:1,320) {1 bit};
+\node[below right] at (axis cs:2,576) {2 bit};
+\node[below left] at (axis cs:4,2112) {4bit};
+\end{axis}
+\end{tikzpicture} 
+\captionof{figure}{Tempi di attesa medio}
+\column{0.48\textwidth}  
+\begin{tikzpicture}
+\begin{axis}[
+    %xlabel={Bit utilizzati},
+    ylabel={Tempo di invio},
+    grid=major,
+    width=\textwidth,
+    %height=0.618\textwidth, 
+    ymin=200,
+    ymax=600,
+    domain=0.75:5,
+    xticklabels=\empty,
+    yticklabels=\empty, 
+    %xlabel style={at={(axis description cs:0.5,0.15)}},
+    ylabel style={at={(axis description cs:0.25,0.5)}}
+]
+% Plot points
+\addplot[only marks, mark=*, mark size=3pt, red] 
+coordinates {(1,329) (2,313) (4,496)}; 
+% Plot interpolated function (quadratic through 3 points)
+\addplot[blue, thick, samples=100]  
+%{113.5*x^2 - 384.5*x + 628}; 
+{35.83*x^2 -123.5*x + 416.7}; 
+% Add labels for the points 
+\node[above right] at (axis cs:1,329) {1 bit};
+\node[below right] at (axis cs:2,313) {2 bit};
+\node[below left] at (axis cs:4,496) {4bit};
+\end{axis}
+\end{tikzpicture} 
+\captionof{figure}{Tempi di invio dei dati}
 \end{columns} 
 \end{frame} 
 
 \begin{frame} 
-\frametitle{Seconda codifica}  
-\begin{center}  
-\includegraphics[width=0.3\textwidth]{../Tesi/img/timing_channel/timinmg_channel_2nd_function.png}
-$\text{min\_delay}+(\text{byte}/255)*(\text{max\_delay}-\text{min\_delay})$
-\end{center} 
+%\frametitle{Seconda codifica}  
+\begin{columns}[T,onlytextwidth]
+\column{0.38\textwidth} 
+\vspace{4em}
+Dopo l'analisi di ICMP Exfill: 
+\begin{itemize}
+\item Si ricava il valore intero del byte da inviare
+\item Si normalizza poi il valore
+\end{itemize}
+\column{0.58\textwidth}  
+\includegraphics[width=0.65\textwidth]{../Tesi/img/timing_channel/timinmg_channel_2nd_function.png}
+%\\
+%$\text{min\_delay}+\frac{\text{int(byte)}}{255}*(\text{max\_delay}-\text{min\_delay})$
+\end{columns}  
+\vspace{2em} 
 \begin{columns}[T,onlytextwidth]
 \column{0.48\textwidth} 
 \small
@@ -61,36 +176,70 @@ $\text{min\_delay}+(\text{byte}/255)*(\text{max\_delay}-\text{min\_delay})$
 %\justifying 
 \textbf{VANTAGGI}
 \begin{itemize}
-\item intervallo dei delay ben definito
+%\item intervallo dei delay ben definito
 \item regolazione della velocità di trasmissione 
 \end{itemize}
 \end{columns}  
 \end{frame} 
 
-\begin{frame}
-\frametitle{Terza codifica}  
-\begin{center} 
-\includegraphics[width=0.8\textwidth]{../Tesi/img/timing_channel/timinmg_channel_rumore.png}
-%\captionof{figure}{Randomizzazione dei tempi con il rumore (Timing Channel)} 
-$\text{codifica(byte)}\pm\text{rumore}$
-\end{center} 
+%\begin{frame} 
+%\frametitle{Timing con otto bit}
+%\begin{columns}[T,onlytextwidth]
+%\column{0.48\textwidth} 
+%\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_8bit_pt1.PNG}
+%\column{0.48\textwidth} 
+%\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_8bit_pt2.PNG}
+%\end{columns} 
+%\captionof{figure}{Invio con otto bit}
+%\end{frame} 
+
+%\begin{frame}
+%\frametitle{Terza codifica}  
+%\begin{center} 
+%\includegraphics[width=0.8\textwidth]{../Tesi/img/timing_channel/timinmg_channel_rumore.png}
+%%\captionof{figure}{Randomizzazione dei tempi con il rumore (Timing Channel)} 
+%%$\text{codifica(byte)}\pm\text{rumore}$
+%\end{center} 
+%\begin{columns}[T,onlytextwidth]
+%\column{0.48\textwidth} 
+%\small
+%%\scriptsize 
+%%\justifying  
+%%\centering 
+%\textbf{SVANTAGGI}
+%\begin{itemize}
+%\item sincronizzazione fra le due parti
+%\end{itemize} 
+%\column{0.48\textwidth} 
+%\small
+%%\scriptsize 
+%%\justifying 
+%\textbf{VANTAGGI}
+%\begin{itemize}
+%\item maggiore furtività 
+%\end{itemize}
+%\end{columns}  
+%\end{frame}  
+
+\begin{frame} 
+%\frametitle{Timing con otto bit e rumore}
 \begin{columns}[T,onlytextwidth]
 \column{0.48\textwidth} 
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_8bit_noise_pt2.PNG}
+\column{0.48\textwidth} 
+\vspace{3em}
+%\includegraphics[width=\textwidth]{../Tesi/img/ICMP_timing/invio_8bit_noise_pt1.PNG}
+Aggiunta di rumore per rendere lo schema di invio meno regolare
+\vspace{3em} \newline
 \small
-%\scriptsize 
-%\justifying  
-%\centering 
 \textbf{SVANTAGGI}
 \begin{itemize}
 \item sincronizzazione fra le due parti
-\end{itemize} 
-\column{0.48\textwidth} 
-\small
-%\scriptsize 
-%\justifying 
+\end{itemize}   
 \textbf{VANTAGGI}
 \begin{itemize}
 \item maggiore furtività 
 \end{itemize}
-\end{columns}  
-\end{frame}  
+\end{columns} 
+%\captionof{figure}{Invio con otto bit + rumore}
+\end{frame} 

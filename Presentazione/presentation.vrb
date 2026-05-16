@@ -1,33 +1,3 @@
-\frametitle{Test e Risultati}
-\scriptsize
-\begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|}
-    \multicolumn{2}{c}{Primo Test} \\ \hline
-    \textbf{Descrizione} & \textbf{Risultato} \\ \hline
-    Si inviano i dati una signola volta & RITA non ha rilevato il Covert Channel \\ \hline
-    \multicolumn{2}{c}{} \\[2ex]
-    \multicolumn{2}{c}{Secondo Test} \\ \hline
-    \textbf{Descrizione} & \textbf{Risultato} \\ \hline
-    Si inviano i dati più volte (in particolare 3) al variare di alcuni parametri\par
-    \begin{itemize}
-    \item quantità di dati inviati
-    \item campi utilizzati nel messaggio
-    \item delay durante l'invio dei dati
-    \item attesa prima di un nuovo invio
-    \item mittente reale o modificato
-    \end{itemize}
-    Usato lo stesso Covert Channel per ogni test
-    &
-    Riducono la gravita della comunicazione ed il tasso di beacon associato:
-    \begin{itemize}
-    \item modifica del mittente
-    \item tempi di attesa lunghi prima dell'invio successivo
-    \end{itemize}
-    \vspace{1ex}
-    Aumentano la gravità ed il beacon score:
-    \begin{itemize}
-    \item l'invio costante, ravvicinato e frequente di messaggi
-    \item una variazione scostante della dimensione del campo Data
-    \end{itemize}
-    \\ \hline
-    \caption{Mappatura degli eventi ai dati}
-\end{longtable}
+\frametitle{Implementazione Behavioural Covert Channel}
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png}
+%\captionof{figure}{Mappatura dei messaggi ICMP ai dati}

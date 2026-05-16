@@ -1,41 +1,15 @@
-\begin{frame}
-\vfill
-\begin{center}
-{\huge Implementazione del Behavioural Covert Channel}
-\end{center}
-\vfill 
-\end{frame}
 \begin{frame} [fragile]
 \frametitle{Implementazione Behavioural Covert Channel} 
 \includegraphics[width=\textwidth]{../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png}
-\captionof{figure}{Mappatura dei messaggi ICMP ai dati} 
+%\captionof{figure}{Mappatura dei messaggi ICMP ai dati} 
 \end{frame} 
-%\begin{frame} [fragile]
-%\scriptsize 
-%\begin{longtable}{|m{0.35\textwidth}|>{\centering\arraybackslash}p{0.25\textwidth}|>{\centering\arraybackslash}p{0.25\textwidth}|}
-%    \hline 
-%    \multicolumn{1}{|c|}{\textbf{Messaggio ICMP inviato}} & \textbf{Codice del messaggio} & \textbf{Dato Mappato} 
-%    \\ \hline 
-%    \multirow{6}{*}{Destination Unreachable}
-%    & 0 & 0000 \\ \cline{2-3} 
-%    & 1 & 0001 \\ \cline{2-3} 
-%    & 2 & 0010 \\ \cline{2-3} 
-%    & 3 & 0011 \\ \cline{2-3} 
-%    & 4 & 0100 \\ \cline{2-3} 
-%    & 5 & 0101 \\ \hline 
-%    \multirow{2}{*}{Time Exceeded} 
-%    & 0 & 0110 \\ \cline{2-3} 
-%    & 1 & 0111 \\ \hline 
-%    Parameter Problem & 0 & 1000 \\ \hline 
-%    \textbf{Source Quench} & 0 & 1001 \\ \hline 
-%    \multirow{4}{*}{Redirect} 
-%    & 0 & 1010 \\ \cline{2-3} 
-%    & 1 & 1011 \\ \cline{2-3} 
-%    & 2 & 1100 \\ \cline{2-3} 
-%    & 3 & 1101 \\ \hline 
-%    Echo Request & 0 & 1110 \\ \hline 
-%    Timestmap Request & 0 & 1111 \\ \hline 
-%    \textbf{Information Request} & 0 & Speciale \\ \hline 
-%    \caption{Mappatura degli eventi ai dati}  
-%\end{longtable} 
-%\end{frame} 
+
+\begin{frame}  
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\includegraphics[width=\textwidth]{../Tesi/img/ICMP_behaveCC/powershell_init.PNG}
+%\captionof{figure}{Mappatura Dato->Evento}
+\column{0.48\textwidth} 
+\includegraphics[width=0.6\textwidth]{../Tesi/img/ICMP_behaveCC/behave_send.PNG}
+\end{columns} 
+\end{frame}  

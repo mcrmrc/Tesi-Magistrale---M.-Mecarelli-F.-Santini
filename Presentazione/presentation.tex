@@ -9,35 +9,35 @@
 \usepackage{xcolor}
 \usepackage{ragged2e} % nel preambolo 
 \usepackage{multirow} 
-\usepackage{array}
-
+\usepackage{array} 
+\usepackage{tikz} 
+\usepackage{pgfplots}
 
 \hypersetup{pdfpagemode=UseNone,hidelinks,pdfdisplaydoctitle=true,%
 %
 % Enter presentation title to populate PDF metadata:
-pdftitle={Presentazione testi laurea magisrale Marco Mecarelli}}
+pdftitle={Presentazione testi laurea magistrale Marco Mecarelli-relatore Francesco Santini}%
+}
 
 % Enter path to PDF file with figures:
 \newcommand{\pdf}{figures.pdf}
 \setbeamertemplate{title page}{
-\begin{columns}
-\begin{column}{0.65\textwidth} % COLONNA SINISTRA
-{\usebeamerfont{title}\inserttitle\par}
-\vspace{1em}
-{\usebeamerfont{subtitle}\insertsubtitle\par}
-\vspace{2em}
-{\usebeamerfont{author}\insertauthor\par}
-\vspace{1em}
-{\usebeamerfont{institute}\insertinstitute\par}
-\vspace{1em}
+{\usebeamerfont{title}\inserttitle\par} 
+\begin{columns} [T,onlytextwidth]
+\column{0.64\textwidth} 
+%\begin{column}{0.65\textwidth} % COLONNA SINISTRA
+{\usebeamerfont{subtitle}\insertsubtitle\par} 
+{\usebeamerfont{author}\insertauthor\par} 
+{\usebeamerfont{institute}\insertinstitute\par} 
 {\insertdate}
-\end{column}
-\begin{column}{0.35\textwidth} % COLONNA DESTRA
+%\end{column}
+%\begin{column}{0.35\textwidth} % COLONNA DESTRA
+\column{0.34\textwidth} 
 \centering 
-\includegraphics[width=0.45\textwidth]{../Tesi/img/frontmatter/logo_unipg.png}
+\includegraphics[width=0.5\textwidth]{../Tesi/img/frontmatter/logo_unipg.png}
 \vspace{2em} \newline
-\includegraphics[width=0.45\textwidth]{../Tesi/img/frontmatter/LOGOTIPODELDIPARTIMENTOACOLORI.png}
-\end{column}
+\includegraphics[width=0.5\textwidth]{../Tesi/img/frontmatter/LOGOTIPODELDIPARTIMENTOACOLORI.png}
+%\end{column}
 \end{columns}
 }
 
@@ -45,7 +45,7 @@ pdftitle={Presentazione testi laurea magisrale Marco Mecarelli}}
 
 
 % Enter title:
-\title{Tesi di Laurea Magistrale in Cybersecurity}
+\title{Tesi di Laurea Magistrale in Informatica indirizzo Cybersecurity}
 \subtitle{
 \Large
 Sviluppo di un Covert Channel per l'esfiltrazione 
@@ -63,7 +63,8 @@ Dipartimento di Matematica ed Informatica\\
 Università degli studi di Perugia\\
 Anno Accademico 2024--2025
 \vspace{2ex} \newline 
-Marco Mecarelli
+\textrm{Relatore:} Francesco Santini \\
+\textrm{Laureando:} Marco Mecarelli
 }  
 %
 % Enter location and date (can be commented out):
@@ -73,19 +74,43 @@ Marco Mecarelli
 
 % Enter content of presentation:  
 %\import{frames}{introduzione} 
+\setbeamercolor{frametitle}{fg=blue,bg=black} 
+\import{frames}{strumenti_utilizzati}  
 \import{frames}{introduzione_ICMP} 
 \import{frames}{introduzione_Covert_Channel}  
 
 %\import{frames}{strumenti_utilizzati} 
 
+\setbeamercolor{frametitle}{fg=teal,bg=black}
+\begin{frame}
+\vfill
+\begin{center}
+{\huge \textcolor{teal}{Implementazione della struttura di comunicazione e dei Covert Channel}}
+\end{center}
+\vfill 
+\end{frame} 
 \import{frames}{implementazione_struttura}  
-\import{frames}{implementazione_Timing_CC} 
-\import{frames}{implementazione_Storage_CC}  
+
+\setbeamercolor{frametitle}{fg=purple,bg=black} 
+\import{frames}{implementazione_Timing_CC}  
+\setbeamercolor{frametitle}{fg=purple,bg=black} 
+\import{frames}{implementazione_Storage_CC}   
+\setbeamercolor{frametitle}{fg=purple,bg=black} 
 \import{frames}{implementazione_Behave_CC}  
 %\import{frames}{implementazione_Hybrid_CC}    
-\import{frames}{test_introduzione}    
-\import{frames}{conclusioni}  
+
+\setbeamercolor{frametitle}{fg=orange,bg=black}
+\begin{frame}
+\vfill
+\begin{center}
+{\huge \textcolor{orange}{Test eseguiti ed analisi dei risultati}}
+\end{center}
+\vfill 
+\end{frame} 
+\import{frames}{test_introduzione} 
+%\import{frames}{conclusioni}  
 %\import{frames}{template_frame}  
+
 \begin{frame}
 \vfill
 \begin{center}

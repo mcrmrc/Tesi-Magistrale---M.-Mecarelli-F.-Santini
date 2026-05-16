@@ -1,42 +1,227 @@
 \begin{frame}
-\vfill
-\begin{center}
-{\huge Test eseguiti ed analisi dei risultati}
-\end{center}
-\vfill 
-\end{frame}
-\begin{frame} [fragile]
-\frametitle{Test e Risultati}  
-\scriptsize 
-\begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|}
-    \multicolumn{2}{c}{Primo Test} \\ \hline 
-    \textbf{Descrizione} & \textbf{Risultato} \\ \hline 
-    Si inviano i dati una signola volta & RITA non ha rilevato il Covert Channel \\ \hline 
-    \multicolumn{2}{c}{} \\[2ex] 
-    \multicolumn{2}{c}{Secondo Test} \\ \hline 
-    \textbf{Descrizione} & \textbf{Risultato} \\ \hline 
-    Si inviano i dati più volte (in particolare 3) al variare di alcuni parametri\par 
-    \begin{itemize}
-    \item quantità di dati inviati
-    \item campi utilizzati nel messaggio
-    \item delay durante l'invio dei dati 
-    \item attesa prima di un nuovo invio
-    \item mittente reale o modificato
-    \end{itemize}
-    Usato lo stesso Covert Channel per ogni test
-    & 
-    Riducono la gravita della comunicazione ed il tasso di beacon associato: 
-    \begin{itemize}
-    \item modifica del mittente 
-    \item tempi di attesa lunghi prima dell'invio successivo  
-    \end{itemize} 
-    \vspace{1ex} 
-    Aumentano la gravità ed il beacon score: 
-    \begin{itemize}
-    \item l'invio costante, ravvicinato e frequente di messaggi 
-    \item una variazione scostante della dimensione del campo Data
-    \end{itemize} 
-    \\ \hline 
-    \caption{Mappatura degli eventi ai dati}  
-\end{longtable} 
+\frametitle{Obiettivo dei test} 
+\begin{itemize}
+\item Valutare la capacità di RITA nel rilevare i Covert Channel ICMP
+\item Analizzare l'impatto che dei parametri hanno sulla gravità del canale: 
+\begin{itemize}
+\item Quantità di dati inviati
+\item Campi usati nei messai ICMP 
+\item Uso di un delay tra i pacchetti
+\item Tempo di attesa prima di un nuovo invio 
+\item Modifica del mittente nel pacchetto
+\end{itemize} 
+%\item Identificare quali implementazioni sono più difficili da rilevare
+\end{itemize} 
 \end{frame} 
+
+%\begin{frame}
+%\frametitle{Test 1: Singolo invio}
+%\textbf{Setup}
+%\begin{itemize}
+%\item Invio dati una sola volta
+%\item Blocchi da 1KB
+%\item Delay variabile (1–15s)
+%\end{itemize}
+%\vspace{1em}
+%\textbf{Risultato}
+%\begin{itemize}
+%\item RITA non rileva il covert channel
+%\end{itemize}
+%\vspace{1em}
+%\textbf{Interpretazione}
+%\begin{itemize}
+%\item Attività troppo sporadica
+%\item Nessun pattern identificabile
+%\item Assenza di pattern temporali
+%\item Non classificata come beaconing
+%\end{itemize}
+%\end{frame}
+
+%\begin{frame}
+%\frametitle{Test 2: Invii multipli dei dati} 
+%5\begin{itemize}
+%\item I dati vengono inviati più volte (3 volte)
+%\item Uso dello stesso covert channel
+%\item Variazione dei parametri
+%\end{itemize}
+%\vspace{1em}
+%Si vogliono rilevare i pattern che influenzano la gravità del 
+%Covert Channel. %Generare pattern rilevabili 
+%\end{frame}
+
+\begin{frame}
+\frametitle{Risultati}
+Tempi di attesa: 
+\begin{itemize}
+\item Lunghi tempi di attesa riducono la gravità
+%\item La quantità di dati che si inviano in un secondo è minore
+\end{itemize} 
+Invio sequenziale dei pacchetti 
+\begin{itemize} 
+\item Trasmissione non rilevata da RITA 
+\item Genera rumore sul canale di trasmissione. %Traffico anomalo sulla rete
+\end{itemize}
+\vspace{1em} 
+Quantità di dati 
+\begin{itemize}
+\item Una quantità ridotta (100KB) spesso non viene rilevata
+%\item Possibile sotto soglia di detection 
+\item Una quantità elevata (1MB) spesso viene rilevata 
+\end{itemize}
+%\vspace{1em} 
+%Payload variabile: 
+%\begin{itemize} 
+%\item Non influenza molto la rilevabilità
+%%\item Non migliora la stealthiness
+%%\item Beacon score fino al 79\%
+%%\item Possibile peggioramento rilevabilità
+%\end{itemize} 
+\vspace{1em} 
+Modifica nei pacchetti del mittente 
+\begin{itemize}
+\item Riduce la gravità del canale 
+\item Può aumentare il beacon score (in base a come viene implementato)
+\end{itemize}
+\end{frame}
+
+%\begin{frame}
+%\frametitle{Risultati}
+%Effetto del tempo di attesa: 
+%\begin{itemize}
+%\item 15 minuti → possibile riduzione rilevabilità
+%\item 30 minuti → aumento beacon score
+%\item 1 ora → comportamento intermedio
+%\end{itemize} 
+%Test senza delay 
+%\begin{itemize}
+%\item Invio sequenziale dei dati
+%\item RITA non rileva il covert channel
+%\end{itemize}
+%\vspace{1em}
+%\textbf{Limite}
+%\begin{itemize}
+%\item Traffico anomalo sulla rete
+%\end{itemize}
+%Test con 100KB
+%\begin{itemize}
+%\item Dati ridotti → spesso non rilevati
+%\item Possibile sotto soglia di detection
+%\end{itemize}
+%Payload variabile: 
+%\begin{itemize}
+%\item Non migliora la stealthiness
+%\item Beacon score fino al 79\%
+%\item Possibile peggioramento rilevabilità
+%\end{itemize}
+%Spoofing del mittente
+%\begin{itemize}
+%\item Riduce la gravità (Low vs Medium)
+%\item Può aumentare il beacon score
+%\item Dipende da come viene implementato
+%\end{itemize}
+%\end{frame}
+
+
+\begin{frame}
+\frametitle{Considerazioni}
+\begin{itemize}
+\item Il pattern temporale è critico 
+\item Il contenuto è stato meno rilevante rispetto al comportamento
+%\item Il delay influisce sulla rilevabilità
+%\item Lo modifica dei mittenti deve essere controllata. 
+%%riduce la gravita ma aumenta il beaconing se implementato male. 
+%\item Il traffico troppo veloce può evitare detection ma crea anomalie
+\end{itemize} 
+\vspace{1em} 
+Riduce la rilevabilità: 
+\begin{itemize}
+\item Modifica nei pacchetti del mittente
+\item Tempi di attesa lunghi tra gli invii 
+\item Schemi di invio irregolari
+%\item Invii non frequenti e sporadici
+%\item Riduzione gravità
+%\item Riduzione beacon score
+\end{itemize}
+Aumenta la rilevabilità: 
+\begin{itemize}
+\item Invii frequenti o ravvicinati
+\item Schemi di invio regolari
+%\item Dimensione payload variabile in modo evidente
+%\item Aumento gravità
+%\item Aumento beacon score
+\end{itemize}
+\end{frame} 
+
+%\begin{frame}
+%\frametitle{Conclusione}
+%\begin{itemize}
+%\item La detection dipende dal pattern temporale
+%\item Il contenuto è meno rilevante del comportamento
+%\item Tecniche per ridurre detection possono introdurre anomalie di rete
+%\end{itemize}
+%\end{frame}
+
+%\begin{frame}
+%\frametitle{Insight chiave}
+%\begin{itemize}
+%\item Il pattern temporale è più importante del contenuto
+%\item Il delay influisce direttamente sulla rilevabilità
+%\item Lo spoofing riduce la gravità ma può aumentare il beaconing
+%\end{itemize}
+%\end{frame}
+
+%\begin{frame}
+%\frametitle{Risultati principali}
+%\textbf{Riduce la rilevabilità}
+%\begin{itemize}
+%\item invii sporadici
+%\item spoofing mittente
+%\item tempi lunghi tra invii
+%\end{itemize}
+%\vspace{1em}
+%\textbf{Aumenta la rilevabilità}
+%\begin{itemize}
+%\item invii frequenti
+%\item pattern regolari
+%\item variazioni evidenti nel payload
+%\end{itemize}
+%\end{frame}
+
+
+
+%\begin{frame} [fragile]
+%\frametitle{Test e Risultati}  
+%\scriptsize 
+%\begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|}
+%    \multicolumn{2}{c}{Primo Test} \\ \hline 
+%    \textbf{Descrizione} & \textbf{Risultato} \\ \hline 
+%    Si inviano i dati una signola volta & RITA non ha rilevato il Covert Channel \\ \hline 
+%    \multicolumn{2}{c}{} \\[2ex] 
+%    \multicolumn{2}{c}{Secondo Test} \\ \hline 
+%    \textbf{Descrizione} & \textbf{Risultato} \\ \hline 
+%    Si inviano i dati più volte (in particolare 3) al variare di alcuni parametri\par 
+%    \begin{itemize}
+%    \item quantità di dati inviati
+%    \item campi utilizzati nel messaggio
+%    \item delay durante l'invio dei dati 
+%    \item attesa prima di un nuovo invio
+%    \item mittente reale o modificato
+%    \end{itemize}
+%    Usato lo stesso Covert Channel per ogni test
+%    & 
+%    Riducono la gravita della comunicazione ed il tasso di beacon associato: 
+%    \begin{itemize}
+%    \item modifica del mittente 
+%    \item tempi di attesa lunghi prima dell'invio successivo  
+%    \end{itemize} 
+%    \vspace{1ex} 
+%    Aumentano la gravità ed il beacon score: 
+%    \begin{itemize}
+%    \item l'invio costante, ravvicinato e frequente di messaggi 
+%    \item una variazione scostante della dimensione del campo Data
+%    \end{itemize} 
+%    \\ \hline 
+%    \caption{Mappatura degli eventi ai dati}  
+%\end{longtable} 
+%\end{frame} 
+
