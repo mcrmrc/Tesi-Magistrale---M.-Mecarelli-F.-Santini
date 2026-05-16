@@ -1,8 +1,7 @@
-import sys
-import subprocess
-import threading   
-from check_type import * 
-from mymethods import SNIFFER
+import sys, subprocess, threading 
+from network.network_methods import check_sniffer_args
+from scapy.all import AsyncSniffer
+from type.check_type import is_dictionary, is_string, is_callable_function, is_time
 
 #class GET: 
 def get_threading_Event()->threading.Event: 
@@ -14,9 +13,8 @@ def get_threading_Lock()->threading.Lock:
 def get_AsyncSniffer(args:dict=None): 
     if not is_dictionary(args): 
         raise Exception(f"GET:AsyncSniffer\targs is not a dictionary") 
-    if SNIFFER.check_args(args):
+    if check_sniffer_args(args):
         return AsyncSniffer( **args ) 
-    print("AHAHAHAH")
     return None
 
 def get_timer(timeout_time=60, callback_function=None): 

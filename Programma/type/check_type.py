@@ -1,8 +1,4 @@
-import argparse
-import socket 
-import subprocess
-import ipaddress 
-import threading  
+import argparse, socket, subprocess, ipaddress, threading  
 from enum import Enum   
 from scapy.all import AsyncSniffer
 

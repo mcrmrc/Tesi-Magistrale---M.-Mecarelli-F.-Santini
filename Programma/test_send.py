@@ -1,6 +1,8 @@
-from scapy.all import * 
-from attacksingleton  import * 
-import ipaddress   
+from type.check_type import istype
+from scapy.all import Ether, IP, ICMP, Raw, sendp
+from network.network_classes import GET_MAC_ADDRESS, INTERFACE_FROM_IP
+import ipaddress, datetime, time
+
 
  
 
@@ -11,8 +13,8 @@ def ipv4_timing_channel_8bit(data:bytes=None, ip_dst:ipaddress.IPv4Address=None)
     if ip_dst.version!=4:
         print(f"IP version is not 4: {ip_dst.version}")
         return False
-    target_mac = ipinterface.get_macAddress(ip_dst).strip().replace("-",":").lower()
-    interface=ipinterface.iface_from_IP(ip_dst) 
+    target_mac = GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower()
+    interface=INTERFACE_FROM_IP(ip_dst).interface
     print(f"Interfaccia per destinazione: {interface}")
     
     TYPE_ECHO_REQUEST=8

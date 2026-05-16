@@ -1,0 +1,11 @@
+WAITING_TIME=20
+DEBUG=False 
+type_sender=None
+use_delay=False 
+default_file_path:str = "./attack_file.json" 
+timeout_time=20
+attacker_mode=True 
+localhost="127.0.0.1" 
+block_size=1024 #bytes (1KB) 
+min_wait=2 #sec
+max_wait=15 #sec 

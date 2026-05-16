@@ -1,21 +1,44 @@
-from attacksingleton import _IPx
-from mymethods import *  
-from scapy.all import *
-from attacksingleton  import *
-import datetime, ipaddress 
-import re 
-import time  
-import math
-#from pypdf import PdfReader 
+import ipaddress, time, datetime, re, subprocess, math
+from scapy.all import random, Ether, ICMP, sendp, sniff, IP, Raw, IPerror, ICMPerror, ARP, hexdump
+from custom_enum import ATTACK_TYPE, SENDER_TYPE
+#from attack.attack_classes import IPV4_TIMING, _IPx 
+#from attack.singleton import SendSingleton, ReceiveSingleton
+from config import block_size, min_wait, max_wait
+from utils_methods import non_blocking_sleep, threadEvent_wait, threadEvent_set
+#from network.network_classes import IP_INTERFACE
+#from network.network_methods import find_hosts_attivi
+#from type.check_type import is_bytes, is_ipaddress, is_integer, is_string
+#from pypdf import PdfReader  
 
-#import sys
-#print(sys.byteorder) 
+from attack.attack_classes import IPV4_TIMING 
+
+
+data=("BORGOGNA"*1)#.encode()
+host_attivi=[ipaddress.ip_address("127.0.0.2")]
+use_delay=False
+type_attacco=ATTACK_TYPE.ipv4_timestamp
+sender=IPV4_TIMING(
+ipaddress.ip_address("127.0.0.2"), [ipaddress.ip_address("127.0.0.2")], 2
+)
+for i in range(0, len(data), block_size): 
+    ip_src=ipaddress.ip_address(random.choice(host_attivi)) if host_attivi else None
+    print("IP_SRC:",ip_src)
+    if use_delay: 
+        print("#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n")
+        print("Waiting...")
+        time.sleep(random.uniform(min_wait,max_wait)) 
+    try: 
+        sender.send(data[i:i+block_size],type_attacco,ip_src) 
+    except Exception as e: 
+        print("send data IPV4: ",e) 
+sender.send_last()
+exit()
 
 #ipv4_timing_channel_8bit_noise
 #ipv4_timing_channel_8bit
 def receive():
     wait_class=ReceiveSingleton(
-        AttackType.ipv4_timing_channel_8bit).wait_class
+        ATTACK_TYPE.ipv4_timing_channel_8bit).wait_class
     if not isinstance(wait_class, _IPx):  
         raise TypeError("wait_class non valida") 
     wait_class.wait()  
@@ -34,7 +57,7 @@ def send():
     print("Dato length:", len(un_KB)) 
     for index in range(ripetizioni):
         SendSingleton(
-            AttackType.ipv4_timing_channel_8bit,
+            ATTACK_TYPE.ipv4_timing_channel_8bit,
             SENDER_TYPE.TRUE_SENDER, 
             True 
         ).send_data(un_KB.encode(), destinazione)
@@ -105,7 +128,7 @@ def test_decodeData_fromPackets():
     data="echo 'Ciao'".encode()
     ip_dst=ipaddress.ip_address("192.168.1.17")
     def ipv4_destination_unreachable(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-            if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
+            if not is_bytes(data) or not is_ipaddress(ip_dst):
                 raise Exception(f"test_decodeData_fromPackets: Argoemnti non corretti")
             if ip_dst.version!=4:
                 print(f"IP version is not 4: {ip_dst.version}")
@@ -163,7 +186,7 @@ def test_decodeData_fromPackets():
                 #print("AAAA")
                 #print(decoded_data)
             #elif pkt[ICMP].type==TYPE_DESTINATION_UNREACHABLE and not inner_ip.haslayer(IP): #packet.haslayer(Padding):
-                #THREADING_EVENT.set(event_pktconn)
+                #threadEvent_set(event_pktconn)
                 #exit(0)
                 #print("Pacchetto non ha livello IP error\t",pkt)
     print(decoded_data)
@@ -220,7 +243,7 @@ def send_receive_Singleton():
         print("Dati ricevuti: ", final_data) 
 
     def test_SendSingleton(data:bytes=None):
-        if not data or not IS_TYPE.bytes(data):
+        if not data or not is_bytes(data):
             data="Dato mandato da computer di Marco".encode()
         ip_dst=ipaddress.ip_address("192.168.1.17")
         SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst) 
@@ -293,7 +316,7 @@ def get_tipologia_byte():
 #-----------------------------------------------  
 def get_1st_last_4bit(numero:int):
     #Da un byte ricava i primi 4 bit e gli ultimi 4 bit 
-    if not IS_TYPE.integer(numero):
+    if not is_integer(numero):
         raise Exception("get_1st_last_4bit:Argomento non valido")
     primi_4=(numero& 0b11110000)>>4
     ultimi_4=numero& 0b00001111 
@@ -318,7 +341,7 @@ def get_tipologia_codice(elemento=None):
 
     def get_tipologia_codice_str(stringa:str=None): 
         #Data una stringa ritorna la tipologia di messaggio ICMP e il codice relativo
-        if not IS_TYPE.string(stringa):
+        if not is_string(stringa):
             #print("Argomento non corretto") 
             return None,None
         if not re.match(r"^[0-9]{2,3}$",stringa): 
@@ -336,7 +359,7 @@ def get_tipologia_codice(elemento=None):
 
     def get_tipologia_codice_int(numero:int=None): 
         #Dato un intero ritorna la tipologia di messaggio ICMP e il codice relativo
-        if not IS_TYPE.integer(numero):
+        if not is_integer(numero):
             #print("Argomento non corretto") 
             return None,None 
         nonlocal lista_codici
@@ -349,9 +372,9 @@ def get_tipologia_codice(elemento=None):
         #print("Codice:", codice, "Tipologia:", tipologia)
         return tipologia, codice 
     
-    if IS_TYPE.string(elemento): 
+    if is_string(elemento): 
         return get_tipologia_codice_str(elemento) 
-    elif IS_TYPE.integer(elemento): 
+    elif is_integer(elemento): 
         return get_tipologia_codice_int(elemento) 
     else: 
         #print(f"Elemento passatto non è ne una stringa ne un intero: {elemento}")
@@ -505,7 +528,7 @@ def receive_test_hybrid_channel(ip_dst:ipaddress=None, ip_src:ipaddress=None):
         print("Testo pacchetto:",testo) 
         return testo 
 
-    if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src)):
+    if not (is_ipaddress(ip_dst) and is_ipaddress(ip_src)):
         raise Exception("test_timing_channel8bit: Argomenti non validi") 
     rumore:int=2 
     min_delay=1+rumore 
@@ -615,7 +638,7 @@ def receive_test_hybrid_channel(ip_dst:ipaddress=None, ip_src:ipaddress=None):
 
 def send_test_hybrid_channel(message:bytes=None, ip_dst:ipaddress=None):
     def get_packet(tipologia:int=None, codice:int=None, data:bytes=None, ip_dst:ipaddress=None): 
-        if not (IS_TYPE.integer(tipologia) and IS_TYPE.integer(tipologia) and IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)):
+        if not (is_integer(tipologia) and is_integer(tipologia) and is_bytes(data) and is_ipaddress(ip_dst)):
                 raise Exception("test_timing_channel8bit: Argomenti non validi") 
         nonlocal target_mac
         pkt=None
@@ -748,7 +771,7 @@ def send_test_hybrid_channel(message:bytes=None, ip_dst:ipaddress=None):
                 return pkt 
         return pkt
 
-    if not (IS_TYPE.bytes(message) and IS_TYPE.ipaddress(ip_dst)):
+    if not (is_bytes(message) and is_ipaddress(ip_dst)):
             raise Exception("test_timing_channel8bit: Argomenti non validi") 
     rumore:int=2 
     min_delay=1+rumore 
@@ -987,7 +1010,7 @@ AttackType.ipv4_echo_random_payload,
 
 def prova_fake_sender():
     cento_KB=(dieci_KB*10)#.encode() 
-    host_attivi, host_inattivi= scan_host_attivi() 
+    host_attivi, host_inattivi=find_hosts_attivi() 
     print("HOST ATTIVI: ",host_attivi)
     
     #USO HOST ATTIVI
