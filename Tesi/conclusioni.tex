@@ -12,9 +12,9 @@ Durante lo sviluppo sono state implementate diverse tipologie di covert channel:
     messaggi ICMP. 
     \item Timing Covert Channel codificando le informazioni negli intervalli 
     temporali tra i pacchetti. Per poter inviare un maggior numero di informazioni 
-    (possibilmente senza renderlo maggiormente sensibile ali errori), si sono 
+    (possibilmente senza renderlo maggiormente sensibile agli errori), si sono 
     sviluppate varie varianti per il calcolo degli intervalli di tempo. 
-    \item Behavioural Covert Channel che codifica i dati attraveso l'ivio di 
+    \item Behavioural Covert Channel che codifica i dati attraveso l'invio di 
     una specifica tipologia di messagio e codice ICMP. 
     \item Un implementazione ibrida dei Covert Channel precedentemente fatti. 
 \end{itemize}
@@ -23,11 +23,11 @@ Alcune difficoltà sono state riscontrate durante l'implementazione della
 comunicazione fra le varie entità. Non potendo affidarsi a TCP, ma solo a 
 messaggi ICMP, si sono dovuti gestire metodi per stabilire e rilasciare la 
 connessione stabilita. Oltre all'accettarsi che la comunicazione sia 
-effettivamnete stabilita.  
+effettivamente stabilita. 
 \vspace{4ex}  \newline 
 Ulteriori difficoltà tecniche sono stati l'invio di messaggi non conformi 
 agli standard RFC. Si sono dovute trovare alternative per poter inserire 
-dati dove da linnee guida non è possibile e gestire la presenza di tipoligie 
+dati dove da linee guida non è possibile e gestire la presenza di tipologie 
 di messaggi ICMP deprecati. Inoltre siccome l'attacco deve poter essere 
 eseguibile anche tramite IPv6; si sono dovuti implementare metodi per la 
 ricerca dell'interfaccia da utilizzare per l'invio dei dati. 
@@ -52,7 +52,7 @@ In sintesi la rilevabilità di un Covert channel dipende da:
     comunicazioni con pattern regolari. 
     \item Distribuzione delle sorgenti: 
     L'utilizzo di mittenti multipli (reali o falsificati intelligentemente), 
-    permette di riduce significativamente la rilevabilità. 
+    permette di ridurre significativamente la rilevabilità. 
     \item Intervalli irregolari e sufficientemente lunghi tra le 
     trasmissioni riducono la probabilità di essere identificati come 
     beaconing
@@ -62,16 +62,16 @@ In sintesi la rilevabilità di un Covert channel dipende da:
 Sebbene sia un protocollo funzionale al monitoraggio di rete, i suoi messaggi 
 devono essere limitati a quelli essenziali. In particolare le principali 
 tipologie di messaggi ICMP che servono sono la tipologia Echo Request/Reply 
-(usaa in sttrumenti come ping), la tipologia Destination IUnreachable e la 
+(usata in strumenti come ping), la tipologia Destination IUnreachable e la 
 tipologia Time Exceeded. Il resto delle tipologie sono state deprecate siccome 
 sostituite da strumenti diversi. 
 \vspace{1ex} \newline 
-Inoltre fra quelli autorizzatti bisogna monitorare il loro utilizzo ed il 
-loro contenuto. Un messaggio Echo Request può contere dati nel campo payload 
+Inoltre fra quelli autorizzati bisogna monitorare il loro utilizzo ed il 
+loro contenuto. Un messaggio Echo Request può contenere dati nel campo payload 
 e messagi come Destination Unreachable o Time Exceeded possono generare 
 dei pattern temporali. 
 \vspace{2ex} \newline 
-Ciò richiede un ispezione dei pacchetti presneti nel flusso, un analisi 
+Ciò richiede un ispezione dei pacchetti presenti nel flusso, un analisi 
 statistica per la ricerca di pattern e la limitazione (nella rete) di 
 messaggi ICMP.  
 

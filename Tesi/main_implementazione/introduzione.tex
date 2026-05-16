@@ -1,8 +1,6 @@
 Dopo aver analizzato gli strumenti che già hanno provato a sviluppare un covert channel tramite ICMP e 
 dopo aver analizzato metodologie sfruttabili per poter nascondere i dati; 
-procediamo nel svilupparne uno; il cui codice è contenuto in una repository GitHub \cite{repoGITHUB}. 
-%Prima di sviluppare un covert Channel Channel che potesse esfiltrare i dati dalla macchina vittima; 
-%si sono analizzati strumenti già presenti per studiarne il comportamento. 
+procediamo nel svilupparne uno; il cui codice è contenuto in una repository GitHub \cite{repoGITHUB}.  
 \vspace{2ex} \newline 
 Per la definizione della struttura, si è preso spunto da 
 \textbf{icmp tunnel} \cite{icmp-tunnel}; il cui schema generale di funzionamento 
@@ -23,7 +21,7 @@ al proxy tramite il protocollo ICMP.
     \includegraphics[width=0.65\textwidth]{../img/ICMPtunnel/architettura_vittima.png} 
 \end{center} 
 Il proxy intanto rimane in ascolto di questi pacchetti ICMP e poi li invia, utilizzando il protocollo IP, verso la destinazione finale. 
-Successivamente i pacchetti in entrata nel proxy, che contengono le informazioni da inoltrate alla macchina vittima, 
+Successivamente i pacchetti in entrata nel proxy, che contengono le informazioni da inoltrare alla macchina vittima, 
 vengono incapsulati tramite il protocollo ICMP ed inoltrati alla vittima.  
 La Figura \ref{fig:icmpTunnel:architettura:proxy} mostra la struttura di quest'ultima parte. 
 \vspace{3ex}\newline
@@ -35,30 +33,18 @@ La Figura \ref{fig:icmpTunnel:architettura:proxy} mostra la struttura di quest'u
 \vspace{2ex} 
 Alcuni aspetti da considerare, utili l'implementazione della comunicazione, sono: 
 \begin{enumerate}
-    \item La \textbf{presenza di più proxy intermediari} fra l'attaccante e la vittima. 
-    %Si è realizzata la necessita di \textbf{proxy intermediari} fra la vitima e l'attaccante così da poter nascondere l'identità di quest'ultimo. 
+    \item La \textbf{presenza di più proxy intermediari} fra l'attaccante e la vittima.  
     Sebbene sia possibile usare un singolo proxy, l'utilizzo di più macchine 
     proxy permette di nascondere meglio la comunicazione. 
     \vspace{1ex} \newline
     Con un solo proxy, il sistema di difesa potrebbe notare che tutto 
     il traffico ICMP viene inviato ad un'unica sorgente. 
     Se invece si utilizzano più proxy, il traffico può essere distribuito fra più destinatari diversi. 
-    %Tuttavia molteplici proxy comportano un aumento nella complessità della comunicazione. 
-    %Quindi sebbene sia possibile anche nessun utilizzo di questi proxy, e quindi si utilizzerà solo la 
-    %machcina dell'attaccante;  nel caso li si volesse utilizzare, si deve tenere conto di una 
-    %\textbf{distribuzione omogenea del traffico} così da non dirigere il throughput creato solo verso una singola macchina. 
-%Se il traffico generato, venisse instradato attraverso un singolo proxy alla volta, il numero di messaggi scambiati genererebbe anomalie che potrebbero essere notato dai meccanismi di difesa. 
-%del traffico generato e non generare un throughput elevato (dato il numero di messaggi scambiati)
-%l'attaccante si può connettere ai proxy. 
-%Si può quindi utilizzare una tipologia di comunicazione meno nascosta e più diretta.
-%Si possono quindi creare dei Socket
-    \item La \textbf{quantità di dati} che si vuole inviare. %quindi il possibile \textbf{limite} della loro dimensione. 
+    \item La \textbf{quantità di dati} che si vuole inviare. 
     Se mai si volesse esfiltrare un file; la grande quantità di dati potrebbe generare rumore. 
     \vspace{1ex} \newline 
     Si deve tenere conto di un \textbf{limite massimo} di dati inviabili in un intervallo di tempo ed 
     un \textbf{periodo di riposo} che deve trascorrere prima di poterne inviare altri.
-    %Maggiore è il numero continuativo di richieste, maggiore sarà la possibilità di far notare la presenza del Covert Channel (e quindi di essere scoperti). 
-    %Questo soglia può non essere direttamente legata a un fattore temporale, ma può variare anche in base a quanti messaggi sono stati scambiati fra le due parti. 
     \item La \textbf{trasmissione dei dati in chiaro} permettera a chiunque di leggerne il contenuto. 
     Un sistema di difesa che fà uso dell'ispezione approfondita dei pacchetti (Deep Packet Inspection) potrebbe rilevare la comunicazione. 
     Tuttavia anche la \textbf{trasmissione di dati cifrati} potrebbe destare sospetti. 
@@ -66,16 +52,11 @@ Alcuni aspetti da considerare, utili l'implementazione della comunicazione, sono
     Si devono quindi poter mandare dati in maniera cifrata ma che al tempo stesso non sembrino cifrati.  
     Al momento non si è trovato un metodo efficace a parte l'inserimento di dati in forma numerica 
     (anche se non viene considerata una cifratura ma pià una decodifica del carattere\footnote{Questo perchè un carattere ASCII può essere codificato tramite un numero intero.}). 
-    %Per esempio nel campo \textit{identifier}, che richiede  interi, l'inserimento di numeri non risulterebbe strano. 
-    %Tuttavia questo non varrà per il campo \textit{data}. 
-    %Quindi un metodo per poter inserire dati codificati ma che risultino normali è necessario. 
-    %Trasmettere i dati in chiaro potrebbe essere semplice da implementare, ma potrebbe essere facilmente rilevabile. 
-    %Trasmettere i dati codificati potrebbe essere più difficile, ma potrebbe risultare più sicuro. 
     \item I \textbf{messaggi di tipo Request}, inviano un messaggio di richiesta e poi aspettano una risposta 
     avente gli stessi dati ricevuti. 
     Si avranno quindi due messaggi identici (tranne per il campo che indica il tipo di messaggio). 
     Ciò risulta un problema se la dimensione del campo contenente i dati è eccessiva. 
-    Inoltre il numero di messaggi che inviati raddoppierà.    
+    Inoltre il numero di messaggi inviati raddoppierà.    
     \vspace{1ex} \newline 
     Delle possibili soluzioni sono: 
     \begin{itemize} 
@@ -86,12 +67,6 @@ Alcuni aspetti da considerare, utili l'implementazione della comunicazione, sono
         così da mandare una risposta specifica (che non ripeterà il contenuto della richiesta). 
         In questo caso ad una richiesta combacierà una risposta sebbene 
         non conforme agli standard. 
-    \end{itemize}
-    %Così quando al sistema arriverà una richiesta, non invieerà una risposta ma la nostra che 
-    %non ripeterà il contenuto mandato dall'attaccante ma un'altro (possibilmente di dimensione minore). 
-    %\item Evitare un numero importante di pacchetti tutti verso la stessa deastinazione. 
-    %Per esempio non mandare più di 5 pacchetti, in un determinato istante, verso la stessa destinazione. 
-    %\uppercase{è} preferibile mandare meno e poi aspettare che mandarli tutti e subit. 
-    %In questo modo si evita di essere scoperti facilmente.
+    \end{itemize} 
 \end{enumerate} 
 

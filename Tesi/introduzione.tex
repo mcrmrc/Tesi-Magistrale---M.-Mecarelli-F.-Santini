@@ -3,41 +3,32 @@ Data la continua evoluzione delle tecnologie e dato il costante aumento nella co
 attacco che permetteranno l'esfiltrazione dei dati. Ciò ha richiesto un'attenzione particolare diventando un ambito primario di ricerca sia da parte di ricercatori universitari 
 che di professionisti del settore. 
 Tra queste tecniche, i covert channel costituiscono una minaccia particolarmente insidiosa, in quanto permettono la trasmissione di informazioni (fra due entità) in maniera 
-non autorizzata sfruttando protocolli, canali di comunicazione e/o risorse legittimi. Ciò rendendo complessa la loro individuazione da parte dei tradizionali sistemi di sicurezza.
+non autorizzata sfruttando protocolli, canali di comunicazione e/o risorse legittimi. 
+Ciò rendendo complessa la loro individuazione da parte dei tradizionali sistemi di sicurezza.
 \vspace{2ex} \newline  
-Il presente lavoro di tesi si concentra sull'analisi e sullo sviluppo di un covert channel basato sul protocollo ICMP (Internet Control Message Protocol) per l'esfiltrazione di 
-dati. Quest'ultimo risulta fondamentale per il funzionamento, il monitoraggio e la diagnostica delle reti IP e che, proprio per questo, non può essere completamente disabilitato 
-o filtrato nelle reti moderne senza comprometterne l'operatività. 
+Il presente lavoro di tesi si concentra sull'analisi e sullo sviluppo di un covert channel basato sul protocollo ICMP (Internet Control Message Protocol) per 
+l'esfiltrazione di dati. Quest'ultimo risulta fondamentale per il funzionamento, il monitoraggio e la diagnostica delle reti IP e che, proprio per questo, non può essere 
+completamente disabilitato o filtrato nelle reti moderne senza comprometterne l'operatività. 
 Tutto questo lo rende un candidato ideale per la creazione di canali di comunicazione difficilmente rilevabili.
-%Il protocollo ICMP, fondamentale per il funzionamento e il monitoraggio delle reti IP, viene comunemente utilizzato per funzioni diagnostiche e di controllo, come la verifica 
-%della raggiungibilità di un host tramite il comando ping o la segnalazione di errori durante la trasmissione dei pacchetti. 
-%Proprio per la sua natura essenziale, ICMP raramente può essere completamente disabilitato nelle reti moderne, rendendolo un candidato ideale per la creazione di canali di comunicazione occulti.
-L'obiettivo principale è dimostrare come il protocollo ICMP possa essere sfruttato per l'implementazione di diverse tipologie di Covert Channel che sono: i timing covert channel, gli  storage covert channel ed i behavioural covert channel.  
-%L’obiettivo principale del lavoro è dimostrare come ICMP possa essere sfruttato per realizzare canali di comunicazione occulti finalizzati all’esfiltrazione di dati, analizzandone al contempo le caratteristiche, i limiti e la rilevabilità.
-%In particolare, vengono esplorate tre approcci fondamentali: i **timing covert channel**, che codificano le informazioni negli intervalli temporali tra i pacchetti; 
-%gli **storage covert channel**, che nascondono i dati all'interno dei campi dei messaggi ICMP; e i **behavioural covert channel**, che sfruttano il comportamento stesso del sistema per trasmettere informazioni. Inoltre, viene presentata un'implementazione ibrida che combina questi approcci per aumentare l'efficacia e la difficoltà di rilevamento del canale nascosto.
+L'obiettivo principale è dimostrare come il protocollo ICMP possa essere sfruttato per l'implementazione di diverse tipologie di Covert Channel che sono: 
+i timing covert channel, gli  storage covert channel ed i behavioural covert channel.  
 \vspace{2ex} \newline 
 La tesi si articolerà in sei capitoli. 
 \begin{itemize} 
-    \item Nel Capitolo 2 verranno inquadrati i Covert Channel ed il protocollo ICMP descrivendone i relativi concetti fondamentali; analizzando le diverse tipologie e caratteristiche 
-    dei canali nascosti sviluppabili e alle diverse tipologie di messaggi ICMP disponibili.  
+    \item Nel Capitolo 2 verranno inquadrati i Covert Channel ed il protocollo ICMP descrivendone i relativi concetti fondamentali; analizzando le diverse tipologie e 
+    caratteristiche dei canali nascosti sviluppabili e alle diverse tipologie di messaggi ICMP disponibili.  
     \item Il Capitolo 3 descriverà gli strumenti software utilizzati per lo sviluppo del progetto ed il relativo testing. 
     In esso sarà presente anche un analisi di progetti esistenti che hanno già affrontato problematiche simili, identificandone punti di forza e criticità. 
     Le osservazioni ricavate hanno poi guidato la progettazione dell'architettura descritta nel capitolo successivo. 
     \item Il Capitolo 4 costituisce la parte centrale dell'elaborato: presenta l'implementazione dettagliata dell'architettura del sistema e della comunicazione fra le 
     entità coinvolte (nello scambio delle informazioni). Descrive inoltre l'implementazione e lo sviluppo delle diverse tipologie di covert channel presenti. 
-    %Viene descritta l'architettura generale del sistema, composta da attaccante, vittima e proxy intermedi,
-    %e vengono illustrate le tecniche utilizzate per nascondere i dati nei vari campi dei messaggi ICMP, per temporizzare gli invii e per modificare il comportamento del sistema.
     Di particolare importanza saranno le metodologie con cui si sono nascosti i dati sia attraverso i tempi dei messaggi sia attraverso i campi presenti in un pacchetto. 
     \item I risultati dei test effettuati verranno riportati nel Capitolo 5. Ciò verrà fatto utilizzando RITA, come strumento per il rilevamento delle intrusioni, 
     ed analizzando come diverse variazioni in alcuni parametri del covert channel influenzino la probabilità di essere individuati. 
     In particola i test potranno variare in base alla quantità di dati trasmessi, alla frequenza di invio dei dati, l'utilizzo dei mittenti reali o falsificati e la presenza 
-    (o la mancanza) di ritardi tra una trasmissione e la successiva. 
-    %Infine, la tesi presenta una fase sperimentale in cui le soluzioni implementate vengono testate e valutate mediante strumenti di rilevamento del traffico malevolo, 
-    %come RITA, al fine di analizzare l’impatto delle diverse strategie adottate sulla visibilità e sulla rilevabilità del canale. 
+    (o la mancanza) di ritardi tra una trasmissione e la successiva.  
     \item Infine, il Capitolo 6 presenta le conclusioni del lavoro e riassume i risultati ottenuti, evidenziando i fattori che influenzano maggiormente la rilevabilità di 
-    un covert channel 
-    %come la rilevabilità dipenda criticamente da fattori quali la frequenza di trasmissione, la distribuzione delle sorgenti e l'irregolarità degli intervalli temporali. 
+    un covert channel. 
     Vengono inoltre fornite raccomandazioni per il monitoraggio e limitazione del traffico ICMP nelle reti, al fine di mitigare i rischi associati a questo tipo di minaccia. 
 \end{itemize}  
 %Questo lavoro contribuisce alla comprensione delle vulnerabilità intrinseche del protocollo ICMP e fornisce una base per lo sviluppo di contromisure più efficaci contro i 
