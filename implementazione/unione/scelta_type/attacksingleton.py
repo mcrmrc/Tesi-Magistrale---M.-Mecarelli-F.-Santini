@@ -6,7 +6,7 @@ import ipaddress
 import string 
 
 from mymethods import IS_TYPE as istype, ping_once, IP_INTERFACE as ipinterface, THREADING_EVENT as threadevent 
-from mymethods import TIMER as mytimer, GET as get, SNIFFER as mysniffer
+from mymethods import TIMER as mytimer, GET as get, SNIFFER as mysniffer, is_scelta_SI_NO, print_dictionary
 
 from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
 from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
@@ -217,7 +217,7 @@ class SendSingleton():
         if ip_dst.version!=4:
             print(f"IP version is not 4: {ip_dst.version}")
             return False
-        interface,_=mymethods.iface_src_from_IP(ip_dst) 
+        interface,_=ipinterface.iface_from_IP(ip_dst) 
         TYPE_DESTINATION_UNREACHABLE=3 
         for index in range(0, len(data), 8):
             dummy_ip=IP(src=ip_dst.compressed, dst="8.8.8.8", len=int.from_bytes(data[index+4:index+6])) / \
@@ -370,15 +370,15 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto") 
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface)
@@ -418,15 +418,15 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            interface,_= ipinterface.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
@@ -474,15 +474,15 @@ class SendSingleton():
         TYPE_TIME_EXCEEDED= 3
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            interface,_= ipinterface.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
@@ -527,15 +527,15 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129  
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            interface,_= ipinterface.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface)  
         
@@ -580,15 +580,15 @@ class SendSingleton():
         TYPE_INFORMATION_REQUEST=128
         TYPE_INFORMATION_REPLY=129 
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            interface,_= ipinterface.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
 
@@ -642,15 +642,15 @@ class SendSingleton():
         TYPE_INFORMATION_REPLY=129
         
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            interface,_= ipinterface.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
@@ -707,15 +707,15 @@ class SendSingleton():
         TYPE_INFORMATION_REPLY=129
 
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            interface,_= ipinterface.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
@@ -768,15 +768,15 @@ class SendSingleton():
         TYPE_INFORMATION_REPLY=129
         midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
         try:
-            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            interface,_= ipinterface.iface_from_IP(addr_dst) 
             if interface is None:  
-                interface=mymethods.default_iface()
+                interface=ipinterface.default_iface()
                 ping_once(addr_dst,interface)
-            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            interface,_= ipinterface.iface_from_IP(addr_dst)
             if interface is None:
                 raise Exception("Problema con l'interfaccia non risolto")  
         except Exception as e: 
-            interface=mymethods.default_iface() 
+            interface=ipinterface.default_iface() 
         dst_mac=ipinterface.mac_from_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
         src_mac = get_if_hwaddr(interface) 
         
@@ -1186,7 +1186,7 @@ class ReceiveSingleton():
         TYPE_INFORMATION_REPLY=16 
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter=f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_dst.compressed}"
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
@@ -1229,7 +1229,7 @@ class ReceiveSingleton():
         TYPE_TIMESTAMP_REPLY=14 
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter=f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src):
                 filter+=f" and src {ip_src.compressed}"
@@ -1267,7 +1267,7 @@ class ReceiveSingleton():
         TYPE_REDIRECT=5 
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_REDIRECT}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src):
                 filter+=f" and src {ip_src.compressed}"
@@ -1305,7 +1305,7 @@ class ReceiveSingleton():
         TYPE_SOURCE_QUENCH=4   
         try: 
             self.event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter=f"icmp and (icmp[0]=={TYPE_SOURCE_QUENCH}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
@@ -1343,7 +1343,7 @@ class ReceiveSingleton():
         TYPE_PARAMETER_PROBLEM=12 
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
@@ -1383,7 +1383,7 @@ class ReceiveSingleton():
         TYPE_TIME_EXCEEDED=11 
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
@@ -1422,7 +1422,7 @@ class ReceiveSingleton():
         TYPE_DESTINATION_UNREACHABLE=3  
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter= f"icmp and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host.compressed}"
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
@@ -1459,7 +1459,7 @@ class ReceiveSingleton():
         if not istype.ipaddress(ip_host) or not istype.list(final_data): 
             raise Exception(f"Argoemnti non corretti")
         try:  
-            interface= mymethods.default_iface()  
+            interface= ipinterface.default_iface()  
             if numero_bit<=0:
                 raise Exception("Numero di bit passato non valido")
         except Exception as e:
@@ -1528,7 +1528,7 @@ class ReceiveSingleton():
         #print("IP_GOOGLE: ",ip_google)
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter= f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}"
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
@@ -1566,7 +1566,7 @@ class ReceiveSingleton():
         TYPE_PARAMETER_PROBLEM=4   
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter= f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}" 
@@ -1604,7 +1604,7 @@ class ReceiveSingleton():
         TYPE_TIME_EXCEEDED=3 
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter=f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
@@ -1641,7 +1641,7 @@ class ReceiveSingleton():
         try: 
             timestamp_data:list=[]
             TYPE_PKT_BIG= 2 
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             event_pktconn=get.threading_Event()
             filter=f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src): 
@@ -1680,7 +1680,7 @@ class ReceiveSingleton():
         TYPE_DESTINATION_UNREACHABLE=1 
         try: 
             event_pktconn=get.threading_Event()
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             filter=f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host.compressed}" 
             if istype.ipaddress(ip_src): 
                 filter+=f" and src {ip_src.compressed}"
@@ -1715,7 +1715,7 @@ class ReceiveSingleton():
         if not istype.ipaddress(ip_dst) or not istype.list(timing_data): 
             raise Exception(f"Argoemnti non corretti")
         try:  
-            interface= mymethods.default_iface() 
+            interface= ipinterface.default_iface() 
             if numero_bit<=0:
                 raise Exception("Numero di bit passato non valido")
         except Exception as e:
@@ -1780,7 +1780,7 @@ def choose_attack_function():
     dict_to_check=singleton.attack_dict 
     result_input=True
     while True: 
-        mymethods.print_dictionary(dict_to_check)
+        print_dictionary(dict_to_check)
         msg="Scegli il nome o il codice della funzione:\t"
         try:
             scelta=str(input(msg)).lower().strip()
@@ -1804,7 +1804,7 @@ def choose_attack_function():
             dict_to_check=func_trovate 
         else:
             raise Exception(f"Unknown case with len(func_trovate): {len(func_trovate)}")
-        if not mymethods.is_scelta_SI_NO(result_input):
+        if not is_scelta_SI_NO(result_input):
             print("Si è scelto di non continuare")
             return None 
 
