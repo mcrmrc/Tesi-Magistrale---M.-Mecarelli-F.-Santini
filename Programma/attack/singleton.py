@@ -1,8 +1,8 @@
 from attack.attack_methods import set_host_list, get_typeAtacco
-from type.check_type import is_enum_member, is_ipaddress, is_list, is_boolean, is_bytes
+from Programma.methods.check_type import is_enum_member, is_ipaddress, is_list, is_boolean, is_bytes
 from custom_enum import ATTACK_TYPE, SENDER_TYPE, MSG, ICMP_TYPE
-from network.network_classes import GET_MAC_ADDRESS, INTERFACE_FROM_IP
-from network.network_methods import ping_once, find_local_IP, find_hosts_attivi, default_interface
+from Programma.classes import GET_MAC_ADDRESS, INTERFACE_FROM_IP
+from Programma.methods.network_methods import ping_once, get_local_IP, get_hosts_attivi, default_interface
 from scapy.all import Ether, IP, ICMP, Raw, sendp, random, sniff
 from attack.attack_classes import _IPx
 from attack.attack_classes import IPV4_INFORMATION, IPV4_TIMESTAMP, IPV4_REDIRECT, IPV4_SOURCE_QUENCH, IPV4_PARAMETER_PROBLEM, IPV4_TIME_EXCEEDED, IPV4_DESTINATION_UNRECHABLE, IPV4_ECHO, IPV4_TIMING_8BIT, IPV4_TIMING_8BIT_NOISE
@@ -15,13 +15,13 @@ import ipaddress, time
 class SendSingleton: 
     def __init__(self, type_attacco:Enum=None, type_sender:Enum=None, use_delay:bool=False): 
         if not is_enum_member(type_attacco, ATTACK_TYPE): 
-            raise Exception("type_attacco non ATTACK_TYPE: ") 
+            raise TypeError("type_attacco non ATTACK_TYPE: ") 
         self.type_attacco=type_attacco  
         if not is_enum_member(type_sender, SENDER_TYPE): 
-            raise Exception("type_sender non SENDER_TYPE") 
+            raise TypeError("type_sender non SENDER_TYPE") 
         self.type_sender=type_sender
         if not is_boolean(use_delay):
-            raise Exception("use_delay non boolean") 
+            raise TypeError("use_delay non boolean") 
         self.use_delay=use_delay
         self.host_list=set_host_list(self.type_sender) 
         if not is_list(self.host_list) or len(self.host_list)<=0 or any(not is_ipaddress(ip) for ip in self.host_list): 
@@ -29,7 +29,7 @@ class SendSingleton:
     
     def send_host_attivi(self, ip_dst:ipaddress.IPv4Address=None):  
         if not is_ipaddress(ip_dst): 
-            raise Exception("ip_dst: non valido")
+            raise TypeError("ip_dst: non valido")
         dst_mac=GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower() 
         if not dst_mac: raise ValueError("dst_mac non valido") 
         default_interface=default_interface()
@@ -107,7 +107,7 @@ class ReceiveSingleton:
         if not is_enum_member(attacco, ATTACK_TYPE): 
             raise TypeError("attacco non valido")  
         self.attacco=attacco  
-        self.ip_dst,err=find_local_IP() 
+        self.ip_dst,err=get_local_IP() 
         if err or not is_ipaddress(self.ip_dst): 
             print(err)
             raise Exception(f"ip_dst non valido") 

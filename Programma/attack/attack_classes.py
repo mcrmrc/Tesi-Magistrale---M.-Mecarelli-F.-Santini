@@ -1,16 +1,17 @@
-from type.check_type import is_ipaddress, is_list, is_integer, is_dictionary, is_boolean, is_enum_member, is_callable_function, is_bytes
-from network.network_classes import GET_MAC_ADDRESS, INTERFACE_FROM_IP, SNIFFER
-from network.network_methods import ping_once, find_local_IP, default_interface
+from Programma.methods.check_type import is_ipaddress, is_list, is_integer, is_dictionary, is_boolean, is_enum_member, is_callable_function, is_bytes
+from Programma.classes import GET_MAC_ADDRESS, INTERFACE_FROM_IP, SNIFFER
+from Programma.methods.utils_methods import ping_once
+from Programma.methods.get_methods import get_local_IP
 from custom_enum import ICMP_TYPE, ATTACK_TYPE
 from enum import Enum 
 from scapy.all import sendp, sniff, ICMP, Ether, IP, ICMPerror, IPerror, Raw, random, get_if_hwaddr, IPv6, IPerror6, ICMPv6EchoRequest, ICMPv6EchoReply, ICMPv6DestUnreach, ICMPv6PacketTooBig, ICMPv6TimeExceeded, ICMPv6ParamProblem
 from thread_methods import TIMER
 from classes import checksum
 from classes import POWER_SLEEP
-from type.get_type import get_timer
+from Programma.methods.get_methods import get_timer
 from datetime import timezone
 from abc import ABC, abstractmethod
-from utils_methods import threadEvent_wait, threadEvent_set
+from Programma.methods.utils_methods import threadEvent_wait, threadEvent_set
 import ipaddress, string, datetime, time, threading, struct
 
 class _IPx: 
@@ -1438,7 +1439,7 @@ class IPV6_ECHO(_IPx):
             sendp(pkt, verbose=1,iface=self.interface) 
     
     def send_last(self): 
-        ip_src=find_local_IP() 
+        ip_src=get_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
@@ -1492,7 +1493,7 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
             raise ValueError("interface non valida") 
-        #ip_src=find_local_IP()  
+        #ip_src=get_local_IP()  
         if not is_ipaddress(ip_src) or ip_src.version!=6:  
             raise Exception("ip_src non valido",ip_src)  
         src_mac=(
@@ -1526,7 +1527,7 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
             sendp(pkt, verbose=1,iface=self.interface)  
         
     def send_last(self): 
-        ip_src=find_local_IP() 
+        ip_src=get_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
@@ -1620,7 +1621,7 @@ class IPV6_TIME_EXCEEDED(_IPx):
             sendp(pkt, verbose=1,iface=self.interface) 
     
     def send_last(self): 
-        ip_src=find_local_IP() 
+        ip_src=get_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
@@ -1716,7 +1717,7 @@ class IPV6_PACKET_BIG(_IPx):
             sendp(pkt, verbose=1,iface=self.interface) 
     
     def send_last(self): 
-        ip_src=find_local_IP() 
+        ip_src=get_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
@@ -1806,7 +1807,7 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
             sendp(pkt, verbose=1,iface=self.interface)  
         
     def send_last(self): 
-        ip_src=find_local_IP() 
+        ip_src=get_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(

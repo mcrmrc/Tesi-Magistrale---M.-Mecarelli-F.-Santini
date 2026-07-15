@@ -1,7 +1,7 @@
 from enum import Enum
-from type.check_type import is_enum_member, is_ipaddress, is_list
+from Programma.methods.check_type import is_enum_member, is_ipaddress, is_list
 from custom_enum import SENDER_TYPE, ATTACK_TYPE
-from network.network_methods import find_local_IP, find_hosts_attivi 
+from Programma.methods.network_methods import get_local_IP, get_hosts_attivi 
 from attack.attack_classes import IPV4_DESTINATION_UNRECHABLE, IPV4_TIME_EXCEEDED, IPV4_PARAMETER_PROBLEM, IPV4_SOURCE_QUENCH, IPV4_REDIRECT, IPV4_ECHO, IPV4_TIMESTAMP, IPV4_INFORMATION, IPV4_TIMING_8BIT, IPV4_TIMING_8BIT_NOISE
 from attack.attack_classes import IPV6_ECHO, IPV6_PARAMETER_PROBLEM, IPV6_TIME_EXCEEDED, IPV6_PACKET_BIG, IPV6_DESTINTION_UNREACHABLE, IPV6_TIMING
 import ipaddress
@@ -12,12 +12,12 @@ def set_host_list(type_sender:Enum=None):
     lista_host = []
     match type_sender: 
         case SENDER_TYPE.TRUE_SENDER: 
-            ip,err=find_local_IP()
+            ip,err=get_local_IP()
             if err:
                 raise Exception("Impossibile trovare l'IP locale: ", err)
             return [ip]
         case SENDER_TYPE.FAKE_SENDER_ACTIVE: 
-            active_host,_= find_hosts_attivi() 
+            active_host,_= get_hosts_attivi() 
             for host in active_host: 
                 try:  
                     lista_host.append(ipaddress.ip_address(host))
@@ -26,7 +26,7 @@ def set_host_list(type_sender:Enum=None):
             print("ATTIVI:",lista_host) 
             return lista_host
         case SENDER_TYPE.FAKE_SENDER_INACTIVE: 
-            _,inactive_host= find_hosts_attivi()
+            _,inactive_host= get_hosts_attivi()
             for host in inactive_host: 
                 try: 
                     lista_host.append(ipaddress.ip_address(host))
@@ -35,7 +35,7 @@ def set_host_list(type_sender:Enum=None):
             print("INATTIVI:",lista_host)
             return lista_host
         case SENDER_TYPE.FAKE_SENDER_BOTH: 
-            active_host,inactive_host= find_hosts_attivi()
+            active_host,inactive_host= get_hosts_attivi()
             for host in active_host: 
                 try: 
                     lista_host.append(ipaddress.ip_address(host))
