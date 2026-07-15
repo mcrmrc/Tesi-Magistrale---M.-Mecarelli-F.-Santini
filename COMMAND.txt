@@ -1,0 +1,2 @@
+cd D:\Tesi Magistrale\
+git subtree push --prefix=_TesiMagistrale-bella repoPubblica main
