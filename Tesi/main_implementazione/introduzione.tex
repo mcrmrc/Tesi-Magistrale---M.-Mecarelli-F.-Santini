@@ -1,33 +1,36 @@
 Dopo aver analizzato gli strumenti che già hanno provato a sviluppare un covert channel tramite ICMP e 
 dopo aver analizzato metodologie sfruttabili per poter nascondere i dati; 
-procediamo nel svilupparne uno; il cui codice è contenuto in una repository GitHub\cite{repoGITHUB}. 
+procediamo nel svilupparne uno; il cui codice è contenuto in una repository GitHub \cite{repoGITHUB}. 
 %Prima di sviluppare un covert Channel Channel che potesse esfiltrare i dati dalla macchina vittima; 
 %si sono analizzati strumenti già presenti per studiarne il comportamento. 
 \vspace{2ex} \newline 
 Per la definizione della struttura, si è preso spunto da 
 \textbf{icmp tunnel} \cite{icmp-tunnel}; il cui schema generale di funzionamento 
 viene mostrato nella Figura \ref{fig:icmpTunnel:architettura:generale}.
+\vspace{3ex}\newline
 \begin{center} 
-    \includegraphics[width=0.7\textwidth]{../img/ICMPtunnel/architettura_generale.png} 
-    \captionof{figure}{Architettura generale di \textbf{icmp tunnel}}
+    \captionof{figure}{Architettura generale di \textbf{icmp tunnel} \cite{icmp-tunnel}}
     \label{fig:icmpTunnel:architettura:generale} 
+    \includegraphics[width=0.7\textwidth]{../img/ICMPtunnel/architettura_generale.png} 
 \end{center} 
 La Figura \ref{fig:icmpTunnel:architettura:vittima} mostra la struttura della comunicazione fra la macchina vittima e il proxy.
 \textit{Icmp tunnel} che è in esecuzione sulla macchina vititma, reindirizza il traffico IP ad un interfaccia virtuale per poi reinoltrarlo 
 al proxy tramite il protocollo ICMP. 
+\vspace{3ex}\newline
 \begin{center} 
-    \includegraphics[width=0.65\textwidth]{../img/ICMPtunnel/architettura_vittima.png} 
-    \captionof{figure}{Comunicazione vitttima-proxy in \textbf{icmp tunnel}}
+    \captionof{figure}{Comunicazione vitttima-proxy in \textbf{icmp tunnel} \cite{icmp-tunnel}}
     \label{fig:icmpTunnel:architettura:vittima} 
+    \includegraphics[width=0.65\textwidth]{../img/ICMPtunnel/architettura_vittima.png} 
 \end{center} 
 Il proxy intanto rimane in ascolto di questi pacchetti ICMP e poi li invia, utilizzando il protocollo IP, verso la destinazione finale. 
 Successivamente i pacchetti in entrata nel proxy, che contengono le informazioni da inoltrate alla macchina vittima, 
 vengono incapsulati tramite il protocollo ICMP ed inoltrati alla vittima.  
 La Figura \ref{fig:icmpTunnel:architettura:proxy} mostra la struttura di quest'ultima parte. 
+\vspace{3ex}\newline
 \begin{center} 
-    \includegraphics[width=0.65\textwidth]{../img/ICMPtunnel/architettura_proxy.png} 
-    \captionof{figure}{Comunicazione proxy-internet in \textbf{icmp tunnel}}
+    \captionof{figure}{Comunicazione proxy-internet in \textbf{icmp tunnel} \cite{icmp-tunnel}}
     \label{fig:icmpTunnel:architettura:proxy} 
+    \includegraphics[width=0.65\textwidth]{../img/ICMPtunnel/architettura_proxy.png} 
 \end{center} 
 \vspace{2ex} 
 Alcuni aspetti da considerare, utili l'implementazione della comunicazione, sono: 
@@ -62,8 +65,7 @@ Alcuni aspetti da considerare, utili l'implementazione della comunicazione, sono
     \vspace{1ex} \newline 
     Si devono quindi poter mandare dati in maniera cifrata ma che al tempo stesso non sembrino cifrati.  
     Al momento non si è trovato un metodo efficace a parte l'inserimento di dati in forma numerica 
-    (anche se non viene considerata una cifratura ma pià una decodifica del carattere
-    \footnote{Questo perchè un carattere ASCII può essere codificato tramite un numero intero.}). 
+    (anche se non viene considerata una cifratura ma pià una decodifica del carattere\footnote{Questo perchè un carattere ASCII può essere codificato tramite un numero intero.}). 
     %Per esempio nel campo \textit{identifier}, che richiede  interi, l'inserimento di numeri non risulterebbe strano. 
     %Tuttavia questo non varrà per il campo \textit{data}. 
     %Quindi un metodo per poter inserire dati codificati ma che risultino normali è necessario. 
