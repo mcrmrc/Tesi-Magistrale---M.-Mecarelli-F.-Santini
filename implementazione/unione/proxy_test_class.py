@@ -2,8 +2,10 @@ import mymethods
 import argparse
 import comunication_methods as com
 import re
+
+#from scapy.all import *
 from scapy.all import ICMP, Raw, IP
-from scapy.all import *
+
 import time
 import datetime
 import threading

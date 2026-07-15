@@ -11,7 +11,8 @@ directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
 import mymethods 
 
-from scapy.all import * 
+#from scapy.all import * 
+from scapy.all import IP, ICMP, sr1, Raw
 import datetime 
 import time
 

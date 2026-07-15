@@ -1,3 +1,5 @@
+#from scapy.all import conf
+
 import mymethods
 import argparse
 
@@ -38,7 +40,7 @@ def test_find_ip_addresses():
     print(f"Local IP: {mymethods.find_local_IP()}")
     print(f"Public IP: {mymethods.find_public_IP()}")
 
-from scapy.all import conf
+
 if __name__=="__main__":
     test_check_args()
     test_calc_checksum()
