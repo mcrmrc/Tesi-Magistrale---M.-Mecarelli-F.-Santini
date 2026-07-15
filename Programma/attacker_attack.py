@@ -11,7 +11,7 @@ import json
 import socket 
 
 from mymethods import * 
-from custom_enum import SEPARAZIONE_DATI, ENTITY
+from custom_enum import SEPARAZIONE_DATI, ENTITY, ATTACK_TYPE
 from scapy.all import * 
 from check_type import * 
 from get_type import *
@@ -121,11 +121,6 @@ class DATA:
                     payload.append(data[2])
             return payload
 
-
-class MSG_CONFIG(Enum): 
-    attack_method="attack_function" 
-    proxy_list="proxy_list"
-
 class ICMP_THREAD: 
     thread_lock=None 
     thread_response={} 
@@ -221,11 +216,11 @@ class ARGS_CONFIG:
             return proxy_list if len(proxy_list)>0 else None 
         
         def get_attacco(self): 
-            attack_type=AttackType.get_attack_method(self.config_file.get("attack_function")) 
+            attack_type=ATTACK_TYPE.get_attack_method(self.config_file.get("attack_function")) 
             for count in range(3):
-                if is_enum_member(attack_type,AttackType): 
+                if is_enum_member(attack_type,ATTACK_TYPE): 
                     return attack_type 
-                attack_type=AttackType.choose_attack_function() 
+                attack_type=ATTACK_TYPE.choose_attack_function() 
             #raise TypeError("Attacco non valido:",attack_type) 
             return None 
         
