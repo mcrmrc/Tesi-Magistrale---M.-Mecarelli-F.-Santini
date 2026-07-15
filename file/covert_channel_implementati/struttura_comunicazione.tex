@@ -1,0 +1,47 @@
+La struttura del programma è definita nel seguente modo: 
+sono presenti tre entita, che verranno definite come \textbf{attaccante}, \textbf{proxy} e \textbf{vittima}. 
+Il caso standard sarà quello rappresentato in [Fig.\ref{fig:covertchannel:struttura:1}]; 
+tuttavià sarà possibile, per l'attaccante, comunicare direttamente con la vittima. 
+In questo caso l'entità proxy non verrà utilizzata ed alcune funzioni presenti in essa verranno eseguite 
+dall'attaccante (e.g connettersi alla vittima). 
+\begin{center} 
+    \includegraphics[width=0.4\textwidth]{../img/implementazione/struttura attacker.proxy.victim 3.jpg} 
+    \captionof{figure}{Diagramma delle entità presenti}
+    \label{fig:covertchannel:struttura:1} 
+\end{center}   
+Come avviene la comunicazione fra le entità è definito dal diagramma in [Fig.\ref{fig:covertchannel:struttura:2}]. 
+Le entità inizializzano i parametri necessari, in particolare l'attaccante leggerà un file di configurazione in cui si indicano determinate cose. 
+In particolare si indicano i proxy se si vorrà utilizzare per ò'attacco, l'indirizzo IP della macchina vittima 
+oltre alla tipologia di attacco che si vuole effettuare. 
+Dopodichè l'attaccante si connetterà ad ogni proxy specificato nel file per testare se la connesisone è possibile. 
+La connesisone viene ritenuta possibile se il proxy e l'attaccante riescono a comunicare fra di loro e se anche il proxy e la vittima riescono a comunicare fra di loro. 
+Identificati i proxy sfruttabili, si inserirà un comando e, dopo averlo inviato ad uno dei proxy, si aspetteranno che i proxy ritornino i dati relativi all'operazione. 
+Per l'invio del comando si utilizzerà un singolo proxy; 
+quindi a tutti gli altri verrà notificato di aspettare direttamente i dati. 
+Infine aspetta che tutti gli altraccanti e poi la analizza, per poterli riordinare. 
+%finto potrà decidere se inviare un ulteriore comando o terminare la comunicazione. 
+\vspace{2ex} \newline 
+Il proxy invece, al momento dell'inizializzazione, imposta un server su cui l'attaccante si connetterà. 
+%Si potrebbe impostare una comunicazione tramite ICMP (come nel caso con la vittima) ma questo renderebbe la comunicaizone instabile. 
+%Invece, siccome il proxy può ritenersi sicuro, un canale TCP/IP può essere utilizzato. 
+Successivamente cercherà di connettersi alla vittima inviandogli un messaggio ICMP e poi aggiorna l'attaccante se la connesisone è stata stabilita o no. 
+Dopodichè rimarrà in attesa del comando che l'attaccante potrà inviare. 
+Se lo riceve provvederà ad inoltrarlo altrimenti rimane in attesa dei dati dalla vittima. 
+Una volta ricevuti tutti i dati dalla vittima, procederà ad inoltrarli all'attaccante. 
+Infine rimarra in attesa di aggiornamenti da parte dell'attaccante, 
+il quale può decidere se inviare un altro comando o termianre la comunicazione. 
+\vspace{2ex} \newline 
+La vittima, durante la sua inizializzazione, specifica il numero minimo di proxy necessari per la comunicazione. 
+Quindi si metterà in ascolto dei proxy che vogliono connettersi; 
+quando si connette ad un proxy, gli manderà un messaggio di conferma. 
+Se entro un certo tempo il numero non viene raggiunto, si può scegliere se continuare ad aspettare altri proxy o avanzare con l'attacco. 
+Dopodichè la vittima rimane in attesa del comando dell'attaccante e una volta arrivato, lo esegue e ricava i dati restituiti in caso dall'operazione. 
+Infine, per esfiltare i dati, invierà a ciascuno dei proxy connessi una porzione delle informazioni ricavate. 
+Terminato di farlo, si metterà in ascolto del prossimo comando dell'attaccante, che determinerà la prossima operazione o la terminazione della comunicazione. 
+\begin{center} 
+    \includegraphics[width=0.5\textwidth]{../img/implementazione/diagramma_struttura_entita.jpg} 
+    \captionof{figure}{Diagramma del dlusso di comunicazione fra le entita}
+    \label{fig:covertchannel:struttura:2} 
+\end{center} 
+
+
