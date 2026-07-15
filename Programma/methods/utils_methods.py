@@ -1,6 +1,75 @@
 import sys
 import string, time, threading, ipaddress
-from Programma.methods.check_type import is_ipaddress, is_threading_Lock, is_dictionary, is_boolean, is_callable_function, is_list
+from custom_enum import ATTACK_TYPE, EXIT_CASES
+from check_type import is_integer, is_ipaddress, is_threading_Lock, is_dictionary, is_boolean, is_callable_function, is_list
+from methods.check_type import is_enum_member
+
+class ASK():
+    def ip_address():
+        input_ip=""
+        while input_ip not in EXIT_CASES: 
+            try: 
+                input_ip=input(
+                    """Inserire indirizzo IP dell'host. 
+                    exit o quit per uscire:\n\t#
+                    """
+                )
+                return ipaddress.ip_address(input_ip.strip()) 
+            except Exception as e: 
+                print(e) 
+        return None
+
+    def proxy_port():
+        input_port=""
+        while input_port not in EXIT_CASES:
+            try: 
+                input_port=input(
+                    "Inserire porta proxy (0-65535):\n\t#"
+                )
+                if not 0<int(input_port)<65536:
+                    raise ValueError(f"Porta {input_port} non valida")
+                return int(input_port) 
+            except Exception as e:
+                print(f"{e}") 
+        return None
+
+    def num_proxy(): 
+        input_num=""
+        while input_num not in EXIT_CASES:
+            try: 
+                input_num=input(
+                    "Inserire numero proxy (1-100):\n\t#"
+                )
+                if not 0<int(input_num)<100:
+                    raise ValueError(f"Numero {input_num} non valido")
+                return int(input_num) 
+            except Exception as e:
+                print(f"{e}") 
+        return None 
+
+    def attack_type(): 
+        try: 
+            attack_type=ATTACK_TYPE.choose_attack_function() 
+            if is_enum_member(attack_type,ATTACK_TYPE): 
+                return attack_type 
+        except Exception as e:
+            print(f"{e}") 
+        return None 
+    
+    def bool_choice(msg:str):
+        def is_SI_NO(scelta:str=None):
+            if not scelta or not isinstance(scelta, str): 
+                return False 
+            whitebox=["yes","si","yeah"]
+            for x in whitebox:
+                if sanitize_str(scelta)!="" and (x.startswith(scelta) or x in scelta):
+                    return True 
+            return False
+        if not isinstance(msg, str):
+            raise Exception("ask_bool_choice: Il messaggio non è una stringa")
+        return is_SI_NO(input(f"{msg}"))
+
+    
 
 systemsDictionary={
     'aix':"AIX",
@@ -48,18 +117,6 @@ def print_dictionary(dictionary:dict=None):
     for key, value in dictionary.items():
         print(f"\t{key}\t\t{value}") 
 
-def ask_bool_choice(msg:str):
-    def is_scelta_SI_NO(scelta:str=None):
-        if not scelta or not isinstance(scelta, str): 
-            return False 
-        whitebox=["yes","si","yeah"]
-        for x in whitebox:
-            if sanitize_str(scelta)!="" and (x.startswith(scelta) or x in scelta):
-                return True 
-        return False
-    if not isinstance(msg, str):
-        raise Exception("ask_bool_choice: Il messaggio non è una stringa")
-    return is_scelta_SI_NO(input(f"{msg}"))
 
 def proxy_update_data_received(data, data_lock:threading.Lock, data_received):
     data_lock.acquire()

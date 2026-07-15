@@ -213,53 +213,7 @@ def get_local_IP():
         error=e 
     finally:
         s.close()
-    return ip_address, error
-
-def ask_ip_address():
-    input_ip=""
-    while input_ip not in EXIT_CASES: 
-        try: 
-            input_ip=input(
-                """Inserire indirizzo IP dell'host. 
-                exit o quit per uscire:\n\t#
-                """
-            )
-            return ipaddress.ip_address(input_ip.strip()) 
-        except Exception as e: 
-            print(e) 
-    return None
-
-def ask_proxy_port():
-    try: 
-        msg="Inserire porta proxy (0-65535):\n\t#"
-        proxy_port=int(input(msg)) 
-        if is_integer(proxy_port) and 0<proxy_port<65536: 
-            return proxy_port
-    except Exception as e:
-        print(f"{e}")  
-        print(f"Porta {proxy_port} non valida") 
-
-def ask_num_proxy(): 
-    try:
-        print("Numero proxy non valido")
-        msg="Inserire numero proxy (1-100):\n\t#"
-        num_proxy=int(input(msg)) 
-        if is_integer(num_proxy) and 0<num_proxy<100: 
-            return num_proxy 
-    except Exception as e:
-        print(f"{e}") 
-        print("Numero proxy non valido")
-    return None 
-
-def ask_attack_type(): 
-    try: 
-        attack_type=ATTACK_TYPE.choose_attack_function() 
-        if is_enum_member(attack_type,ATTACK_TYPE): 
-            return attack_type 
-    except Exception as e:
-        print(f"{e}") 
-    return None 
-        
+    return ip_address, error    
 
 def get_public_IP():
     return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8') 
