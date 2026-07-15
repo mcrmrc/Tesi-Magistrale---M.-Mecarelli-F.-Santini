@@ -1,5 +1,6 @@
 #from scapy.all import *
-from scapy.all import IP, ICMP, Raw, sr1, AsyncSniffer, get_if_hwaddr, in6_getnsma, in6_getnsmac, Ether, IPv6, ICMPv6ND_NS, ICMPv6NDOptSrcLLAddr, srp1, ICMPv6NDOptDstLLAddr
+from scapy.all import IP, ICMP, Raw,  Ether, IPv6, ICMPv6ND_NS, ICMPv6NDOptSrcLLAddr, ICMPv6NDOptDstLLAddr
+from scapy.all import sr1, sendp, AsyncSniffer, get_if_hwaddr, in6_getnsma, in6_getnsmac, srp1
 
 import threading 
 import argparse
@@ -9,6 +10,7 @@ import re
 import subprocess 
 import ipaddress
 import sys
+import socket
 
 CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
 CONFIRM_VICTIM="__CONFIRM_VICTIM__"
@@ -172,9 +174,10 @@ def get_timeout_timer(timeout_time=60, callback_function=None):
         raise Exception(f"get_timeout_timer: {e}")
     return threading.Timer(timeout_time, callback_function)
 
-def get_thread_response(proxy:str=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=True):
+def get_thread_response(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=True):
     try:
-        is_valid_ipaddress_v4(proxy)
+        if not isinstance(proxy, ipaddress.IPv4Address) and not not isinstance(proxy, ipaddress.IPv6Address):
+            raise Exception("IP proxy non istanza di IPv4Address o IPv6Address: {proxy}")
         is_threading_lock(thread_lock)
         is_dictionary(thread_response)
         is_boolean(response)
@@ -182,14 +185,14 @@ def get_thread_response(proxy:str=None,thread_lock:threading.Lock=None,thread_re
         raise Exception(f"get_thread_response: {e}")
     response=None
     thread_lock.acquire()
-    response=thread_response.get(proxy)
+    response=thread_response.get(proxy.compressed)
     thread_lock.release()
     return response 
 
-def update_thread_response(proxy:str=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=False):
+def update_thread_response(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=False):
     try:
-        if not is_valid_ipaddress_v4(proxy):
-            raise Exception(f"update_thread_response: ipaddress {proxy}") 
+        if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
+            raise Exception(f"Proxy not instnace of IPv4Address nor IPv6Address : {type(proxy)}") 
         if not is_threading_lock(thread_lock):
             raise Exception(f"update_thread_response: lock {thread_lock}") 
         if not is_dictionary(thread_response):
@@ -199,7 +202,7 @@ def update_thread_response(proxy:str=None,thread_lock:threading.Lock=None,thread
     except Exception as e:
         raise Exception(f"update_thread_response: is_boolean {e}")
     thread_lock.acquire()
-    thread_response.update({proxy:response}) 
+    thread_response.update({proxy.compressed:response}) 
     thread_lock.release()
 
 #-------------------- 
@@ -263,21 +266,23 @@ def stop_timer(timer:threading.Timer=None):
         return True
     return False
 
-
-
 #------------------------
-def send_packet(data:bytes=None,ip_dst=None, time=10,icmp_seq=0,id=None):
+def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, time=10,icmp_seq=0,id=None,interface=""):
     try:
-        is_valid_ipaddress_v4(ip_dst)
-        if data is None or not isinstance(data,bytes): 
-            raise Exception("send_packet: I dati devono essere bytes")
+        if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
+            raise Exception("iip_dst non è ne istanza di IPv4Address ne IPv6Address")
+        if not isinstance(data,bytes): 
+            raise Exception(f"I dati non sono bytes: {type(data)}")
     except Exception as e:
         raise Exception(f"send_packet: {e}") 
     if id is None:
         icmp_id=mymethods.calc_checksum(data) 
-    pkt = IP(dst=ip_dst)/ICMP(id=icmp_id,seq=icmp_seq) / data  
+    pkt = IP(dst=ip_dst.compressed)/ICMP(id=icmp_id,seq=icmp_seq) / data  
     print(f"\tSending {pkt.summary()}") 
-    ans = sr1(pkt, timeout=time, verbose=1)
+    if isinstance(interface,str) and interface !="":
+        ans=sendp(pkt, verbose=1, iface=interface)
+    else:
+        ans = sr1(pkt, timeout=time, verbose=1)
     if ans:
         #print(f"Reply: \t{ip_dst} is alive\n") 
         return True 
@@ -313,7 +318,7 @@ def sniff_packet(args:dict=None,timeout_time=60, event:threading.Event=None):
     start_sniffer(sniffer, timer) 
     return sniffer, timer 
 #------------------------
-def setup_thread_foreach_proxy(proxy_list:list=None,callback_function=None): 
+def setup_thread_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None,callback_function=None): 
     try: 
         if not is_callback_function(callback_function):
             raise Exception(f"callback_function non valida {callback_function}")
@@ -325,18 +330,21 @@ def setup_thread_foreach_proxy(proxy_list:list=None,callback_function=None):
     thread_proxy_response={}
     thread_list={}
     for proxy in proxy_list:
+        if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
+            print(f"***\t{proxy} non è un indirizzo valido")
+            continue
         thread=threading.Thread(
             target=callback_function
             ,args=[proxy]
         )
-        thread_list.update({proxy:thread})
-        thread_proxy_response.update({proxy:False}) 
+        thread.name=f"Thread-{proxy.compressed}"
+        thread_list.update({proxy.compressed:thread})
+        thread_proxy_response.update({proxy.compressed:False}) 
     print(f"Definito il threading lock per quando si accede alle risposte dei proxy") #print(f"Lock creato:\t{thread_lock}")
     print("Definito per ogni proxy il proprio Thread") #print(f"Thread creati:\t{thread_list}")
     print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
     return thread_lock, thread_proxy_response, thread_list
 
-import socket
 def get_mac_by_ipv6(ipv6_dst: str, ipv6_src: str, iface_name: str):
     try:
         # Validate and convert

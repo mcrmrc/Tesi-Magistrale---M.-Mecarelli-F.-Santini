@@ -45,21 +45,19 @@ def print_parser_supported_arguments(parser=None):
             help=action.help
         )) 
 
-def check_args(parser: argparse.ArgumentParser = None): 
-    if parser is None:
-        raise ValueError("Parser nullo")
+def check_for_unknown_args(parser: argparse.ArgumentParser = None): 
     try:
-        args, unknown = parser.parse_known_args()
-        #args= parser.parse_args()
-        print("Argomenti passati: {}".format(args))
+        if isinstance(parser, argparse.ArgumentParser):
+            raise ValueError("Parser non istanza di argparse.ArgumentParser") 
+        args, unknown = parser.parse_known_args() 
+        #print(f"Argomenti passati: {args}")
         if len(unknown) > 0:
-            print(f"Argomenti sconosciuti: {unknown}")
-            print_parser_supported_arguments(parser)
-            exit(1) 
+            raise Exception(f"Argomenti sconosciuti: {unknown}")
+            #print_parser_supported_arguments(parser) 
         return args
     except Exception as e:
-        print("Errore: {}".format(e)) 
-        exit(1) 
+        print("check_args: {e}") 
+        return None
 
 def calc_checksum(data: bytes) -> int:
     """
@@ -100,7 +98,7 @@ def calc_gateway_ipv6(ip_dst=None):
     except ValueError:
         raise Exception("calc_gateway_ipv6: Indirizzo IPv6 non valido") 
 
-def iface_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
+def iface_src_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
     if not isinstance(addr_target, ipaddress.IPv4Address) and not isinstance(addr_target, ipaddress.IPv6Address):
         raise Exception(f"L'indirizzo è una {type(addr_target)}. Richiesto o un 'ipaddress.IPv4Address' o un 'ipaddress.IPv6Address': ",file=sys.stderr)
     result_output = None
@@ -120,27 +118,27 @@ def iface_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
         else:
             #print(f"Codice di ritorno {process.returncode}", file=sys.stderr)
             #print(f"Errore: {stderr.strip()}", file=sys.stderr)  
-            return None
+            return None, None 
     except subprocess.CalledProcessError as e:
         #print(f"Errore durante l'esecuzione del comando: {e}", file=sys.stderr)
-        return None
+        return None, None 
     except ValueError as e:
         #print(f"Errore di valore: {e}", file=sys.stderr)
-        return None  
+        return None, None 
     if result_output is not None:  
         match_src = re.search(r"\bsrc\s+([\da-fA-F\.:]+)\b", result_output)  
         match_dev = re.search(r"dev (\S+)", result_output)
         if not match_src and not match_dev:
             print(f"Impossibile estrarre sorgente o interfaccia da output",file=sys.stderr)
-            return None
+            return None, None 
         #print("match_src: ",match_src)
         #print("match_dev: ",match_dev)
         ip_src=match_src.group(0).replace("src ","").strip()
         iface=match_dev.group(0).replace("dev ","").strip()
         #print(f"Sorgente trovata: {ip_src}")
         #print(f"Interfaccia trovata: {iface}")
-        return iface
-    return None 
+        return iface, ip_src
+    return None, None 
 
 def default_iface(): 
     try: 
@@ -190,15 +188,20 @@ def sanitize(stringa):
     return stringa.strip() 
 
 def find_local_IP():
-    s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    local_ip=None
+    error=""
     try:
+        s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8",80))
         local_ip=s.getsockname()[0]
+        print("AAA: ",local_ip)
     except Exception as e:
-        print(f"find_local_IP: {e}")
+        print(f"\tNon è stato trovato l'IP locale: {e}")
+        error=e
+        s.close() 
     finally:
         s.close()
-    return local_ip
+        return local_ip, error
 
 def find_public_IP():
     return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
