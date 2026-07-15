@@ -24,6 +24,8 @@ class MSG(Enum):
     START_SOURCES="__START_SOURCES__"
     END_SOURCES="__END_SOURCES__" 
     END_SOCKETSEND="__END_SEND__"
+    SEPARATORE_INDEX_DATA="&&"
+    SEPARATORE_BATCH="&&"
 
 class MSG_CONFIG(Enum): 
     attack_method="attack_function" 
@@ -48,6 +50,7 @@ class ICMP_TYPE(Enum):
     v6_ParameterProblem=4
     v6_Echo_Request=128
     v6_Echo_Reply=129  
+
 class SENDER_TYPE(Enum): 
         TRUE_SENDER=1
         FAKE_SENDER_ACTIVE=2 
