@@ -1,21 +1,41 @@
+Implicano la scrittura di dati su un'area di memoria condivisa accessibile da entrambi i processi. 
+%(e.g attributi del file, i bit di memoria, gli stati della cache,\dots)
+I veicoli saranno tutte quelle risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e 
+la lettura (diretta o indiretta) da parte di un altro. 
+%Coinvolgono quindi la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi  
+Quindi in uno Storage Covert channel, un processo scrive su una risorsa condivisa mentre un altro processo legge da essa. 
 %Nei covert channel di archiviazione un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
 %Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
 %\vspace{2ex} \newline
-%Implicano la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi (e.g attributi del file, i bit di memoria, gli stati della cache,\dots).
-%I veicoli, per questo tipo di attacco, sono tutte quelle risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e la lettura (diretta o indiretta) da parte di un altro.
 %\begin{esempio}
 %    Un esempio di un canale di archiviazione è la condivisione di un file. 
 %    Supponendo che l'utente A (con privilegi sufficenti) voglia trasmettere segretamente dei dati riservati all'utente B (con un livello di sicurezza inferiore). 
 %    Utilizzando un file di testo in cui apparentemente verranno scritte informazioni non classificate, mentre in verità occulterà l'informazione riservata. 
 %\end{esempio}
-%\vspace{3ex} \noindent
-Verranno utilizzate le tipologie di messaggi presenti nel protocollo ICMP, 
-per codificare dei dati nei campi presenti. %così da poterli inviare e permettere al destinatario di estrarli. 
-Nelle tabelle sono stati indicati quali campi verranno sfruttati, per ogni tipologia di messaggio ICMP, oltre alla quantità di byte codificabili. 
+%\vspace{2ex} 
+%\begin{esempio}
+%    Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
+%    oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
+%\end{esempio} 
+In questo caso come risosrsa condivisa verranno utilizzate le tipologie di messaggi presenti nel protocollo ICMP.  
+Il mittente codificherà i dati nei campi presenti e il destinatario, una volta ricevuto il pacchetto, li decodificherà.  
+Nelle tabelle sono stati indicati quali tipologie di messaggi verranno sfruttati e, per ogni tipologia di messaggio ICMP, 
+quali campi sono stati utilizzati oltre alla quantità di byte inseribili in un singolo messaggio. 
 %Inoltre è stato indicato anche quant'è il peso di un singolo pacchetto di quella tipologia. 
+\vspace{2ex} \newline 
+Nel caso dei messaggi Echo Request e Echo Reply, si avranno diverse marianti. 
+Questo perchè il messaggio può trasportare un payload al suo interno. 
+Le varianti implicheranno quindi l'utliizzazione o meno di questo campo. 
+Nel caso lo si utilizzi il payload o conterrà 32 byte di informazione oppure 56 byte; 
+il primo caso verrà usato perchè è il valore di defualt usato nei sistemi Windows il secondo è invece il sistema usato nei sistemi Linux. 
+Anche il TTL varierà, il suo valore sarà 128 nei sistemi windows mentre 64 nei sistemi Linux. 
+%\vspace{2ex} \newline 
+%Altre varianti potranno essere presenti per qeulle tipologie che richiedono il pacchetto che ha causato l'errore (Redirect, Destination Unreachable). 
+%In questi casi si potranno usare diverse tipologie di pacchetti purchè la loro lunghezza non superi i 28 bit. 
+%Possibili alternative trovate sono con IP/ICMP e con TCP/IP con entrambe che permettono l'invio di due byte. 
 \begin{longtable}{|p{0.2 \textwidth}|p{0.15\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|}
     \hline 
-    \textbf{Tipologia} & \textbf{Byte trasmessi} & \textbf{Campi Sfruttatti} & \textbf{Uso} \\ %messaggi di errore
+    \textbf{Tipologia} & \textbf{Byte trasmessi} & \textbf{Campi Utilizzati} & \textbf{Descrizione} \\ %messaggi di errore
     \hline
     Destination Unreachable & 3-8 & unused, header+64 bits & Una destinazione (rete, porta,\dots) risulta non disponibile  \\ %messaggi di errore
     \hline 
@@ -46,7 +66,7 @@ Nelle tabelle sono stati indicati quali campi verranno sfruttati, per ogni tipol
 \end{longtable}
 \captionof{table}{Tipologie di messaggi ICMPv4} 
 \label{table:icmpv4:tipologie} 
-\newpage
+\vspace{4ex}
 \begin{longtable}{|p{0.2\textwidth}|p{0.15\textwidth}|p{0.25\textwidth}|p{0.25\textwidth}|} 
     \hline 
     \textbf{Tipologia} & \textbf{Codici} & \textbf{Campi Sfruttatti} & \textbf{Uso} \\
