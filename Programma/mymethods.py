@@ -56,9 +56,23 @@ def non_blocking_sleep(secondi:int=None):
 
 class NETWORK:
     def ping_once(ip_dst:ipaddress.IPv4Address=None, iface:str=None, timeout=1): 
-        if IS_TYPE.string(iface) and IS_TYPE.ipaddress(ip_dst):  
-            os.system(f"ping6 -c 1 {ip_dst.compressed}%{iface}") 
-        else: raise Exception("L'indirizzo non è ne un 'ipaddress.IPv4Address' ne un 'ipaddress.IPv6Address'") 
+        #if not IS_TYPE.string(iface): 
+        #    raise TypeError("iface non valida")
+        if not IS_TYPE.ipaddress(ip_dst): 
+            raise TypeError("ip_dst non valido")
+        if sys.platform == "win32": 
+            if ip_dst.version==4: 
+                cmd=["ping","-n","1",f"{ip_dst.compressed}"]
+            elif ip_dst.version==6: 
+                cmd=["ping","-6","-n","1",f"{ip_dst.compressed}%{iface}"]
+        elif sys.platform=="linux": 
+            if ip_dst.version==4: 
+                cmd=["ping","-c","1",f"{ip_dst.compressed}"] 
+                #cmd=["ping","-c","1","-I",iface,f"{ip_dst.compressed}"]
+            elif ip_dst.version==6: 
+                cmd=["ping","-6","-c","1",f"{ip_dst.compressed}%{iface}"] 
+                #cmd=["ping","-6","-c","1","-I",iface,f"{ip_dst.compressed}%{iface}"]
+        else: raise Exception("Os non supportato") 
     
     class IP: 
         local_IP=None
@@ -550,7 +564,7 @@ class NETWORK:
                 stdout, stderr = process_shell.communicate()
                 return stdout
     
-    class INTERFACE_FROM_IP: #iface_from_IP
+    class INTERFACE_FROM_IP: 
         interface=None 
         ip_address:ipaddress.IPv4Address=None
 
@@ -618,7 +632,7 @@ class NETWORK:
                 print(f"_linux_iface_from_IP: {e}") 
             return None 
 
-    class DEFAULT_INTERFACE: #default_iface
+    class DEFAULT_INTERFACE: 
         default_iface=None
 
         def __init__(self): 
@@ -632,9 +646,8 @@ class NETWORK:
         
         def _general_default_iface(): 
             try:
-                iface = conf.iface  # Automatically detects default iface 
-                #ip_src = conf.route.route("0.0.0.0")[1] 
-                return iface 
+                return conf.iface  # Automatically detects default iface 
+                #ip_src = conf.route.route("0.0.0.0")[1]  
             except Exception as e:
                 print(f"_general_default_iface: {e}")
             return None
@@ -710,7 +723,7 @@ class NETWORK:
             comando_mac=f"Get-NetNeighbor -IPAddress {self.ip_address.compressed} "\
                 "| Where-Object {$_.State -eq 'Reachable' -or $_.State -eq 'Stale'} "\
                 "| Select-Object -First 1 -ExpandProperty LinkLayerAddress " #\ "| Format-Table State, LinkLayerAddress"
-            print(f"Ricavo MAc address: {comando_mac}")
+            print(f"_windows_macAddr: {comando_mac}")
             process=subprocess.run(
                 ["powershell","-Command", comando_mac]
                 ,capture_output=True
@@ -721,9 +734,9 @@ class NETWORK:
             if not mac_address: 
                 print(f"Tabella di routing non contiene  MAC address per {self.ip_address.compressed}") 
                 #print("Provo a ricavarlo tramite l'interfaccia di rete...")
-                print("MAC: ",mac_address) 
+                #print("MAC: ",mac_address) 
             if stderr: 
-                print(f"Errore nell'esecuzione  del comando: {stderr}") 
+                print(f"!!! _windows_macAddr: {stderr}") 
             if stderr or mac_address=="":
                 if self.ip_address.version==6:
                     scope_id=self.ip_address.scope_id 
@@ -735,9 +748,9 @@ class NETWORK:
                 elif self.ip_address.version==4:
                     comando_interfaccia=f"(Get-NetIPAddress -IPAddress '{self.ip_address.compressed}').InterfaceIndex"
                 else:
-                    raise Exception(f"get_mac_address: IP version not supported {self.ip_address.version}")
+                    raise Exception(f"_windows_macAddr: veriosne IP non valida")
                 comando_mac=f"(Get-NetAdapter -InterfaceIndex {comando_interfaccia}).MacAddress"
-                print("Ricavo MAC address",comando_mac) 
+                print("_windows_macAddr",comando_mac) 
                 process=subprocess.run(
                     ["powershell","-Command", comando_mac]
                     ,capture_output=True
@@ -745,12 +758,10 @@ class NETWORK:
                 )
                 mac_address=process.stdout.strip() 
                 stderr=process.stderr.strip() 
-                if not mac_address: 
-                    print("MAC address non ricavato")
                 if stderr or mac_address=="":
                     #print(f"Errore nell'esecuzione  del comando: {stderr}") 
                     raise Exception(f"get_mac_address: Impossibile ricavare MAC address per l'IP {self.ip_address.compressed}")
-            print(f"MAC for {self.ip_address}:{mac_address}")
+            #print(f"MAC for {self.ip_address}:{mac_address}")
             return mac_address
         
         def _linux_macAddr(self): 
