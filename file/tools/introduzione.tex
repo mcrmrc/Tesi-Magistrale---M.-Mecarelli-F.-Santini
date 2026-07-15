@@ -49,8 +49,32 @@ mentre per poter ascoltare il traffico di ree basterà una variabile di tipo \te
 %The sendp() function will work at layer 2. It’s up to you to choose the right interface and the right link layer protocol.
 
 
-\subsubsection*{RITA} 
-AAAAA
+\subsubsection*{RITA} %https://github.com/activecm/rita
+RITA (Real Intelligence Threat Analytics) è uno strumento open source per la ricerca delle minacce di rete, 
+progettato per identificare attività di comando e controllo (C2) dannose.
+Acquisisce i log di Zeek e utilizza l'analisi comportamentale per identificare sistemi potenzialmente compromessi.
+%There is often a massive disconnect between what attackers are doing and what we, as defenders, are doing to detect them. 
+%There is currently a huge push to develop better and better Indicators of Compromise (IOC) or better threat intelligence.
+%A newer development in information security is hunt teaming.  This is where an organization has a team of individuals who actively go looking for evil on a network. 
+%There are several different frameworks for Pentesting, such as Metasploit, SET, and Recon-ng. 
+%The idea of a framework is that it is effective, extensible, and allows people in the InfoSec community to add additional modules to it continuously is our goal.
+%What's the purpose of Threat Hunting
+%Perimeter defensive tools like firewalls and IDS protect your valuable systems. 
+%A solid incident response plan allows your team to contain and eliminate a discovered threat. 
+Per l'installazione si è seguita la seguente \href{https://www.activecountermeasures.com/free-tools/rita/}{guida}. 
+Siccome si utilizza un computer Windows, i comandi sono stati esguiti tramite WSL (Windows Subsystem for Linux). 
+\vspace{2ex} \newline 
+Le funzionalità principali sono: 
+il rilevamento dei Beacon, %Beacon Detection: Search for signs of beaconing behavior in and out of your network 
+rilevamento del tunneling DNS, %DNS Tunneling Detection: Identify signs of DNS-based covert channels
+rilevameno di connessioni che hanno comunicato per tempi lunghi, % Long Connection Detection: Easily see connections that have communicated for long periods of time
+controllo dei feed per le Threat Intel (domini e host sospetti), %Threat Intel Feed Checking: Query threat intel feeds to search for suspicious domains and hosts
+valutazione per gravità delle connessioni, %Connections Scored by Severity: Critical, High, Medium, Low
+quanti host hanno comunicato con un determinato host, %Prevalence: Displays how many of your internal hosts are communicating with a particular external host
+il primo incontro di un host, %First Seen: Displays when the external host was first seen on the network 
+
+
+
 
 
 %\subsubsection{Progetti che hanno già affrontato il problema}  
@@ -89,7 +113,7 @@ Di solito per ogni Echo Request corrisponde una singola Echo Reply in cui la ris
 %\import{./tools}{icmpdoor} \newpage  
 
 
-\subsubsection*{$\bullet$ICMP Exfil} 
+\subsubsection*{ICMP Exfil} 
 Analizzato per vedere come un Covert Channel temporalizzato postesse funzionare. 
 Riceve un dato, lo converte in binario e dopodichè avrà una lista di numeri binari. 
 Per mandare il dato, invia un ping con un timeout pari a \textbf{binary\_number+leway}. 
@@ -106,7 +130,7 @@ iccome non riuscirebbero a trovare alcun dato, a meno che non sappiano della tec
 %\import{./tools}{ICMPExfil} \newpage 
 
 
-\subsubsection*{$\bullet$ICMP Tunnel}  
+\subsubsection*{ICMP Tunnel}  
 Strumento che permette il tunneling del traffico IP. 
 Tramite delle richieste e risposte ICMP Echo, incapsula il traffico e lo invia al server proxy. 
 Questi ultimo lo decapsulano e lo inoltrano. 
