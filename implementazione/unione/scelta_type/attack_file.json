@@ -1,0 +1,14 @@
+{
+    "ip_vittima":"192.168.56.102"
+    ,"ip_host":"192.168.56.101"
+    ,"proxy_list":[
+        {"vm_attaccante":"192.168.56.104"} 
+        ,{"vm_proxy1":"192.168.56.101"}
+        ,{"vm_proxy2":"192.168.56.105"}
+        ,{"test":"192.168.56.xxx"}
+        ,{"not_used":"192.168.56.1"}
+        ,{"vm_tesi2_vittima":"fe80::43cc:4881:32d7:a33e"}
+        ,{"vm_tesi1_attaccante":"fe80::e274:33a8:a3ca:46ff"} 
+    ]
+    ,"attack_function":"ipv4_timing_channel_1bit"
+}

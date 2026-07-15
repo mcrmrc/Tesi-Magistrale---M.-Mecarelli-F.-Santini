@@ -1,0 +1,1 @@
+clear; python3 attacker_begin_attack.py --file_path ="test_attack_file copy.json"
