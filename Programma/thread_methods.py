@@ -52,7 +52,7 @@ class THREAD:
                 self.thread_list[proxy.ipaddress.compressed]=None  
             self.unusable_proxy:list[DATA.PROXY]=[] 
 
-        def start(self, ip_vittima:ipaddress._IPAddressBase,attack_function:AttackType, proxy_list:dict[str,DATA.PROXY]): 
+        def start(self, ip_vittima:ipaddress._IPAddressBase,attack_function:ATTACK_TYPE, proxy_list:dict[str,DATA.PROXY]): 
             def callback(proxy_data:DATA.PROXY=None): 
                 try: 
                     set_connessione(proxy_data) 
@@ -143,7 +143,7 @@ class THREAD:
                 raise ValueError("Lista dei proxy non valida") 
             if not is_ipaddress(ip_vittima): 
                 raise TypeError("IP vittima non valido") 
-            if not is_enum_member(attack_function, AttackType): 
+            if not is_enum_member(attack_function, ATTACK_TYPE): 
                 raise TypeError("Metodo attacco non valido") 
             for key in self.thread_list.keys(): 
                 with self.thread_lock:
