@@ -9,7 +9,8 @@ import threading
 import json 
 import socket 
 
-from mymethods import *  
+from mymethods import *
+from mymethods import ARGS_CONFIG 
 from scapy.all import * 
 from network_methods import *
 
@@ -20,7 +21,7 @@ from network_methods import *
 from attacksingleton import * 
 from attacksingleton import _IPx 
 from check_type import * 
-from custom_enum import SENDER_TRUE_SENDER, ATTACK_TYPE
+from custom_enum import SENDER_TRUE_SENDER, ATTACK_TYPE, ENTITY
 from get_type import *
 
 
@@ -31,7 +32,6 @@ def update_data_received(data, data_lock:threading.Lock, data_received):
     data_lock.release() 
 
 DEBUG=False  
-proxy_port=4567 
 default_file_path:str = "./attack_file.json" 
 type_sender=SENDER_TRUE_SENDER 
 use_delay=False 
@@ -97,19 +97,141 @@ class THREAD_VAR:
         self.release_lock() 
         print("RISPOSTA AGGIORNATA")
 
-attacker_mode=True
-class Proxy: 
-    ip_attaccante:ipaddress._IPAddressBase=None 
-    
-    ip_vittima=None 
-    attack_function:ATTACK_TYPE=None 
-    data_received:list=None
+class PROXY_THREAD: 
+    class VICTIM_CONNECTION: 
+        def __init__(self): 
+            def timeout_timer(): 
+                #if not isinstance(oggetto.thread_data,THREAD_VAR): 
+                #    raise TypeError("oggetto non è THREAD_VAR",type(oggetto.thread_data)) 
+                #if not is_threading_Lock(oggetto.thread_data.lock): 
+                #    raise TypeError("lock non valido") 
+                #if not is_boolean(oggetto.thread_data.response): 
+                #    raise TypeError("response non valida")  
+                #oggetto.stop_flag["value"]=True 
+                #oggetto.thread_data.update_response(False) 
+                THREADING_EVENT.set(self.event_pktconn) 
+            self.event_pktconn=get_threading_Event() 
+            self.timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer())  
+        
+        def start(self, ip_vittima:ipaddress.IPv4Address=None, ip_host:ipaddress.IPv4Address=None): 
+            def get_filter(): 
+                #checksum=CALC.checksum(confirm_text.strip().encode()) 
+                IPv4_ECHO_REQU=8 
+                IPv4_ECHO_REP=0 
+                if ip_vittima.version==4: 
+                    icmp="icmp " 
+                elif ip_vittima.version==6: 
+                    icmp="icmp6 "  
+                if DEBUG: 
+                    filter=f"({icmp} or tcp) "
+                    #filter+=f" and src {oggetto.ip_vittima.compressed} "
+                    filter+=f" and dst {ip_host.compressed}"
+                    print("FILTER",filter)
+                    return filter
+                else: 
+                    filter=icmp 
+                    filter+=f" and (icmp[0]=={IPv4_ECHO_REQU} or icmp[0]=={IPv4_ECHO_REP}) " 
+                    filter+=f" and src {ip_vittima.compressed} "
+                    filter+=f" and dst {ip_host.compressed}"
+                #filter+=f"and icmp[4:2]={checksum} "
+                print("FILTER",filter)
+                return filter 
+            def callback_connessione(packet):  
+                #print(packet.summary()) 
+                if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
+                    #and (pkt["ICMP"].type==8 or pkt["ICMP"].type==0): 
+                    if not oggetto.ip_vittima.compressed==packet[IP].src: 
+                        return 
+                    confirm_text=(
+                        MSG.CONFIRM_VICTIM.value+
+                        oggetto.ip_vittima.compressed+
+                        oggetto.ip_host.compressed
+                    )
+                    check_sum=CALC.checksum(confirm_text.encode()) 
+                    if confirm_text in packet[Raw].load.decode(): 
+                        print("CONNESSIONE VITTIMA CONFERMATA") 
+                        oggetto.thread_data.update_response(True) 
+                        oggetto.stop_flag["value"]=True 
+                        THREADING_EVENT.set(event_pktconn) 
+                        return        
+            def _old_get_callback(event_pktconn:threading.Event): 
+                #print("MONITORO IL TRAFFICO PER CONFERME DALLA VITTIMA")
+                def callback(packet): 
+                    print(packet.summary()) 
+                    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):   
+                        if not oggetto.ip_vittima.compressed==packet[IP].src: 
+                            return
+                        confirm_text=(
+                            MSG.CONFIRM_VICTIM.value+
+                            oggetto.ip_vittima.compressed+
+                            oggetto.ip_host.compressed
+                        )
+                        check_sum=CALC.checksum(confirm_text.encode()) 
+                        if confirm_text in packet[Raw].load.decode(): 
+                            print("CONNESSIONE VITTIMA CONFERMATA") 
+                            THREADING_EVENT.set(event_pktconn) 
+                            return 
+                return callback 
+            def stop_filter(pkt): 
+                return oggetto.stop_flag["value"]  
+            def _old_sniff(): 
+                timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
+                timer.start() 
+                confirm_text=(
+                    MSG.CONFIRM_VICTIM.value+
+                    oggetto.ip_vittima.compressed+
+                    oggetto.ip_host.compressed
+                )  
+                sniff( 
+                    filter=get_filter(confirm_text)
+                    ,prn=get_callback()
+                    ,store=False 
+                    ,stop_filter=stop_filter 
+                )
+            #-----------------------------------
+            if not is_ipaddress(ip_vittima): 
+                raise TypeError("Vittima non ha un IP valido")
+            if not is_ipaddress(ip_host): 
+                raise TypeError("Host non ha un IP valido") 
+            self.interface=INTERFACE_FROM_IP(ip_vittima).interface 
+            sniff_args={
+                "filter":get_filter()
+                #,"count":1 
+                ,"prn":callback_connessione
+                #,"store":True 
+                ,"iface":self.interface 
+            } 
+            sniffer:AsyncSniffer=get_AsyncSniffer(sniff_args) 
+            if not is_AsyncSniffer(sniffer): 
+                raise TypeError("sniffer is AsyncSniffer",type(sniffer)) 
+            sniffer.start()
+            if sniffer.running: 
+                print("Sniffer started...") 
+            else: raise RuntimeError("SNIFFER NOT STARTED") 
+            self.timer.start() 
+            if self.timer.is_alive(): 
+                print("Timer started...") 
+        
+        def wait(self): 
+            print("Waiting thread to end...") 
+            THREADING_EVENT.wait(event_pktconn) 
+            if timer.is_alive(): 
+                timer.cancel()
+                print("Timer stopped...") 
+            sniffer.stop()
+            if sniffer.running: 
+                raise RuntimeError("SNIFFER NOT STOPPED",sniffer.running)
+            print("Sniffer stopped...") 
 
+
+attacker_mode=True 
+localhost="127.0.0.1" 
+class Proxy:  
     socket_attacker:socket=None #tuple[socket, _RetAddress]
     thread_data:THREAD_VAR=None 
     stop_flag={"value":False} 
 
-    def __init__(self): 
+    def __init__(self, ip_attaccante:ipaddress.IPv4Address=None, proxy_port:int=None ): 
         def get_ip_host(): 
             ip_host, errore=IP.find_local_IP() 
             if errore:
@@ -129,27 +251,102 @@ class Proxy:
                 return None
             print(f"ip_host: {type(ip_host)} {ip_host}") 
             return ip_host
+        def attacker_mode(): 
+            config_file=None 
+            if not os.path.exists(default_file_path) or not str(default_file_path).endswith(".json"):
+                raise FileNotFoundError(f"Il file {default_file_path} non esiste") 
+            with open(default_file_path, 'r') as file: 
+                print(f"File di configurazione {default_file_path} caricato correttamente") 
+                config_file= json.load(file) 
+            self.attack_function=ATTACK_TYPE.get_attack_method(config_file.get("attack_function"))
+            if not is_enum_member(self.attack_function,ATTACK_TYPE): 
+                self.attack_function=ATTACK_TYPE.choose_attack_function() 
+            print(f"ATTACCO:",self.attack_function) 
+            self.ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))   
+            if not is_ipaddress(self.ip_vittima):
+                raise TypeError("ip_vittima non valido") 
+            print(f"IP VITTIMA",self.ip_vittima) 
+        
         #-------------------------- 
-        self.ip_host:ipaddress._IPAddressBase=None 
+        if not is_ipaddress(ip_attaccante): 
+            raise TypeError("Indirizzo IP attaccante non valido")  
+        if not is_integer(proxy_port): 
+            raise TypeError("Porta non valida")  
+        self.proxy_port=proxy_port
+        self.ip_attaccante:ipaddress.IPv4Address=ip_attaccante
+        self.ip_vittima:ipaddress.IPv4Address=None 
+        self.ip_host:ipaddress.IPv4Address=None 
+        self.data_received:list=[] 
+        self.attack_function:ATTACK_TYPE=None  
         while not is_ipaddress(self.ip_host): 
             self.ip_host=get_ip_host() 
         print(f"IP HOST",self.ip_host) 
-        self.data_received=[]
-        
-        #GET-ARGS
-        args=GET_ARGS.from_parser(self) 
-        if not is_namespace(args): 
-            exit(-1) 
-        try:  
-            if attacker_mode and args.ip_attaccante=="self": 
-                self.ip_attaccante=self.ip_host 
-            else: self.ip_attaccante=ipaddress.ip_address(args.ip_attaccante) 
-        except ValueError as v: 
-            print(v)
-            exit(-1) 
+        if self.ip_attaccante.compressed==localhost: 
+            self.ip_attaccante=self.ip_host 
         print(f"IP ATTACCANTE: {self.ip_attaccante}") 
+        if attacker_mode: 
+            return attacker_mode() 
     
     def start(self): 
+        def connessione_attaccante():  
+            #--------------------------------
+            #with self.socket_attacker: 
+            #socket.create_server(addr, family=socket.AF_INET6, dualstack_ipv6=True) #socket 4 both ipv4 and ipv6 
+            while True: 
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s: 
+                    print(f"Server listening: {s}")  
+                    #s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
+                    s.bind(
+                        (self.ip_host.compressed, self.proxy_port)
+                        #("192.168.56.104", 4567) 
+                        #(socket.gethostname(), 4567)
+                    ) 
+                    s.listen(1) 
+                    accepted_socket,accepted_addr=s.accept() 
+                    #accepted_addr=ipaddress.ip_address(accepted_addr)
+                    if accepted_addr==self.ip_attaccante.compressed: 
+                        print("Stabilita connessione con attaccante: ", accepted_addr) 
+                        self.socket_attacker=accepted_socket 
+                        break
+                    accepted_socket.close() 
+            print("SOCKET",accepted_socket) 
+            data_received=""
+            while True:
+                proxy.socket.settimeout(10) 
+                chunk=proxy.socket.recv(1024).decode() 
+                if not chunk: break
+                data_received+=chunk
+                if MSG.END_SOCKETSEND.value in data_received: 
+                    data_received=data_received.replace(MSG.END_SOCKETSEND.value,"")
+                    break  
+            if MSG.CONFIRM_ATTACKER.value not in data_received: 
+                peer = self.socket_attacker.getpeername() #self.socket_attacker[0]
+                self.socket_attacker.close()  
+                raise ValueError(f"Invalid data from {peer}:\t{data_received}")  
+            print("Dati ricevuti: ", data_received) 
+            if MSG.CONFIRM_ATTACKER.value not in data: 
+                raise ValueError("Il messagigo non contiene l'indirizzo IP della vittima:",data_received) 
+            if not MSG.ATTACK_FUNCTION.value in data: 
+                raise ValueError("Il messagigo non contiene la tipologia di attacco utilizzato:",data_received) 
+            for data in data_received.split("||"):
+                if MSG.CONFIRM_ATTACKER.value in data: 
+                    self.ip_vittima=ipaddress.ip_address(
+                        data.replace(MSG.CONFIRM_ATTACKER.value,"") 
+                    )
+                    print(f"IP vittima: {type(self.ip_vittima)} : {self.ip_vittima}")
+                elif MSG.ATTACK_FUNCTION.value in data:  
+                    self.attack_function=ATTACK_TYPE.get_attack_method(
+                        data.replace(MSG.ATTACK_FUNCTION.value,"").strip()
+                    )
+                    print(f"Func attacco: {type(self.attack_function)} : {self.attack_function}") 
+                else: print("UNKNOWN DATA",data) 
+            data=(MSG.CONFIRM_PROXY.value+
+                self.ip_vittima.compressed+
+                self.ip_host.compressed
+                )
+            self.socket_attacker.sendall(data.encode()) 
+            
         def update_attaccante(result:bool): 
             #AGGIORNO ATTACCANTE SU CONNESISONE CON VITTIMA
             if attacker_mode: 
@@ -184,103 +381,25 @@ class Proxy:
                 self.socket_attacker.close()
                 raise SystemError("NON CONNESSO ALLA VITITMA",self.ip_vittima) 
             print("CONNESSO A",self.ip_vittima)  
-        #---------------------------
-        #FIREWALL.disable()  
-        try: 
-            self.connessione_attaccante() 
-        except Exception as e: 
-            print(e)
-            exit(-1) 
-        try: 
+        #--------------------------- 
+        try:
+            #FIREWALL.disable() 
+            print("Controllo connesisone con attaccante")
+            connessione_attaccante() 
+            print("Connessione con attaccante stabilita") 
+            print("Controllo connesisone con vittima")
             self.connessione_vittima() 
             print("Aggiorno attaccante...")
             update_attaccante(self.thread_data.response)  
             if not self.thread_data.response: 
                 print("NESSUNA CONNESSIONE CON:",self.ip_vittima) 
-                exit(0)
+                exit(0) 
+            self.comando_from_attaccante()  
         except Exception as e: 
-            print(e)
-            exit(-1) 
-        try: 
-            self.comando_from_attaccante() 
-        except Exception as e: 
-            print(e)
-            exit(-1) 
-        #FIREWALL.enable() 
-    
-    def connessione_attaccante(self): 
-        def setup_server(): 
-            if not is_ipaddress(self.ip_attaccante): 
-                raise TypeError("ip_attaccante non valido") 
-            while True: 
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    print(f"Server listening: {s}")  
-                    #s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
-                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
-                    s.bind(
-                        (self.ip_host.compressed, proxy_port)
-                        #("192.168.56.104", 4567) 
-                        #(socket.gethostname(), 4567)
-                    ) 
-                    s.listen(1) 
-                    accepted_socket,accepted_addr=s.accept() 
-                    try: 
-                        accepted_addr=ipaddress.ip_address(accepted_addr)
-                        if accepted_addr.compressed!=self.ip_attaccante.compressed: 
-                            raise ValueError("NON E L'ATTACCANTE", accepted_addr)
-                    except ValueError|Exception as v: 
-                        accepted_socket.close() 
-                print("SOCKET",accepted_socket)
-                return accepted_socket
-        def IF_attacker_mode(): 
-            config_file=None 
-            if not os.path.exists(default_file_path) or not str(default_file_path).endswith(".json"):
-                print(f"Il file {default_file_path} non esistono") 
-                exit(-1)
-            with open(default_file_path, 'r') as file: 
-                print(f"File di configurazione {default_file_path} caricato correttamente") 
-                config_file= json.load(file) 
-            self.attack_function=ATTACK_TYPE.get_attack_method(config_file.get("attack_function"))
-            if not is_enum_member(self.attack_function,ATTACK_TYPE): 
-                self.attack_function=ATTACK_TYPE.choose_attack_function() 
-            print(f"ATTACCO:",self.attack_function) 
-            self.ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))   
-            if not is_ipaddress(self.ip_vittima):
-                raise TypeError("ip_vittima non valido") 
-            print(f"IP VITTIMA",self.ip_vittima) 
-        #--------------------------------
-        #with self.socket_attacker: 
-        #socket.create_server(addr, family=socket.AF_INET6, dualstack_ipv6=True) #socket 4 both ipv4 and ipv6 
-        if attacker_mode: 
-            return IF_attacker_mode() 
-        self.socket_attacker=setup_server()
-        data_received=self.socket_attacker.recv(1024).decode() 
-        if not is_string(data_received) or MSG.CONFIRM_ATTACKER.value not in data_received:
-            print(f"Invalid data from {self.socket_attacker[0]}: {data_received}") 
-            self.socket_attacker.close()  
-            exit(-1) 
-        data_received=data_received.split("||")
-        #print("Dati ricevuti: ", data_received) 
-        for data in data_received:
-            if MSG.CONFIRM_ATTACKER.value in data:
-                extracted_ip=data.replace(MSG.CONFIRM_ATTACKER.value,"")
-                self.ip_vittima=ipaddress.ip_address(extracted_ip)
-                print(f"IP vittima: {type(self.ip_vittima)} : {self.ip_vittima}")
-            elif MSG.ATTACK_FUNCTION.value in data: 
-                extracted_function=data.replace(MSG.ATTACK_FUNCTION.value,"").strip()
-                self.attack_function=ATTACK_TYPE.get_attack_method(extracted_function)
-                print(f"Func attacco: {type(self.attack_function)} : {self.attack_function}") 
-            else: print("UNKNOWN DATA",data) 
-        if not is_ipaddress(self.ip_vittima): 
-            raise TypeError("non ipaddress",self.ip_vittima)  
-        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
-            raise TypeError("non ATTACK_TYPE",self.attack_function)  
-        data=(MSG.CONFIRM_PROXY.value+
-              self.ip_vittima.compressed+
-              self.ip_host.compressed
-            )
-        self.socket_attacker.sendall(data.encode()) 
-        print("Socket con attaccante stabilito") 
+            print(e) 
+        finally: 
+            pass 
+            #FIREWALL.enable() 
     
     def connessione_vittima(self): 
         def wait_conn_from_victim(oggetto=None): 
@@ -415,8 +534,7 @@ class Proxy:
             if sniffer.running: 
                 raise RuntimeError("SNIFFER NOT STOPPED",sniffer.running)
             print("Sniffer stopped...") 
-        #------------------------
-        print("START connessione_vittima")
+        #------------------------ 
         self.thread_data=THREAD_VAR( 
             lambda: wait_conn_from_victim(self) 
         ) 
@@ -556,6 +674,20 @@ class Proxy:
             pass
         else: self.socket_attacker.close()  
         
-if __name__=="__main__":  
-    proxy=Proxy() 
+if __name__=="__main__": 
+    args=ARGS_CONFIG.FROM_COMMAND(ENTITY.PROXY) 
+    if not is_namespace(args): 
+        exit(-1) 
+    if int(args.proxy_port): 
+        proxy_port=args.proxy_port
+    if not is_string(args.ip_attaccante): 
+        raise ValueError("IP attaccante non specificato") 
+    ip_attaccante=None
+    if args.ip_attaccante=="SELF": 
+        attacker_mode=True
+        ip_attaccante=ipaddress.ip_address(localhost)
+    else: 
+        attacker_mode=False
+        ip_attaccante=ipaddress.ip_address(args.ip_attaccante)
+    proxy=Proxy(ip_attaccante, proxy_port) 
     proxy.start()
