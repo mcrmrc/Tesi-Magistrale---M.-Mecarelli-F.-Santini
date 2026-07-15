@@ -1,9 +1,9 @@
 %https://github.com/martinoj2009/ICMPExfil
-%https://www.kitploit.com/2018/02/icmpexfil-exfiltrate-data-with-icmp.html
 %https://medium.com/@martinoj2009/data-exfiltration-using-valid-icmp-packets-b5c489548fb1
 %https://github.com/aptmasterclass/powershell-kungfu/blob/master/exfil/Invoke-ICMPExfil.ps1
 
-
+\subsection{Introduction}
+ICMP security
 Most companies don’t disallow ICMP out because… well, they need it for troubleshooting… how else are they going to determine what is causing system or network issues??? 
 Typically you ping some outside IP address if you want to troubleshoot where your connectivity issue(s) are.
 \vspace{2ex} \newline
@@ -12,7 +12,9 @@ It’s just not very common, or the way I’m going about my communication.
 I’ll be using time to encode my data. 
 Some, if not all, IPS systems can find invalid ICMP packets. 
 You can even look at ICMP packets using packet captures and you’d notice the data isn’t a normal ICMP packet.
-\vspace{2ex} \newline
+
+
+\subsection{How does it work?}
 Encoding
 There are different methods you can go about encoding your data. 
 You want to do this for two reasons. 
@@ -21,6 +23,20 @@ In terms of DNS exfiltration it would look pretty weird for DNS requests to go o
 Two, it makes it easier to come up with exfiltration ideals. 
 Being limited to just using ASCII is kind of a pain, as some stealthy methods can’t be used because it’s to high level. 
 Like on and off. 
+\vspace{2ex} \newline 
+What I decided to do instead is to use time to represent my on and off. 
+You give me a bunch of ASCII characters (letters and numbers). 
+I take that data, convert it to binary. I then have a list if binary numbers. 
+I iterate over that list and send out pings with a timeout of binaryNumber+leway. 
+The leway is so that I’m forgiving slower connections, but that means the transfer will happen slower, but you’d also be more stealthy. 
+You’d be sending out pings less often.
+\vspace{1ex} \newline
+If a security researcher saw these ICMP packets they’d just see valid ICMP packets. 
+Unless they knew about this method there wouldn’t be any data for them to find. 
+If they knew about this method they would then need to look at the time between packets and try to find a pattern. 
+That doesn’t mean they’d know what was sent. 
+You could get a little trickier by encrypting, that way they’d just get noise when trying to look. 
+There’d be a lot of entropy, too random, then there’s probably something there.
 \vspace{2ex} \newline
 Code
 To show this I made two Python 3 scripts. 
@@ -47,12 +63,14 @@ For example: you borrowed some cool 16 digit numbers, well you'd use the client 
 \vspace{4ex} \newline
 You have two options for setting the server to send to. 
 You can either use the --ip or you can set the default IP in the script called ipToPing.
-\vspace{lex} \newline
+\vspace{1ex} \newline
 If you would like to see the pings going through you can use the --show.
-\vspace{lex} \newline
+\vspace{1ex} \newline
 When you want to start the server you just do sudo python3 server.py. 
 You don't need to do anything else. When you're done, you just need to do Control+C. 
 Right now the server needs work, it needs to map the input based on who they recived the data from, right now I only have it tested with one client pinging the server, this of course needs to be tuned. 
 The groundwork is already there, just need to get the reset put together.
 
+\subsection*{Conclusioni}
+Dopo varie prove non si riesce a capire il perchè non funziona, tuttavia prendiamo pusto dall'intuizione di Martino per avere un ulteriore metodo di esfiltrazione dei dati. 
 

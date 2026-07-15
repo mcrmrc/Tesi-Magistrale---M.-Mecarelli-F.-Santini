@@ -1,11 +1,30 @@
+When most people think of reverse shells, they imagine TCP or UDP — like the classic Meterpreter or Netcat.
+But there’s a lesser-known method lurking in plain sight: ICMP. 
+\vspace{1ex} \newline
+ICMP (Internet Control Message Protocol) is typically used for network diagnostics (think ping or traceroute) but it can also be abused as a covert tunnel to send and receive commands.
+%ICMP is mainly used to ping computers and appliances across networks. 
+Because it’s essential for basic troubleshooting, many organizations either don’t block ICMP or don’t monitor it closely. 
+This creates an opportunity: if TCP and UDP ports are filtered, an attacker can still exfiltrate data or remotely control a host by embedding commands into ICMP “echo request” (type 8) and retrieving responses via “echo reply” (type 0).
+
+
+\section{ICMP Door}
 \import{./tools}{icmpdoor} \newpage 
-
-
-
-
-
-
-
+%
+\section{ICMPExfil}
+\import{./tools}{ICMPExfil} \newpage 
+%
+\section{Icmpsh}
+\import{./tools}{Icmpsh} \newpage 
+%
+\section{ICMP Shell}
+\import{./tools}{icmpShell} \newpage 
+%
+\section{ICMPtunnel}
+\import{./tools}{icmptunnel} \newpage 
+%
+%\section{}
+%\import{./tools}{} \newpage 
+%
 
 
 
