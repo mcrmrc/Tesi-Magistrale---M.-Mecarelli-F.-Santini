@@ -69,7 +69,7 @@ def timeout_sniffer_for_proxy_update(sniffer, event):
 def send_start_to_proxies(chosen_proxy:str=None, proxy_list:list=None):
     try:
         com.is_list(proxy_list)
-        com.is_valid_ipaddress(chosen_proxy)
+        com.is_valid_ipaddress_v4(chosen_proxy)
     except Exception as e:
         raise Exception(f"send_command_to_chosen_proxy: {e}")
     print(f"Gli altri proxy ascolteranno direttamente la vititma")
@@ -83,7 +83,7 @@ def send_start_to_proxies(chosen_proxy:str=None, proxy_list:list=None):
 def send_command_to_chosen_proxy(command:str=None, chosen_proxy:str=None, proxy_list:list=None):
         try:
             com.is_list(proxy_list)
-            com.is_valid_ipaddress(chosen_proxy) 
+            com.is_valid_ipaddress_v4(chosen_proxy) 
             com.is_string(command) 
         except Exception as e:
             raise Exception(f"send_command_to_chosen_proxy: {e}")
@@ -211,11 +211,11 @@ def check_value_in_parser(args):
         return False
     if type(args.ip_vittima) is not str or re.match(com.ip_reg_pattern, args.ip_vittima) is None:
         print("Devi specificare l'IP della vittima con --ip_vittima")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         return False
     if type(args.ip_host) is not str or re.match(com.ip_reg_pattern, args.ip_host) is None:
         print("Devi specificare l'IP dell'host con --ip_host")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         return False
     return True
 
@@ -257,14 +257,15 @@ class Attaccante:
         try:
             if not com.is_list(self.proxy_list) or len(self.proxy_list)<=0: 
                 raise ValueError("check_available_proxies: lista proxy non valida")
-            com.is_valid_ipaddress(self.ip_vittima) 
+            com.is_valid_ipaddress_v4(self.ip_vittima) 
         except Exception as e:
             raise Exception(f"check_available_proxies: {e}")
         print(f"Controllo connessione per i proxy\t{self.proxy_list}") 
-        self.thread_lock,self.thread_proxy_response,self.thread_list=com.setup_thread_4_foreach_proxy(self.proxy_list,self.attacker_wait_proxy_update)
+        self.thread_lock,self.thread_proxy_response,self.thread_list=com.setup_thread_4_foreach_proxy(
+            self.proxy_list,self.attacker_wait_proxy_update)
         for proxy in self.proxy_list.copy():
             try:
-                com.is_valid_ipaddress(proxy) 
+                com.is_valid_ipaddress_v4(proxy) 
             except Exception as e:
                 print(f"check_available_proxies: {e}")
                 continue
@@ -289,8 +290,8 @@ class Attaccante:
     def confirm_connection_to_proxy(self,proxy): 
         print("\n\t(＾▽＾)\tconfirm_connection_to_proxy\n")
         try:
-            com.is_valid_ipaddress(proxy)
-            com.is_valid_ipaddress(self.ip_vittima)
+            com.is_valid_ipaddress_v4(proxy)
+            com.is_valid_ipaddress_v4(self.ip_vittima)
         except Exception as e:
             raise Exception(f"confirm_connection_to_proxy: {e}") 
         data=com.CONFIRM_ATTACKER+self.ip_vittima
@@ -360,7 +361,8 @@ class Attaccante:
         self.received_data=initialize_list_for_data(self.proxy_list)
         self.data_lock=threading.Lock()
         self.event_thread_update=create_event_update_foreach_proxy(self.proxy_list)
-        self.thread_lock,self.thread_proxy_response,self.thread_list=com.setup_thread_4_foreach_proxy(self.proxy_list,callback_function=self.wait_data_from_proxy)
+        self.thread_lock,self.thread_proxy_response,self.thread_list=com.setup_thread_4_foreach_proxy(
+            self.proxy_list,callback_function=self.wait_data_from_proxy)
         self.event_received_data=com.get_threading_Event()
         print("Attivo i thread per ricevere i dati") 
         for thread in self.thread_list.values():
@@ -419,8 +421,6 @@ class Attaccante:
             ,False
         )
         return False
-
-    
 
 if __name__=="__main__":
     testclass=Attaccante() 
