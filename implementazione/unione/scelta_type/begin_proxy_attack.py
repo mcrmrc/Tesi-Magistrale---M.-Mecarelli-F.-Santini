@@ -13,6 +13,7 @@ import threading
 from functools import partial 
 import json
 import type_singleton as singleton
+import socket
 
 file_path = "../comunication_methods.py"
 directory = os.path.dirname(file_path)
@@ -26,7 +27,11 @@ import mymethods
 
 
 
-
+def find_local_ip():
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        print(s.getsockname()[0])
+        s.close()
 
 #------------------------------------
 def callback_wait_data_from_vicitm(event_pktconn:threading.Event, data_lock:threading.Lock, data_received:list=[]): 
@@ -140,27 +145,14 @@ def setup_thread_4_foreach_proxy(callback_function=None,ip_host:ipaddress.IPv4Ad
 
     return thread_lock, thread_proxy_response, thread_list
 
-#--------------------------------
-def get_value_of_parser(args):
-    if args is None: 
-        raise Exception("Nessun argomento passato")
-    return {
-         "ip_attaccante":args.ip_attaccante
-        ,"gateway_attaccante":mymethods.calc_gateway(args.ip_attaccante )
-        ,"ip_host":args.ip_host
-    } 
-
-def check_value_parser(args): 
-    try:
-        if not isinstance(args,argparse.Namespace):
-            raise Exception("Argomento parser non è istanza di argparse.Namespace")  
-        if not ipaddress.ip_address(args.ip_attaccante):
-            print("IP attaccante non valido o non specificato")
-        if not  ipaddress.ip_address(args.ip_vittima): 
-            print("IP host non valido o non specificato")
-    except Exception as e:
-        print(f"+++check_value_parser: {e}")
-        return False 
+#-------------------------------- 
+def check_value_parser(args):  
+    if not isinstance(args,argparse.Namespace): 
+        raise Exception(f"Argomento parser non è istanza di argparse.Namespace")  
+    if not isinstance(args.ip_attaccante,str): 
+        raise Exception(f"--ip_attaccante non specificato: {args.ip_attaccante}")
+    if not isinstance(args.ip_vittima,str):  
+        raise Exception(f"--ip_vittima non specificato: {args.ip_vittima}") 
     return True
 
 def get_args_from_parser(): 
@@ -169,38 +161,65 @@ def get_args_from_parser():
     parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante")
     parser.add_argument("--ip_vittima",type=str, help="IP vittima")
     #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
-    if args:= mymethods.check_for_unknown_args(parser) is None or not check_value_parser(args): 
+    try:
+        args, unknown =mymethods.check_for_unknown_args(parser)  
+        if len(unknown) > 0: 
+            raise Exception(f"Argomenti sconosciuti: {unknown}") 
+        if check_value_parser(args):  
+            return args
+    except Exception as e:
         mymethods.print_parser_supported_arguments(parser)
-        return None
-    return args
+        raise Exception(f"get_args_from_parser: {e}")
 
-class Proxy: 
-    def __init__(self): 
+class Proxy:  
+    def __init__(self):  
         try:
-            if args:=get_args_from_parser() is None: 
-                raise ValueError("Argomenti nel parser non corretti")
-            dict_values=get_value_of_parser(args) 
+            if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
+                raise ValueError("args non è istanza di argparse.Namespace")
+            dict_values={
+                "ip_attaccante":args.ip_attaccante 
+                ,"ip_vittima":args.ip_vittima
+            } 
             self.ip_attaccante=ipaddress.ip_address(dict_values.get("ip_attaccante") )
+            print(f"IP attaccante: {type(self.ip_attaccante)} : {self.ip_attaccante}")
             self.ip_vittima=ipaddress.ip_address(dict_values.get("ip_vittima")) 
+            print(f"IP vittima: {type(self.ip_vittima)} : {self.ip_vittima}")
             _,ip_host=mymethods.iface_src_from_IP(self.ip_attaccante)
             self.ip_host=ipaddress.ip_address(ip_host)
+            print(f"IP host: {type(self.ip_host)} : {self.ip_host}")
         except Exception as e: 
             print(f"_init_ setup args: {e}")
             exit(1)
-
-        try:
-            #connection_with_attacker
-            if not (self.wait_conn_from_attacker() and self.confirm_conn_to_attacker()):
-                print("Attaccante non connesso")
-                exit(0)
+        
+        try: 
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                print(f"Server listening: {s}")
+                #socket.create_server(addr, family=socket.AF_INET6, dualstack_ipv6=True) #socket 4 both ipv4 and ipv6
+                bind_addr=("192.168.56.104", 4567) #(socket.gethostname(), 4567)
+                s.bind(bind_addr)
+                s.listen(1)
+                self.conn_to_attacker, attacker_addr=s.accept()
+                if ipaddress.ip_address(attacker_addr[0]).compressed != self.ip_attaccante.compressed:
+                    self.conn_to_attacker.close()
+                else:
+                    #with self.conn_to_attacker:  
+                    while True:
+                        bytes_received=self.conn_to_attacker.recv(1024)
+                        if not bytes_received:
+                            print("No data")
+                            break
+                        print(f"Data: {bytes_received}")
+                        self.conn_to_attacker.sendall(bytes_received)
+                    self.conn_to_attacker.close()
+                    print("Server END")
         except Exception as e:
-            print(f"_init_ conn attacker: {e}")
-            exit(1)
+            print(f"_init_ setup server: {e}")
+            exit(1) 
         
         try: 
             #connection_with_victim
             self.thread_lock, self.thread_proxy_response, self.thread_list=setup_thread_4_foreach_proxy(
-                self.wait_conn_from_victim
+                self.wait_conn_from_victim()
                 ,self.ip_host
             )
             thread=self.thread_list.get(self.ip_host)
@@ -465,4 +484,4 @@ class Proxy:
 
 
 if __name__=="__main__":  
-    pass
+    Proxy()
