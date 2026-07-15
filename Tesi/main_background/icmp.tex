@@ -1,5 +1,5 @@
 \section{Internet Control Message Protocol}
-ICMP\cite{icmp} è un protocollo che opera al livello di rete (livello 3 nel modello ISO/OSI),  
+ICMP \cite{icmp} è un protocollo che opera al livello di rete (livello 3 nel modello ISO/OSI),  
 e permette la \textbf{segnalazione di errori}, la \textbf{diagnostica della rete} e la \textbf{messaggistica di controllo}. 
 %utilizzato per la diagnostica, per la segnalazione di errori, per ottenere informazioni di controllo
 Proprio per questo viene utilizzato per il monitoraggio dello stato di una rete e per la risoluzione dei problemi che avvengono in essa. 
@@ -27,6 +27,8 @@ può essere comunque utilizzato in modo improprio per degli attacchi o per la ri
 %Può quindi essere utilizzato in modo improprio per mettere a segno degli attacchi o per studiare la rete (ricognizione della rete). %network reconnaissance
 \begin{center} 
 \begin{longtable}{|p{0.4\textwidth}|p{0.4\textwidth}|} 
+\caption{Utilizzi del protocollo ICMP} 
+\label{tabella:utilizzi:ICMP} \\
     \hline
     \textbf{Utilizzi} & \textbf{Descrizione} \\
     \hline
@@ -69,9 +71,7 @@ può essere comunque utilizzato in modo improprio per degli attacchi o per la ri
     \\
     \hline
     %detect and report errors on the network &  The protocol checks whether the data reaches the destination on time and transmits information to the sending device in case of any problems \\
-    %
-\caption{Utilizzi del protocollo ICMP} 
-\label{tabella:utilizzi:ICMP} 
+    % 
 \end{longtable} 
 \end{center} 
 %Nei seguenti capitoli verrà illustrato come può essere sfruttato per la creazione di un Covert Channel; 
@@ -88,11 +88,11 @@ In essi i primi venti byte indicano l'intestazione IP mentre il primo ottetto, d
 Nell'intestazione, nel caso del protocolllo ICMP, il campo \textit{protocol} avrà valore 1. 
 %Qualsiasi campo etichettato come "non utilizzato" è riservato per future estensioni e deve essere zero quando 
 %inviato, ma i destinatari non dovrebbero utilizzare questi campi (eccetto per includerli nel checksum). 
-\newline
-\begin{minipage}{\textwidth}
+\vspace{3ex}\newline
+\begin{minipage}{\textwidth} 
     \centering
-    \includegraphics[width=0.7\textwidth]{./img/ICMP-packet-structure.png}
     \captionof{figure}{Struttura pacchetto IPv4/ICMPv4 \cite{img_icmp_packet_structure}} 
+    \includegraphics[width=0.7\textwidth]{./img/ICMP-packet-structure.png} 
 \end{minipage} 
 \begin{itemize} 
     \item \textbf{Type}: 
@@ -109,7 +109,7 @@ Nell'intestazione, nel caso del protocolllo ICMP, il campo \textit{protocol} avr
 
 
 \subsection{Tipologie di Messaggi ICMP} 
-In base alle linee guida definite nella RFC 792 (ICMPv4)\cite{icmpv4_message_type} e nella RFC 4443 (ICMPv6) \cite{icmpv6_message_type},  
+In base alle linee guida definite nella RFC 792 (ICMPv4) \cite{icmpv4_message_type} e nella RFC 4443 (ICMPv6) \cite{icmpv6_message_type},  
 I messaggi presenti in ICMP sono classificati o come messaggi di errore o come messaggi informativi. 
 I primi segnalano problemi nella comunicazione di rete 
 %(Destination Unreachable, source Quench, Redirect Message,Time Excedeed, Parameter Problem, Packet too Big) 
@@ -135,6 +135,8 @@ Il codice impostato nel messaggio indicherà il motivo dell'invio;
 i quali sono indicati nell Tabella \ref{tabella:caso:DestUnreach}.
 \begin{center} 
 \begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+\caption{Motivi del messaggio Destination Unreachable} 
+\label{tabella:caso:DestUnreach} \\
     \hline
     \textbf{Codice} & \textbf{Descrizione} \\
     \hline
@@ -174,13 +176,13 @@ i quali sono indicati nell Tabella \ref{tabella:caso:DestUnreach}.
     È necessaria la frammentazione del pacchetto %per attraversare un link 
     ma il flag "Don't Fragment" (DF) è impostato. %nel pacchetto IP.
     \\
-    \hline 
-\caption{Motivi del messaggio Destination Unreachable} 
-\label{tabella:caso:DestUnreach} 
+    \hline  
 \end{longtable} 
 \end{center} 
+\vspace{3ex} 
 \begin{minipage}{\textwidth}
     \centering 
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Destination Unreachable}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
         \bitheader{0-31} \\
@@ -188,7 +190,6 @@ i quali sono indicati nell Tabella \ref{tabella:caso:DestUnreach}.
         \bitbox{32}{Unused (4 byte)} \\
         \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21 byte)} 
     \end{bytefield}  
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Destination Unreachable}}
 \end{minipage}
 \vspace{1ex} \newline
 Il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
@@ -198,6 +199,7 @@ al processo appropriato.
 \vspace{4ex} \newline
 \begin{minipage}{\textwidth}
     \centering
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv6 Destination Unreachable}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
         \bitheader{0-31} \\
@@ -206,7 +208,7 @@ al processo appropriato.
         \bitbox{32} {As much of invoking packet as possible without} \\
         \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0 byte)} 
     \end{bytefield} 
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv6 Destination Unreachable}}
+    
 \end{minipage} 
 \vspace{1ex} \newline
 Il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
@@ -224,6 +226,8 @@ In questi casi il gateway dovrà scartare il datagramma e notificare l'host sorg
 Il codice impostato nel messaggio indicherà uno dei motivi indicati nella Tabella \ref{tabella:caso:TimeExceeded}.
 \begin{center} 
 \begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+\caption{Motivi del mesaaggio Time Exceeded} 
+\label{tabella:caso:TimeExceeded} \\
     \hline
     \textbf{Evento} & \textbf{Esempio} \\
     \hline
@@ -237,12 +241,12 @@ Il codice impostato nel messaggio indicherà uno dei motivi indicati nella Tabel
     %Errore nel riassemblaggio a causa di frammenti mancanti. 
     \\
     \hline 
-\caption{Motivi del mesaaggio Time Exceeded} 
-\label{tabella:caso:TimeExceeded} 
 \end{longtable} 
 \end{center}   
+\vspace{3ex}
 \begin{minipage}{\textwidth}
     \centering
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Time Exceeded}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
         \bitheader{0-31} \\
@@ -250,7 +254,7 @@ Il codice impostato nel messaggio indicherà uno dei motivi indicati nella Tabel
         \bitbox{32}{Unused (4 byte)} \\
         \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21 byte)} 
     \end{bytefield} 
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Time Exceeded}}
+    
 \end{minipage}
 \vspace{1ex} \newline
 In ICMPv4 il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
@@ -259,6 +263,8 @@ al processo appropriato.
 %\footnote{L'\textit{intestazione IP} può variare dai 20 byte ai 40 byte} 
 \vspace{4ex} \newline
 \begin{minipage}{\textwidth}
+ \centering
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv6 Time Exceeded}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
         \bitheader{0-31} \\
@@ -267,7 +273,7 @@ al processo appropriato.
         \bitbox{32} {As much of invoking packet as possible without} \\
         \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0 byte)} 
     \end{bytefield}  
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv6 Time Exceeded}}
+    
 \end{minipage}
 \vspace{1ex} \newline
 In ICMPv6 il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
@@ -281,7 +287,7 @@ In questo caso dovrà scartare il datagramma e notificare la cosa all'host indic
 %nelle intestazioni di estensione tale da impedirgli di completare l'elaborazione di esso. 
 %Una potenziale sorgente di tale problema è rappresentata da argomenti non corretti in un'opzione. 
 Il messaggio viene inviato solo se l'errore ha causato lo scarto del pacchetto. 
-\vspace{2ex} \newline
+\vspace{3ex} \newline
 %Il codice impostato nel messaggio indicherà il motivo [Tabella \ref{tabella:caso:ParamProblem}]
 %\begin{center} 
 %\begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
@@ -309,9 +315,10 @@ Il messaggio viene inviato solo se l'errore ha causato lo scarto del pacchetto.
 %\caption{Parameter Problem possibili codici} 
 %\label{tabella:caso:ParamProblem} 
 %\end{longtable} 
-%\end{center} 
+%\end{center}  
 \begin{minipage}{\textwidth}
     \centering
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Parameter Problem}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
         \bitheader{0-31} \\
@@ -319,7 +326,7 @@ Il messaggio viene inviato solo se l'errore ha causato lo scarto del pacchetto.
         \bitbox{8}{Pointer (1 byte)} & \bitbox{24}{Unused (3 byte)} \\
         \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21 byte)} 
     \end{bytefield}  
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Parameter Problem}}
+    
 \end{minipage} 
 \vspace{1ex} \newline
 In ICMPv4 il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
@@ -334,6 +341,7 @@ stato rilevato l'errore. %(può trovarsi nel mezzo di un'opzione).
 \vspace{4ex} \newline
 \begin{minipage}{\textwidth}
     \centering
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv6 Parameter Problem}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         \bitheader{0-31} \\
         \bitbox{8} {Type=4 (1 byte)} & \bitbox{8}{Code=0-2 (1 byte)} & \bitbox{16}{Checksum (2 byte)} \\
@@ -341,7 +349,7 @@ stato rilevato l'errore. %(può trovarsi nel mezzo di un'opzione).
         \bitbox{32} {As much of invoking packet as possible without} \\
         \bitbox{32} {the ICMPv6 packet exceeding the minimum IPv6 MTU ($\geq$ 0 byte)} 
     \end{bytefield} 
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv6 Parameter Problem}}
+    
 \end{minipage}
 \vspace{1ex} \newline 
 In ICMPv6 il campo \textit{Invoking Packet} indica quanta parte del pacchetto (che ha attivato l'errore ICMPv6) debba essere inclusa. 
@@ -362,7 +370,7 @@ Questo perchè il gateway ha scartato un pacchetto ma non a causa di un errore.
 %Inoltre un host di destinazione può inviare un messaggio di questo tipo, anche nel caso in cui i datagrammi arrivino troppo velocemente per poter essere elaborati.
 Al suo ricevimento, l'host sorgente dovrà ridurre la velocità sino a quando non 
 riceverà più messaggi del tipo Source Quench dal gateway. 
-\vspace{2ex} \newline
+\vspace{3ex} \newline
 %L'host mittente potrà successivamente aumentare gradualmente la velocità con 
 %cui sta inviando i pacchetti fino a quando non riceverà nuovamente questi messaggi. 
 %Il codice impostato nel messaggio indicherà il motivo [Tabella \ref{tabella:caso:SourceQuench}]
@@ -399,6 +407,7 @@ riceverà più messaggi del tipo Source Quench dal gateway.
 %\end{center} 
 \begin{minipage}{\textwidth}
     \centering 
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Source Quench}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
         \bitheader{0-31} \\
@@ -406,7 +415,7 @@ riceverà più messaggi del tipo Source Quench dal gateway.
         \bitbox{32}{Unused (4 byte)} \\
         \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21 byte)} 
     \end{bytefield} 
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Source Quench}}
+    
 \end{minipage}
 \vspace{1ex} \newline 
 Il campo \textit{Internet Header}: viene utilizzato dall'host per accoppiare il messaggio di errore 
@@ -422,6 +431,8 @@ Questo secondo gateway rappresenterà un percorso migliore per la destinazione.
 Il codice impostato nel messaggio indicherà uno dei motivi presenti nella Tabella \ref{tabella:caso:Redirect}. 
 \begin{center} 
 \begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+\caption{Motivi del messaggio Redirect} 
+\label{tabella:caso:Redirect} \\
     \hline
     \textbf{Evento} & \textbf{Esempio} \\
     \hline
@@ -429,12 +440,12 @@ Il codice impostato nel messaggio indicherà uno dei motivi presenti nella Tabel
     Il gateway riceve il pacchetto e dalla tabella di routing ottiene che il secondo gateway si trova sulla stessa rete. 
     \\
     \hline 
-\caption{Motivi del messaggio Redirect} 
-\label{tabella:caso:Redirect} 
 \end{longtable} 
 \end{center}  
+\vspace{2ex}
 \begin{minipage}{\textwidth}
-    \centering
+    \centering 
+\captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Redirect}}
     \begin{bytefield}[bitwidth=1.1em]{32} 
         %\bitbox{8}{0} & \bitbox{8}{1} & \bitbox{8}{2} & \bitbox{8}{3} \\
         \bitheader{0-31} \\
@@ -442,7 +453,7 @@ Il codice impostato nel messaggio indicherà uno dei motivi presenti nella Tabel
         \bitbox{32}{Gateway Internet Address (4 byte)} \\
         \bitbox{32}{Internet Header + 64 bits of Original Datagram ($\geq$ 21B)} 
     \end{bytefield}
-    \captionof{figure}{Struttura del pacchetto \textbf{ICMPv4 Redirect}}
+    
 \end{minipage}
 \vspace{1ex} \newline 
 Nel campo \textit{Gateway Internet Address} verrà indicato l'indirizzo del nuovo gateway a cui dovrà essere 
