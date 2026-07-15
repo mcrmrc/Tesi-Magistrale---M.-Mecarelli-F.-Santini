@@ -92,7 +92,7 @@ def aggiorna_attaccante():
             #,"count":1 
             ,"prn":callback_aggiorna_attaccante 
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
+            ,"iface":mymethods.iface_from_IPv4(ip_attaccante)[1]
         }
         com.sniff_packet(args,5) 
         com.wait_pkt_conn_received() 
@@ -136,7 +136,7 @@ def conn_to_vittima():
             #,"count":1 
             ,"prn":callback_conn_to_vittima 
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(ip_vittima)[1]
+            ,"iface":mymethods.iface_from_IPv4(ip_vittima)[1]
         } 
         com.sniff_packet(args) 
         com.wait_pkt_conn_received() 
@@ -175,13 +175,13 @@ def callback_conn_from_attaccante(packet):
 def conn_from_attaccante():
     global is_attaccante_connected
     is_attaccante_connected=False
-    print(f"Attendo connessione da {ip_attaccante} attraverso {mymethods.iface_from_IP(ip_attaccante)[1]}") 
+    print(f"Attendo connessione da {ip_attaccante} attraverso {mymethods.iface_from_IPv4(ip_attaccante)[1]}") 
     args={
         "filter":f"icmp and src {ip_attaccante}" 
         #,"count":1 
         ,"prn":callback_conn_from_attaccante 
         #,"store":True 
-        ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
+        ,"iface":mymethods.iface_from_IPv4(ip_attaccante)[1]
     } 
     com.sniff_packet(args, None)
     com.wait_pkt_conn_received() 
@@ -284,7 +284,7 @@ def is_attacker_ready():
         #,"count":1 
         ,"prn":callback_is_attacker_ready 
         #,"store":True 
-        ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
+        ,"iface":mymethods.iface_from_IPv4(ip_attaccante)[1]
     }
     com.sniff_packet(args)
     com.wait_pkt_conn_received() 
@@ -330,7 +330,7 @@ def send_command_to_victim(command_to_redirect):
                 #,"count":1 
                 ,"prn":callback_wait_dati_from_victim 
                 #,"store":True 
-                ,"iface":mymethods.iface_from_IP(ip_vittima)[1]
+                ,"iface":mymethods.iface_from_IPv4(ip_vittima)[1]
             }
             com.sniff_packet(args)
             com.wait_pkt_conn_received() 
@@ -373,7 +373,7 @@ def parte_2():
         #,"count":1 
         ,"prn":callback_command_from_attaccante 
         #,"store":True 
-        ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
+        ,"iface":mymethods.iface_from_IPv4(ip_attaccante)[1]
     }
     com.sniff_packet(args, None)
     com.wait_pkt_conn_received() 
