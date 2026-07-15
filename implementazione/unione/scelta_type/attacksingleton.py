@@ -1775,7 +1775,7 @@ class ReceiveSingleton():
                 #current_time=time.perf_counter() 
                 current_time=pkt.time 
                 if previous_time is not None: 
-                    delta=(current_time-previous_time).total_seconds() 
+                    delta=(current_time-previous_time) 
                     byte=decode_byte(delta) 
                     print(f"Delta:{delta}\tByte:{byte} Char:{chr(byte)}") 
                     received_data.append(chr(byte)) 
