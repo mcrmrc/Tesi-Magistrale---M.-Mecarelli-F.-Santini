@@ -39,19 +39,6 @@ def check_ipaddress(ip_address:ipaddress.IPv4Address):
         else: return False 
 
 #------------------------
-def check_args_sniffer(args:dict=None): 
-    try:
-        is_dictionary(args)
-    except Exception as e:
-        raise Exception(f"check_args_sniffer: {e}")
-    accepted_key_dict=[
-        "iface","filter","prn","store","count", "timeout" ,"lfilter", 
-        "opened_socket","session","started_callback","offline","quiet" 
-    ]  
-    invalid_args=[key for key in args if key not in accepted_key_dict]
-    if len(invalid_args):
-        raise ValueError(f"check_args_sniffer: Invalid keys in dictionary {invalid_args}")
-    return True
 
 def get_wrong_ipaddress(proxy_list:list):
     wrong_ips=[]
