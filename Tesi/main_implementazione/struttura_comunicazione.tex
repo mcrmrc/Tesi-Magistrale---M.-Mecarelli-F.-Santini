@@ -20,10 +20,10 @@ Di seguito la descrizione di ciascuna entità.
     Rimane in attesa di un comando (o di un dato). 
     Nel primo caso lo eseguirà e successivamnete invierà i dati ricavati. 
 \end{itemize} 
-\vspace{2ex} 
+\vspace{3ex} 
 \begin{center} 
     \includegraphics[width=\textwidth]{../img/implementazione/diagramma_struttura_entita.jpg} 
-    \captionof{figure}{Flusso di comunicazione fra le entita}
+\captionof{figure}{Flusso di comunicazione fra le entita \cite{draw_io}}
     \label{fig:covertchannel:struttura:flow} 
 \end{center}  
 Il canale di comunicazione che il proxy e l'attaccante potranno avere 
@@ -53,19 +53,22 @@ messaggi che l'attaccante ha ricevuto dai proxy\footnote{
 %    \captionof{figure}{Struttura delle entità presenti e come dialogano}
 %    \label{fig:covertchannel:struttura:schema} 
 %\end{center} 
+\vspace{3ex}\newline
 \begin{center} 
-    \includegraphics[width=0.7\textwidth]{../img/implementazione/struttura attacker.proxy.victim 3.jpg} 
-    \captionof{figure}{Struttura e dialogo delle entità presenti}
+    \captionof{figure}{Struttura e dialogo delle entità presenti \cite{draw_io}}
     \label{fig:covertchannel:struttura:schema} 
+    \includegraphics[width=0.7\textwidth]{../img/implementazione/struttura attacker.proxy.victim 3.jpg} 
 \end{center} 
 
 \subsection{Struttura dell'attaccante} 
 %Quando si esegue il programma, tramite linea di comando, devono essere passati degli argomenti; 
 %in particolare verrà utilizzato 
 Tramite un parser rileve se nella linea di comando sono state inserite le opzioni 
-de scritte nella Tabella \ref{table:comunicazione:attacccante:opzioni}
+de scritte nella Tabella \ref{table:comunicazione:attacccante:opzioni}.
 Queste sono necessarie alla sua inizializzazione . 
 \begin{longtable}{|p{0.3\textwidth}|p{0.6\textwidth}|} 
+\caption{Opzioni richieste nel comando dell'attaccante} 
+\label{table:comunicazione:attacccante:opzioni} \\
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
     \hline
@@ -73,9 +76,7 @@ Queste sono necessarie alla sua inizializzazione .
     Percorso per il file di configuraizone da caricare. In questo file JSON viene specificato 
     l'indirizzo IP della vittima, la metodologia di attacco e la lista dei proxy che si vogliono usare. 
     \\ 
-    \hline 
-    \caption{Opzioni richieste nel comando dell'attaccante} 
-    \label{table:comunicazione:attacccante:opzioni} 
+    \hline  
 \end{longtable} 
 \vspace{2ex} 
 Per ogni proxy specificato nel file di configurazione, si verifica quali sono disponibili; 
@@ -103,7 +104,11 @@ Altrimenti si può decidere di interrompere la comunicazione e in quel caso i pr
 
 \subsection{Struttura del Proxy} 
 Come per l'attaccante, anche il proxy necessita di alcune opzioni (descritte nella Tabella \ref{table:comunicazione:proxy:opzioni}). 
+\newline
+\begin{minipage}{\textwidth}
 \begin{longtable}{|p{0.3\textwidth}|p{0.6\textwidth}|} 
+\caption{Opzioni richieste nel comando del proxy} 
+\label{table:comunicazione:proxy:opzioni} \\
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
     \hline
@@ -113,10 +118,9 @@ Come per l'attaccante, anche il proxy necessita di alcune opzioni (descritte nel
     Questo viene fatto anche nel caso di un canale tramite ICMP. 
     \\ 
     \hline 
-    \caption{Opzioni richieste nel comando del proxy} 
-    \label{table:comunicazione:proxy:opzioni} 
-\end{longtable}
-\vspace{2ex} 
+\end{longtable} 
+\end{minipage}
+\vspace{2ex}  \newline
 %Il proxy ricaverà il proprio indirizzo IP. 
 Per poter comunicare con l'attaccante, il proxy definisce un socket in cui rimane in ascolto. 
 Nel caso si utilizzi il protoccollo ICMP, monitorerà il flusso di rete per catturare i messaggi inviati dall'attaccante.  
@@ -165,6 +169,8 @@ Una volta ricevuti tutti i dati dalla vittima, il proxy procederà ad inoltrarli
 Per poterla inizializzare, la vittima richiede in input alcune opzioni
 (indicate nella Tabella \ref{table:comunicazione:vittima:opzioni}). 
 \begin{longtable}{|p{0.3\textwidth}|p{0.6\textwidth}|} 
+\caption{Opzioni richieste nel comando della vittima} 
+\label{table:comunicazione:vittima:opzioni} \\
     \hline 
     \textbf{Opzione} & \textbf{Utilizzo}  \\
     \hline
@@ -175,9 +181,7 @@ Per poterla inizializzare, la vittima richiede in input alcune opzioni
     Altrimenti, se il numero non viene raggiunto, allo scadere del timer si chiederà se si vuole procedere comunque.
     %attessa dei proxy che si vorranno connettere
     \\ 
-    \hline 
-    \caption{Opzioni richieste nel comando della vittima} 
-    \label{table:comunicazione:vittima:opzioni} 
+    \hline  
 \end{longtable}
 %Successivamente si ricaverà il prorpio indirizzo IP e si andrà in attessa dei proxy che si vorranno connettere. 
 La vittima rimane in attesa di connessioni da parte dei proxy.
