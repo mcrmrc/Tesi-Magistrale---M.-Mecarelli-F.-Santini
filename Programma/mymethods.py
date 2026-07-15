@@ -14,31 +14,12 @@ import ipaddress
 import threading 
 import os
 import time 
-from enum import Enum
+from enum import Enum  
+from custom_enum import MSG 
+from check_type import *
+import ctypes
 
-class SEPARAZIONE_DATI(Enum): 
-    ID="by_id"
-
-class ENTITY(Enum):
-    ATTACKER="attacker"
-    VICTIM="victim"
-    PROXY="proxy"
-
-class MSG(Enum):
-    CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
-    CONFIRM_VICTIM="__CONFIRM_VICTIM__"
-    CONFIRM_PROXY="__CONFIRM_PROXY__"
-    CONFIRM_COMMAND="__CONFIRM_COMMAND__"
-    ATTACK_FUNCTION="__ATTACK_FUNCTION__"
-    LAST_PACKET="__LAST_PACKET__"
-    WAIT_DATA="__WAIT_DATA__"
-    END_COMMUNICATION="__END_COMMUNICATION__"
-    END_DATA="__END_DATA__"
-    START_SOURCES="__START_SOURCES__"
-    END_SOURCES="__END_SOURCES__" 
-    END_SOCKETSEND="__END_SEND__"
-
-exit_cases=["exit","quit",MSG.END_COMMUNICATION.value]
+exit_cases=["exit","quit",MSG.END_COMMUNICATION.value] 
 
 systemsDictionary={
     'aix':"AIX",
@@ -53,7 +34,7 @@ systemsDictionary={
 } 
 
 def non_blocking_sleep(secondi:int=None): 
-    if not IS_TYPE.integer(secondi) or secondi<0:
+    if not is_integer(secondi) or secondi<0:
         raise Exception("aspetta_tempo: Argomenti non validi") 
     if secondi>=60: 
         print(f"Attesa di {secondi//60} minuti e {secondi%60} secondi in corso...")
@@ -63,7 +44,7 @@ def non_blocking_sleep(secondi:int=None):
         time.sleep(1)
         secondi-=1  
 
-import ctypes
+
 class POWER_SLEEP: 
     #On Window syou can use the WIn32 API via ctypes to set an execution state that keeps the system awake
     class WINDOWS: 
@@ -76,7 +57,7 @@ class POWER_SLEEP:
         ES_SYSTEM_REQUIRED = 0x00000001 
 
         def __init__(self, duration_time:int=None): 
-            if not IS_TYPE.integer(duration_time):
+            if not is_integer(duration_time):
                 raise TypeError("duration_time non intero")
             # Load kernel32 DLL
             self.kernel32 = ctypes.windll.kernel32 
@@ -130,9 +111,9 @@ class POWER_SLEEP:
 
 class NETWORK:
     def ping_once(ip_dst:ipaddress.IPv4Address=None, iface:str=None, timeout=1): 
-        #if not IS_TYPE.string(iface): 
+        #if not is_string(iface): 
         #    raise TypeError("iface non valida")
-        if not IS_TYPE.ipaddress(ip_dst): 
+        if not is_ipaddress(ip_dst): 
             raise TypeError("ip_dst non valido")
         if sys.platform == "win32": 
             if ip_dst.version==4: 
@@ -184,7 +165,7 @@ class NETWORK:
             return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8') 
         
         def get_IPv6_scopeID(ip_addr:ipaddress.IPv6Address=None): 
-            if IS_TYPE.ipaddress(ip_addr) and ip_addr.version==6:
+            if is_ipaddress(ip_addr) and ip_addr.version==6:
                 scope_id=ip_addr.scope_id 
                 while not scope_id: 
                     if sys.platform == "win32": 
@@ -255,7 +236,7 @@ class NETWORK:
             self.inactive_host=inactive_host 
 
         def windows_get_network(self, ip_addr:ipaddress=None)->tuple[str,str]:
-            if not IS_TYPE.ipaddress(ip_addr): 
+            if not is_ipaddress(ip_addr): 
                 try:
                     ip_addr=ipaddress.ip_address(ip_addr)
                 except Exception as e: 
@@ -291,7 +272,7 @@ class NETWORK:
             return network, subnet
         
         def linux_get_network(self, ip_addr:ipaddress=None)->tuple[str,str]:
-            if not IS_TYPE.ipaddress(ip_addr): 
+            if not is_ipaddress(ip_addr): 
                 try:
                     ip_addr=ipaddress.ip_address(ip_addr)
                 except Exception as e: 
@@ -594,7 +575,7 @@ class NETWORK:
             gateway=None
 
             def __init__(self, ip_addr:ipaddress=None):
-                if not IS_TYPE.ipaddress(ip_addr):
+                if not is_ipaddress(ip_addr):
                     raise Exception("Indirizzo IP non valido") 
                 if sys.platform == "win32": 
                     self.gateway=self._windows_default_gateway(ip_addr) 
@@ -603,7 +584,7 @@ class NETWORK:
                 else: raise Exception("OS non supportato: ",sys.version)  
 
             def _windows_default_gateway(self, ip:ipaddress=None)->tuple[str,str]:
-                if not IS_TYPE.ipaddress(ip): 
+                if not is_ipaddress(ip): 
                     try:
                         ip=ipaddress.ip_address(ip)
                     except Exception as e: 
@@ -621,7 +602,7 @@ class NETWORK:
                 return stdout.decode()
             
             def _linux_default_gateway(self, ip:ipaddress=None)->tuple[str,str]:
-                if not IS_TYPE.ipaddress(ip): 
+                if not is_ipaddress(ip): 
                     try:
                         ip=ipaddress.ip_address(ip)
                     except Exception as e: 
@@ -643,7 +624,7 @@ class NETWORK:
         ip_address:ipaddress.IPv4Address=None
 
         def __init__(self, ip_address:ipaddress.IPv4Address=None): 
-            if not IS_TYPE.ipaddress(ip_address): 
+            if not is_ipaddress(ip_address): 
                 raise Exception("INTERFACE_FROM_IP: indirizzo IP non valido") 
             self.ip_address=ip_address
             if sys.platform == "win32":
@@ -652,7 +633,7 @@ class NETWORK:
                 self.interface=self._linux_iface_from_IP() 
     
         def _windows_iface_from_IP(self): 
-            if not IS_TYPE.ipaddress(self.ip_address): 
+            if not is_ipaddress(self.ip_address): 
                 return None
             #route_info = conf.route6.route(str(ip_address)) 
             #route_info = conf.route.route(str(ip_address)) 
@@ -674,7 +655,7 @@ class NETWORK:
             return iface if len(iface)>0 else  None 
 
         def _linux_iface_from_IP(self): 
-            if not IS_TYPE.ipaddress(self.ip_address): 
+            if not is_ipaddress(self.ip_address): 
                 return None  
             try:
                 #print(f"Indirizzo IPv{ip_address.version}: {ip_address.compressed}")
@@ -781,7 +762,7 @@ class NETWORK:
         mac_address=None
 
         def __init__(self, ip_address:ipaddress.IPv4Address=None): 
-            if not IS_TYPE.ipaddress(ip_address):  
+            if not is_ipaddress(ip_address):  
                 raise Exception("GET_MAC_ADDRESS: IP address non valido") 
             self.ip_address=ip_address
             if sys.platform == "win32":
@@ -790,7 +771,7 @@ class NETWORK:
                 self.mac_address=(self._linux_macAddr()).lower().strip().replace("-",":") 
         
         def _windows_macAddr(self): 
-            if not IS_TYPE.ipaddress(self.ip_address):
+            if not is_ipaddress(self.ip_address):
                 return None 
             #command_dst2="arp -a | findstr '192.168.1.17'"
             #restituisce 192.168.1.17  24-77-03-18-7b-74   dinamico
@@ -839,7 +820,7 @@ class NETWORK:
             return mac_address
         
         def _linux_macAddr(self): 
-            if not IS_TYPE.ipaddress(self.ip_address): 
+            if not is_ipaddress(self.ip_address): 
                 return None 
             command_gateway=f"ip -{self.ip_address.version} route get {self.ip_address.compressed} | grep -o 'via [^ ]*' |awk '{{print $2}}'" #IP src gateway che raggiunge la destinazione
             process=subprocess.run(
@@ -869,7 +850,7 @@ class NETWORK:
 
         def check_mac_in_cache(self, ip_addr:ipaddress.IPv6Address=None): 
             print("AZAAAA: ",ip_addr)
-            if not IS_TYPE.ipaddress(ip_addr): 
+            if not is_ipaddress(ip_addr): 
                 raise Exception("Indirizzo IP non valido")  
             if sys.platform=="linux": 
                 #"ip neigh show dev enp0s3"
@@ -925,7 +906,7 @@ def print_dictionary(dictionary:dict=None):
 
 def ask_bool_choice(msg:str):
     def is_scelta_SI_NO(scelta:str=None):
-        if not IS_TYPE.string(scelta): 
+        if not is_string(scelta): 
             return False 
         whitebox=["yes","si","yeah"]
         for x in whitebox:
@@ -951,7 +932,7 @@ class PARSER:
         return parser.add_argument(param_arg[0],type=param_arg[1], help=param_arg[2])
 
     def print_supported_arguments(parser:argparse.ArgumentParser=None): 
-        if IS_TYPE.ArgumentParser(parser): 
+        if is_ArgumentParser(parser): 
             print("Controlla di inserire due volte - per gli argomenti")
             print("Argomenti supportati:") 
             for action in parser._actions:
@@ -961,7 +942,7 @@ class PARSER:
                 )) 
 
     def check_arguments(parser: argparse.ArgumentParser=None): 
-        if IS_TYPE.ArgumentParser(parser):  
+        if is_ArgumentParser(parser):  
             args, unknown = parser.parse_known_args() 
             return args, unknown 
         return None, None
@@ -1004,124 +985,6 @@ class CALC:
         checksum = (checksum >> 16) + (checksum & 0xffff)
         checksum += checksum >> 16 
         return (~checksum) & 0xffff
-    
-class IS_TYPE: 
-    def callable_function(var_ToCheck=None):
-        #the type of a function can be 'function' or 'method' 
-        if callable(var_ToCheck): 
-            return True
-        #print(f"callback function non valida {var_ToCheck}") 
-        return False  
-    
-    def ipaddress(var_ToCheck=None): 
-        if isinstance(var_ToCheck, (ipaddress.IPv4Address,ipaddress.IPv6Address)): 
-            return True 
-        #print(f"non è un ipaddress {var_ToCheck}") 
-        return False
-
-    def time(var_ToCheck=None):    
-        if isinstance(var_ToCheck, (int, float)): 
-            return True
-        #print(f"Tempo non valido {var_ToCheck}") 
-        return False 
-
-    def threading_Event(var_ToCheck=None):
-        if isinstance(var_ToCheck, threading.Event): 
-            return True
-        #print(f"non è un threading.Event {type(var_ToCheck)}") 
-        return False 
-
-    def dictionary(var_ToCheck=None):
-        if isinstance(var_ToCheck, dict):
-            return True
-        #print(f"non è un dizionario {var_ToCheck}") 
-        return False
-    
-    def AsyncSniffer(var_ToCheck=None):
-        if isinstance(var_ToCheck,AsyncSniffer): 
-            return True
-        #print(f"sniffer non è valido {var_ToCheck}") 
-        return False 
-
-    def threading_Timer(var_ToCheck=None):
-        if isinstance(var_ToCheck, threading.Timer): 
-            return True
-        #print(f"timer non è un threading.Timer {type(var_ToCheck)}")
-        return False 
-
-    def list(var_ToCheck=None):
-        if isinstance(var_ToCheck,list): 
-            return True  
-        #print(f"non è una lista {var_ToCheck}") 
-        return False
-    
-    def string(var_ToCheck=None):
-        if isinstance(var_ToCheck,str):
-            return True
-        #print(f"stringa non valida {var_ToCheck}")
-        return False 
-
-    def bytes(var_ToCheck=None):
-        if isinstance(var_ToCheck,bytes): 
-            return True
-        #print(f"byte non valido {var_ToCheck}") 
-        return False 
-
-    def integer(var_ToCheck=None):
-        if isinstance(var_ToCheck,int): 
-            return True
-        #print(f"integer non valido {var_ToCheck}")
-        return False 
-
-    def boolean(var_ToCheck=None):
-        if isinstance(var_ToCheck,bool): 
-            return True
-        #print(f"booleano non valido {var_ToCheck}")
-        return False 
-
-    def threading_Lock(var_ToCheck=None):
-        if isinstance(var_ToCheck, threading.Lock): 
-            return True
-        #print(f"lock non valido {var_ToCheck}")
-        return False 
-
-    def subprocess_Popen(var_ToCheck=None): #is_valid_shell
-        if isinstance(var_ToCheck, subprocess.Popen): 
-            return True
-        #print(f"shell non valida {var_ToCheck}")
-        return False 
-
-    def ArgumentParser(var_ToCheck=None): 
-        if isinstance(var_ToCheck, argparse.ArgumentParser): 
-            return True
-        #print(f"ArgumentParser: parser non valido {var_ToCheck}")
-        return False 
-    
-    def enum(var_ToCheck=None, enum_type:Enum=None): 
-        if enum_type is None and isinstance(var_ToCheck, Enum): 
-            return True 
-        if isinstance(var_ToCheck, enum_type):
-            return True
-        #print(f"enum non valido {type(var_ToCheck)}")
-        return False 
-    
-    def namespace(var_ToCheck=None): 
-        if isinstance(var_ToCheck, argparse.Namespace): 
-            return True 
-        #print(f"namespace: namespace non valido {var_ToCheck}")
-        return False 
-    
-    def threading_Thread(var_ToCheck=None): 
-        if isinstance(var_ToCheck,threading.Thread): 
-            return True 
-        #print(f"thread non valido {var_ToCheck}")
-        return False 
-    
-    def socket(var_ToCheck=None): 
-        if isinstance(var_ToCheck, socket.socket): 
-            return True 
-        #print(f"socket non valido {var_ToCheck}")
-        return False
 
 class GET: 
     def threading_Event()->threading.Event: 
@@ -1131,7 +994,7 @@ class GET:
         return threading.Lock()
 
     def AsyncSniffer(args:dict=None): 
-        if not IS_TYPE.dictionary(args): 
+        if not is_dictionary(args): 
             raise Exception(f"GET:AsyncSniffer\targs is not a dictionary") 
         if SNIFFER.check_args(args):
             return AsyncSniffer( **args ) 
@@ -1139,7 +1002,7 @@ class GET:
         return None
 
     def timer(timeout_time=60, callback_function=None): 
-        if IS_TYPE.callable_function(callback_function) and (timeout_time is None or IS_TYPE.time(timeout_time)): 
+        if is_callable_function(callback_function) and (timeout_time is None or is_time(timeout_time)): 
             return threading.Timer(timeout_time, callback_function)
         return None 
 
@@ -1167,7 +1030,7 @@ class GET:
         print("Sistema operativo non supportato per l'apertura della shell.") 
 
     def shellProcess_command(command:str): 
-        if not IS_TYPE.string(command): 
+        if not is_string(command): 
             print("Il comando non è una stringa")
             return  
         if sys.platform == "win32":
@@ -1194,7 +1057,7 @@ class GET:
 
 class THREAD: 
     def get_thread_response(proxy:ipaddress.IPv4Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=True):
-        if IS_TYPE.ipaddress(proxy) and IS_TYPE.threading_lock(thread_lock) and IS_TYPE.dictionary(thread_response) and IS_TYPE.boolean(response):
+        if is_ipaddress(proxy) and is_threading_Lock(thread_lock) and is_dictionary(thread_response) and is_boolean(response):
             response=None
             thread_lock.acquire()
             response=thread_response.get(proxy.compressed)
@@ -1203,19 +1066,19 @@ class THREAD:
         return None 
 
     def update_thread_response(proxy:ipaddress.IPv4Address=None, thread_lock:threading.Lock=None, thread_response:dict=None, response:bool=False):
-        if not (IS_TYPE.ipaddress(proxy) and IS_TYPE.threading_lock(thread_lock) and IS_TYPE.dictionary(thread_response) and IS_TYPE.boolean(response)):  
+        if not (is_ipaddress(proxy) and is_threading_Lock(thread_lock) and is_dictionary(thread_response) and is_boolean(response)):  
             raise Exception(f"update_thread_response: argomenti non validi")
         thread_lock.acquire()
         thread_response.update({proxy.compressed:response}) 
         thread_lock.release() 
         
     def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address]=None,callback_function=None): 
-        if IS_TYPE.callable_function(callback_function) and IS_TYPE.list(address_list) and len(address_list)>0: 
+        if is_callable_function(callback_function) and is_list(address_list) and len(address_list)>0: 
             thread_lock=threading.Lock()
             thread_response={}
             thread_list={}
             for proxy in address_list:
-                if not IS_TYPE.ipaddress(proxy): 
+                if not is_ipaddress(proxy): 
                     print(f"***\t{proxy} non è un indirizzo valido")
                     continue
                 thread=threading.Thread(
@@ -1233,19 +1096,19 @@ class THREAD:
 
 class THREADING_EVENT:
     def wait(event:threading.Event=None): 
-        if not IS_TYPE.threading_Event(event): 
+        if not is_threading_Event(event): 
             raise Exception(f"Impossibile aspettare su una variabile non Event") 
         event.wait() 
         event.clear() 
     
     def set(event:threading.Event=None): 
-        if not IS_TYPE.threading_Event(event): 
+        if not is_threading_Event(event): 
             raise Exception(f"Impossibile settare una variabile non Event") 
         event.set()
 
 class SNIFFER:
     def check_args(args:dict=None): 
-        if not IS_TYPE.dictionary(args): 
+        if not is_dictionary(args): 
             raise Exception(f"Gli argomenti passati non sono un dizionario") 
         accepted_key_dict=[
             "iface","filter","prn","store","count", "timeout" ,"lfilter", 
@@ -1258,13 +1121,13 @@ class SNIFFER:
         return True 
 
     def start(sniffer:AsyncSniffer=None, timer:threading.Timer=None): 
-        if not (IS_TYPE.AsyncSniffer(sniffer) and IS_TYPE.threading_Timer(timer)): 
+        if not (is_AsyncSniffer(sniffer) and is_threading_Timer(timer)): 
             raise Exception(f"SNIFFER.start: Argomenti in input non validi")
         sniffer.start()
         timer.start() 
 
     def stop(sniffer:AsyncSniffer=None): 
-        if IS_TYPE.AsyncSniffer(sniffer): 
+        if is_AsyncSniffer(sniffer): 
             if sniffer.running: 
                 print("Fermo lo sniffer.",end=" ") 
                 sniffer.stop() 
@@ -1278,7 +1141,7 @@ class SNIFFER:
         raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}") 
 
     def template_timeout(event:threading.Event=None):  
-        if not IS_TYPE.threading_Event(event): 
+        if not is_threading_Event(event): 
             raise Exception("template_timeout: Argomenti non validi")  
         if not event.is_set():
             print("Timeout: No packet received within 60 seconds") 
@@ -1286,10 +1149,10 @@ class SNIFFER:
             THREADING_EVENT.set(event) 
 
     def sniff_packet(args:dict=None,timeout_time=60, callback_func_timer=None): 
-        if  SNIFFER.check_args(args) and (timeout_time is None or IS_TYPE.time(timeout_time)): 
+        if  SNIFFER.check_args(args) and (timeout_time is None or is_time(timeout_time)): 
             sniffer= GET.AsyncSniffer(args) 
             timeout_time=int(timeout_time) if timeout_time is not None else timeout_time  
-            if not IS_TYPE.callable_function(callback_func_timer): 
+            if not is_callable_function(callback_func_timer): 
                 print("Considera l'utilizzo di 'template_timeout'")
                 raise Exception(f"sniff_packet: callback non definita {callback_func_timer}")
             timer = GET.timer(timeout_time, callback_func_timer) 
@@ -1301,14 +1164,14 @@ class SNIFFER:
         raise Exception(f"sniff_packet: Argomenti non validi") 
 
     def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address=None, icmp_seq:int=0,icmp_id:int=0): 
-        if not IS_TYPE.bytes(data): 
+        if not is_bytes(data): 
             raise TypeError("data non bytes") 
-        if not IS_TYPE.ipaddress(ip_dst): 
+        if not is_ipaddress(ip_dst): 
             raise TypeError("ip_dst non valido") 
-        if not IS_TYPE.integer(icmp_seq): 
+        if not is_integer(icmp_seq): 
             #raise TypeError("icmp_seq non valido") 
             icmp_seq=0
-        if not IS_TYPE.integer(icmp_id): 
+        if not is_integer(icmp_id): 
             raise TypeError("icmp_id non valido") 
         icmp_id=CALC.checksum(data) 
         target_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address 
@@ -1329,7 +1192,7 @@ class SNIFFER:
 #------------------------
 class TIMER: 
     def stop(timer:threading.Timer=None): 
-        if IS_TYPE.threading_Timer(timer): 
+        if is_threading_Timer(timer): 
             if timer.is_alive(): 
                 print("Fermo il timer",end="  ")
                 timer.cancel()  

