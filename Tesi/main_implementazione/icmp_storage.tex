@@ -25,6 +25,8 @@ una quantità maggiore di dati.
 %In questi casi si potranno usare diverse tipologie di pacchetti purchè la loro lunghezza non superi i 28 bit. 
 %Possibili alternative trovate sono con IP/ICMP e con TCP/IP con entrambe che permettono l'invio di due byte. 
 \begin{longtable}{|c|c|c|}
+\caption{Tipologie di messaggi ICMPv4 usati} 
+\label{table:icmpv4:tipologie} \\
     \hline 
     \textbf{Tipologia} & \textbf{Byte per pacchetto} & \textbf{Campi Utilizzati}  \\ %messaggi di errore
     \hline
@@ -56,11 +58,11 @@ una quantità maggiore di dati.
     %\hline
     %10 & 0 & CC  & Router Solicitation & Hosts request router advertisements. \\
     %\hline 
-    \caption{Tipologie di messaggi ICMPv4 usati} 
-    \label{table:icmpv4:tipologie} 
 \end{longtable} 
 \vspace{2ex}
 \begin{longtable}{|c|c|c|} 
+\caption{Tipologie di messaggi ICMPv6 usati} 
+\label{table:icmpv6:tipologie} \\
     \hline 
     \textbf{Tipologia} & \textbf{Byte per pacchetto} & \textbf{Campi Sfruttatti}  \\
     \hline
@@ -79,8 +81,6 @@ una quantità maggiore di dati.
     Packet Too Big & 40+8+41 & mtu(4byte)\\ 
     &$\rightarrow$min 89 byte&invoking packet(2byte) \\  %messaggi di errore
     \hline 
-    \caption{Tipologie di messaggi ICMPv6 usati} 
-    \label{table:icmpv6:tipologie} 
 \end{longtable} 
 %\import{./icmp}{messaggi_errore}  
 %\import{./icmp}{messaggi_informativi} 
@@ -92,12 +92,12 @@ Dalle specifiche RFC (792 \cite{icmpv4_message_type} e 4434 \cite{icmpv6_message
 il campo deve essere 0. Quindi Scapy, quando manderà il pacchetto, lo 
 invierà conforme allo standard e di conseguenza azzererà qualsiasi valore 
 al suo interno (come mostra la Figura \ref{fig:covertStorage:sourcequench:errScapy}). 
-\newline
+\vspace{3ex}\newline
 \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagine_parameterproblem.png}
-    \captionof{figure}{Messaggio IP/ICMP con campo \textit{unused} azzerato} 
+    \centering 
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{unused} azzerato \cite{scapy_pdfdump}} 
     \label{fig:covertStorage:sourcequench:errScapy} 
+    \includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagine_parameterproblem.png}
 \end{minipage}  
 \vspace{2ex} \newline 
 Il problema può essere risolto tramite degli accorgimenti.  
@@ -106,12 +106,12 @@ inserire dei dati all'interno del campo. Infatti si può riscrivere, il
 pacchetto evitando di farlo creare Scapy. 
 Così, quando lo si farà inviare da Scapy, al suo interno saranno presenti i dati. 
 In Figura \ref{fig:covertStorage:unused} si vede la loro presenza. 
-\newline
+\vspace{3ex}\newline
 \begin{minipage}{\textwidth} 
-    \centering
-    \includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagine_parameterproblem_unused.png}
-    \captionof{figure}{Messaggio IP/ICMP con campo \textit{unused} impostato} 
+    \centering 
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{unused} impostato \cite{scapy_pdfdump}} 
     \label{fig:covertStorage:unused} 
+    \includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagine_parameterproblem_unused.png}
 \end{minipage} 
 \vspace{2ex} \newline 
 Siccome il suo utilizzo rende il messaggio non conforme agli standard RFC \cite{icmpv4_message_type}\cite{icmpv6_message_type}; 
@@ -127,8 +127,13 @@ non superi i 28 byte.
 Inoltre siccome non rappresenta un datagram da inviare ma già spedito, 
 si possono sfruttare un maggior numero di campi (indicati nella 
 Tabella \ref{table:icmpv4:header64bit}). La Figura \ref{fig:covertStorage:header64bit}  
-invece mostra un caso applicato ai protocolli IP e ICMP. 
+invece mostra un caso applicato ai protocolli IP e ICMP.  
+\newline
+\begin{minipage}{\textwidth}
+\centering
 \begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|} 
+\caption{Uso del Header+64 bits nel caso di IP/ICMP} 
+\label{table:icmpv4:header64bit} \\
     \multicolumn{3}{c}{Header IPv4} \\  
     \hline 
     \textbf{Campo} & \textbf{Byte} & \textbf{Utilizzo} \\
@@ -149,20 +154,20 @@ invece mostra un caso applicato ai protocolli IP e ICMP.
     \hline 
     Sequence & 2 byte & Numero di sequenza del messaggio di richiesta invocato \\  
     \hline
-    \caption{Uso del Header+64 bits nel caso di IP/ICMP} 
-    \label{table:icmpv4:header64bit} 
 \end{longtable} 
+\end{minipage}
 %Ma può essere utilizzato anche TCP/IP o altri protocolli purchè lunghezza passata, 
 %non sfori i 28 bytes.-
 %si userà il campo \textbf{len} del protocollo \textit{IP} e il campo \textbf{id} del protocollo \textit{ICMP}. 
 %Tuttavia si dovrebbe inserire solo il primo byte del datagram originale. 
 %Ciò cambierà la visibilità del pacchetto siccome non conforme allo standard. 
+\vspace{3ex} \newline
 \begin{minipage}{\textwidth}
     \centering
-    %\includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagie_header_64bit.png} 
-\includegraphics[width=0.8\textwidth]{./img/ICMP_storageCC/packet_destination_unreachable_page_1.png}
-    \captionof{figure}{Messaggio IP/ICMP con campo \textit{Header+64 bit} impostato} 
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{Header+64 bit} impostato \cite{scapy_pdfdump}} 
     \label{fig:covertStorage:header64bit} 
+    %\includegraphics[width=0.5\textwidth]{./img/ICMP_storageCC/immagie_header_64bit.png} 
+    \includegraphics[width=0.8\textwidth]{./img/ICMP_storageCC/packet_destination_unreachable_page_1.png}
 \end{minipage} 
 \begin{center}
 \begin{minipage}{0.9\linewidth}
@@ -174,7 +179,7 @@ invece mostra un caso applicato ai protocolli IP e ICMP.
 0030  00 00 42 01 09 B3 C0 A8 01 0A 08 08 08 08 00 00  ..B.............
 0040  69 5E 4F 52 47 4F                                i^ORGO
 \end{lstlisting}
-\captionof{lstlisting}{Dump esadecimale del messaggio in figura \ref{fig:covertStorage:header64bit}}
+\captionof{figure}{Dump esadecimale del messaggio in figura \ref{fig:covertStorage:header64bit}}
 \label{code:covertStorage:header64bit} 
 \end{minipage}
 \end{center}
@@ -189,6 +194,8 @@ cui intestazione è di 40 byte, ed il protocollo ICMPv4, la cui intestazione
 La Tabella \ref{table:icmpv6:invokinppacket} indica i campi utilizzati nel caso IPv6/ICMPv6. 
 \newline
 \begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|} 
+\caption{Struttura del campo Invoking Packet} 
+\label{table:icmpv6:invokinppacket} \\
     \multicolumn{3}{c}{Header IPv6} \\ 
     \hline 
     \textbf{Campo} & \textbf{Byte} & \textbf{Utilizzo} \\
@@ -205,8 +212,6 @@ La Tabella \ref{table:icmpv6:invokinppacket} indica i campi utilizzati nel caso 
     \hline 
     Sequence & 2 byte & Numero di sequenza del messaggio di richiesta invocato \\  
     \hline 
-    \caption{Struttura del campo Invoking Packet} 
-    \label{table:icmpv6:invokinppacket} 
 \end{longtable}
 
 
@@ -216,12 +221,12 @@ tuttavia può contenere dei dati non correlati ad esso.
 Nel nostro caso, verranno inseriti tanti dati quanto la sua capacità; 
 come mostra la Figura \ref{fig:covertStorage:pointer}. 
 %può contenere i dati e, siccome rappresenta l'ottetto in cui è stato rilevato l'errore, potrà essere variabile.
-\newline 
+\vspace{3ex}\newline
 \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./img/ICMP_storageCC/immagine_pointer.png}
-    \captionof{figure}{Messaggio IP/ICMP con campo \textit{pointer} impostato} 
+    \centering 
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{pointer} impostato \cite{scapy_pdfdump}} 
     \label{fig:covertStorage:pointer} 
+    \includegraphics[width=0.6\textwidth]{./img/ICMP_storageCC/immagine_pointer.png}
 \end{minipage} 
 \begin{center}
 \begin{minipage}{0.9\linewidth}
@@ -233,7 +238,7 @@ come mostra la Figura \ref{fig:covertStorage:pointer}.
 0030  00 00 47 01 0B 9A C0 A8 01 0A 08 08 08 08 00 00  ..G.............
 0040  6F 6F 4E 41 42 4F                                ooNABO
 \end{lstlisting}
-\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:pointer}}
+\captionof{figure}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:pointer}}
 \label{code:covertStorage:pointer} 
 \end{minipage}
 \end{center}
@@ -247,12 +252,12 @@ Se suo valore cambiasse troppo spesso la cosa potrebbe risultare sospetta
 (a differenza del campo \textit{Identifier}). %in maniera estremamente variabile (e non fosse strettamente crescente)
 Quindi sebbene può essere utilizzato per inserire le informazioni, si 
 userà quasi esclusivamente il campo Identifier (come mostra la Figura \ref{fig:covertStorage:identifier}). 
-\newline
+\vspace{3ex}\newline
 \begin{minipage}{\textwidth} 
-    \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/imagine_identifier.png}
-    \captionof{figure}{Messaggio IP/ICMP con campo \textit{identifier} impostato} 
+    \centering 
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{identifier} impostato \cite{scapy_pdfdump}} 
     \label{fig:covertStorage:identifier} 
+    \includegraphics[width=\textwidth]{./img/ICMP_storageCC/imagine_identifier.png}
 \end{minipage} 
 \begin{center}
 \begin{minipage}{0.9\linewidth}
@@ -278,7 +283,7 @@ userà quasi esclusivamente il campo Identifier (come mostra la Figura \ref{fig:
 0010  00 1C 00 01 00 00 40 01 F7 31 C0 A8 01 0F C0 A8  ......@..1......
 0020  01 4F 10 00 A1 BE 4E 41 00 00                    .O....NA..
 \end{lstlisting}
-\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:identifier}}
+\captionof{figure}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:identifier}}
 \label{code:covertStorage:identifier} 
 \end{minipage}
 \end{center}
@@ -290,12 +295,12 @@ Inoltre una quantità di dati eccessiva può far mandare più pacchetti di rispo
 nel caso si fosse inviata una richiesta. 
 %dovrà inferiore a 1400 bytes se non 
 %strettamente uguale o inferiore a 32 bytes. %(o 56 bytes nel caso li si mandi da Linux).
-\vspace{2ex} \newline  
+\vspace{3ex} \newline  
 \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=0.7\textwidth]{./img/ICMP_storageCC/immagine_payload.png}
-    \captionof{figure}{Messaggio IP/ICMP con campo \textit{Data} impostato} 
+    \centering 
+    \captionof{figure}{Messaggio IP/ICMP con campo \textit{Data} impostato \cite{scapy_pdfdump}} 
     \label{fig:covertStorage:payload} 
+    \includegraphics[width=0.7\textwidth]{./img/ICMP_storageCC/immagine_payload.png} 
 \end{minipage}  
 \begin{center}
 \begin{minipage}{0.9\linewidth}
@@ -309,7 +314,7 @@ nel caso si fosse inviata una richiesta.
 0050  4E 41 42 4F 52 47 4F 47 4E 41 42 4F 52 47 4F 47  NABORGOGNABORGOG
 0060  4E 41 42 4F 52 47 4F 47 4E 41                    NABORGOGNA
 \end{lstlisting}
-\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:payload}}
+\captionof{figure}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:payload}}
 \label{code:covertStorage:data} 
 \end{minipage}
 \end{center}
@@ -321,8 +326,15 @@ specifico; che dovrà rimanere congruente quando si inseriscono i dati.
 %Si potrebbero inserire un numero magigore di dati sfruttando l'intera lunghezza dei campi ma 
 %poi i tempi non risulterebbero congruenti fra di loro
 %\footnote{Si potrebbe avere il caso che il destinatario ha modificato il messagio prima di poterlo ricevere}
-Il Codice \ref{fig:covertStorage:timestamp:output} mostra come in ciascun 
-campo timestamp verrà inserito un byte nella parte dei millisecondi. [Figura \ref{fig:covertStorage:timestamp:output}]. 
+La Figura \ref{fig:covertStorage:timestamp:output} mostra come in ciascun 
+campo timestamp verrà inserito un byte nella parte 
+dei millisecondi come si può vedere nella 
+Figura \ref{fig:covertStorage:timestamp:output}. 
+In essa viene indicato il momento dell'inserimeno del carattere 
+'r' che nella codifica UNICODE appartiene all'intero 114. 
+Successivamente si illustrano le modifiche effettuate al campo 
+timestamp e si può vedere che il dato relativo al carattere 
+nascoso rimane identificabile nella parte dei millisecondi. 
 \newline
 \begin{lstlisting}
 Dato nascosto:  b'r'     114
@@ -333,7 +345,7 @@ Timestamp origin prima:  2025-11-07 23:13:36.146254+00:00
 Timestamp origin dopo:  2025-11-07 23:13:36.114000+00:00
 Tempo del campo:  83616114 
 \end{lstlisting}
-\captionof{lstlisting}{Esempio di un dato inserito nel campo Timestamp}
+\captionof{figure}{Esempio di un dato inserito nel campo Timestamp}
 \label{fig:covertStorage:timestamp:output} 
 \vspace{2ex} 
 Non è possibile inserire ulteriori informazioni nelle altre parti  del 
@@ -341,8 +353,7 @@ campo temporale: rappresentando le ore, i minuti ed i secondi.
 Infatti hanno dei valori definiti e limitati, come si vede dalla Figura \ref{fig:covertStorage:time} (che mostra il valore contenuto nei campi). 
 \vspace{1ex} \newline
 Si potrebbero inserire il dato in tutto il campo rappresentnate il dato temporale; 
-ma questo ci espone al rischio di avere tempi errati 
-\footnote{
+ma questo ci espone al rischio di avere tempi errati\footnote{
     Per esempio l pacchetto viene risultare ricevuto prima che sia stato inviato. 
 }. 
 \vspace{2ex} \newline 
@@ -350,12 +361,12 @@ Inoltre dalla Figura \ref{fig:covertStorage:time} si può constatare la presenza
 dell'informazione nella parte dei millisecondi. Dalle informazioni del pacchetto, 
 i caratteri ricavati saranno le lettere R, G ed O; siccome i corrispettivi 
 valori nella codifica ASCII \cite{ascii-table} sono 82, 71 e 79. 
-\newline 
+\vspace{3ex}\newline 
 \begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./img/ICMP_storageCC/immagine_timestamp.png}
-    \captionof{figure}{Messaggio IP/ICMP con campi \textit{Timestamp} impostati} 
+    \centering 
+    \captionof{figure}{Messaggio IP/ICMP con campi \textit{Timestamp} impostati \cite{scapy_pdfdump}} 
     \label{fig:covertStorage:time} 
+    \includegraphics[width=0.6\textwidth]{./img/ICMP_storageCC/immagine_timestamp.png}
 \end{minipage}   
 \begin{center}
 \begin{minipage}{0.9\linewidth}
@@ -372,7 +383,7 @@ valori nella codifica ASCII \cite{ascii-table} sono 82, 71 e 79.
 0020  01 4F 0E 00 FB C9 47 4E 00 00 04 DF 31 81 04 DF  .O....GN....1...
 0030  35 6A 04 DF 39 5F                                5j..9_
 \end{lstlisting}
-\captionof{lstlisting}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:time}}
+\captionof{figure}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:time}}
 \label{code:covertStorage:data} 
 \end{minipage}
 \end{center}
