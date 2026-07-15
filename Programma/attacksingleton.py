@@ -129,7 +129,7 @@ class SendSingleton:
         if not IS_TYPE.boolean(use_delay):
             raise Exception("use_delay non boolean") 
         self.use_delay=use_delay
-        
+        self.host_attivi=[]
         match self.type_sender: 
             case SENDER_TYPE.TRUE_SENDER: 
                 ip,err=NETWORK.IP.find_local_IP()
@@ -137,13 +137,37 @@ class SendSingleton:
                     raise Exception("Impossibile trovare l'IP locale: ", err)
                 self.host_attivi=[ip]
             case SENDER_TYPE.FAKE_SENDER_ACTIVE: 
-                self.host_attivi= NETWORK.HOST_ATTIVI().active_host
+                active_host= NETWORK.HOST_ATTIVI().active_host  
+                for index in range(len(active_host)): 
+                    try: 
+                        self.host_attivi.append(ipaddress.ip_address(active_host[index]))
+                    except ValueError as value_err: 
+                        print("Errore:",value_err) 
+                print("ATTIVI:",self.host_attivi)
             case SENDER_TYPE.FAKE_SENDER_INACTIVE: 
-                self.host_attivi= NETWORK.HOST_ATTIVI().inactive_host
+                inactive_host= NETWORK.HOST_ATTIVI().inactive_host 
+                for index in range(len(inactive_host)): 
+                    try: 
+                        self.host_attivi.append(ipaddress.ip_address(inactive_host[index]))
+                    except ValueError as value_err: 
+                        print("Errore:",value_err) 
+                print("INATTIVI:",self.host_attivi)
             case SENDER_TYPE.FAKE_SENDER_BOTH:
                 classe_host= NETWORK.HOST_ATTIVI() 
-                self.host_attivi= classe_host.active_host
-                self.host_attivi.extend(classe_host.inactive_host) 
+                classe_host= NETWORK.HOST_ATTIVI() 
+                active_host= classe_host.active_host 
+                for index in range(len(active_host)): 
+                    try: 
+                        self.host_attivi.append(ipaddress.ip_address(active_host[index]))
+                    except ValueError as value_err: 
+                        print("Errore:",value_err) 
+                inactive_host= classe_host.inactive_host 
+                for index in range(len(inactive_host)): 
+                    try: 
+                        self.host_attivi.append(ipaddress.ip_address(inactive_host[index]))
+                    except ValueError as value_err: 
+                        print("Errore:",value_err) 
+                print("ATTIVI/INATTIVI:",self.host_attivi)
             case _: raise Exception("Tipo di sender non valido: ", type_sender) 
     
     def check_self_var(self): 
