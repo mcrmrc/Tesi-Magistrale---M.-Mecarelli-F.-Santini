@@ -16,83 +16,30 @@ import ipaddress
 import socket
 
 
-
-
-
-
-
-
-
-
-
-
-
-def callback_get_source_quench(victim,data):
-    TYPE_SOURCE_QUENCH=4  
-    def callback(packet):
-        print(f"callback get_source_quench received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP): 
-            if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
-                data.append(packet[ICMP].unused.to_bytes(4,"big").decode())  
-                data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
-                data.append(packet[ICMP][ICMPerror].id .to_bytes(2,"big").decode()) 
-                if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1:
-                    print("END OF TRANSMISSION")
-                    com.set_threading_Event(victim.event_pktconn)
-                    return
-            elif packet[ICMP].type==TYPE_SOURCE_QUENCH and not packet[ICMP].haslayer(IPerror): #packet.haslayer(Padding):
-                print("Padding")
-                com.set_threading_Event(victim.event_pktconn)
-                return
-    return callback
-
-def callback_get_redirect_message(victim,data):
-    TYPE_REDIRECT=5
-    def callback(packet):
-        print(f"callback get_redirect_message received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP) :
-            if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror):
-                print(type(packet[ICMP].payload), packet[ICMP].summary())
-                icmp_ip_length=packet[ICMP][IPerror].len
-                data.append(icmp_ip_length.to_bytes(2,"big").decode()) 
-
-                icmp_icmp_id=packet[ICMP][ICMPerror].id 
-                data.append(icmp_icmp_id.to_bytes(2,"big").decode()) 
-                if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1:
-                    print("END OF TRANSMISSION")
-                    com.set_threading_Event(victim.event_pktconn)
-                    return
-            elif packet[ICMP].type==TYPE_REDIRECT and not packet[ICMP].haslayer(IPerror): #packet.haslayer(Padding):
-                print("Padding")
-                com.set_threading_Event(victim.event_pktconn)
-                return
-    return callback
-
-
-
 def timeout_timing_covertchannel(event_pktconn):
     print("Dati non ricevuti in tempo. La comunicazione è terminata")
     com.set_threading_Event(event_pktconn)
     return
 
-def callback_get_timing_cc(event_pktconn,timer,bit_data:bytearray=[],previous_time=None):  
-    TEMPO_0=3 #sec
-    TEMPO_1=8 #sec
-    MAX_TIME=max([TEMPO_0,TEMPO_1])+5
+def callback_get_timing_cc(event_pktconn,timer,timing_data=[],previous_time=None, numero_bit=0):   
+    if numero_bit<=0:
+        return None  
+    callback_function=lambda: timeout_timing_covertchannel(event_pktconn)  
+    
+    DISTANZA_TEMPI=2 #sec
+    dict_tempi={}
+    dict_tempi.update( [("TEMPO_"+str(index), 3+index*2*DISTANZA_TEMPI)  for index in range(2**numero_bit)])
+    dict_bit={ }
+    dict_bit.update([ ("TEMPO_"+str(index), index)  for index in range(2**numero_bit) ]) 
+    #print(dict_tempi)
+    #print(dict_bit) 
+
     MINUTE_TIME=0*60+30 #minuti
-    callback_function=lambda: timeout_timing_covertchannel(event_pktconn)
-    dict_tempi={
-         "TEMPO_0":3
-        ,"TEMPO_1":8
-    }  
-    MAX_TIME=max([value for _,value in dict_tempi.items()])+5
-    dict_bit={
-         "TEMPO_0":0b0
-        ,"TEMPO_1":0b1
-    }
+    MAX_TIME=max([value for _,value in dict_tempi.items()])+5 
+    
     def callback(packet):
-        nonlocal previous_time, timer,bit_data, event_pktconn
-        nonlocal TEMPO_0, TEMPO_1, MAX_TIME, callback_function, MINUTE_TIME
+        nonlocal previous_time, timer,timing_data, event_pktconn, callback_function
+        nonlocal MAX_TIME, MINUTE_TIME
         print(f"callback get_timing_cc received:\n\t{packet.summary()}") 
         #print("previous_time",previous_time, type(previous_time))
         if previous_time is None:
@@ -103,32 +50,19 @@ def callback_get_timing_cc(event_pktconn,timer,bit_data:bytearray=[],previous_ti
             timer=com.get_timeout_timer(MAX_TIME,callback_function) 
             timer.start()
             print(f"Timer started")
-            return 
-        #if packet.haslayer(IP) and packet.haslayer(ICMP): 
+            return  
         if packet.time is not None: 
-            delta_time=packet.time-previous_time 
-            delta_0=abs(delta_time-TEMPO_0)
-            delta_1=abs(delta_time-TEMPO_1)
-            #print("packet.time: ",packet.time,"\tprevious_time: ",previous_time)
-            #print("delta_time: ",delta_time)
-            #print("1st: ",delta_0)
-            #print("2nd: ",delta_1) 
-            #arr=[delta_0,delta_1] 
-            arr=arr=[(key, abs(delta_time-value)) for key,value in dict_tempi.items()]
-            #print("AAAAA: ",arr) 
-            #print("UUU: ",[y for x,y in arr])
-            min_value=min([y for _,y in arr])
-            #print("UUU: ",[str(i)+":"+str(v[1]) for i, v in enumerate(arr)])
+            delta_time=packet.time-previous_time   
+            arr=arr=[(key, abs(delta_time-value)) for key,value in dict_tempi.items()] 
+            min_value=min([y for _,y in arr]) 
             min_indices = [i for i, v in enumerate(arr) if v[1] == min_value]
             if len(min_indices)!=1:
-                print("Più minimi combaciano {min_indices}: {arr}")
-            #print("Il minimo è",min_indices[0]," invece la chiave del dizionario è: ", arr[min_indices[0]][0])
-            #print("U_U: ",dict_bit.get(arr[min_indices[0]][0]))
-            bit_data.append(dict_bit.get(arr[min_indices[0]][0]))
-            #print("bit_data: ", bit_data)
+                print(f"Più minimi combaciano {min_indices}: {arr}") 
+            timing_data.append(dict_bit.get(arr[min_indices[0]][0]))
             previous_time=packet.time
             timer.cancel()
-            if len(bit_data)%8==0:
+            #print("timing_data: ",len(timing_data)," - ",timing_data)
+            if len(timing_data)%8==0:
                 #print("Received a byte. ") 
                 timer=com.get_timeout_timer(MINUTE_TIME,callback_function) 
             else:
@@ -323,7 +257,7 @@ class Victim:
         #self.get_packet_to_big() 
         #self.get_destination_unreachable() 
 
-        self.get_timing_cc() 
+        self.get_timing_cc(4) 
 
     def get_information_request(self): 
         information_data=[]
@@ -480,16 +414,18 @@ class Victim:
             return True 
         return False  
         
-    def get_timing_cc(self):
-        timing_bit_data:bytearray=[]
-        TYPE_INFORMATION_REQUEST=128
-        TYPE_INFORMATION_REPLY=129
-        last_packet_time=None
+    def get_timing_cc(self,numero_bit=0): 
         try: 
             ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e") 
             interface= mymethods.default_iface() 
+            if numero_bit<=0:
+                raise Exception("Numero di bit passato non valido")
         except Exception as e:
             raise Exception(f"Exception: {e}")
+        timing_data=[]
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129
+        last_packet_time=None
         try: 
             self.event_pktconn=com.get_threading_Event()
             callback_function=lambda: timeout_timing_covertchannel(self.event_pktconn)
@@ -499,7 +435,13 @@ class Victim:
         args={
                 "filter":f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}" 
                 #,"count":1 
-                ,"prn":callback_get_timing_cc(self.event_pktconn,self.timer_timing_CC,timing_bit_data,last_packet_time)
+                ,"prn":callback_get_timing_cc(
+                     self.event_pktconn
+                    ,self.timer_timing_CC
+                    ,timing_data
+                    ,last_packet_time
+                    ,numero_bit
+                )
                 #,"store":True 
                 ,"iface":interface
         } 
@@ -509,12 +451,15 @@ class Victim:
                 ,timeout_time=None
                 ,event=self.event_pktconn
             ) 
-            com.wait_threading_Event(self.event_pktconn) 
-            data=""
-            for index in range(0, len(timing_bit_data), 8):
+            com.wait_threading_Event(self.event_pktconn)   
+            str_data=""
+            for integer in timing_data:
+                str_data+=format(integer, f'0{numero_bit}b') 
+            data="" 
+            for index in range(0, len(str_data), 8):
                 int_data=0
-                for bit in timing_bit_data[index:index+8][::-1]:
-                    int_data=int_data<<1|bit
+                for bit in str_data[index:index+8][::-1]:
+                    int_data=int_data<<1|int(bit)
                 data+=chr(int_data)  
             com.stop_sinffer(sniffer)
             if com.stop_timer(pkt_timer): 
