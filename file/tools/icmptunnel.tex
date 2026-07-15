@@ -1,0 +1,230 @@
+%https://github.com/DhavalKapil/icmptunnel 
+\section{icmptunnel}
+Transparently tunnel your IP traffic through ICMP echo and reply packets.
+'icmptunnel' works by encapsulating your IP traffic in ICMP echo packets and sending them to your own proxy server. 
+The proxy server decapsulates the packet and forwards the IP traffic. 
+The incoming IP packets which are destined for the client are again encapsulated in ICMP reply packets and sent back to the client. 
+The IP traffic is sent in the 'data' field of ICMP packets.
+\vspace{lex} \newline
+RFC 792, which is IETF's rules governing ICMP packets, allows for an arbitrary data length for any type 0 (echo reply) or 8 (echo message) ICMP packets.
+\vspace{lex} \newline
+So basically the client machine uses only the ICMP protocol to communicate with the proxy server. 
+Applications running on the client machine are oblivious to this fact and work seamlessly.
+\vspace{4ex} \newline
+\textbf{Use Cases}
+\begin{enumerate}
+    \item Bypassing Captive Portals: Many public Wi-Fi use Captive Portals to authenticate users, i.e. after connecting to the Wi-Fi the user is redirected to a webpage that requires a login. icmptunnel can be used to bypass such authentications in transport/application layers.
+    \item Bypassing firewalls: Firewalls are set up in various networks to block certain type of traffic. icmptunnel can be used to bypass such firewall rules. Obfuscating the data payload can also be helpful to bypass some firewalls.
+    \item Encrypted Communication Channel: Adding sufficient encryption to the data, icmptunnel can be used to establish an encrypted communication channel between two host machines.
+\end{enumerate}
+\vspace{1ex} 
+\textbf{Requirements}
+\begin{enumerate}
+    \item A POSIX-compliant host with root access that will be communicating with only ICMP protocol. This will be the client.
+    \item A POSIX-compliant host with root access with full access to the internet. This will act as our proxy server.
+    \item The proxy server should be accessible from the client host.
+\end{enumerate}
+Note: Although icmptunnel has been successfully tested on Ubuntu 14.04 LTS, it should work on others as well.
+\vspace{2ex} \newline
+\textbf{Step-by-step instructions}
+\begin{enumerate}
+    \item Install make on both machines.
+    \item Clone this repository using this command: git clone https://github.com/DhavalKapil/icmptunnel
+    \item Run make
+    \item On the server side run the tunnel with root privileges: [sudo] ./icmptunnel -s 10.0.1.1
+    \item On the client side, find out your gateway and the corresponding interface: route -n
+    Edit client.sh and replace <server> with the IP address of the proxy server. <gateway> with gateway address obtained above and similarly for <interface>.
+    \item Check the DNS server at client side. Make sure it does not use any server not accessible by our proxy server. One suggestion is to use 8.8.8.8(Google's DNS server) which will be accessible to the proxy server. You would need to edit your DNS settings for this. You might need to manually delete the route for your local DNS server from your routing table.
+    \item Run the tunnel on your client with root privileges: [sudo] ./icmptunnel -c <server>
+\end{enumerate}
+The tunnel should run and your client machine should be able to access the internet. 
+All traffic will be tunneled through ICMP.
+\vspace{2ex} \newline
+\textbf{Architecture}
+icmptunnel works by creating a virtual tunnel interface(say tun0). 
+All the user traffic on the client host is routed to tun0. 
+icmptunnel listens on this interface for IP packets. 
+These packets are encapsulated in an ICMP echo packet(i.e. the payload of the ICMP packet is nothing but the original IP packet). 
+This newly generated ICMP packet is sent outside the client machine, to the proxy server, through the restricted internet connection.
+\vspace{1ex} \newline
+The proxy server receives these ICMP packets and decapsulates the original IP packet. 
+This is retransmitted onto the Internet after implementing IP masquerading. 
+Hence, the target believes that it's the proxy server making the request. 
+The target then responds back to the proxy server with an IP packet. 
+This is again captured by icmptunnel, encapsulated in an ICMP reply packet and send back to the client.
+\vspace{1ex} \newline
+On the client side, the IP packet is retrieved from the payload of the ICMP reply packet and injected in tun0. 
+The user applications read from this virtual interface and hence get the proper IP packet.
+\begin{itemize}
+    \item Overall Architecture
+    \item Client Architecture
+    \item Proxy Server Architecture
+\end{itemize}
+\vspace{2ex} \newline
+\textbf{Implementation}
+\begin{itemize}
+    \item ICMP is implemented using raw C sockets.
+    \item The checksum is calculated using the algorithm given in RFC 1071.
+    \item Tun driver is used for creating a virtual interface and binding to user space programs.
+    \item The virtual interface is configured through ifconfig.
+    \item route is used to change the routing tables of the client so as to route all traffic to the virtual tunnel interface.
+    \item dd is used to temporarily change the setting of IP forwarding and replying back to ICMP requests on the side of the proxy server.
+    \item iptables is used to set up nat on the server side.
+\end{itemize}
+\vspace{2ex} \newline
+\textbf{Demo}
+Network Setup: 
+Proxy server is connected to eth0. This interface provides full internet connection.
+Both the client and proxy server are connected to wlan0(a WiFi hotspot). This hotspot is configured not to provide any internet connection.
+tun0 will be created in both the client and the proxy server.
+The client will make an HTTP request to dhavalkapil.com.
+Wireshark is used to capture network traffic at both ends on various interface.
+\vspace{1ex} \newline
+\textbf{Screenshots of network traffic}
+\begin{enumerate}
+    \item tun0 on client side. The usual HTTP request is visible along with response.
+    \item wlan0 on client side. All traffic is ICMP. The HTTP/IP packet can be seen as part of the payload of the ICMP packet.
+    \item wlan0 on proxy server side. The ICMP packets sent by the client can be seen.
+    \item tun0 on proxy server side. The HTTP/IP packets are decapsulated and sent through tun0.
+    \item eth0 on proxy server side. The HTTP/IP packets are forwarded to the internet. Notice how the source IP has been masqueraded because of nat.
+\end{enumerate} 
+
+
+%https://github.com/jamesbarlow/icmptunnel
+\section{icmptunnel}
+icmptunnel is a tool to tunnel IP traffic within ICMP echo request and response (ping) packets. 
+It’s intended for bypassing firewalls in a semi-covert way, for example when pivoting inside a network where ping is allowed. 
+It might also be useful for egress from a corporate network to the Internet, although it is quite common for ICMP echo traffic to be filtered at the network perimeter.
+\vspace{1ex} \newline
+While there are a couple of existing tools which implement this technique, icmptunnel provides a more reliable protocol and a mechanism for tunneling through stateful firewalls and NAT.
+\vspace{lex} \newline
+Compiling: 
+The tool uses a plain Makefile to compile and install.
+Use make to compile icmptunnel.
+\vspace{lex} \newline
+Quickstart: First, disable ICMP echo responses on both the client and server. This prevents the kernel from responding to ping packets itself.
+# echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
+\begin{itemize}
+    \item On the server-side, start icmptunnel in server mode, and assign an IP address to the new tunnel interface.
+    \item On the client-side, point icmptunnel at the server, and assign an IP address.
+    \item At this point, you should have a functioning point-to-point tunnel via ICMP packets. The server side is 10.0.0.1, and the client-side is 10.0.0.2. On the client, try connecting to the server via SSH:
+    \item To use the remote server as an encrypted SOCKS proxy:
+    \item Now point your web browser at the local SOCKS server.
+\end{itemize}
+\vspace{lex} \newline
+Further Information: See ./icmptunnel -h for a list of options.
+
+
+%https://github.com/samuelngs/icmp-tunnel 
+Transparently tunnel your IP traffic through ICMP echo and reply packets
+
+
+%https://dhavalkapil.com/icmptunnel/ 
+\section{icmptunnel}
+'icmptunnel' works by encapsulating your IP traffic in ICMP echo packets and sending them to your own proxy server. The proxy server decapsulates the packet and forwards the IP traffic. The incoming IP packets which are destined for the client are again encapsulated in ICMP reply packets and sent back to the client. The IP traffic is sent in the 'data' field of ICMP packets.
+\vspace{1ex}
+RFC 792, which is IETF's rules governing ICMP packets, allows for an arbitrary data length for any type 0 (echo reply) or 8 (echo message) ICMP packets.
+\vspace{1ex} \newline
+So basically the client machine uses only the ICMP protocol to communicate with the proxy server. Applications running on the client machine are oblivious to this fact and work seamlessly.
+\vspace{2ex} \newline
+Use Cases
+\begin{enumerate}
+    \item Bypassing Captive Portals: Many public Wi-Fi use Captive Portals to authenticate users, i.e. after connecting to the Wi-Fi the user is redirected to a webpage that requires a login. icmptunnel can be used to bypass such authentications in transport/application layers.
+    \item Bypassing firewalls: Firewalls are set up in various networks to block certain type of traffic. icmptunnel can be used to bypass such firewall rules. Obfuscating the data payload can also be helpful to bypass some firewalls.
+    \item Encrypted Communication Channel: Adding sufficient encryption to the data, icmptunnel can be used to establish an encrypted communication channel between two host machines.
+\end{enumerate}
+Requirements
+\begin{enumerate}
+    \item A POSIX-compliant host with root access that will be communicating with only ICMP protocol. This will be the client.
+    \item A POSIX-compliant host with root access with full access to the internet. This will act as our proxy server.
+    \item The proxy server should be accessible from the client host.
+\end{enumerate}
+Note: Although icmptunnel has been successfully tested on Ubuntu 14.04 LTS, it should work on others as well.
+\vspace{2ex} \newline
+Step-by-step instructions
+\begin{enumerate}
+    \item Install make on both machines.
+    \item Clone this repository using this command: git clone https://github.com/DhavalKapil/icmptunnel
+    \item Run make:
+    \item On the server side run the tunnel with root privileges: [sudo] ./icmptunnel -s 10.0.1.1
+    \item On the client side, find out your gateway and the corresponding interface: 
+    Edit client.sh and replace <server> with the IP address of the proxy server. <gateway> with gateway address obtained above and similarly for <interface>.
+    \item Check the DNS server at client side. Make sure it does not use any server not accessible by our proxy server. One suggestion is to use 8.8.8.8(Google's DNS server) which will be accessible to the proxy server. You would need to edit your DNS settings for this. You might need to manually delete the route for your local DNS server from your routing table.
+    \item Run the tunnel on your client with root privileges: [sudo] ./icmptunnel -c <server>
+\end{enumerate}
+The tunnel should run and your client machine should be able to access the internet. All traffic will be tunneled through ICMP.
+\vspace{2ex} \newline
+Architecture:
+icmptunnel works by creating a virtual tunnel interface(say tun0). All the user traffic on the client host is routed to tun0. icmptunnel listens on this interface for IP packets. These packets are encapsulated in an ICMP echo packet(i.e. the payload of the ICMP packet is nothing but the original IP packet). This newly generated ICMP packet is sent outside the client machine, to the proxy server, through the restricted internet connection.
+\vspace{1ex} \newline
+The proxy server receives these ICMP packets and decapsulates the original IP packet. This is retransmitted onto the Internet after implementing IP masquerading. Hence, the target believes that its the proxy server making the request. The target then responds back to the proxy server with an IP packet. This is again captured by icmptunnel, encapsulated in an ICMP reply packet and send back to the client.
+\vspace{1ex} \newline
+On the client side, the IP packet is retrieved from the payload of the ICMP reply packet and injected in tun0. The user applications read from this virtual interface and hence get the proper IP packet.
+\vspace{1ex} \newline
+Overall Architecture
+Client Architecture
+Proxy Server Architecture
+\vspace{4ex} \newline
+\textbf{Implementation}
+ICMP is implemented using raw C sockets.
+The checksum is calculated using the algorithm given in RFC 1071.
+Tun driver is used for creating a virtual interface and binding to user space programs.
+The virtual interface is configured through ifconfig.
+route is used to change the routing tables of the client so as to route all traffic to the virtual tunnel interface.
+dd is used to temporarily change the setting of IP forwarding and replying back to ICMP requests on the side of the proxy server.
+iptables is used to set up nat on the server side.
+\vspace{4ex} \newline
+\textbf{Network Setup}
+Proxy server is connected to eth0. This interface provides full internet connection.
+Both the client and proxy server are connected to wlan0(a WiFi hotspot). This hotspot is configured not to provide any internet connection.
+tun0 will be created in both the client and the proxy server.
+The client will make an HTTP request to dhavalkapil.com.
+Wireshark is used to capture network traffic at both ends on various interface.
+\begin{enumerate}
+    \item tun0 on client side The usual HTTP request is visible along with response.
+    \item wlan0 on client side All traffic is ICMP. The HTTP/IP packet can be seen as part of the payload of the ICMP packet.
+    \item wlan0 on proxy server side The ICMP packets sent by the client can be seen.
+    \item tun0 on proxy server side The HTTP/IP packets are decapsulated and sent through tun0.
+    \item eth0 on proxy server side The HTTP/IP packets are forwarded to the internet. Notice how the source IP has been masqueraded because of nat.
+\end{enumerate}
+
+
+%https://github.com/packetgeek/icmptunnel-docker-demo
+\section{icmptunnel-docker-demo}
+\textbf{Setting up an ICMPtunnel demo on Docker}
+Following are my notes on setting up a basic 5-container network to demonstrate the use of an ICMPtunnel. 
+The architecture is based on vanilla Ubuntu containers, OpenVSwitch, iproute2, and the icmptunnel utility by Dhaval Kapil. 
+Links to source material are at the end of this file.
+\begin{itemize}
+    \item Unless otherwise noted, all commands in the below are executed as root.
+    \item It is assumed that you understand the basic use of Docker (the build, run, and exec functions).
+    \item This demo is intended for use by Tidewater Community College's Cyber Club (TC4), for use in creating additional CTF challenges,
+    \item This demo is intended to be built on your desktop machine, which is running Docker and OpenVSwitch. This is because the build script installs a Wireshark container which you will access via http://127.0.0.1:3001. For Ubuntu users, Docker and OpenVSwitch can be installed via:
+\end{itemize}
+apt-get install -y docker.io openvswitch-switch
+\vspace{1ex} \newline
+All other binaries will be installed via the scripts in this repo.
+\begin{itemize}
+    \item Is is recommended that your read and underrstand each script/file before running any of the scripts. I've added commentary to each, to help explain what each command does.
+    \item Credit goes to DgtlCwby (in TCC Discord) for catching my typos and also for an awesome Bash script that runs the captured file through tshark to extract the graphic.
+\end{itemize}
+\vspace{2ex} 
+\textbf{Steps for setup}
+\begin{enumerate}
+    \item If the files aren't already executable, run the following: chmod a+x build build-images client destroy destroy-images proxy get-pcaps
+    \item Create the images via: ./build-images
+    Note: the first time that you run this, it will take a couple minutes to build the 5 local images.
+    \item Deploy the containers by running the build script: ./build
+    \item Check that all 5 containers (wireshark, boxa, boxb, boxc, and boxd) have been deployed, by running: docker ps
+    If not all 5 are running, scroll back through the "./build" script's output and look for errors. If that doesn't show anything untowards, try running: docker logs container_name where "container_name" is the name of the missing container.
+    \item Access the command line of the proxy (running the server end of the tunnel), and create the server end of the tunnel by running:
+    Note: I've created a couple scripts (client, proxy), to access the containers, that will save keystrokes. Look at their source code to see how they work.
+    \item To create the "local" end of the tunnel, access the command line of the client and run: nohup ./icmptunnel -c 10.2.2.2 & 
+    Press "enter" to return to the command line.
+    \item Point your browser at http://127.0.0.1:3001 and resize the window as desired. Select eth1 as the interface. 
+    \item Back in the client command line, run the following: lynx http://192.168.9.2/images.jpeg 
+    Follow the prompts to download the file to disk. If you receive a file called images.jpeg, that is 5662 in size, then it worked. Take a look at your wireshark display. You should notice that the file transfer was made over ICMP.
+    \item You can then grab the pcap or pcapng files (whichever you were using) by running: ./get_pcaps
+    The above will copy the pcap (or pcapng) files from the Wireshark container, to the current working directory (wherever you ran the "get_pcaps" script).
+\end{enumerate}
+
