@@ -1,6 +1,7 @@
 from scapy.all import *
 import threading 
 import argparse
+import mymethods
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--host_ip',type=str, help="L'IP dell host dove ricevere i pacchetti ICMP")
@@ -52,34 +53,15 @@ def packet_callback(packet):
             #print("Proxy IPs: {}".format(proxy_ip))
             event.set()
 
-def print_supportedArguments():
-    print("Controlla di inserire due volte - per gli argomenti")
-    print("Argomenti supportati:") 
-    for action in parser._actions:
-        print("\t{arg}: {help}".format(
-            arg=action.option_strings[0],
-            help=action.help
-        ))
 
-def check_args():
-    try:
-        args, unknown = parser.parse_known_args() 
-        print("Argomenti passati: {}".format(args))
-        if len(unknown) > 0:
-            print("Argomenti sconosciuti: {}".format(unknown))
-            print_supportedArguments()
-            exit(1) 
-        return args
-    except Exception as e:
-        print("Errore: {}".format(e)) 
-        exit(1)
+
 
 if __name__=="__main__":
     print("Main function") 
-    args=check_args()
+    args=mymethods.check_args()
     if args.host_ip is None or args.host_iface is None:
         print("Devi specificare l'IP e l'interfaccia di rete dell host")
-        print_supportedArguments()
+        print(mymethods.supportedArguments)
         exit(0) 
     global sniffer
     try:

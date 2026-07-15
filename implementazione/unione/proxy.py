@@ -64,9 +64,8 @@ def sniffer_timeout():
 
 def callback_vittima(packet):
     print("callback_vittima")
-    global timeout_timer
-    print("Packet received: {}".format(packet.summary()))
-    global ip_vittima
+    global timeout_timer,ip_vittima
+    print("Packet received: {}".format(packet.summary())) 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
         payload = mymethods.calculate(bytes(packet[Raw].load))
         check_sum=mymethods.calculate(b"__CONNECT__ ")
@@ -82,7 +81,6 @@ def callback_vittima(packet):
 def connessione_vittima():
     print("connessione_vittima")
     global ip_vittima, timeout_timer, sniffer
-    ip_vittima="192.168.56.1"
     if ip_vittima is None or ip_vittima=="":
         raise Exception("IP vittima non specificato")
     payload="__CONNECT__ "
@@ -154,7 +152,7 @@ def connessione_attaccante():
         print(f"No reply: {ip_attaccante} is not responding")
         return False
 
-if __name__ == "__main__": 
+if __name__ == "__main__":  
     print("Main function") 
     args=mymethods.check_args(parser) 
     if args.ip_attaccante is None :
@@ -165,6 +163,7 @@ if __name__ == "__main__":
     ip_attaccante=args.ip_attaccante 
     try:
         #exit(0) if not connessione_attaccante() else None
+        ip_vittima="192.168.56.1"
         exit(0) if not connessione_vittima() else None
     except Exception as e:
         print(f"Eccezione: {e}")
