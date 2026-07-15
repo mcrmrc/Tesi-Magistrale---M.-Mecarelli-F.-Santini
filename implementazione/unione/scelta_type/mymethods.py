@@ -645,6 +645,53 @@ class IP_INTERFACE():
             else: return None,None
         raise Exception("iface_from_IP: Argomenti non validi") 
     
+    def _windows_macAddr_src_dsr(ip_address:ipaddress._BaseAddress): 
+        if not IS_TYPE.ipaddress(ip_address):
+            return None 
+        #command_dst2="arp -a | findstr '192.168.1.17'"
+        #restituisce 192.168.1.17  24-77-03-18-7b-74   dinamico
+        comando_mac=f"Get-NetNeighbor -IPAddress {ip_address.compressed} "\
+            "| Where-Object {$_.State -eq 'Reachable' -or $_.State -eq 'Stale'} "\
+            "| Select-Object -First 1 -ExpandProperty LinkLayerAddress " #\ "| Format-Table State, LinkLayerAddress"
+        #print(f"Eseguo comando: {comando_mac}")
+        process=subprocess.run(
+            ["powershell","-Command", comando_mac]
+            ,capture_output=True
+            ,text=True
+        )
+        stdout=process.stdout.strip()
+        stderr=process.stderr.strip()
+        if not stdout: 
+            print(f"Tabella di routing non contiene  MAC address per {ip_address.compressed}") 
+        if stderr or stdout=="":
+            #print(f"Errore nell'esecuzione  del comando: {stderr}") 
+            if ip_address.version==6:
+                scope_id=ip_address.scope_id 
+                while not scope_id: 
+                    scope_id=IP_INTERFACE.get_IPv6_scopeID(ip_address) 
+                    if not scope_id: 
+                        raise Exception(f"get_mac_address: Scope ID non ricavato per l'IP {ip_address.compressed}") 
+                comando_interfaccia=f"(Get-NetIPAddress -IPAddress '{ip_address.compressed}%{scope_id}').InterfaceIndex"
+            elif ip_address.version==4:
+                comando_interfaccia=f"(Get-NetIPAddress -IPAddress '{ip_address.compressed}').InterfaceIndex"
+            else:
+                raise Exception(f"get_mac_address: IP version not supported {ip_address.version}")
+            comando_mac=f"(Get-NetAdapter -InterfaceIndex {comando_interfaccia}).MacAddress"
+            #print("Comando",comando_mac) 
+            process=subprocess.run(
+                ["powershell","-Command", comando_mac]
+                ,capture_output=True
+                ,text=True
+            )
+            stdout=process.stdout.strip() 
+            stderr=process.stderr.strip() 
+            if not stdout: 
+                print("MAC address non ricavato")
+            if stderr or stdout=="":
+                #print(f"Errore nell'esecuzione  del comando: {stderr}") 
+                raise Exception(f"get_mac_address: Impossibile ricavare MAC address per l'IP {ip_address.compressed}")
+        print(f"Output comando:{stdout}")
+    
     def _linux_macAddr_src_dsr(ip_src:ipaddress.IPv4Address=None, ip_dst:ipaddress.IPv4Address=None): 
         if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src)): 
             return None, None 
@@ -693,119 +740,7 @@ class IP_INTERFACE():
             print("MAC address della destinazione non ricavato") 
         return mac_src, mac_dst 
 
-    def _windows_macAddr_src_dsr(ip_src:ipaddress.IPv4Address=None, ip_dst:ipaddress.IPv4Address=None):
-        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src)): 
-            return None, None
-        mac_src,mac_dst=None,None
-        if ip_dst.version!=ip_src.version: 
-            print("Gli indirizzi IP devono essere della stessa versione")
-            return None, None
-        elif ip_dst.version==4 and ip_src.version==4:
-            command_dst=f"(Get-NetNeighbor -IPAddress '{ip_dst.compressed}').LinkLayerAddress" #restituisce MAC address destinazione
-            print(command_dst)
-            process=subprocess.run(
-                ["powershell","-Command", command_dst]
-                ,capture_output=True
-                ,text=True
-            )  
-            mac_dst=process.stdout.strip() 
-            if not mac_dst: 
-                print("MAC address della destinazione non ricavato") 
-            command_src=f"(Get-NetAdapter -Name(Get-NetIPAddress -IPAddress '{ip_src.compressed}').InterfaceAlias).MacAddress "
-            print(command_src)
-            process=subprocess.run(
-                ["powershell","-Command", command_src]
-                ,capture_output=True
-                ,text=True
-            )  
-            mac_src=process.stdout.strip() 
-            if not mac_src: 
-                print("MAC address della sorgente non ricavato")
-            #print(f"Sorgente: {mac_src}, Destinazione {mac_dst}")
-        elif ip_src.version==6 and ip_dst.version==6: 
-            scope_id=ip_src.scope_id 
-            while not scope_id: 
-                scope_id=IP_INTERFACE.get_IPv6_scopeID(ip_src) 
-                if not scope_id: 
-                    raise Exception("_windows_macAddr_src_dsr: Scope ID non ricavato") 
-            command_src=f"(Get-NetAdapter -InterfaceIndex (Get-NetIPAddress -IPAddress '{ip_src.compressed}%{scope_id}').InterfaceIndex).MacAddress"
-            print("Coom mac src",command_src) 
-            process=subprocess.run(
-                ["powershell","-Command", command_src]
-                ,capture_output=True
-                ,text=True
-            )
-            mac_src=process.stdout.strip() 
-            if not mac_src: 
-                print("MAC address della sorgente non ricavato")
-            
-            scope_id=ip_dst.scope_id 
-            while not scope_id: 
-                scope_id=IP_INTERFACE.get_IPv6_scopeID(ip_dst) 
-                if not scope_id: 
-                    raise Exception("_windows_macAddr_src_dsr: Scope ID non ricavato") 
-            command_dst=f"(Get-NetAdapter -InterfaceIndex (Get-NetIPAddress -IPAddress '{ip_dst.compressed}%{scope_id}').InterfaceIndex).MacAddress"
-            print("Coom mac src",command_dst) 
-            process=subprocess.run(
-                ["powershell","-Command", command_dst]
-                ,capture_output=True
-                ,text=True
-            )
-            mac_dst=process.stdout.strip() 
-            if not mac_dst: 
-                print("MAC address della destinazione non ricavato")
-            #print(f"Sorgente: {mac_src}, Destinazione {mac_dst}")
-        else: raise Exception("Versione IP non implementata")
-        return mac_src, mac_dst
-
-    def _windows_macAddr_src_dsr(ip_address:ipaddress._BaseAddress): 
-        if not IS_TYPE.ipaddress(ip_address):
-            return None 
-        #command_dst2="arp -a | findstr '192.168.1.17'"
-        #restituisce 192.168.1.17  24-77-03-18-7b-74   dinamico
-        comando_mac=f"Get-NetNeighbor -IPAddress {ip_address.compressed} "\
-            "| Where-Object {$_.State -eq 'Reachable' -or $_.State -eq 'Stale'} "\
-            "| Select-Object -First 1 -ExpandProperty LinkLayerAddress " #\ "| Format-Table State, LinkLayerAddress"
-        #print(f"Eseguo comando: {comando_mac}")
-        process=subprocess.run(
-            ["powershell","-Command", comando_mac]
-            ,capture_output=True
-            ,text=True
-        )
-        stdout=process.stdout.strip()
-        stderr=process.stderr.strip()
-        if not stdout: 
-            print(f"Tabella di routing non contiene  MAC address per {ip_address.compressed}") 
-        if stderr or stdout=="":
-            #print(f"Errore nell'esecuzione  del comando: {stderr}") 
-            if ip_address.version==6:
-                scope_id=ip_address.scope_id 
-                while not scope_id: 
-                    scope_id=IP_INTERFACE.get_IPv6_scopeID(ip_address) 
-                    if not scope_id: 
-                        raise Exception(f"get_mac_address: Scope ID non ricavato per l'IP {ip_address.compressed}") 
-                comando_interfaccia=f"(Get-NetIPAddress -IPAddress '{ip_address.compressed}%{scope_id}').InterfaceIndex"
-            elif ip_address.version==4:
-                comando_interfaccia=f"(Get-NetIPAddress -IPAddress '{ip_address.compressed}').InterfaceIndex"
-            else:
-                raise Exception(f"get_mac_address: IP version not supported {ip_address.version}")
-            comando_mac=f"(Get-NetAdapter -InterfaceIndex {comando_interfaccia}).MacAddress"
-            #print("Comando",comando_mac) 
-            process=subprocess.run(
-                ["powershell","-Command", comando_mac]
-                ,capture_output=True
-                ,text=True
-            )
-            stdout=process.stdout.strip() 
-            stderr=process.stderr.strip() 
-            if not stdout: 
-                print("MAC address non ricavato")
-            if stderr or stdout=="":
-                #print(f"Errore nell'esecuzione  del comando: {stderr}") 
-                raise Exception(f"get_mac_address: Impossibile ricavare MAC address per l'IP {ip_address.compressed}")
-        print(f"Output comando:{stdout}")
-
-    def get_IPv6_scopeID(ip_addr:ipaddress.IPv6Address=None):
+    def get_IPv6_scopeID(ip_addr:ipaddress.IPv6Address=None): 
         if IS_TYPE.ipaddress(ip_addr) and ip_addr.version==6:
             scope_id=ip_addr.scope_id 
             while not scope_id: 
