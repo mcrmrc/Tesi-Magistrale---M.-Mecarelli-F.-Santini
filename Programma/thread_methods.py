@@ -219,6 +219,12 @@ class THREADING_EVENT:
             raise Exception(f"Impossibile settare una variabile non Event") 
         event.set()
 
+from victim_attack import CONNECTED_PROXY, Victim
+from mymethods import ask_bool_choice, exit_cases
+from network_methods import DEFAULT_INTERFACE 
+from custom_enum import ICMP_TYPE, SENDER_TYPE 
+from scapy.all import IP, ICMP, Raw, AsyncSniffer 
+from attacksingleton import SendSingleton, ReceiveSingleton, _IPx
 class THREAD_VICTIM: 
     class WAIT_CONNECTIONS: 
         def __init__(self, vittima:Victim=None, num_connessioni:int=0, connected_proxy:CONNECTED_PROXY=None):
@@ -272,7 +278,7 @@ class THREAD_VICTIM:
                     icmp="icmp " 
                 elif ip_host.version==6: 
                     icmp="icmp6 " 
-                filter= icmp if not DEBUG else f"({icmp} or tcp)" 
+                filter= icmp #if not DEBUG else f"({icmp} or tcp)" 
                 filter+=f" and ({icmp}[0]=={IPv4_ECHO_REQUEST} or {icmp}[0]=={IPv4_ECHO_REPLY}) "  
                 filter+=f" and dst {ip_host.compressed}"
                 return filter 
