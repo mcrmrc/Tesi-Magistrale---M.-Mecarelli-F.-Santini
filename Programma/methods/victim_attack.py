@@ -1,9 +1,9 @@
 from scapy.all import IP, ICMP, Raw 
 from classes import CALC, ARGS_CONFIG  
 from custom_enum import MSG, ENTITY 
-from Programma.methods.check_type import is_namespace, is_string  
-from Programma.main_entry import Victim 
-from Programma.methods.utils_methods import threadEvent_set, threadEvent_wait
+from ..methods.check_type import is_namespace, is_string  
+from ..main_entry import Victim 
+from ..methods.utils_methods import threadEvent_set, threadEvent_wait
 import argparse, threading, sys, select, ipaddress  
 
 #file_path = "./attacksingleton.py"
