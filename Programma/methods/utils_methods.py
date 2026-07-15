@@ -7,7 +7,7 @@ from methods.check_type import is_enum_member
 class ASK():
     def ip_address():
         input_ip=""
-        while input_ip not in EXIT_CASES: 
+        while input_ip.lower() not in EXIT_CASES: 
             try: 
                 input_ip=input(
                     """Inserire indirizzo IP dell'host. 
@@ -21,7 +21,7 @@ class ASK():
 
     def proxy_port():
         input_port=""
-        while input_port not in EXIT_CASES:
+        while input_port.lower() not in EXIT_CASES:
             try: 
                 input_port=input(
                     "Inserire porta proxy (0-65535):\n\t#"
@@ -35,7 +35,7 @@ class ASK():
 
     def num_proxy(): 
         input_num=""
-        while input_num not in EXIT_CASES:
+        while input_num.lower() not in EXIT_CASES:
             try: 
                 input_num=input(
                     "Inserire numero proxy (1-100):\n\t#"
