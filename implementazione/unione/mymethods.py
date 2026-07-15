@@ -242,3 +242,16 @@ def is_scelta_SI_NO(scelta:str=None):
             is_scelta_yes=True
             break 
     return is_scelta_yes
+
+def print_dictionary(dictionary:dict=None):
+    if not isinstance(dictionary,dict):
+        raise Exception("print_dictionary: Dizionario passato non valido") 
+    elif len(dictionary)<=0:
+        print("Il dizionario è vuoto")
+        return
+    print("Valori presenti:")
+    for key, value in dictionary.items():
+        print(f"\t{key}\t\t{value}") 
+
+
+
