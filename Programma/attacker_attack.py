@@ -207,15 +207,6 @@ class Connected_Proxy:
                 if self.connected_proxy.get(unusable.compressed):
                     self.connected_proxy.pop(unusable.compressed)
             print(f"Rimosso proxy inutilizzabile: {unusable}") 
-#-----------------------------------------  
-def load_config_file(path_of_file): 
-    if not os.path.exists(path_of_file): 
-        raise FileNotFoundError(f"File {path_of_file} non presente")
-    if not str(path_of_file).endswith(".json"): 
-        raise TypeError(f"File {path_of_file} non JSON file") 
-    with open(path_of_file, 'r') as file: 
-        print(f"File di configurazione {path_of_file} caricato correttamente") 
-        return json.load(file) 
 
 class Get_Command_Args: 
     def init__(self, oggetto=None): 
@@ -326,8 +317,94 @@ class ICMP_THREAD:
             #thread.wait()  
             thread.join()  
         print("Thread ICMP terminati")
-#-----------------------------------------  
-default_file_path:str = "./attack_file.json" 
+
+class Get_Config_Args: 
+    default_file_path:str = "./attack_file.json" 
+
+    def __init__(self, file_path:str=None):
+        def load_config_file(path_of_file): 
+            if not os.path.exists(path_of_file): 
+                raise FileNotFoundError(f"File {path_of_file} non presente")
+            if not str(path_of_file).endswith(".json"): 
+                raise TypeError(f"File {path_of_file} non JSON file") 
+            with open(path_of_file, 'r') as file: 
+                print(f"File di configurazione {path_of_file} caricato correttamente") 
+                return json.load(file) 
+        def get_vittima(): 
+            try:
+                ip_vittima=config_file.get("ip_vittima", None) 
+                return ipaddress.ip_address(ip_vittima) 
+            except Exception as e:
+                print(f"get_vittima: {e}") 
+                return None 
+        def get_proxy_list():  
+            proxy_list:list[ipaddress._IPAddressBase]=[]
+            for ip_proxy in config_file.get("proxy_list", []): 
+                try:
+                    proxy_ip=ipaddress.ip_address(ip_proxy)
+                    proxy_list.append(proxy_ip) 
+                except Exception as e:
+                    print(f"get_proxy_list: {e}") 
+            return proxy_list if len(proxy_list)>0 else None
+        def get_attacco(): 
+            attack_type=AttackType.get_attack_method(config_file.get("attack_function")) 
+            for count in range(3):
+                if IS_TYPE.enum(attack_type,AttackType): 
+                    return attack_type 
+                attack_type=AttackType.choose_attack_function() 
+            #raise TypeError("Attacco non valido:",attack_type) 
+            return None
+        def get_ip_host(): 
+            ip_host, errore=NETWORK.IP.find_local_IP() 
+            if errore:
+                print("errore:",errore)  
+                msg="Inserire indirizzo IP dell'host:\n\t#" 
+                ip_host=input(msg) 
+            #self.ip_host=ipaddress.ip_address("192.168.56.104") #TODO eliminare alla fine 
+            for count in range(3):
+                try:
+                    ip_host=ipaddress.ip_address(ip_host) 
+                    return ip_host
+                except Exception as e:
+                    print(f"get_ip_host: {e}") 
+                    print("Indirizzo IP dell'host non valido") 
+                    msg="Inserire indirizzo IP dell'host:\n\t#" 
+                    ip_host=input(msg) 
+            return None 
+        def get_proxy_port(): 
+            proxy_port=int(config_file.get("proxy_port", None) )
+            for count in range(3):
+                if IS_TYPE.integer(proxy_port) and 0<proxy_port<65536: 
+                    return proxy_port 
+                print("Porta proxy non valida")
+                msg="Inserire porta proxy (0-65535):\n\t#"
+                proxy_port=int(input(msg)) 
+            return None
+        def get_num_proxy(): 
+            num_proxy=int(config_file.get("num_proxy", None) )
+            for count in range(3):
+                if IS_TYPE.integer(num_proxy) and 0<num_proxy<100: 
+                    return num_proxy 
+                print("Numero proxy non valido")
+                msg="Inserire numero proxy (1-100):\n\t#"
+                num_proxy=int(input(msg)) 
+            return None
+        #---------------------------
+        config_file=None
+        if IS_TYPE.string(file_path) and file_path.endswith(".json"): 
+            try: 
+                #config_file=load_config_file(file_path) 
+                pass
+            except Exception as e: 
+                print(e) 
+        if not config_file:
+            config_file=load_config_file(self.default_file_path) 
+        self.ip_vittima=get_vittima() 
+        self.proxy_list=get_proxy_list()
+        self.attack_type=get_attacco() 
+        self.ip_host=get_ip_host() 
+        self.proxy_port=get_proxy_port()
+        self.num_proxy=get_num_proxy()  
 
 class Attacker: 
     dati_separati={} 
@@ -337,65 +414,19 @@ class Attacker:
     ip_vittima:ipaddress._IPAddressBase=None
     ip_host:ipaddress._IPAddressBase=None
     
-    def __init__(self): 
-        def get_attacco(): 
-            attack_type=AttackType.get_attack_method(config_file.get("attack_function"))
-            if not IS_TYPE.enum(attack_type,AttackType): 
-                #raise TypeError("attack_type non valido") 
-                attack_type=AttackType.choose_attack_function()  
-            if not IS_TYPE.enum(attack_type, AttackType): 
-                raise TypeError("Attacco non valido:",attack_type) 
-            return attack_type 
-        def get_vittima(): 
-            ip_vittima=ipaddress.ip_address(config_file.get("ip_vittima", None)) 
-            return ip_vittima 
-        def get_ip_host(): 
-            ip_host, errore=NETWORK.IP.find_local_IP() 
-            if errore:
-                print("errore:",errore)  
-                msg="Inserire indirizzo IP dell'host:\n\t#" 
-                ip_host=input(msg) 
-            #self.ip_host=ipaddress.ip_address("192.168.56.104") #TODO eliminare alla fine
-            ip_host=ipaddress.ip_address(ip_host) 
-            return ip_host
-        def get_proxy_list():  
-            proxy_list:list[ipaddress._IPAddressBase]=[]
-            for ip_proxy in config_file.get("proxy_list", []): 
-                try:
-                    proxy_ip=ipaddress.ip_address(ip_proxy)
-                    proxy_list.append(proxy_ip)  
-                except ValueError as e:
-                    print(f"get_proxy_list: {e}") 
-            if len(proxy_list)<=0: 
-                raise ValueError("Lista proxy vuota:",proxy_list) 
-            if any(not IS_TYPE.ipaddress(proxy) for proxy in  proxy_list): 
-                raise ValueError("Uno o più IP Proxy non validi:",proxy_list) 
-            print(f"Lista proxy sanificata") 
-            return proxy_list 
-        #--------------------------
+    def __init__(self):  
         args=Get_Command_Args().args   
         if not IS_TYPE.namespace(args): 
-            exit(-1) 
-        try: 
-            config_file=load_config_file(args.file_path) 
-        except Exception as e: 
-            print(e) 
-            config_file=load_config_file(default_file_path) 
-        self.attack_type=get_attacco() 
-        print("Attacco selezionato:", self.attack_type) 
-        self.ip_vittima=get_vittima() 
-        print(f"IP vittima: {type(self.ip_vittima) } {self.ip_vittima }")
-        self.ip_host=get_ip_host() #prima era None
-        #while not IS_TYPE.ipaddress(self.ip_host): 
-        #    self.ip_host=get_ip_host() 
-        print(f"ip_host: {type(self.ip_host)} {self.ip_host}") 
-        self.connected_proxy=Connected_Proxy(get_proxy_list()) 
+            exit(-1)  
+        if not IS_TYPE.string(args.file_path):
+            config_args=Get_Config_Args(args.file_path) 
+        else: config_args=Get_Config_Args(None) 
+        self.connected_proxy=Connected_Proxy(config_args.proxy_list) 
         print(f"Got all connected proxy") 
         if len(self.connected_proxy.proxy_list)<=0: 
             print("Nessun Proxy disponibile")
-            exit(0) 
-        #--------------------
-        self.connected_proxy.connect2proxies(self.ip_vittima,self.attack_type)
+            exit(0)  
+        self.connected_proxy.connect2proxies(config_args.ip_vittima,config_args.attack_type)
         self.connected_proxy.start() 
         self.connected_proxy.wait() 
         #thread_list=connected_proxy.Proxy_Thread
