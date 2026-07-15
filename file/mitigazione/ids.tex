@@ -1,0 +1,449 @@
+%https://github.com/Veda-Samhitha/Intrusion-Detection-System-
+
+1. Packet Sniffing (Scapy)
+    Captures live packets using scapy
+    Analyzes for ICMP floods and TCP port scan behavior
+2. ICMP Flood Detection
+    Tracks the number of pings (ICMP packets) per IP within a short window
+    Triggers alert if threshold is crossed
+3. TCP Port Scan Detection
+    Tracks how many unique ports an IP hits within 5 seconds
+    If more than 2, it logs a port scan alert
+4. Logging + Real-time Monitoring
+    Alerts are written to alerts_only_log.txt
+    You can monitor new alerts live using alerts_only.py
+
+Cybersecurity Concepts:
+    Intrusion Detection System (IDS)
+    ICMP Flood Detection (Ping Flood)
+    TCP Port Scan Detection
+    Threshold-based alert logic
+    Real-time monitoring & alert logging
+
+%https://medium.com/@pasanglamatamang/network-security-assessment-configuring-and-testing-intrusion-detection-systems-ids-with-icmp-ef18a1922184
+
+IDS sensor to monitor packets on a LAN router’s interface with the outside internetwork. 
+I will be using the Security Onion Linux distribution bundled with Snort IDS as the sensor.
+
+%https://nmap.org/book/subvert-ids.html
+
+If an IDS is suspected or detected, there are many effective techniques for subverting it. 
+They fall into three categories that vary by intrusiveness: 
+avoiding the IDS as if the attacker is not there, confusing the IDS with misleading data, and exploiting the IDS to 
+gain further network privilege or just to shut it down. Alternatively, attackers who are not concerned with stealth 
+can ignore the IDS completely as they pound away at the target network.
+
+\section{Intrusion Detection System Detection}
+Early on in the never-ending battle between network administrators and malicious hackers, administrators defended 
+their turf by hardening systems and even installing firewalls to act as a perimeter barrier. 
+Hackers developed new tools to penetrate or sneak around the firewalls and exploit vulnerable hosts.
+
+While intrusion detection systems are meant to be passive devices, many can be detected by attackers over the network.
+
+The least conspicuous IDS is one that passively listens to network traffic without ever transmitting. 
+Special network tap hardware devices are available to ensure that the IDS cannot transmit, even if it is 
+compromised by attackers. Despite the security advantages of such a setup, it is not widely deployed due to 
+practical considerations. Modern IDSs expect to be able send alerts to central management consoles and the like. 
+If this was all the IDS transmitted, the risk would be minimal. 
+But to provide more extensive data on the alert, they often initiate probes that may be seen by attackers.
+
+\subsection{Reverse probes}
+One probe commonly initiated by IDSs is reverse DNS query of the attacker's IP address. 
+A domain name in an alert is more valuable than just an IP address, after all. 
+Unfortunately, attackers who control their own rDNS (quite common) can watch the logs in real time and learn that they have been detected. 
+This is a good time for attackers to feed misinformation, such as bogus names and cache entries to the requesting IDS.
+
+Some IDSs go much further and send more intrusive probes to the apparent attackers. When an attacker sees his target scan him back, 
+there is no question that he has set off alarms. 
+Some IDSs send Windows NetBIOS information requests back to the attacker.
+
+\subsection{Sudden firewall changes and suspicious packets}
+Many intrusion detection systems have morphed into what marketing departments label intrusion prevention systems. 
+Some can only sniff the network like a normal IDS and send triggered packet responses. 
+The best IPS systems are inline on the network so that they can restrict packet flow when suspicious activity is detected.
+
+For example, an IPS may block any further traffic from an IP address that they believe has port scanned them, 
+or that has attempted a buffer overflow exploit. 
+
+Attackers are likely to notice this if they port scan a system, then are unable to connect to the reported open ports. 
+Attackers can confirm that they are blocked by trying to connect from another IP address.
+
+Suspicious response packets can also be a tip-off that an attacker's actions have been flagged by an IDS. 
+In particular, many IDSs that are not inline on the network will forge RST packets in an attempt to tear down connections.
+
+\subsection{Naming conventions}
+Naming conventions can be another giveaway of IDS presence. 
+If an Nmap list scan returns host names such as realsecure, ids-monitor, or dragon-ids, you may have found an intrusion detection system. 
+The administrators might have given away that information inadvertently, or they may think of it like the alarm 
+stickers on house and car windows. 
+Perhaps they think that the script kiddies will be scared away by IDS-related names. 
+It could also be misinformation. 
+You can never fully trust DNS names
+
+\subsection{Unexplained TTL jumps}
+One more way to detect certain IDSs is to watch for unexplained gaps (or suspicious machines) in traceroutes. 
+While most operating systems include a traceroute command (it is abbreviated to tracert on Windows), Nmap offers a faster and more 
+effective alternative with the --traceroute option. Unlike standard traceroute, Nmap sends its probes in parallel and is able to 
+determine what sort of probe will be most effective based on scan results.
+
+While traceroute is the best-known method for obtaining this information, it isn't the only one. 
+IPv4 offers an obscure option called record route for gathering this information. 
+Due to the maximum IP header size, a maximum of nine hops can be recorded. 
+In addition, some hosts and routers drop packets with this option set.
+
+\subsection{Avoiding Intrusion Detection Systems}
+The most subtle way to defeat intrusion detection systems is to avoid their watchful gaze entirely. 
+The reality is that rules governing IDSs are pretty brittle in that they can often be defeated by manipulating the attack slightly.
+
+Attackers have dozens of techniques, from URL encoding to polymorphic shellcode generators for escaping IDS detection of their exploits. 
+This section focuses on stealthy port scanning, which is even easier than stealthily exploiting vulnerabilities.
+
+\textbf{Slow down}
+When it comes to avoiding IDS alerts, patience is a virtue. Port scan detection is usually threshold based. 
+The system watches for a given number of probes in a certain timeframe. 
+This helps prevent false positives from innocent users.
+
+Examining the handy open-source Snort IDS provides a lesson on sneaking under the radar. 
+Snort has had several generations of port scan detectors. 
+The Flow-Portscan module is quite formidable. 
+A scan that slips by this is likely to escape detection by many other IDSs as well.
+
+The simpler detection method in Flow-portscan is known as the fixed time scale. 
+This simply watches for scanner-fixed-threshold probe packets in scanner-fixed-window seconds. 
+Those two variables, which are set in snort.conf, each default to 15. Note that the counter includes any probes sent 
+from a single machine to any host on the protected network. So quickly scanning a single port on each of 15 protected 
+machines will generate an alert just as surely as scanning 15 ports on a single machine.
+
+It has another detection method, known as sliding time scale. 
+This method is similar to the fixed-window method just discussed, except that it increases the window whenever a new probe from a 
+host is detected. An alarm is raised if scanner-sliding-threshold probes are detected during the window. The window starts at 
+scanner-sliding-window seconds, and increases for each probe detected by the amount of time elapsed so far in the window times 
+scanner-sliding-scale-factor. 
+Those three variables default to 40 probes, 20 seconds, and a factor of 0.5 in snort.conf.
+
+The sliding scale is rather insidious in the way it grows continually as new packets come in. 
+The simplest (if slow) solution would be to send one probe every 20.1 seconds. 
+This would evade both the default fixed and sliding scales.
+You could speed this up by an order of magnitude by sending 14 packets really fast, waiting 20 seconds for the window to expire, 
+then repeating with another 14 probes.
+
+\subsection{Scatter probes across networks rather than scanning hosts consecutively}
+IDSs are often programmed to alarm only after a threshold of suspicious activity has been reached. 
+This threshold is often global, applying to the whole network protected by the IDS rather than just a single host. 
+Occasionally they specifically watch for traffic from a given source address to consecutive hosts. 
+If a host sends a SYN packet to port 139 of host 10.0.0.1, that isn't too suspicious by itself. 
+But if that probe is followed by similar packets to 10.0.0.2, .3, .4, and .5, a port scan is clearly indicated.
+
+One way to avoid triggering these alarms is to scatter probes among a large number of hosts rather than scanning them consecutively.
+Sometimes you can avoid scanning very many hosts on the same network. If you are only conducting a research survey, consider scattering 
+probes across the whole Internet with -iR rather than scanning one large network. 
+The results are likely to be more representative anyway.
+
+In most cases, you want to scan a particular network and Internet-wide sampling isn't enough. 
+Avoiding the consecutive-host probe alarms is easy. Nmap offers the --randomize-hosts option which splits up the target networks into 
+blocks of 16384 IPs, then randomizes the hosts in each block. 
+If you are scanning a huge network, such as class B or larger, you may get better (more stealthy) results by randomizing larger blocks.
+
+\subsection{Fragment packets}
+IP fragments can be a major problem for intrusion detection systems, particularly because the handling of oddities such as overlapping 
+fragments and fragmentation assembly timeouts are ambiguous and differ substantially between platforms. 
+Because of this, the IDS often has to guess at how the remote system will interpret a packet. 
+Fragment assembly can also be resource intensive. 
+For these reasons, many intrusion detection systems still do not support fragmentation very well. 
+Specify the -f to specify that a port scan use tiny (8 data bytes or fewer) IP fragments
+
+\subsection{Evade specific rules}
+Most IDS vendors brag about how many alerts they support, but many (if not most) are easy to bypass. 
+The most popular IDS among Nmap users is the open-source Snort.
+
+Advanced attackers install the IDS they are concerned with on their own network, then alter and test scans in advance 
+to ensure that they do not trigger alarms.
+Snort was only chosen for this example because its rules database is public and it is a fellow open-source network security tool. 
+Commercial IDSs suffer from similar issues.
+
+\subsection{Avoid easily detected Nmap features}
+Some features of Nmap are more conspicuous than others. 
+In particular, version detection connects to many different services, which will often leave logs on those machines 
+and set off alarms on intrusion detection systems. 
+OS detection is also easy to spot by intrusion detection systems, because a few of the tests use 
+rather unusual packets and packet sequences.
+
+One solution for pen-testers who wish to remain stealthy is to skip these conspicuous probes entirely. 
+Service and OS detection are valuable, but not essential for a successful attack. 
+They can also be used on a case-by-case basis against machines or ports that look interesting, rather than probing the 
+whole target network with them.
+
+
+\section{Misleading Intrusion Detection Systems}
+The previous section discussed using subtlety to avoid the watchful eye of intrusion detection systems. 
+An alternative approach is to actively mislead or confuse the IDS with packet forgery. 
+Nmap offers numerous options for effecting this.
+
+\subsection{Decoys}
+Street criminals know that one effective means for avoiding authorities after a crime is to blend into any nearby crowds. 
+The police may not be able to tell the purse snatcher from all of the innocent passersby. 
+In the network realm, Nmap can construct a scan that appears to be coming from dozens of hosts across the world. 
+The target will have trouble determining which host represents the attackers, and which ones are innocent decoys. 
+While this can be defeated through router path tracing, response-dropping, and other active mechanisms, 
+it is generally an effective technique for hiding the scan source.
+
+Decoys are added with the -D option. 
+The argument is a list of hosts, separated by commas. 
+he string ME can be used as one of the decoys to represent where the true source host should appear in the scan order. 
+Otherwise it will be a random position. Including ME in the 6th position or further in the list prevents some common 
+port scan detectors from reporting the activity. 
+For example, Solar Designer's excellent Scanlogd only reports the first five scan sources to avoid flooding its logs with decoys.
+
+\subsection{Port scan spoofing}
+While a huge group of decoys is quite effective at hiding the true source of a port scan, the IDS alerts will make it obvious 
+that someone is using decoys. A more subtle, but limited, approach is to spoof a port scan from a single address. 
+Specify -S followed by a source IP, and Nmap will launch the requested port scan from that given source. No useful 
+Nmap results will be available since the target will respond to the spoofed IP, and Nmap will not see those responses. 
+IDS alarms at the target will blame the spoofed source for the scan.
+
+\subsection{DNS proxying}
+Even the most carefully laid plans can be foiled by one little overlooked detail. 
+If the plan involves ultra-stealth port scanning, that little detail can be DNS. 
+
+Nmap performs reverse-DNS resolution by default against every responsive host. 
+If the target network administrators are the paranoid log-everything type or they have an extremely sensitive IDS, 
+these DNS lookup probes could be detected. 
+Even something as unintrusive as a list scan (-sL) could be detected this way.
+
+The probes will come from the DNS server configured for the machine running Nmap. 
+This is usually a separate machine maintained by your ISP or organization, though it is sometimes your own system.
+
+The most effective way to eliminate this risk is to specify -n to disable all reverse DNS resolution. 
+The problem with this approach is that you lose the valuable information provided by DNS. 
+Fortunately, Nmap offers a way to gather this information while concealing the source.
+
+A substantial percentage of DNS servers on the Internet are open to recursive queries from anyone. 
+Specify one or more of those name servers to the --dns-servers option of Nmap, and all rDNS queries will be proxied through them.
+Keep in mind that forward DNS still uses your host's configured DNS server, so specify target IP addresses rather than domain 
+names to prevent even that tiny potential information leak.
+
+
+\section{DoS Attacks Against Reactive Systems}
+Many vendors are pushing what they call intrusion prevention systems. 
+These are basically IDSs that can actively block traffic and reset established connections that are deemed malicious. 
+These are usually inline on the network or host-based, for greater control over network activity. 
+Other (non-inline) systems listen promiscuously and try to deal with suspicious connections by forging TCP RST packets.
+
+In addition to the traditional IPS vendors that try to block a wide range of suspicious activity, 
+many popular small programs such as Port Sentry are designed specifically to block port scanners.
+
+While blocking port scanners may at first seem like a good idea, there are many problems with this approach. 
+The most obvious one is that port scans are usually quite easy to forge, as previous sections have demonstrated. 
+It is also usually easy for attackers to tell when this sort of scan blocking software is in place, because they will not 
+be able to connect to purportedly open ports after doing a port scan. 
+They will try again from another system and successfully connect, confirming that the original IP was blocked.
+
+Attackers can then use the host spoofing techniques discussed previously (-S option) to cause the target host 
+to block any systems the attacker desires. 
+This may include important DNS servers, major web sites, software update archives, mail servers, and the like. 
+It probably would not take long to annoy the legitimate administrator enough to disable reactive blocking.
+
+While most such products offer a whitelist option to prevent blocking certain important hosts, enumerating them 
+all is extraordinarily difficult. 
+Attackers can usually find a new commonly used host to block, annoying users until the administrator determines 
+the problem and adjusts the whitelist accordingly.
+
+\section{Exploiting Intrusion Detection Systems}
+The most audacious way to subvert intrusion detection systems is to hack them. 
+Many commercial and open source vendors have pitiful security records of product exploitability.
+
+Internet Security System's flagship RealSecure and BlackICE IDS products had a vulnerability which allowed the 
+Witty worm to compromise more than ten thousand installations, then disabled the IDSs by corrupting their filesystems. 
+Other IDS and firewall vendors such as Cisco, Checkpoint, Netgear, and Symantec have suffered serious remotely 
+exploitable vulnerabilities as well.
+
+Open source sniffers have not done much better, with exploitable bugs found in Snort, Wireshark, tcpdump, FakeBO, and many others. 
+Protocol parsing in a safe and efficient manner is extremely difficult, and most of the applications need to parse hundreds of protocols. 
+Denial of service attacks that crash the IDS (often with a single packet) are even more common 
+than these privilege escalation vulnerabilities. 
+A crashed IDS will not detect any Nmap scans.
+
+\section{Ignoring Intrusion Detection Systems}
+While advanced attackers will often employ IDS subversion techniques described in this chapter, the 
+much more common novice attackers (script kiddies) rarely concern themselves with IDSs. 
+Many companies do not even deploy an IDS, and those that do often have them misconfigured or pay little attention to the alerts. 
+An Internet-facing IDS will see so many attacks from script kiddies and worms that a few Nmap scans to locate 
+a vulnerable service are unlikely to raise any flags.
+
+Hackers want to compromise negligently administered and poorly monitored networks that will provide long-lasting nodes for criminal activity.
+Being tracked down and prosecuted is rarely a concern of the IDS-ignoring set. 
+They usually launch attacks from other compromised networks rr they may use anonymous connectivity such as provided by 
+some Internet cafes, school computer labs, libraries, or the prevalent open wireless access points. 
+Throwaway dialup accounts are also commonly used. 
+Even if they get kicked off, signing up again with another (or the same) provider takes only minutes. 
+Many attackers come from Romania, China, South Korea, and other countries where prosecution is highly unlikely.
+
+Internet worms are another class of attack that rarely bothers with IDS evasion. 
+Shameless scanning of millions of IP addresses is preferred by both worms and script kiddies as it 
+leads to more compromises per hour than a careful, targeted approach that emphasizes stealth.
+
+While most attacks make no effort at stealth, the fact that most intrusion detection systems are so easily subverted is a major concern. 
+Skilled attackers are a small minority, but are often the greatest threat. 
+Do not be lulled into complacency by the large number of alerts spewed from IDSs. 
+They cannot detect everything, and often miss what is most important.
+Even skilled hackers sometimes ignore IDS concerns for initial reconnaissance. 
+They simply scan away from some untraceable IP address, hoping to blend in with all of the other 
+attackers and probe traffic on the Internet. 
+After analyzing the results, they may launch more careful, stealthy attacks from other systems.
+
+%https://it.wikipedia.org/wiki/Sistema_di_rilevamento_delle_intrusioni
+Un IDS è composto da quattro componenti:
+\begin{itemize}
+    \item uno o più sensori utilizzati per ricevere le informazioni dalla rete o dai computer
+    \item un motore che analizza i dati prelevati dai sensori e provvede a individuare eventuali falle nella sicurezza informatica.
+    \item una console utilizzata per monitorare lo stato della rete e dei computer
+    \item un database cui si appoggia il motore di analisi e dove sono memorizzate una serie di regole utilizzate per identificare violazioni della sicurezza.
+\end{itemize}
+Esistono diversi tipi di IDS che si differenziano a seconda del loro compito specifico e dei metodi usati per individuare violazioni della sicurezza. 
+Il più semplice IDS è un dispositivo che integra tutte le componenti in un solo apparato.
+
+Un IDS consiste quindi in un insieme di tecniche e metodi realizzati ad-hoc per rilevare pacchetti dati sospetti a livello di rete, di trasporto o di applicazione.
+
+Due sono le categorie base: sistemi basati sulle firme (signature) e sistemi basati sulle anomalie (anomaly).
+\begin{itemize}
+    \item La tecnica basata sulle firme è in qualche modo analoga a quella per il rilevamento dei virus, che permette di bloccare file infetti e si tratta della tecnica più utilizzata. 
+    \item  sistemi basati sul rilevamento delle anomalie utilizzano un insieme di regole che permettono di distinguere ciò che è "normale" da ciò che è "anormale".
+\end{itemize}
+L'IDS non cerca di bloccare le eventuali intrusioni, cosa che spetta al firewall, ma cerca di rilevarle laddove si verifichino.
+
+
+Le tecniche di rilevamento intrusione possono essere divise in misuse detection, 
+che usano pattern di attacchi ben conosciuti o di punti deboli del sistema per identificare le intrusioni, 
+ed in anomaly detection, che cercano di determinare una possibile deviazione dai pattern stabiliti di utilizzazione normale del sistema
+
+Un misuse detection system, conosciuto anche come signature based intrusion detection system, 
+identifica le intrusioni ricercando pattern nel traffico di rete o nei dati generati dalle applicazioni.
+Questi sistemi codificano e confrontano una serie di segni caratteristici (signature action) dei vari tipi di scenari di intrusione conosciute.
+\begin{itemize}
+    \item I principali svantaggi di tali sistemi sono che i pattern di intrusione conosciuti richiedono normalmente di essere 
+    inseriti manualmente nel sistema, ma il loro svantaggio è soprattutto di non essere in grado di rilevare qualsiasi futuro 
+    (quindi sconosciuto) tipo di intrusione se esso non è presente nel sistema.
+    \item Il grande beneficio che invece hanno è quello di generare un numero relativamente basso di falsi positivi e 
+    di essere adeguatamente affidabili e veloci.
+\end{itemize}
+
+Per ovviare al problema delle mutazioni sono nati gli anomaly based intrusion detection system, 
+che analizzano il funzionamento del sistema alla ricerca di anomalie. 
+Questi sistemi fanno uso di profili (pattern) dell'utilizzo normale del sistema ricavati da misure statistiche ed euristiche 
+sulle caratteristiche dello stesso, per esempio, la cpu utilizzata e le attività di i/o di un particolare utente o programma. 
+Le anomalie vengono analizzate e il sistema cerca di definire se sono pericolose per l'integrità del sistema.
+
+Gli IDS si possono suddividere anche a seconda di cosa analizzano: 
+esistono gli IDS che analizzano le reti locali, quelli che analizzano gli Host e gli IDS ibridi che analizzano la rete e gli Host.
+
+
+A differenza del firewall che, con una lista di controllo degli accessi, definisce un insieme di regole che i pacchetti devono 
+rispettare per entrare o per uscire dalla rete locale, un IDS controlla lo stato dei pacchetti che 
+girano all'interno della rete locale confrontandolo con situazioni pericolose già successe prima o 
+con situazioni di anomalia definite dall'amministratore di sistema.
+Un firewall può bloccare un pacchetto, mentre un IDS agisce in modo passivo, cioè quando rileva la 
+presenza di un'anomalia genera un allarme senza però bloccarla.
+
+%https://en.wikipedia.org/wiki/Intrusion_detection_system
+An intrusion detection system (IDS) is a device or software application that monitors a network or 
+systems for malicious activity or policy violations.
+Any intrusion activity or violation is typically either reported to an administrator or collected centrally.
+
+The most common classifications are network intrusion detection systems (NIDS) and host-based intrusion detection systems (HIDS). 
+A system that monitors important operating system files is an example of an HIDS, while a system 
+that analyzes incoming network traffic is an example of an NIDS.
+
+It is also possible to classify IDS by detection approach. 
+The most well-known variants are signature-based detection (recognizing bad patterns, such as exploitation attempts) and 
+anomaly-based detection (detecting deviations from a model of "good" traffic, which often relies on machine learning).
+
+Some IDS products have the ability to respond to detected intrusions. 
+Systems with response capabilities are typically referred to as an intrusion prevention system (IPS).
+
+Intrusion prevention systems (IPS), also known as intrusion detection and prevention systems (IDPS), are network security 
+appliances that monitor network or system activities for malicious activity. 
+The main functions of intrusion prevention systems are to identify malicious activity, 
+log information about this activity, report it and attempt to block or stop it.
+
+
+%https://www.geeksforgeeks.org/intrusion-detection-system-ids/
+Intrusion is when an attacker gets unauthorized access to a device, network, or system. 
+Cyber criminals use advanced techniques to sneak into organizations without being detected.
+
+Intrusion Detection System (IDS) observes network traffic for malicious transactions and sends immediate alerts when it is observed. 
+It is software that checks a network or system for malicious activities or policy violations.
+
+Common Methods of Intrusion
+\begin{itemize}
+    \item Address Spoofing: Hiding the source of an attack by using fake or unsecured proxy servers making it hard to identify the attacker.
+    \item Fragmentation: Sending data in small pieces to slip past detection systems.
+    \item Pattern Evasion: Changing attack methods to avoid detection by IDS systems that look for specific patterns.
+    \item Coordinated Attack: Using multiple attackers or ports to scan a network, confusing the IDS and making it hard to see what is happening.
+\end{itemize}
+
+An IDS (Intrusion Detection System) monitors the traffic on a computer network to detect any suspicious activity.
+It analyzes the data flowing through the network to look for patterns and signs of abnormal behavior.
+The IDS compares the network activity to a set of predefined rules and patterns to identify any activity that might indicate an attack or intrusion.
+If the IDS detects something that matches one of these rules or patterns, it sends an alert to the system administrator.
+The system administrator can then investigate the alert and take action to prevent any damage or further intrusion.
+
+ Intrusion Detection System are classified into 5 types:
+ \begin{itemize}
+    \item Network Intrusion Detection System (NIDS): NIDS are set up at a planned point within the network to examine traffic from all devices on the network. 
+    It performs an observation of passing traffic on the entire subnet and matches the traffic that is passed on the subnets to the collection of known attacks.
+    Once an attack is identified or abnormal behavior is observed, the alert can be sent to the administrator
+    \item Host Intrusion Detection System (HIDS): HIDS run on independent hosts or devices on the network.
+    It monitors the incoming and outgoing packets from the device only and will alert the administrator if suspicious or malicious activity is detected.
+    \item Hybrid Intrusion Detection System: HIDS is made by the combination of two or more approaches to the intrusion detection system. 
+    In the hybrid intrusion detection system, the host agent or system data is combined with network information to develop a complete view of the network system.
+    \item Application Protocol-Based Intrusion Detection System (APIDS): APIDS is a system or agent that generally resides within a group of servers. 
+    It identifies the intrusions by monitoring and interpreting the communication on application-specific protocols. 
+    For example, this would monitor the SQL protocol explicitly to the middleware as it transacts with the database in the web server.
+    \item Protocol-Based Intrusion Detection System (PIDS):  It comprises a system or agent that would consistently reside at the front end of a server, controlling and interpreting the protocol between a user/device and the server.
+    \item Signature-Based Detection: Signature-based detection checks network packets for known patterns linked to specific threats. A signature-based IDS compares packets to a database of attack signatures and raises an alert if a match is found.
+ \end{itemize}
+
+Intrusion Detection System Evasion Techniques
+\begin{itemize}
+    \item Fragmentation: Dividing the packet into smaller packet called fragment and the process is known as fragmentation.
+    \item Packet Encoding: Encoding packets using methods like Base64 or hexadecimal can hide malicious content from signature-based IDS.
+    \item Traffic Obfuscation: By making message more complicated to interpret, obfuscation can be utilised to hide an attack and avoid detection.
+    \item Encryption: Several security features such as data integrity, confidentiality, and data privacy, are provided by encryption. Unfortunately, security features are used by malware developers to hide attacks and avoid detection.
+\end{itemize}
+
+Detection Method of IDS
+$\bullet$
+Signature-Based Method: Signature-based IDS detects the attacks on the basis of the specific patterns such as the number of bytes or 
+a number of 1s or the number of 0s in the network traffic. 
+It also detects on the basis of the already known malicious instruction sequence that is used by the malware. 
+The detected patterns in the IDS are known as signatures. 
+Signature-based IDS can easily detect the attacks whose pattern (signature) already exists in the system but it is 
+quite difficult to detect new malware attacks as their pattern (signature) is not known.
+$\bullet$
+Anomaly-Based Method: Anomaly-based IDS was introduced to detect unknown malware attacks as new malware is developed rapidly. 
+In anomaly-based IDS there is the use of machine learning to create a trustful activity model and anything coming is compared 
+with that model and it is declared suspicious if it is not found in the model. 
+The machine learning-based method has a better-generalized property in comparison to signature-based IDS as these models 
+can be trained according to the applications and hardware configurations.
+
+
+\subsection{Vantaggi}
+\subsection{Svantaggi}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
