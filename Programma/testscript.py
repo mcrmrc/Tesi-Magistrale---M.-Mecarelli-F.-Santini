@@ -1,23 +1,7 @@
-from scapy.all import * 
-from scapy.all import IP, ICMP, Raw 
-
-import ipaddress
-import sys 
-import os 
-import argparse  
-import threading 
-import json 
-import socket 
-
-file_path = "../mymethods.py"
-directory = os.path.dirname(file_path)
-sys.path.insert(0, directory)
-import mymethods 
-
-file_path = "./attacksingleton.py"
-directory = os.path.dirname(file_path)
-sys.path.insert(0, directory)
-import attacksingleton 
+#file_path = "../mymethods.py"
+#directory = os.path.dirname(file_path)
+#sys.path.insert(0, directory)
+#import mymethods  
 
 data="echo 'Ciao'".encode()
 
