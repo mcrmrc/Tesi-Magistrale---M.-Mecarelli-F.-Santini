@@ -25,103 +25,18 @@ END_DATA="__END_DATA__"
 
 exit_cases=["exit","quit",END_COMMUNICATION]
 
-#------------------------
-def is_callback_function(callback_function=None):
-    #the type of a function can be 'function' or 'method'
-    if callable(callback_function): 
-        return True
-    print(f"is_callback_function: Callback function invalida {callback_function}") 
-    return False 
 
-def is_valid_ipaddress(ip_address:ipaddress.IPv4Address): 
-    if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
-        return True
-    elif isinstance(ip_address, str):
-        try:
-            ipaddress.ip_address(ip_address) 
-            return True
-        except Exception as e:
-            print(f"is_valid_ipaddress: {e}", file=sys.stderr)  
-            return False 
-    else: return False
-
-def is_valid_time(timeout_time:int|float=None):    
-    if isinstance(timeout_time, (int, float)): 
-        return True
-    print(f"is_valid_time: Tempo non accettato {timeout_time}")  
-    return False 
-
-def is_threading_Event(event:threading.Event=None):
-    if isinstance(event, threading.Event): 
-        return True
-    print(f"is_threading_Event: event non è un threading.Event {type(event)}") 
-    return False 
-
-def is_dictionary(args:dict=None):
-    if isinstance(args, dict):
-        return True
-    print(f"is_dictionary: Argomenti non validi {args}") 
-    return False
-    
-def is_AsyncSniffer(sniffer:AsyncSniffer=None):
-    if isinstance(sniffer,AsyncSniffer): 
-        return True
-    print(f"is_AsyncSniffer: lo sniffer non è valido {sniffer}") 
-    return False 
-
-def is_threading_Timer(timer:threading.Timer=None):
-    if isinstance(timer, threading.Timer): 
-        return True
-    print(f"is_threading_Timer: timer non è un threading.Timer {type(timer)}")
-    return False 
-
-def is_list(lista:list=None):
-    if isinstance(lista,list): 
-        return True  
-    print(f"is_list: lista non è una lista {lista}") 
-    return False
-    
-def is_string(stringa:str=None):
-    if isinstance(stringa,str):
-        return True
-    print(f"is_string: stringa non valida {stringa}")
-    return False 
-
-def is_bytes(byte:bytes=None):
-    if isinstance(byte,bytes): 
-        return True
-    print(f"is_bytes: byte non valido {byte}") 
-    return False 
-
-def is_integer(integer:int=None):
-    if isinstance(integer,int): 
-        return True
-    print(f"is_integer: int non valido {integer}")
-    return False 
-
-def is_boolean(booleano:bool=None):
-    if isinstance(booleano,bool): 
-        return True
-    print(f"is_boolean: booleano non valido {booleano}")
-    return False 
-
-def is_threading_lock(lock:threading.Lock=None):
-    if isinstance(lock,type(threading.Lock())): 
-        return True
-    print(f"is_threading_lock: lock non valido {lock}")
-    return False 
-
-def is_valid_shell(shell:subprocess.Popen[str]=None):
-    if isinstance(shell, subprocess.Popen): 
-        return True
-    print(f"is_valid_shell: shell non valida {shell}")
-    return False 
-
-def is_IPAddress(ip_address:ipaddress.IPv4Address|ipaddress.IPv6Address):
-    if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
-        return True
-    print(f"is_IPAddress: Non è istanza ne di IPv4Address ne di IPv6Address: {type(ip_address)}")
-    return False 
+def check_ipaddress(ip_address:ipaddress.IPv4Address): 
+        if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
+            return True 
+        elif isinstance(ip_address, str):
+            try:
+                ipaddress.ip_address(ip_address) 
+                return True
+            except Exception as e:
+                print(f"is_valid_ipaddress: {e}", file=sys.stderr)  
+                return False 
+        else: return False 
 
 #------------------------
 def check_args_sniffer(args:dict=None): 
