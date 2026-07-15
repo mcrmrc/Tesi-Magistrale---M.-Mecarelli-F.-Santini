@@ -274,8 +274,9 @@ class SendSingleton:
                 case _: raise Exception(f"Tipologia non conosciuta: {self.tipologia}") 
         else: raise Exception("IP destinazione non valido: ",ip_dst)
         self.send_host_attivi(ip_dst) 
-        ip_src=ipaddress.ip_address(random.choice(self.host_attivi)).compressed if self.host_attivi else None
         for i in range(0, len(data), block_size): 
+            ip_src=ipaddress.ip_address(random.choice(self.host_attivi)) if self.host_attivi else None
+            print("IP_SRC:",ip_src)
             if self.use_delay: 
                 print("#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n"+"#"*10+"\n")
                 print("Waiting...")
@@ -620,7 +621,7 @@ class IPV4_INFORMATION(_IPx):
         if not self.interface:
             self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4: #ip_src:ipaddress.IPv4Address=None
-            raise Exception("ip_src non valido") 
+            raise Exception("ip_src non valido",ip_src) 
         for index in range(0, len(data), 2): 
             if index==len(data)-1 and len(data)%2!=0:
                 icmp_id=(data[index]<<8)
@@ -678,7 +679,7 @@ class IPV4_TIMESTAMP(_IPx):
         if not self.interface:
             self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface  
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), 5): 
             try:
                 icmp_id=icmp_id=(data[index]<<8)+data[index+1]  
@@ -767,7 +768,7 @@ class IPV4_REDIRECT(_IPx):
         if not self.interface:
             self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface     
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), 9): 
             #icmp_id=(data[index]<<8)+data[index+1]
             dummy_ip=IP(src="192.168.1.10", dst="8.8.8.8", proto=1 ,
@@ -879,7 +880,7 @@ class IPV4_SOURCE_QUENCH(_IPx):
             step_data=13
         else: step_data=9
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), step_data): 
             if type_attacco.name.endswith("_unused"): pkt=get_packet_unused()
             else: pkt=get_packet()
@@ -990,7 +991,7 @@ class IPV4_PARAMETER_PROBLEM(_IPx):
             step_data=13
         else: step_data=10 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), step_data): 
             if type_attacco.name.endswith("_unused"): pkt=get_packet_unused()
             else: pkt=get_packet()
@@ -1092,7 +1093,7 @@ class IPV4_TIME_EXCEEDED(_IPx):
             step_data=13
         else: step_data=9 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4: 
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), step_data):
             if step_data==13: pkt=get_packet_unused()
             else: pkt=get_packet()
@@ -1200,7 +1201,7 @@ class IPV4_DESTINATION_UNRECHABLE(_IPx):
             step_data=13
         else: step_data=9 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), step_data):
             #if step_data==13: pkt=get_packet_unused()
             if type_attacco.name.endswith("_unused"): pkt=get_packet_unused()
@@ -1339,7 +1340,7 @@ class IPV4_ECHO(_IPx):
             step_data=random.choice([32+2,64+2,128+2])
         else: raise Exception("args non valido") 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         identifier=0
         for index in range(0, len(data), step_data): 
             #if step_data==2: pkt=get_packet_campi()
@@ -1457,9 +1458,7 @@ class IPV4_TIMING(_IPx):
         if not self.interface:
             self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
-        if not ip_src: 
-            raise ValueError("ip_src non valido") 
+            raise Exception("ip_src non valido",ip_src)   
         pkt= Ether(dst=self.dst_mac)/\
             IP(dst=self.ip_dst.compressed)/\
             ICMP(type=ICMP_TYPE.v4_Echo_Reply.value, id=125, seq=225)/\
@@ -1606,7 +1605,7 @@ class IPV4_TIMING_8BIT(_IPx):
             Raw("hello neighour!!!") 
         sendp(pkt, verbose=1, iface=interface) 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for byte in data:   
             delay=self.min_delay+(byte/255)*(self.max_delay-self.min_delay)
             print(f"Delay :{byte}\t{delay}\n")
@@ -1758,7 +1757,7 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
             Raw(load=(0).to_bytes(signed=True)) 
         sendp(pkt, verbose=1, iface=self.interface) 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=4:  
-            raise Exception("ip_src non valido")  
+            raise Exception("ip_src non valido",ip_src)  
         for byte in data:   
             delay=self.min_delay+(byte/255)*(self.max_delay-self.min_delay)
             #print(f"Delay:{chr(byte)} {byte}\t{delay}") 
@@ -1819,9 +1818,7 @@ class IPV6_ECHO(_IPx):
         if not self.interface: 
             raise ValueError("interface non valida") 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=6:  
-            raise Exception("ip_src non valido")  
-        if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise Exception("ip_src non valido",ip_src)   
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -1845,7 +1842,7 @@ class IPV6_ECHO(_IPx):
     def send_last(self): 
         ip_src=NETWORK.IP.find_local_IP() 
         if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise ValueError("ip_src non valido",ip_src)
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -1896,12 +1893,10 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
         if not self.dst_mac: 
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
-            raise ValueError("interface non valida")
+            raise ValueError("interface non valida") 
+        #ip_src=NETWORK.IP.find_local_IP()  
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=6:  
-            raise Exception("ip_src non valido")  
-        #ip_src=NETWORK.IP.find_local_IP() 
-        if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise Exception("ip_src non valido",ip_src)  
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -1935,7 +1930,7 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
     def send_last(self): 
         ip_src=NETWORK.IP.find_local_IP() 
         if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise ValueError("ip_src non valido",ip_src)
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -1999,9 +1994,7 @@ class IPV6_TIME_EXCEEDED(_IPx):
         if not self.interface: 
             raise ValueError("interface non valida") 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=6:  
-            raise Exception("ip_src non valido")  
-        if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise Exception("ip_src non valido",ip_src)   
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -2031,7 +2024,7 @@ class IPV6_TIME_EXCEEDED(_IPx):
     def send_last(self): 
         ip_src=NETWORK.IP.find_local_IP() 
         if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise ValueError("ip_src non valido",ip_src)
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -2084,7 +2077,7 @@ class IPV6_PACKET_BIG(_IPx):
     def wait(self, type_list:list[int]=None):      
         super().wait([self.PACKET_BIG]) 
     
-    def send(self, data:bytes=None, p_src:ipaddress.IPv4Address=None): 
+    def send(self, data:bytes=None, ip_src:ipaddress.IPv4Address=None): 
         if not IS_TYPE.bytes(data): 
             raise TypeError("data non bytes") 
         if not IS_TYPE.ipaddress(self.ip_dst) or self.ip_dst.version!=6: 
@@ -2094,9 +2087,7 @@ class IPV6_PACKET_BIG(_IPx):
         if not self.interface: 
             raise ValueError("interface non valida") 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=6:  
-            raise Exception("ip_src non valido")  
-        if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise Exception("ip_src non valido",ip_src)   
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -2129,7 +2120,7 @@ class IPV6_PACKET_BIG(_IPx):
     def send_last(self): 
         ip_src=NETWORK.IP.find_local_IP() 
         if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise ValueError("ip_src non valido",ip_src)
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -2193,9 +2184,7 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
         if not self.interface: 
             raise ValueError("interface non valida")
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=6:  
-            raise Exception("ip_src non valido")  
-        if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise Exception("ip_src non valido",ip_src)   
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -2221,7 +2210,7 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
     def send_last(self): 
         ip_src=NETWORK.IP.find_local_IP() 
         if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise ValueError("ip_src non valido",ip_src)
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
@@ -2335,9 +2324,7 @@ class IPV6_TIMING(_IPx):
         if not self.interface: 
             raise ValueError("interface non valida") 
         if not IS_TYPE.ipaddress(ip_src) or ip_src.version!=6:  
-            raise Exception("ip_src non valido")  
-        if not IS_TYPE.ipaddress(ip_src): 
-            raise ValueError("ip_src non valido")
+            raise Exception("ip_src non valido",ip_src)   
         src_mac=(
             NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
