@@ -1,7 +1,11 @@
 \begin{frame} [fragile]
 \frametitle{Implementazione Storage Covert Channel}
-Siccome la risorsa condivisa sarà il pacchetto ICMP, il destinatario, potrà 
-ricavare i dati leggendo i valori presenti nei suoi campi. 
+In questo Storage Covert Channel la risorsa condivisa 
+sarà il pacchetto ICMP inviato. Il mittente 
+memorizzerà i dati da esfiltrare nei campi presenti 
+nel messaggio mentre il destinatario, una volta 
+ricevuto, leggerà i valori codificati all'interno dei 
+pacchetti. 
 \scriptsize 
 \begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
     \hline 

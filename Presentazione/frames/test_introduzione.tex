@@ -1,72 +1,103 @@
-\begin{frame}
+\begin{frame} [fragile]
 \frametitle{Test e Risultati} 
-I test potranno variare in base a determinate caratteristiche: 
-\begin{itemize}
-    \item La \textbf{quantità di dati inviati} 
-    (che saranno 1KB, 10KB, 100KB, 1MB). 
-    \item I \textbf{campi usati} dal Covert Channel 
-    nei messagi ICMP. 
-    \item Il \textbf{delay fra i blocchi di dati}. 
-    Si può decidere se avere un delay fra l'invio di 
-    un blocco e il successivo oppure un invio 
-    sequenziale dei dati. 
-    \item Tempo di \textbf{attesa prima di un nuovo 
-    invio} dei dati (che potra esse 1 ora, 30 minuti, 
-    15 minuti). 
-    \item Il \textbf{mittente del messaggio}. Si 
-    può usare il mittente reale oppure si inserisce 
-    come mittente l'indirizzo IP di un altro host. 
-\end{itemize} 
-Il Covert Channel utilizzato durante la fase di test 
-è quello che utilizza i messaggi ICMP ECHO. 
-\end{frame} 
-
-\begin{frame}
-\frametitle{Test con singolo invio dei dati}
-In questi test i dati sono stati mandati una singola 
-volta. I blocchi dei dati sono da 1024 bytes 
-($\approx\text{1KB}$). 
-\scriptsize
-\begin{longtable}{|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|} 
-    %\hline
-    %\textbf{Covert Channel} & \multicolumn{4}{c|}{\textbf{Quantità dei dati}} \\
-    %\hline 
-    %\noalign{\vskip 2ex}
-    \cline{2-5}
-    \multicolumn{1}{c|}{} & 1 KB & 10 KB & 100 KB & 1 MB \\ \cline{2-5}
-    \hline 
-    Campo ID & Non presente & Non presente & Non presente & Non presente \\ \hline 
-    Campo ID + delay & Non presente & Non presente & Non presente & Low \\ \hline 
-    %\hline
-    Campo ID + payload fisso & Non presente & Non presente & Non presente & Non presente \\ \hline 
-    Campo ID + payload fisso + delay & Non presente & Non presente & Non presente & Low \\ \hline 
-    %\hline
-    Payload fisso & Non presente & Non presente & Non presente & Non presente \\ \hline  
-    Payload fisso + delay & Non presente & Non presente & Non presente & Low \\ \hline  
-    %\hline
-    Payload randomico & Non presente & Non presente & Non presente & None \\ \hline 
-    Payload randomico + delay & Non presente & Non presente & Non presente & Low \\ \hline 
-\caption{Test tramite un singolo invio dei dati}  
-\end{longtable}  
-\end{frame} 
-
-\begin{frame} 
-\frametitle{Test con invvii multipli dei dati}
-In questi test si invierà per tre volte lo stesso 
-dato. L'esfiltrazione dei dati avverrà tramite messaggi 
-ICMP Echo sfruttando il campo payload. Quest'ultimo, 
-rispetto al campo Identifier, riesce a contenere una 
-quantità maggiore di dati. 
+Inizialmente si sono effettuati test in cui si inviava 
+il dato una singola volta. Dai risultati ottenuti si 
+ottiene che RITA non ha mostrato la presenza dei 
+Covert Channel. 
+%siccome i dati sono stati mandati 
+%una singola volta. 
 \vspace{2ex} \newline 
-Dal primo test si ricavano i seguenti risultati: 
-\begin{itemize} 
-    \item tempi di attesa estremamente brevi o 
-    estremamente lunghi sono da preferire. 
-    \item il cambio di mittenti per ogni pacchetto  
-    senza un tempo di attesa adeguato, viene visto 
-    da RITA come un impulso di comunicazione. 
-\end{itemize}
+Uno step successivo per l'esecuzione dei test è l'invio 
+degli stessi dati più volte (in particolare tre volte). 
+Inoltre al test si aggiungeranno dei parametri così da 
+poter verificare meglio cosa avviene. L'obbiettivo è 
+determinare come RITA risponde alle comunicazioni con 
+queste caratteristiche. 
+\scriptsize 
+\begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|} 
+    \hline 
+    \textbf{Parametro} & \textbf{Possibili valori} \\
+    \hline 
+    Quantità di dati inviati & 1KB, 10KB, 100KB, 1MB \\  \hline  
+    L'utilizzo dei campi usati nei messagi ICMP & unused, data \\ \hline 
+    Delay fra i blocchi di dati &  Nessuno, 15 secondi \\ \hline 
+    Attesa prima di un nuovo invio & 1 ora, 30 minuti, 15 minuti \\  \hline  
+    Il mittente del messaggio & IP dell'host, IP assegnati nell rete, IP non assegnati nella rete \\ \hline 
+    \caption{Parametri usati nei test} 
+\end{longtable} 
+%Il Covert Channel utilizzato durante la fase di test 
+%è quello che utilizza i messaggi ICMP ECHO. 
 \end{frame} 
+\begin{frame}
+Principalmente  i test avverranno esfiltrando i dati 
+tramite messaggi ICMP Echo nei quali verrà sfruttato 
+il campo payload per l'inserimento deille informazioni. 
+\vspace{1ex} \newline 
+Dai risultati ottenuti si nota che  l'uso di ulteriori 
+mittenti (oltre a quello assegnato all'host), permette 
+di ridurre la gravità assegnata alla connessione e in 
+alcuni casi anche il Beacon score. 
+\vspace{1ex} \newline 
+Dai testi risulta anche che un tempo di attesa 
+(abbastanza lungo) fra un esfiltrazione e la successiva 
+diminuisce la gravità assegnata alla comunicazione 
+(oltre al suo Beacon Score).  
+\vspace{1ex} \newline 
+Dall'analisi dei test risulta anche che un invio 
+sequenziale dei dati sembra un metodo efficace per 
+non essere rilevati. Tuttavia l'efficacia sarà 
+determinata anche in base alla dimensione di dati che 
+si vuole esfiltrare. 
+\end{frame} 
+
+
+
+%\begin{frame}
+%\frametitle{Test con singolo invio dei dati}
+%In questi test i dati sono stati mandati una singola 
+%volta. I blocchi dei dati sono da 1024 bytes 
+%($\approx\text{1KB}$). 
+%\scriptsize
+%\begin{longtable}{|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|p{0.16\textwidth}|} 
+%    %\hline
+%    %\textbf{Covert Channel} & \multicolumn{4}{c|}{\textbf{Quantità dei dati}} \\
+%    %\hline 
+%    %\noalign{\vskip 2ex}
+%    \cline{2-5}
+%    \multicolumn{1}{c|}{} & 1 KB & 10 KB & 100 KB & 1 MB \\ \cline{2-5}
+%    \hline 
+%    Campo ID & Non presente & Non presente & Non presente & Non presente \\ \hline 
+%    Campo ID + delay & Non presente & Non presente & Non presente & Low \\ \hline 
+%    %\hline
+%    Campo ID + payload fisso & Non presente & Non presente & Non presente & Non presente \\ \hline 
+%    Campo ID + payload fisso + delay & Non presente & Non presente & Non presente & Low \\ \hline 
+%    %\hline
+%    Payload fisso & Non presente & Non presente & Non presente & Non presente \\ \hline  
+%    Payload fisso + delay & Non presente & Non presente & Non presente & Low \\ \hline  
+%    %\hline
+%    Payload randomico & Non presente & Non presente & Non presente & None \\ \hline 
+%    Payload randomico + delay & Non presente & Non presente & Non presente & Low \\ \hline 
+%\caption{Test tramite un singolo invio dei dati}  
+%\end{longtable}  
+%\end{frame} 
+
+%\begin{frame} 
+%\frametitle{Test con invii multipli dei dati}
+%In questi test si invierà per tre volte lo stesso 
+%dato. In essi l'esfiltrazione dei dati avverrà 
+%principalmente tramite messaggi ICMP Echo nei quali 
+%verrà sfruttato il campo payload per l'inserimento 
+%deille informazioni.
+%\vspace{2ex} \newline 
+%Dal primo test si ricavano i seguenti risultati: 
+%\begin{itemize} 
+%    \item tempi di attesa estremamente brevi o 
+%    estremamente lunghi sono da preferire. 
+%    \item il cambio di mittenti per ogni pacchetto  
+%    senza un tempo di attesa adeguato, viene visto 
+%    da RITA come un impulso di comunicazione. 
+%\end{itemize}
+%\end{frame} 
 
 %\begin{frame}
 %\frametitle{Test con payload fisso, invio di 1MB di dati e delay fra i blocchi di dati}
@@ -109,51 +140,51 @@ Dal primo test si ricavano i seguenti risultati:
 %Ovviamente questo può anche essere influenzato dal fatto di come Zeek estrae 
 %i log che poi verranno fatti analizzare da RITA.
 %\end{frame} 
-\begin{frame} 
-\scriptsize
-\begin{longtable}{|p{0.25\textwidth}|c|c|c|}  
-    \hline
-    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
-    \hline \noalign{\vskip 2ex} \hline  
-    Pausa di un ora e mittente reale & 10h 3m 6s & Medium & 14.7\% \\ \hline 
-    Pausa di 30 minuti e mittente reale & 10h 4m 51s & Medium & 37.9\% \\ \hline 
-    Pausa di 15 minuti e mittente reale & 10h 9m 20s  & Medium & 0\% \\ \hline  
-    \noalign{\vskip 5ex}  \hline 
-    Pausa di un ora e mittenti falsificati & 6h 52m 26s & Low & 0.0\% \\ \hline  
-    Pausa di 30 minuti e mittenti falsificati & 6h 50m 55s & Medium & 13.5\% \\ \hline  
-    Pausa di 15 minuti e mittenti falsificati & 4h 47m 22s  & Low & 15.8\% \\ \hline  
-\caption{Test con payload fisso, 1MB di dati e un delay durante l'invio}  
-\end{longtable} 
-\end{frame} 
+%\begin{frame} 
+%\scriptsize
+%\begin{longtable}{|p{0.25\textwidth}|c|c|c|}  
+%    \hline
+%    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+%    \hline \noalign{\vskip 2ex} \hline  
+%    Pausa di un ora e mittente reale & 10h 3m 6s & Medium & 14.7\% \\ \hline 
+%    Pausa di 30 minuti e mittente reale & 10h 4m 51s & Medium & 37.9\% \\ \hline 
+%    Pausa di 15 minuti e mittente reale & 10h 9m 20s  & Medium & 0\% \\ \hline  
+%    \noalign{\vskip 5ex}  \hline 
+%    Pausa di un ora e mittenti falsificati & 6h 52m 26s & Low & 0.0\% \\ \hline  
+%    Pausa di 30 minuti e mittenti falsificati & 6h 50m 55s & Medium & 13.5\% \\ \hline  
+%    Pausa di 15 minuti e mittenti falsificati & 4h 47m 22s  & Low & 15.8\% \\ \hline  
+%\caption{Test con payload fisso, 1MB di dati e un delay durante l'invio}  
+%\end{longtable} 
+%\end{frame} 
 
-\begin{frame} 
-\frametitle{}
-Nel secondo test non si avrà un delay fra un blocco 
-di dati e il successivo. I risultati sono che RITA 
-non rileva in ogni caso la presenza di un Covert 
-Channel. Ciò sembra più un problema relativo a come 
-Zeek ha estratto i log cosa che porterà RITA ad un 
-mancato rilevamento della comunicazione. 
-\scriptsize 
-\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
-    %\multicolumn{4}{c}{\textbf{payload FISSO 1MB NO DELAY}} \\ \noalign{\vskip 2ex}
-    %\cline{2-3} 
-    \hline 
-    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
-    \hline
-    \noalign{\vskip 2ex}
-    \hline  
-    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
-    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline 
-    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline 
-    \noalign{\vskip 2ex} \hline  
-    %\cline{2-3} 
-    Pausa di un ora e mittenti falsificati \footnote{il dato si riferisce ad una connessione TCP\label{footnote:tcp:test}} & 0h 1m 5s & None & 33\% \\ \hline 
-    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline 
-    Pausa di 15 minuti e mittenti falsificati & NP & NP & NP \\ \hline 
-    \caption{Test con payload fisso, 1MB di dati e nessun delay durante l'invio}  
-\end{longtable} 
-\end{frame} 
+%\begin{frame} 
+%\frametitle{}
+%Nel secondo test non si avrà un delay fra un blocco 
+%di dati e il successivo. I risultati sono che RITA 
+%non rileva in ogni caso la presenza di un Covert 
+%Channel. Ciò sembra più un problema relativo a come 
+%Zeek ha estratto i log cosa che porterà RITA ad un 
+%mancato rilevamento della comunicazione. 
+%\scriptsize 
+%\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+%    %\multicolumn{4}{c}{\textbf{payload FISSO 1MB NO DELAY}} \\ \noalign{\vskip 2ex}
+%    %\cline{2-3} 
+%    \hline 
+%    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+%    \hline
+%    \noalign{\vskip 2ex}
+%    \hline  
+%    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
+%    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline 
+%    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline 
+%    \noalign{\vskip 2ex} \hline  
+%    %\cline{2-3} 
+%    Pausa di un ora e mittenti falsificati \footnote{il dato si riferisce ad una connessione TCP\label{footnote:tcp:test}} & 0h 1m 5s & None & 33\% \\ \hline 
+%    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline 
+%    Pausa di 15 minuti e mittenti falsificati & NP & NP & NP \\ \hline 
+%    \caption{Test con payload fisso, 1MB di dati e nessun delay durante l'invio}  
+%\end{longtable} 
+%\end{frame} 
 %\begin{frame}
 %\frametitle{Test con payload fisso ed invio sequenziale di 1MB di dati}
 %Nella Tabella viene riportato il test in cui si sono 
@@ -178,35 +209,35 @@ mancato rilevamento della comunicazione.
 %Infatti in tutti i test senza delay, RITA non ha rilevato la loro presenza. 
 %\end{frame}  
 
-\begin{frame} 
-Nel terzo test si inviano i100KB di dati e fra un 
-delay fra un blocchi di dati. Come 
-precedentemente sia il caso con il mittente reale che 
-quello con quelli falsificati non sono stati rilevati 
-da RITA. 
-\scriptsize 
-\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
-    %\multicolumn{4}{c}{\textbf{payload FISSO 100KB DELAY}} \\
-    %\noalign{\vskip 2ex}
-    %\cline{2-3}
-    \hline
-    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
-    \hline 
-    \noalign{\vskip 2ex}
-    \hline  
-    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
-    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline 
-    Pausa di 15 minuti e mittente reale \footnotemark[\getrefnumber{footnote:tcp:test}]& 0h 0m 3s & High & 100\% \\ \hline 
-    \noalign{\vskip 5ex} 
-    \hline  
-    %\cline{2-3} 
-    Pausa di un ora e mittenti falsificati & 0h 39m 42s & None & 30.4\% \\ \hline    
-    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline  
-    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline 
-    \caption{Test con payload fisso, 100KB di dati e un delay durante l'invio} 
-%\label{tab:testRita:icmpEcho:payloadFISSO:100KB:DELAY} 
-\end{longtable} 
-\end{frame} 
+%\begin{frame} 
+%Nel terzo test si inviano i100KB di dati e fra un 
+%delay fra un blocchi di dati. Come 
+%precedentemente sia il caso con il mittente reale che 
+%quello con quelli falsificati non sono stati rilevati 
+%da RITA. 
+%\scriptsize 
+%\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+%    %\multicolumn{4}{c}{\textbf{payload FISSO 100KB DELAY}} \\
+%    %\noalign{\vskip 2ex}
+%    %\cline{2-3}
+%    \hline
+%    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+%    \hline 
+%    \noalign{\vskip 2ex}
+%    \hline  
+%    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
+%    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline 
+%    Pausa di 15 minuti e mittente reale \footnotemark[\getrefnumber{footnote:tcp:test}]& 0h 0m 3s & High & 100\% \\ \hline 
+%    \noalign{\vskip 5ex} 
+%    \hline  
+%    %\cline{2-3} 
+%    Pausa di un ora e mittenti falsificati & 0h 39m 42s & None & 30.4\% \\ \hline    
+%    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline  
+%    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline 
+%    \caption{Test con payload fisso, 100KB di dati e un delay durante l'invio} 
+%%\label{tab:testRita:icmpEcho:payloadFISSO:100KB:DELAY} 
+%\end{longtable} 
+%\end{frame} 
 %\begin{frame}
 %\frametitle{Test con payload fisso, invio 100 KB di dati e delay fra i blocchi di dati}
 %Nella Tabella \ref{tab:testRita:icmpEcho:payloadFISSO:100KB:DELAY} viene riportato 
@@ -223,64 +254,64 @@ da RITA.
 %l'ipotesi valida. In particolare il test invia 100KB di dati con un payload 
 %variabile e con un delay fra un blocco di dati e il successivo. 
 %\end{frame}  
-\begin{frame} 
-\scriptsize 
-\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
-    %\multicolumn{4}{c}{\textbf{payloadRANDOM-100KB-DELAY}} \\
-    %\noalign{\vskip 2ex}
-    %\cline{2-3}
-    \hline
-    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
-    \hline 
-    \noalign{\vskip 2ex}
-    %\cline{2-3}
-    \hline  
-    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
-    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline
-    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline
-    \noalign{\vskip 5ex} 
-    \hline  
-    %\cline{2-3} 
-    Pausa di un ora e mittenti falsificati & NP & NP & NP \\ \hline    
-    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline  
-    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline  
-    \caption{Test con payload randomico, 100KB di dati e un delay durante l'invio} 
-%\label{tab:testRita:icmpEcho:payloadRANDOM-100KB-DELAY} 
-\end{longtable} 
-\end{frame} 
+%\begin{frame} 
+%\scriptsize 
+%\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+%    %\multicolumn{4}{c}{\textbf{payloadRANDOM-100KB-DELAY}} \\
+%    %\noalign{\vskip 2ex}
+%    %\cline{2-3}
+%    \hline
+%    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+%    \hline 
+%    \noalign{\vskip 2ex}
+%    %\cline{2-3}
+%    \hline  
+%    Pausa di un ora e mittente reale & NP & NP & NP \\ \hline 
+%    Pausa di 30 minuti e mittente reale & NP & NP & NP \\ \hline
+%    Pausa di 15 minuti e mittente reale & NP & NP & NP \\ \hline
+%    \noalign{\vskip 5ex} 
+%    \hline  
+%    %\cline{2-3} 
+%    Pausa di un ora e mittenti falsificati & NP & NP & NP \\ \hline    
+%    Pausa di 30 minuti e mittenti falsificati & NP & NP & NP \\ \hline  
+%    Pausa di 15 minuti e mittenti falsificati & NP  & NP & NP \\ \hline  
+%    \caption{Test con payload randomico, 100KB di dati e un delay durante l'invio} 
+%%\label{tab:testRita:icmpEcho:payloadRANDOM-100KB-DELAY} 
+%\end{longtable} 
+%\end{frame} 
 
-\begin{frame}
-Nel quarto test si invia 1MB di dati con un delay fra 
-i blocchi. Inoltre i messaggi avranno un payload variabile
-\scriptsize 
-\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
-    %\multicolumn{4}{c}{\textbf{payload RANDOM 1MB DELAY}} \\ 
-    %\noalign{\vskip 2ex}
-    %\cline{2-3}
-    \hline
-    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
-    \hline 
-    \noalign{\vskip 2ex}
-    %\cline{2-3}
-    \hline  
-    Pausa di un ora e mittente reale & 10h 4m 6s & Medium & 0\% \\ \hline 
-    Pausa di 30 minuti e mittente reale & 6h 49m 12s & Low & 25\% \\ \hline  
-    %Pausa di 15 minuti e mittente reale & aaa  & aaa & aaa \\ \hline  
-    \noalign{\vskip 3ex} 
-    \multicolumn{4}{c}{I mittenti falsificati provengono da un pool di indirizzi IP attivi nella rete locale} \\
-    \noalign{\vskip 2ex} 
-    \hline  
-    %\cline{2-3} 
-    Pausa di un ora e mittenti falsificati & 6h 52m 13s & Low & 32.8\% \\ \hline   
-    \noalign{\vskip 3ex} 
-    \multicolumn{4}{c}{I mittenti falsificati provengono da un pool di indirizzi IP non assegnati nella rete locale} \\ 
-    \noalign{\vskip 2ex} 
-    \hline  
-    %\cline{2-3} 
-    Pausa di un ora e mittenti falsificati & 1h 3m 15s & Low & 79\% \\ \hline    
-\caption{Test con payload randomico, 1MB di dati e un delay durante l'invio}  
-\end{longtable} 
-\end{frame} 
+%\begin{frame}
+%Nel quarto test si invia 1MB di dati con un delay fra 
+%i blocchi. Inoltre i messaggi avranno un payload variabile
+%\scriptsize 
+%\begin{longtable}{|p{0.25\textwidth}|c|c|c|} 
+%    %\multicolumn{4}{c}{\textbf{payload RANDOM 1MB DELAY}} \\ 
+%    %\noalign{\vskip 2ex}
+%    %\cline{2-3}
+%    \hline
+%    \textbf{Covert Channel} & \textbf{Connessione più lunga} & \textbf{Etichetta} & \textbf{Beacon Score} \\
+%    \hline 
+%    \noalign{\vskip 2ex}
+%    %\cline{2-3}
+%    \hline  
+%    Pausa di un ora e mittente reale & 10h 4m 6s & Medium & 0\% \\ \hline 
+%    Pausa di 30 minuti e mittente reale & 6h 49m 12s & Low & 25\% \\ \hline  
+%    %Pausa di 15 minuti e mittente reale & aaa  & aaa & aaa \\ \hline  
+%    \noalign{\vskip 3ex} 
+%    \multicolumn{4}{c}{I mittenti falsificati provengono da un pool di indirizzi IP attivi nella rete locale} \\
+%    \noalign{\vskip 2ex} 
+%    \hline  
+%    %\cline{2-3} 
+%    Pausa di un ora e mittenti falsificati & 6h 52m 13s & Low & 32.8\% \\ \hline   
+%    \noalign{\vskip 3ex} 
+%    \multicolumn{4}{c}{I mittenti falsificati provengono da un pool di indirizzi IP non assegnati nella rete locale} \\ 
+%    \noalign{\vskip 2ex} 
+%    \hline  
+%    %\cline{2-3} 
+%    Pausa di un ora e mittenti falsificati & 1h 3m 15s & Low & 79\% \\ \hline    
+%\caption{Test con payload randomico, 1MB di dati e un delay durante l'invio}  
+%\end{longtable} 
+%\end{frame} 
 %\begin{frame}
 %\frametitle{Test con payload variabile, invio di 1MB di dati e delay fra i blocchi di dati}
 %Nella Tabella \ref{tab:testRita:icmpEcho:payloadFISSO:100KB:DELAY} viene riportato 
@@ -328,21 +359,21 @@ i blocchi. Inoltre i messaggi avranno un payload variabile
 %in quest'ultimo caso potrebbero portare ad un miglioramento. 
 %\end{frame}  
 
-\begin{frame}
-\frametitle{Risultati dei test} 
-Dai risultati si nota che l'utilizzo di un singolo mittente aumenta la 
-probabilità di essere rilevati mentre tramite la falsificazione dei 
-mittenti il livello di gravità riuslterà minore. Tuttavia ciò ha dei 
-difetti siccome lo scegliere per ogni pacchetto sempre un mittente diverso 
-comporta che RITA rileverà quello scambio di informazioni come una 
-comunicazione. Al contrario un implementazione in cui per ogni blocco si 
-utilizza sempre lo mittente (reale o falsificato) permette di diminuire 
-la probabilità che il canale venga rilevato. 
-\vspace{1ex} \newline  
-Invece il non utilizzo del delay fra l'invio dei un blocchi di dati, 
-permetta di non essere rilevati sebbene ciò può essere legato solo ad una 
-questione di come Zeek logga i pacchetti e di come RITA elabora questi log. 
-Tuttavia questo comporta un maggior utilizzo della banda di rete cosa che 
-creerà del rumore da parte del Covert Channel siccome modifica 
-il normale flusso del traffico di rete. 
-\end{frame} 
+%\begin{frame}
+%\frametitle{Risultati dei test} 
+%Dai risultati si nota che l'utilizzo di un singolo mittente aumenta la 
+%probabilità di essere rilevati mentre tramite la falsificazione dei 
+%mittenti il livello di gravità riuslterà minore. Tuttavia ciò ha dei 
+%difetti siccome lo scegliere per ogni pacchetto sempre un mittente diverso 
+%comporta che RITA rileverà quello scambio di informazioni come una 
+%comunicazione. Al contrario un implementazione in cui per ogni blocco si 
+%utilizza sempre lo mittente (reale o falsificato) permette di diminuire 
+%la probabilità che il canale venga rilevato. 
+%\vspace{1ex} \newline  
+%Invece il non utilizzo del delay fra l'invio dei un blocchi di dati, 
+%permetta di non essere rilevati sebbene ciò può essere legato solo ad una 
+%questione di come Zeek logga i pacchetti e di come RITA elabora questi log. 
+%Tuttavia questo comporta un maggior utilizzo della banda di rete cosa che 
+%creerà del rumore da parte del Covert Channel siccome modifica 
+%il normale flusso del traffico di rete. 
+%\end{frame} 

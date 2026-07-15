@@ -1,19 +1,19 @@
 \begin{frame}
 \frametitle{Implementazione Behavioural Covert Channel} 
-Ciò che indicherà l'informazione trasmessa, è l'arrivo 
-di un determinato messaggio ICMP (la cui tipologia e 
-codice indicano il dato). Siccome il numero 
-di eventi possibili sono 17, ognuno permetterà di 
-codificare 4 bit alla volta ($\log_216=4$). Quindi 
-l'invio di un byte, prevede la sua divisione in due 
-parti e l'avvenimento di due eventi. 
+Nel Behavioural Covert Channel implementato, l'evento 
+sarà definito dall'arrivo di un messaggio ICMP. Il 
+destinatario ricaverà il dato trasmesso osservando 
+la tipologia di messaggio ed il codice presente per 
+poi vedere a quale informazione è mappata la coppia.
 \begin{figure}
 \includegraphics[width=\textwidth]{../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png}
-\justifying
-Per ricavare i dati, si monitora il traffico di rete e si controllano le 
-tipologie di messaggi ICMP ricevuti. Da ognuno si ricaveranno i quatttro 
-bit.  
 \end{figure} 
+%\justifying 
+Siccome il numero di eventi possibili sono 17, 
+ognuno permetterà di codificare 4 bit alla volta 
+($\log_216=4$). L'evento rimasto inutilizzato, 
+verrà usato per indicare l'inizio e la terminazione 
+dell'invio dei dati. 
 \end{frame}
 \begin{frame} [fragile] 
 \scriptsize
@@ -38,20 +38,28 @@ Invia un messaggio ICMP Redirect con codice 3
 \captionof{lstlisting}{Esempio dell'invio di un byte} 
 \end{frame} 
 
-\begin{frame}
+\begin{frame} [fragile]
 \frametitle{Tipologie di messaggi deprecati}
-L'uso di tipologie deprecate non assicura la ricezione 
-dei messaggi, sicocme i router o firewall potrebero 
-ignorarli. Inolre se inviati ripetutamente potrebbero 
-destare dei sospeti sul flusso di comunicazione. 
+Un problema di questa implementazione, sono 
+le tipologie deprecate dei messaggi. Questi messaggi 
+potranno comunque essere inviati ma le linee guida 
+indicano ai router di ignorarli e all'host utente di 
+non mandarli. 
 \vspace{1ex} \newline 
-Le tipologie deprecate sono: 
-\begin{itemize}
-    \item Information Request/Reply: che è stato 
-    sostituito da protocolli come il DHCP. 
-    \item Source Quench: che era concepito come meccanismo 
-    per il controllo della congestione ma, data la 
-    sua inefficenza, è stato sostituito dai 
-    meccanismi presenti nel protocollo TCP.
-\end{itemize}
+L'uso di tipologie deprecate renderà il canale meno 
+legittimo e maggiormente individuabile siccome il 
+traffico sarà visto con sospetto. Infine date le linee 
+guida, non è assicurata la ricezione dei messaggi. 
+\scriptsize 
+\begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|} 
+    \hline 
+    \textbf{Tipologia Messagio} & \textbf{Motivo} \\
+    \hline  
+    Information Request/Reply & è stato sostituito da 
+    protocolli come il DHCP. \\  \hline  
+    Source Quench & data la sua inefficenza, è stato 
+    sostituito dai meccanismi presenti nel 
+    protocollo TCP. \\ \hline 
+    \caption{Tipologie di messaggi deprecati}  
+\end{longtable} 
 \end{frame}  
