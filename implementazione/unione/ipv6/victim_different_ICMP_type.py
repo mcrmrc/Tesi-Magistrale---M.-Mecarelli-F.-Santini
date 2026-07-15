@@ -19,91 +19,13 @@ import socket
 
 
 
-def callback_get_timing_cc(victim,data,previous_time):
-    TYPE_DESTINATION_UNREACHABLE=3 
-    TEMPO_0=3 #sec
-    TEMPO_1=8 #sec
-    def callback(packet):
-        nonlocal previous_time
-        print(f"callback get_timing_cc received:\n\t{packet.summary()}") 
-        print("previous_time",previous_time, type(previous_time))
-        if previous_time is None:
-            previous_time=packet.time
-            return
-        if packet.haslayer(IP) and packet.haslayer(ICMP): 
-            time=packet.time-previous_time
-            delta_0=abs(time-TEMPO_0)
-            delta_1=abs(time-TEMPO_1)
-            print("packet.time",packet.time,"previous_time",previous_time)
-            print("time",time)
-            print("1st",delta_0)
-            print("2nd",delta_1)
-            arr=[delta_0,delta_1]
-            min_value=min(arr)
-            min_indices = [i for i, v in enumerate(arr) if v == min_value]
-            if len(min_indices)!=1:
-                print("Più minimi combaciano", min_indices, arr)
-            print("Minimo",min_indices[0])
-            previous_time=packet.time
-    return callback
 
-def callback_get_destination_unreachable(victim,data):
-    TYPE_DESTINATION_UNREACHABLE=3 
-    def callback(packet):
-        print(f"callback get_destination_unreachable received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP): 
-            if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
-                data.append(packet[ICMP].unused.decode())  
-                data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
-                data.append(packet[ICMP][ICMPerror].id.to_bytes(2,"big").decode()) 
-                if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1:
-                    print("END OF TRANSMISSION")
-                    com.set_threading_Event(victim.event_pktconn)
-                    return
-            elif packet[ICMP].type==TYPE_DESTINATION_UNREACHABLE and not packet[ICMP].haslayer(IPerror): #packet.haslayer(Padding):
-                print("Padding")
-                com.set_threading_Event(victim.event_pktconn)
-                return
-    return callback
 
-def callback_get_time_exceeded(victim,data):
-    TYPE_TIME_EXCEEDED=11  
-    def callback(packet):
-        print(f"callback get_time_exceeded received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP): 
-            if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
-                data.append(packet[ICMP].unused.to_bytes(2,"big").decode())  
-                data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
-                data.append(packet[ICMP][ICMPerror].id.to_bytes(2,"big").decode()) 
-                if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1:
-                    print("END OF TRANSMISSION")
-                    com.set_threading_Event(victim.event_pktconn)
-                    return
-            elif packet[ICMP].type==TYPE_TIME_EXCEEDED and not packet[ICMP].haslayer(IPerror): #packet.haslayer(Padding):
-                print("Padding")
-                com.set_threading_Event(victim.event_pktconn)
-                return
-    return callback
 
-def callback_get_parameter_problem(victim,data):
-    TYPE_SOURCE_QUENCH=4  
-    def callback(packet):
-        print(f"callback get_parameter_problem received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP): 
-            if packet[ICMP].haslayer(IPerror) and packet[ICMP].haslayer(ICMPerror): 
-                data.append(packet[ICMP].ptr.to_bytes(1,"big").decode())
-                data.append(packet[ICMP].unused.to_bytes(2,"big").decode())  
-                data.append(packet[ICMP][IPerror].len.to_bytes(2,"big").decode())  
-                data.append(packet[ICMP][ICMPerror].id.to_bytes(2,"big").decode()) 
-                if packet[ICMP][ICMPerror].id==0 and packet[ICMP][ICMPerror].seq==1:
-                    print("END OF TRANSMISSION")
-                    com.set_threading_Event(victim.event_pktconn)
-                    return
-            elif packet[ICMP].type==TYPE_SOURCE_QUENCH and not packet[ICMP].haslayer(IPerror): #packet.haslayer(Padding):
-                print("Padding")
-                com.set_threading_Event(victim.event_pktconn)
-                return
-    return callback
+
+
+
+
 
 def callback_get_source_quench(victim,data):
     TYPE_SOURCE_QUENCH=4  
@@ -146,66 +68,261 @@ def callback_get_redirect_message(victim,data):
                 return
     return callback
 
-def callback_get_timestamp_request(victim,data):
+
+
+def timeout_timing_covertchannel(event_pktconn):
+    print("Dati non ricevuti in tempo. La comunicazione è terminata")
+    com.set_threading_Event(event_pktconn)
+    return
+
+def callback_get_timing_cc(event_pktconn,timer,bit_data:bytearray=[],previous_time=None):  
+    TEMPO_0=3 #sec
+    TEMPO_1=8 #sec
+    MAX_TIME=max([TEMPO_0,TEMPO_1])+5
+    MINUTE_TIME=0*60+30 #minuti
+    callback_function=lambda: timeout_timing_covertchannel(event_pktconn)
+    dict_tempi={
+         "TEMPO_0":3
+        ,"TEMPO_1":8
+    }  
+    MAX_TIME=max([value for _,value in dict_tempi.items()])+5
+    dict_bit={
+         "TEMPO_0":0b0
+        ,"TEMPO_1":0b1
+    }
     def callback(packet):
-        print(f"callback get_timestamp_request received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP): 
-            print(f"Ricevuto pacchetto da {packet[IP].src}...")
-            if packet[ICMP].id==0 and packet[ICMP].seq==1:
-                print("END OF TRANSMISSION")
-                com.set_threading_Event(victim.event_pktconn)
-                return
-            icmp_id=packet[ICMP].id
-            byte1 = (icmp_id >> 8) & 0xFF 
-            byte2 = icmp_id & 0xFF 
-            print(icmp_id,type(icmp_id))  
-            print(byte1,byte2)
-            print(chr(byte1),chr(byte2))
-            data.extend([chr(byte1),chr(byte2)]) 
-            
-            icmp_ts_ori=str(packet[ICMP].ts_ori)[-3:]
-            print("icmp_ts_ori",packet[ICMP].ts_ori) 
-            print("icmp_ts_ori",icmp_ts_ori, chr(int(icmp_ts_ori)))
-
-            icmp_ts_rx=str(packet[ICMP].ts_rx)[-3:]
-            print("icmp_ts_rx",packet[ICMP].ts_rx) 
-            print("icmp_ts_rx",icmp_ts_rx, chr(int(icmp_ts_rx)))
-
-            icmp_ts_tx=str(packet[ICMP].ts_tx)[-3:]
-            print("icmp_ts_tx",packet[ICMP].ts_tx) 
-            print("icmp_ts_tx",icmp_ts_tx, chr(int(icmp_ts_tx)))
-
-            data.extend([chr(int(icmp_ts_ori)),chr(int(icmp_ts_rx)), chr(int(icmp_ts_tx))]) 
+        nonlocal previous_time, timer,bit_data, event_pktconn
+        nonlocal TEMPO_0, TEMPO_1, MAX_TIME, callback_function, MINUTE_TIME
+        print(f"callback get_timing_cc received:\n\t{packet.summary()}") 
+        #print("previous_time",previous_time, type(previous_time))
+        if previous_time is None:
+            print(f"No previous time {previous_time}")
+            previous_time=packet.time
+            print(f"The new one is {previous_time}")
+            timer.cancel()
+            timer=com.get_timeout_timer(MAX_TIME,callback_function) 
+            timer.start()
+            print(f"Timer started")
+            return 
+        #if packet.haslayer(IP) and packet.haslayer(ICMP): 
+        if packet.time is not None: 
+            delta_time=packet.time-previous_time 
+            delta_0=abs(delta_time-TEMPO_0)
+            delta_1=abs(delta_time-TEMPO_1)
+            #print("packet.time: ",packet.time,"\tprevious_time: ",previous_time)
+            #print("delta_time: ",delta_time)
+            #print("1st: ",delta_0)
+            #print("2nd: ",delta_1) 
+            #arr=[delta_0,delta_1] 
+            arr=arr=[(key, abs(delta_time-value)) for key,value in dict_tempi.items()]
+            #print("AAAAA: ",arr) 
+            #print("UUU: ",[y for x,y in arr])
+            min_value=min([y for _,y in arr])
+            #print("UUU: ",[str(i)+":"+str(v[1]) for i, v in enumerate(arr)])
+            min_indices = [i for i, v in enumerate(arr) if v[1] == min_value]
+            if len(min_indices)!=1:
+                print("Più minimi combaciano {min_indices}: {arr}")
+            #print("Il minimo è",min_indices[0]," invece la chiave del dizionario è: ", arr[min_indices[0]][0])
+            #print("U_U: ",dict_bit.get(arr[min_indices[0]][0]))
+            bit_data.append(dict_bit.get(arr[min_indices[0]][0]))
+            #print("bit_data: ", bit_data)
+            previous_time=packet.time
+            timer.cancel()
+            if len(bit_data)%8==0:
+                #print("Received a byte. ") 
+                timer=com.get_timeout_timer(MINUTE_TIME,callback_function) 
+            else:
+                timer=com.get_timeout_timer(MAX_TIME,callback_function) 
+            timer.start()
     return callback
 
-def callback_get_information_request(victim,data):
+def callback_get_destination_unreachable(event_pktconn,data):
+    TYPE_DESTINATION_UNREACHABLE=3 
+    def callback(packet):
+        print(f"callback get_destination_unreachable received:\n\t{packet.summary()}") 
+        field=None 
+        if (layer:=packet.getlayer("IPv6")) is not None:
+            if (layer:=layer.getlayer("ICMPv6DestUnreach")) is None:
+                print("not got layer ICMPv6TimeExceeded") 
+                return
+            if (layer:=layer.getlayer("IPerror6")) is not None:
+                #print("got layer IPerror6") 
+                if (field:=layer.getfieldval("plen")) is not None and field!=0xffff:
+                    #print("ASAAAA: ",field)
+                    #print("AAAA field","\t",field.to_bytes(2,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode())
+                elif field is not None and field==0xffff:
+                    print("END OF TRANSMISSION")
+                    com.set_threading_Event(event_pktconn)
+                    return
+            layer=(
+                layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                else layer.getlayer("ICMPv6EchoReply")
+            )
+            if layer is not None:
+                #print("got layer ICMPv6EchoRequest | ICMPv6EchoReply") 
+                if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")==1):
+                    #print("ASAAAA: ",field)
+                    #print("AAAA field","\t",field.to_bytes(2,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode()) 
+                elif field is not None and (field==0 and layer.getfieldval("seq")==1):
+                    print("END OF TRANSMISSION")
+                    com.set_threading_Event(event_pktconn)
+                    return
+                else: print("Caso non considetrato")  
+    return callback
+
+def callback_get_packet_to_big(event_pktconn,data):
+    TYPE_PKT_BIG= 2
+    def callback(packet):
+        print(f"callback get_packet_to_big received:\n\t{packet.summary()}") 
+        field=None 
+        if (layer:=packet.getlayer("IPv6")) is not None:
+            if (layer:=layer.getlayer("ICMPv6PacketTooBig")) is not None:
+                #print("got layer ICMPv6TimeExceeded") 
+                if (field:=layer.getfieldval("mtu")) is not None: #and field!=0:
+                    #print("ASAAAA: ",field)
+                    #print("AAAA field","\t",field.to_bytes(4,"big").decode())
+                    data.append(field.to_bytes(4,"big").decode())
+                #elif field is not None and field==0:
+                #    print("END OF TRANSMISSION")
+                #    com.set_threading_Event(event_pktconn)
+                #    return 
+                if layer.getlayer("IPerror6") is None:
+                    print("AAAAAAA")
+                    #com.set_threading_Event(event_pktconn)
+                    #return
+            if (layer:=layer.getlayer("IPerror6")) is not None:
+                #print("got layer IPerror6") 
+                if (field:=layer.getfieldval("plen")) is not None and field!=0xffff:
+                    #print("ASAAAA: ",field)
+                    #print("AAAA field","\t",field.to_bytes(2,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode())
+                elif field is not None and field==0xffff:
+                    print("END OF TRANSMISSION")
+                    com.set_threading_Event(event_pktconn)
+                    return
+            layer=(
+                layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                else layer.getlayer("ICMPv6EchoReply")
+            )
+            if layer is not None:
+                #print("got layer ICMPv6EchoRequest | ICMPv6EchoReply") 
+                if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0):
+                    #print("ASAAAA: ",field)
+                    #print("AAAA field","\t",field.to_bytes(2,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode()) 
+                elif field is not None and (field==0 and layer.getfieldval("seq")==1):
+                    print("END OF TRANSMISSION")
+                    com.set_threading_Event(event_pktconn)
+                    return
+                else: print("Caso non considetrato")  
+    return callback
+
+def callback_get_time_exceeded(event_pktconn,data):
+    TYPE_TIME_EXCEEDED=3  
+    def callback(packet):
+        print(f"callback get_time_exceeded received:\n\t{packet.summary()}") 
+        field=None 
+        if (layer:=packet.getlayer("IPv6")) is not None:
+            if (layer:=layer.getlayer("ICMPv6TimeExceeded")) is not None:
+                #print("got layer ICMPv6TimeExceeded") 
+                if layer.getlayer("IPerror6") is None:
+                    print("AAAAAAA")
+                    #com.set_threading_Event(event_pktconn)
+                    #return
+            if (layer:=layer.getlayer("IPerror6")) is not None:
+                #print("got layer IPerror6") 
+                if (field:=layer.getfieldval("plen")) is not None and field!=0xffff:
+                    #print("ASAAAA: ",field)
+                    #print("AAAA field","\t",field.to_bytes(2,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode())
+                elif field is not None and field==0xffff:
+                    print("END OF TRANSMISSION")
+                    com.set_threading_Event(event_pktconn)
+                    return
+            layer=(
+                layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                else layer.getlayer("ICMPv6EchoReply")
+            )
+            if layer is not None:
+                #print("got layer ICMPv6EchoRequest | ICMPv6EchoReply") 
+                if (field:=layer.getfieldval("id")) is not None and not (field==0 and layer.getfieldval("seq")!=0):
+                    #print("ASAAAA: ",field)
+                    #print("AAAA field","\t",field.to_bytes(2,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode()) 
+                elif field is not None and (field==0 and layer.getfieldval("seq")==1):
+                    print("END OF TRANSMISSION")
+                    com.set_threading_Event(event_pktconn)
+                    return
+                else: print("Caso non considetrato") 
+    return callback
+
+def callback_get_parameter_problem(event_pktconn,data): 
+    TYPE_INFORMATION_REPLY=129
+    TYPE_PARAMETER_PROBLEM=4  
+    def callback(packet):
+        print(f"\tcallback get_parameter_problem received:\n{packet.summary()}") 
+        #print(packet.show2())
+        #print("piango: ",repr(bytes(packet)))  
+        field=None 
+        if (layer:=packet.getlayer("IPv6")) is not None:
+            #print("got layer IPv6")  
+            if (layer:=layer.getlayer("ICMPv6ParamProblem")) is not None:
+                #print("got layer ICMPv6ParamProblem") 
+                if (field:=layer.getfieldval("ptr")) is not None and field!=0xffffffff: 
+                    #print(field,"\t",field.to_bytes(4,"big").decode())
+                    data.append(field.to_bytes(4,"big").decode()) 
+                elif field is not None and field==0xffffffff:
+                    print("END OF TRANSMISSION")
+                    com.set_threading_Event(event_pktconn)
+                    return 
+            if (layer:=layer.getlayer("IPerror6")) is not None:
+                #print("got layer IPerror6") 
+                if (field:=layer.getfieldval("plen")) is not None:
+                    #print(field,"\t",field.to_bytes(4,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode())
+            layer=(
+                layer.getlayer("ICMPv6EchoRequest") if layer.getlayer("ICMPv6EchoReply") is None 
+                else layer.getlayer("ICMPv6EchoReply")
+            )
+            if layer is not None:
+                #print("got layer ICMPv6EchoRequest | ICMPv6EchoReply") 
+                if (field:=layer.getfieldval("id")) is not None:
+                    #print(field,"\t",field.to_bytes(4,"big").decode())
+                    data.append(field.to_bytes(2,"big").decode()) 
+    return callback
+
+def callback_get_information_request(event_pktconn,data):
     def callback(packet):
         print(f"callback get_information_request received:\n\t{packet.summary()}")  
         if packet.haslayer(IPv6) and (packet.haslayer(ICMPv6EchoReply) or packet.haslayer(ICMPv6EchoRequest)): 
-            echo_type="ICMPv6EchoReply" if packet.haslayer(ICMPv6EchoReply) else "ICMPv6EchoRequest" if packet.haslayer(ICMPv6EchoRequest) else None
-            print(f"Ricevuto pacchetto da {packet[IPv6].src}...")
+            icmp_echo_type=(
+                "ICMPv6EchoReply" if packet.haslayer(ICMPv6EchoReply) 
+                else "ICMPv6EchoRequest" if packet.haslayer(ICMPv6EchoRequest) 
+                else None
+            )
+            #print(f"Ricevuto pacchetto da {packet[IPv6].src}...")
             if packet[echo_type].id==0 and packet[echo_type].seq==1:
                 print("END OF TRANSMISSION")
-                com.set_threading_Event(victim.event_pktconn)
+                com.set_threading_Event(event_pktconn)
                 return
             icmp_id=packet[echo_type].id
             byte1 = (icmp_id >> 8) & 0xFF 
             byte2 = icmp_id & 0xFF 
             #print(icmp_id,type(icmp_id))  
-            #print(byte1,byte2)
-            #print(chr(byte1),chr(byte2))
+            #print(byte1," : ",byte2,"\t",chr(byte1)," : ",chr(byte2)) 
             data.extend([chr(byte1),chr(byte2)]) 
     return callback
 
 class Victim:
     def __init__(self): 
-        self.get_information_request() 
-        #self.get_timestamp_request() 
-        #self.get_redirect() 
-        #self.get_source_quench() 
+        #self.get_information_request() 
         #self.get_parameter_problem() 
-        #self.get_time_exceeded() 
+        #self.get_time_exceeded()  
+        #self.get_packet_to_big() 
         #self.get_destination_unreachable() 
+
         self.get_timing_cc() 
 
     def get_information_request(self): 
@@ -215,16 +332,81 @@ class Victim:
         ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e")  
         #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
         #print("IP_GOOGLE: ",ip_google)
-        interface= mymethods.default_iface()  
+        try: 
+            self.event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
         args={
                 "filter":f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}" 
                 #,"count":1 
-                ,"prn":callback_get_information_request(self,information_data)
+                ,"prn":callback_get_information_request(self.event_pktconn,information_data)
                 #,"store":True 
                 ,"iface": interface
             }
-        try:
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=self.event_pktconn
+            ) 
+            com.wait_threading_Event(self.event_pktconn) 
+        except Exception as e:
+            raise Exception(f"get_information_request: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            print("".join(x for x in information_data))
+            return True 
+        return False  
+    
+    def get_parameter_problem(self): 
+        parameter_problem_data=[]
+        TYPE_PARAMETER_PROBLEM=4  
+        ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e") 
+        try: 
             self.event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn":callback_get_parameter_problem(self.event_pktconn,parameter_problem_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
+            sniffer,pkt_timer=com.sniff_packet(
+                args
+                ,timeout_time=None
+                ,event=self.event_pktconn
+            ) 
+            com.wait_threading_Event(self.event_pktconn) 
+        except Exception as e:
+            raise Exception(f"get_parameter_problem: {e}")
+        com.stop_sinffer(sniffer)
+        if com.stop_timer(pkt_timer): 
+            print("".join(x for x in parameter_problem_data))
+            return True 
+        return False  
+    
+    def get_time_exceeded(self):
+        time_exceeded_data=[]
+        TYPE_TIME_EXCEEDED=3  
+        ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e") 
+        try: 
+            self.event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn":callback_get_time_exceeded(self.event_pktconn,time_exceeded_data)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
             sniffer,pkt_timer=com.sniff_packet(
                 args
                 ,timeout_time=None
@@ -235,22 +417,21 @@ class Victim:
             raise Exception(f"wait_conn_from_attacker: {e}")
         com.stop_sinffer(sniffer)
         if com.stop_timer(pkt_timer): 
-            print("".join(x for x in information_data))
+            print("".join(x for x in time_exceeded_data))
             return True 
         return False  
-    
-    def get_timestamp_request(self):
+
+    def get_packet_to_big(self):
         timestamp_data=[]
-        TYPE_TIMESTAMP_REQUEST=13
-        TYPE_TIMESTAMP_REPLY=14
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
+        TYPE_PKT_BIG= 2
+        ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e") 
+        interface= mymethods.default_iface() 
         args={
-                "filter":f"icmp and (icmp[0]=={TYPE_TIMESTAMP_REQUEST} or icmp[0]=={TYPE_TIMESTAMP_REPLY}) and dst {ip_host}" 
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG}) and dst {ip_host.compressed}" 
                 #,"count":1 
-                ,"prn":callback_get_timestamp_request(self,timestamp_data)
+                ,"prn":callback_get_packet_to_big(self.event_pktconn,timestamp_data)
                 #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
+                ,"iface": interface
             }
         try:
             self.event_pktconn=com.get_threading_Event()
@@ -268,132 +449,23 @@ class Victim:
             return True 
         return False  
     
-    def get_redirect(self):
-        redirect_data=[]
-        TYPE_REDIRECT=5
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
-        args={
-                "filter":f"icmp and (icmp[0]=={TYPE_REDIRECT}) and dst {ip_host}" 
-                #,"count":1 
-                ,"prn":callback_get_redirect_message(self,redirect_data)
-                #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
-        } 
-        try:
-            self.event_pktconn=com.get_threading_Event()
-            sniffer,pkt_timer=com.sniff_packet(
-                args
-                ,timeout_time=None
-                ,event=self.event_pktconn
-            ) 
-            com.wait_threading_Event(self.event_pktconn) 
-        except Exception as e:
-            raise Exception(f"wait_conn_from_attacker: {e}")
-        com.stop_sinffer(sniffer)
-        if com.stop_timer(pkt_timer): 
-            print("".join(x for x in redirect_data))
-            return True 
-        return False  
-    
-    def get_source_quench(self):
-        source_quench_data=[]
-        TYPE_SOURCE_QUENCH=4  
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
-        args={
-                "filter":f"icmp and (icmp[0]=={TYPE_SOURCE_QUENCH}) and dst {ip_host}" 
-                #,"count":1 
-                ,"prn":callback_get_source_quench(self,source_quench_data)
-                #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
-        } 
-        try:
-            self.event_pktconn=com.get_threading_Event()
-            sniffer,pkt_timer=com.sniff_packet(
-                args
-                ,timeout_time=None
-                ,event=self.event_pktconn
-            ) 
-            com.wait_threading_Event(self.event_pktconn) 
-        except Exception as e:
-            raise Exception(f"wait_conn_from_attacker: {e}")
-        com.stop_sinffer(sniffer)
-        if com.stop_timer(pkt_timer): 
-            print("".join(x for x in source_quench_data))
-            return True 
-        return False  
-    
-    def get_parameter_problem(self):
-        parameter_problem_data=[]
-        TYPE_PARAMETER_PROBLEM=12  
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
-        args={
-                "filter":f"icmp and (icmp[0]=={TYPE_PARAMETER_PROBLEM}) and dst {ip_host}" 
-                #,"count":1 
-                ,"prn":callback_get_parameter_problem(self,parameter_problem_data)
-                #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
-        } 
-        try:
-            self.event_pktconn=com.get_threading_Event()
-            sniffer,pkt_timer=com.sniff_packet(
-                args
-                ,timeout_time=None
-                ,event=self.event_pktconn
-            ) 
-            com.wait_threading_Event(self.event_pktconn) 
-        except Exception as e:
-            raise Exception(f"wait_conn_from_attacker: {e}")
-        com.stop_sinffer(sniffer)
-        if com.stop_timer(pkt_timer): 
-            print("".join(x for x in parameter_problem_data))
-            return True 
-        return False  
-    
-    def get_time_exceeded(self):
-        time_exceeded_data=[]
-        TYPE_TIME_EXCEEDED=11  
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
-        args={
-                "filter":f"icmp and (icmp[0]=={TYPE_TIME_EXCEEDED}) and dst {ip_host}" 
-                #,"count":1 
-                ,"prn":callback_get_time_exceeded(self,time_exceeded_data)
-                #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
-        } 
-        try:
-            self.event_pktconn=com.get_threading_Event()
-            sniffer,pkt_timer=com.sniff_packet(
-                args
-                ,timeout_time=None
-                ,event=self.event_pktconn
-            ) 
-            com.wait_threading_Event(self.event_pktconn) 
-        except Exception as e:
-            raise Exception(f"wait_conn_from_attacker: {e}")
-        com.stop_sinffer(sniffer)
-        if com.stop_timer(pkt_timer): 
-            print("".join(x for x in time_exceeded_data))
-            return True 
-        return False  
-    
     def get_destination_unreachable(self):
         destination_unreachable_data=[]
-        TYPE_DESTINATION_UNREACHABLE=3 
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
+        TYPE_DESTINATION_UNREACHABLE=1 
+        ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e") 
+        try: 
+            self.event_pktconn=com.get_threading_Event()
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
         args={
-                "filter":f"icmp and (icmp[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host}" 
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE}) and dst {ip_host.compressed}" 
                 #,"count":1 
-                ,"prn":callback_get_destination_unreachable(self,destination_unreachable_data)
+                ,"prn":callback_get_destination_unreachable(self.event_pktconn,destination_unreachable_data)
                 #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
+                ,"iface":interface
         } 
         try:
-            self.event_pktconn=com.get_threading_Event()
             sniffer,pkt_timer=com.sniff_packet(
                 args
                 ,timeout_time=None
@@ -407,36 +479,51 @@ class Victim:
             print("".join(x for x in destination_unreachable_data))
             return True 
         return False  
-    
+        
     def get_timing_cc(self):
-        timing_cc_data=[]
-        TYPE_ECHO_REQUEST=8
-        TYPE_ECHO_REPLY=0
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
+        timing_bit_data:bytearray=[]
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129
         last_packet_time=None
-        args={
-                "filter":f"icmp and (icmp[0]=={TYPE_ECHO_REQUEST} or icmp[0]=={TYPE_ECHO_REPLY}) and dst {ip_host}" 
-                #,"count":1 
-                ,"prn":callback_get_timing_cc(self,timing_cc_data,last_packet_time)
-                #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
-        } 
-        try:
+        try: 
+            ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e") 
+            interface= mymethods.default_iface() 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        try: 
             self.event_pktconn=com.get_threading_Event()
+            callback_function=lambda: timeout_timing_covertchannel(self.event_pktconn)
+            self.timer_timing_CC=com.get_timeout_timer(None,callback_function) 
+        except Exception as e:
+            raise Exception(f"Exception: {e}")
+        args={
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}" 
+                #,"count":1 
+                ,"prn":callback_get_timing_cc(self.event_pktconn,self.timer_timing_CC,timing_bit_data,last_packet_time)
+                #,"store":True 
+                ,"iface":interface
+        } 
+        try: 
             sniffer,pkt_timer=com.sniff_packet(
                 args
                 ,timeout_time=None
                 ,event=self.event_pktconn
             ) 
             com.wait_threading_Event(self.event_pktconn) 
+            data=""
+            for index in range(0, len(timing_bit_data), 8):
+                int_data=0
+                for bit in timing_bit_data[index:index+8][::-1]:
+                    int_data=int_data<<1|bit
+                data+=chr(int_data)  
+            com.stop_sinffer(sniffer)
+            if com.stop_timer(pkt_timer): 
+                print(data)
+                return True 
+            return False
         except Exception as e:
             raise Exception(f"wait_conn_from_attacker: {e}")
-        com.stop_sinffer(sniffer)
-        if com.stop_timer(pkt_timer): 
-            print("".join(x for x in timing_cc_data))
-            return True 
-        return False
+        
 
 if __name__=="__main__": 
     print("Ciao") 
