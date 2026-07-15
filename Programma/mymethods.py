@@ -1,19 +1,10 @@
-#from scapy.all import *
-from scapy.all import IP, ICMP, Raw,  Ether, ARP, IPv6, ICMPv6ND_NS, ICMPv6NDOptSrcLLAddr, ICMPv6NDOptDstLLAddr
-from scapy.all import sr1, sendp, srp, AsyncSniffer, get_if_hwaddr, in6_getnsma, in6_getnsmac, srp1, send
-from scapy.all import conf 
-
-import string
-import re
-import argparse
-import socket 
+import string 
+import argparse 
 import sys
 import subprocess
-import ipaddress 
 import threading 
 import os
 import time 
-from enum import Enum  
 from custom_enum import MSG 
 from check_type import * 
 from get_type import *
@@ -214,58 +205,6 @@ class CALC:
         checksum += checksum >> 16 
         return (~checksum) & 0xffff
 
-
-class THREAD: 
-    def get_thread_response(proxy:ipaddress.IPv4Address=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=True):
-        if is_ipaddress(proxy) and is_threading_Lock(thread_lock) and is_dictionary(thread_response) and is_boolean(response):
-            response=None
-            thread_lock.acquire()
-            response=thread_response.get(proxy.compressed)
-            thread_lock.release()
-            return response 
-        return None 
-
-    def update_thread_response(proxy:ipaddress.IPv4Address=None, thread_lock:threading.Lock=None, thread_response:dict=None, response:bool=False):
-        if not (is_ipaddress(proxy) and is_threading_Lock(thread_lock) and is_dictionary(thread_response) and is_boolean(response)):  
-            raise Exception(f"update_thread_response: argomenti non validi")
-        thread_lock.acquire()
-        thread_response.update({proxy.compressed:response}) 
-        thread_lock.release() 
-        
-    def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address]=None,callback_function=None): 
-        if is_callable_function(callback_function) and is_list(address_list) and len(address_list)>0: 
-            thread_lock=threading.Lock()
-            thread_response={}
-            thread_list={}
-            for proxy in address_list:
-                if not is_ipaddress(proxy): 
-                    print(f"***\t{proxy} non è un indirizzo valido")
-                    continue
-                thread=threading.Thread(
-                    target=callback_function
-                    ,args=[proxy]
-                )
-                thread.name=f"Thread-{proxy.compressed}"
-                thread_list.update({proxy.compressed:thread})
-                thread_response.update({proxy.compressed:False}) 
-            print(f"Definito il threading lock per quando si accede alle risposte dei proxy") #print(f"Lock creato:\t{thread_lock}")
-            print("Definito per ogni proxy il proprio Thread") #print(f"Thread creati:\t{thread_list}")
-            print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
-            return thread_lock, thread_response, thread_list 
-        raise Exception(f"Impossibile impostare il thread per ciascun proxy")
-
-class THREADING_EVENT:
-    def wait(event:threading.Event=None): 
-        if not is_threading_Event(event): 
-            raise Exception(f"Impossibile aspettare su una variabile non Event") 
-        event.wait() 
-        event.clear() 
-    
-    def set(event:threading.Event=None): 
-        if not is_threading_Event(event): 
-            raise Exception(f"Impossibile settare una variabile non Event") 
-        event.set()
-#------------------------
 class TIMER: 
     def stop(timer:threading.Timer=None): 
         if is_threading_Timer(timer): 
