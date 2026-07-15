@@ -350,11 +350,12 @@ class ARGS_CONFIG:
                     self.args=_victim()
                 elif entita==ENTITY.PROXY: 
                     self.args=_proxy() 
-            except Exception as e:
+                else: raise ValueError("Entita non valida:",entita)
+            except ValueError as e:
                 print(e) 
                 #parser.print_help() 
                 PARSER.print_supported_arguments(parser) 
-            self.args=None 
+                self.args=None 
 
 
 class DATA: 
