@@ -1,0 +1,2701 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.8)  1 FEB 2026 20:02
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**./presentation.tex
+(presentation.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamer.cls
+Document Class: beamer 2025/08/13 v3.76 A class for typesetting presentations
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasemodes.
+sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count275
+)
+\beamer@tempbox=\box53
+\beamer@tempcount=\count276
+\c@beamerpauses=\count277
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasedecode
+.sty
+\beamer@slideinframe=\count278
+\beamer@minimum=\count279
+\beamer@decode@box=\box54
+)
+\beamer@commentbox=\box55
+\beamer@modecount=\count280
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+)
+\headdp=\dimen148
+\footheight=\dimen149
+\sidebarheight=\dimen150
+\beamer@tempdim=\dimen151
+\beamer@finalheight=\dimen152
+\beamer@animht=\dimen153
+\beamer@animdp=\dimen154
+\beamer@animwd=\dimen155
+\beamer@leftmargin=\dimen156
+\beamer@rightmargin=\dimen157
+\beamer@leftsidebar=\dimen158
+\beamer@rightsidebar=\dimen159
+\beamer@boxsize=\dimen160
+\beamer@vboxoffset=\dimen161
+\beamer@descdefault=\dimen162
+\beamer@descriptionwidth=\dimen163
+\beamer@lastskip=\skip49
+\beamer@areabox=\box56
+\beamer@animcurrent=\box57
+\beamer@animshowbox=\box58
+\beamer@sectionbox=\box59
+\beamer@logobox=\box60
+\beamer@linebox=\box61
+\beamer@sectioncount=\count281
+\beamer@subsubsectionmax=\count282
+\beamer@subsectionmax=\count283
+\beamer@sectionmax=\count284
+\beamer@totalheads=\count285
+\beamer@headcounter=\count286
+\beamer@partstartpage=\count287
+\beamer@sectionstartpage=\count288
+\beamer@subsectionstartpage=\count289
+\beamer@animationtempa=\count290
+\beamer@animationtempb=\count291
+\beamer@xpos=\count292
+\beamer@ypos=\count293
+\beamer@ypos@offset=\count294
+\beamer@showpartnumber=\count295
+\beamer@currentsubsection=\count296
+\beamer@coveringdepth=\count297
+\beamer@sectionadjust=\count298
+\beamer@toclastsection=\count299
+\beamer@tocsectionnumber=\count300
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseoption
+s.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+))
+\beamer@paperwidth=\skip50
+\beamer@paperheight=\skip51
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+)
+\Gm@cnth=\count301
+\Gm@cntv=\count302
+\c@Gm@tempcnt=\count303
+\Gm@bindingoffset=\dimen164
+\Gm@wd@mp=\dimen165
+\Gm@odd@mp=\dimen166
+\Gm@even@mp=\dimen167
+\Gm@layoutwidth=\dimen168
+\Gm@layoutheight=\dimen169
+\Gm@layouthoffset=\dimen170
+\Gm@layoutvoffset=\dimen171
+\Gm@dimlist=\toks18
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/pgf/math\pgfmath.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\pgfrcs.st
+y
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfutil
+-common.tex
+\pgfutil@everybye=\toks19
+\pgfutil@tempdima=\dimen172
+\pgfutil@tempdimb=\dimen173
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfutil
+-latex.def
+\pgfutil@abb=\box62
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfrcs.
+code.tex
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf\pgf.revision.tex)
+Package: pgfrcs 2025-08-29 v3.1.11a (3.1.11a)
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\pgfkeys.s
+ty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfkeys
+.code.tex
+\pgfkeys@pathtoks=\toks20
+\pgfkeys@temptoks=\toks21
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfkeys
+libraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks22
+)))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmath.code
+.tex
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathutil.
+code.tex
+\pgf@x=\dimen174
+\pgf@xa=\dimen175
+\pgf@xb=\dimen176
+\pgf@xc=\dimen177
+\pgf@y=\dimen178
+\pgf@ya=\dimen179
+\pgf@yb=\dimen180
+\pgf@yc=\dimen181
+\c@pgf@counta=\count304
+\c@pgf@countb=\count305
+\c@pgf@countc=\count306
+\c@pgf@countd=\count307
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathparse
+r.code.tex
+\pgfmath@dimen=\dimen182
+\pgfmath@count=\count308
+\pgfmath@box=\box63
+\pgfmath@toks=\toks23
+\pgfmath@stack@operand=\toks24
+\pgfmath@stack@operation=\toks25
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.basic.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.trigonometric.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.random.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.comparison.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.base.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.round.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.misc.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunct
+ions.integerarithmetics.code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathcalc.
+code.tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfloat
+.code.tex
+\c@pgfmathroundto@lastzeros=\count309
+)))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/base\size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/pgf/basiclayer\pgfcore.
+sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.c
+fg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen183
+\Gin@req@width=\dimen184
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/pgf/systemlayer\pgfsys.
+sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsy
+s.code.tex
+Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@x=\dimen185
+\pgf@y=\dimen186
+\pgf@xa=\dimen187
+\pgf@ya=\dimen188
+\pgf@xb=\dimen189
+\pgf@yb=\dimen190
+\pgf@xc=\dimen191
+\pgf@yc=\dimen192
+\pgf@xd=\dimen193
+\pgf@yd=\dimen194
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count310
+\c@pgf@countb=\count311
+\c@pgf@countc=\count312
+\c@pgf@countd=\count313
+\t@pgf@toka=\toks26
+\t@pgf@tokb=\toks27
+\t@pgf@tokc=\toks28
+\pgf@sys@id@count=\count314
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgf.c
+fg
+File: pgf.cfg 2025-08-29 v3.1.11a (3.1.11a)
+)
+Driver file for pgf: pgfsys-pdftex.def
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsy
+s-pdftex.def
+File: pgfsys-pdftex.def 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsy
+s-common-pdf.def
+File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsy
+ssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfsyssoftpath@smallbuffer@items=\count315
+\pgfsyssoftpath@bigbuffer@items=\count316
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsy
+sprotocol.code.tex
+File: pgfsysprotocol.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+) (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/graphics\dvipsnam.def
+File: dvipsnam.def 2016/06/17 v3.0m Driver-dependent file (DPC,SPQR)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+e.code.tex
+Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfint.code.
+tex)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+epoints.code.tex
+File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@picminx=\dimen195
+\pgf@picmaxx=\dimen196
+\pgf@picminy=\dimen197
+\pgf@picmaxy=\dimen198
+\pgf@pathminx=\dimen199
+\pgf@pathmaxx=\dimen256
+\pgf@pathminy=\dimen257
+\pgf@pathmaxy=\dimen258
+\pgf@xx=\dimen259
+\pgf@xy=\dimen260
+\pgf@yx=\dimen261
+\pgf@yy=\dimen262
+\pgf@zx=\dimen263
+\pgf@zy=\dimen264
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+epathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@path@lastx=\dimen265
+\pgf@path@lasty=\dimen266
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+epathusage.code.tex
+File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@shorten@end@additional=\dimen267
+\pgf@shorten@start@additional=\dimen268
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+escopes.code.tex
+File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfpic=\box64
+\pgf@hbox=\box65
+\pgf@layerbox@main=\box66
+\pgf@picture@serial@count=\count317
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+egraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgflinewidth=\dimen269
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+etransformations.code.tex
+File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@pt@x=\dimen270
+\pgf@pt@y=\dimen271
+\pgf@pt@temp=\dimen272
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+equick.code.tex
+File: pgfcorequick.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+eobjects.code.tex
+File: pgfcoreobjects.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+epathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+earrows.code.tex
+File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowsep=\dimen273
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+eshade.code.tex
+File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@max=\dimen274
+\pgf@sys@shading@range@num=\count318
+\pgf@shadingcount=\count319
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+eimage.code.tex
+File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+eexternal.code.tex
+File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfexternal@startupbox=\box67
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+elayers.code.tex
+File: pgfcorelayers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+etransparency.code.tex
+File: pgfcoretransparency.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+epatterns.code.tex
+File: pgfcorepatterns.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcor
+erdf.code.tex
+File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\xxcolor.s
+ty
+Package: xxcolor 2003/10/24 ver 0.1
+\XC@nummixins=\count320
+\XC@countmixins=\count321
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/base\atbegshi-ltx.sty
+Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
+package with kernel methods
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+Package: hyperref 2025-07-12 v7.01o Hypertext links for LaTeX
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefine
+keys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.s
+ty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds
+.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
+ty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+Package: nameref 2025-06-21 v2.57 Cross-referencing by name of section
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettit
+lestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count322
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.s
+ty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen275
+\Hy@linkcounter=\count323
+\Hy@pagecounter=\count324
+ (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count325
+ (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
+File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Option `bookmarks' set `true' on input line 4066.
+Package hyperref Info: Option `bookmarksopen' set `true' on input line 4066.
+Package hyperref Info: Option `implicit' set `false' on input line 4066.
+Package hyperref Info: Hyper figures OFF on input line 4195.
+Package hyperref Info: Link nesting OFF on input line 4200.
+Package hyperref Info: Hyper index ON on input line 4203.
+Package hyperref Info: Plain pages OFF on input line 4210.
+Package hyperref Info: Backreferencing OFF on input line 4215.
+Package hyperref Info: Implicit mode OFF; no redefinition of LaTeX internals.
+Package hyperref Info: Bookmarks ON on input line 4462.
+\c@Hy@tempcnt=\count326
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
+\Urlmuskip=\muskip17
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4801.
+\XeTeXLinkMargin=\dimen276
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc
+.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count327
+\Field@Width=\dimen277
+\Fld@charsize=\dimen278
+Package hyperref Info: Hyper figures OFF on input line 6078.
+Package hyperref Info: Link nesting OFF on input line 6083.
+Package hyperref Info: Hyper index ON on input line 6086.
+Package hyperref Info: backreferencing OFF on input line 6093.
+Package hyperref Info: Link coloring OFF on input line 6098.
+Package hyperref Info: Link coloring with OCG OFF on input line 6103.
+Package hyperref Info: PDF/A mode OFF on input line 6108.
+\Hy@abspage=\count328
+
+
+Package hyperref Message: Stopped early.
+
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+ (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
+\Fld@listcount=\count329
+\c@bookmark@seq@number=\count330
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfil
+echeck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquec
+ounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaserequir
+es.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasecompat
+ibility.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasefont.s
+ty (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\@emptytoks=\toks29
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/sansmathaccent\sansmath
+accent.sty
+Package: sansmathaccent 2020/01/31
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile.st
+y
+Package: scrlfile 2025/12/01 v3.49 KOMA-Script package (file load hooks)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile-ho
+ok.sty
+Package: scrlfile-hook 2025/12/01 v3.49 KOMA-Script package (using LaTeX hooks)
+
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlogo.sty
+Package: scrlogo 2025/12/01 v3.49 KOMA-Script package (logo)
+)))))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasetransl
+ator.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator.s
+ty
+Package: translator 2021-05-31 v1.12d Easy translation of strings in LaTeX
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasemisc.s
+ty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasetwoscr
+eens.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseoverla
+y.sty
+\beamer@argscount=\count331
+\beamer@lastskipcover=\skip52
+\beamer@trivlistdepth=\count332
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasetitle.
+sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasesectio
+n.sty
+\c@lecture=\count333
+\c@part=\count334
+\c@section=\count335
+\c@subsection=\count336
+\c@subsubsection=\count337
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseframe.
+sty
+\beamer@framebox=\box68
+\beamer@frametitlebox=\box69
+\beamer@zoombox=\box70
+\beamer@zoomcount=\count338
+\beamer@zoomframecount=\count339
+\beamer@frametextheight=\dimen279
+\c@subsectionslide=\count340
+\beamer@frametopskip=\skip53
+\beamer@framebottomskip=\skip54
+\beamer@frametopskipautobreak=\skip55
+\beamer@framebottomskipautobreak=\skip56
+\beamer@envbody=\toks30
+\framewidth=\dimen280
+\c@framenumber=\count341
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseverbat
+im.sty
+\beamer@verbatimfileout=\write4
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseframes
+ize.sty
+\beamer@splitbox=\box71
+\beamer@autobreakcount=\count342
+\beamer@autobreaklastheight=\dimen281
+\beamer@frametitletoks=\toks31
+\beamer@framesubtitletoks=\toks32
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseframec
+omponents.sty
+\beamer@colheight=\skip57
+\beamer@footins=\box72
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasecolor.
+sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasenotes.
+sty
+\beamer@frameboxcopy=\box73
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasetoc.st
+y)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasetempla
+tes.sty
+\beamer@sbttoks=\toks33
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseauxtem
+plates.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaseboxes.
+sty
+\bmb@box=\box74
+\bmb@colorbox=\box75
+\bmb@boxwidth=\dimen282
+\bmb@boxheight=\dimen283
+\bmb@prevheight=\dimen284
+\bmb@temp=\dimen285
+\bmb@dima=\dimen286
+\bmb@dimb=\dimen287
+\bmb@prevheight=\dimen288
+)
+\beamer@blockheadheight=\dimen289
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbaselocals
+tructure.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/tools\enumerate.sty
+Package: enumerate 2023/07/04 v3.00 enumerate extensions (DPC)
+\@enLab=\toks34
+)
+\beamer@bibiconwidth=\skip58
+\c@figure=\count343
+\c@table=\count344
+\abovecaptionskip=\skip59
+\belowcaptionskip=\skip60
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasenaviga
+tion.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasenaviga
+tionsymbols.tex)
+\beamer@section@min@dim=\dimen290
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasetheore
+ms.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip61
+
+For additional information on amsmath, use the `?' option.
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks35
+\ex@=\dimen291
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen292
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count345
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count346
+\leftroot@=\count347
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count348
+\DOTSCASE@=\count349
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box76
+\strutbox@=\box77
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen293
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count350
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count351
+\dotsspace@=\muskip18
+\c@parentequation=\count352
+\dspbrk@lvl=\count353
+\tag@help=\toks36
+\row@=\count354
+\column@=\count355
+\maxfields@=\count356
+\andhelp@=\toks37
+\eqnshift@=\dimen294
+\alignsep@=\dimen295
+\tagshift@=\dimen296
+\tagwidth@=\dimen297
+\totwidth@=\dimen298
+\lineht@=\dimen299
+\@envbody=\toks38
+\multlinegap=\skip62
+\multlinetaggap=\skip63
+\mathdisplay@stack=\toks39
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amscls\amsthm.sty
+Package: amsthm 2020/05/29 v2.20.6
+\thm@style=\toks40
+\thm@bodyfont=\toks41
+\thm@headfont=\toks42
+\thm@notefont=\toks43
+\thm@headpunct=\toks44
+\thm@preskip=\skip64
+\thm@postskip=\skip65
+\thm@headsep=\skip66
+\dth@everypar=\toks45
+)
+\c@theorem=\count357
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerbasethemes
+.sty))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerthemedefau
+lt.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerfontthemed
+efault.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamercolortheme
+default.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerinnertheme
+default.sty
+\beamer@dima=\dimen300
+\beamer@dimb=\dimen301
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beameroutertheme
+default.sty))) (presentation.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerfontthemep
+rofessionalfonts.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/sourcesanspro\sourcesan
+spro.sty
+Package: sourcesanspro 2018/05/19 v2.7 Adobe's Source Sans Pro typeface
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifxetex.sty
+Package: ifxetex 2019/10/25 v0.7 ifxetex legacy package. Use iftex instead.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifluatex.sty
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/xkeyval\xkeyval.sty
+Package: xkeyval 2022/06/16 v2.9 package option processing (HA)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkeyval.tex
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkvutils.tex
+\XKV@toks=\toks46
+\XKV@tempa@toks=\toks47
+)
+\XKV@depth=\count358
+File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
+)) (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/ly1\ly1enc.def
+File: ly1enc.def 2022/06/11 v0.8 TeX 'n ANSI encoding (DPC/KB)
+Now handling font encoding LY1 ...
+... processing UTF-8 mapping file for font encoding LY1
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/base\ly1enc.dfu
+File: ly1enc.dfu 2022/06/07 v1.3c UTF-8 support
+   defining Unicode char U+00A0 (decimal 160)
+   defining Unicode char U+00A1 (decimal 161)
+   defining Unicode char U+00A2 (decimal 162)
+   defining Unicode char U+00A3 (decimal 163)
+   defining Unicode char U+00A4 (decimal 164)
+   defining Unicode char U+00A5 (decimal 165)
+   defining Unicode char U+00A6 (decimal 166)
+   defining Unicode char U+00A7 (decimal 167)
+   defining Unicode char U+00AA (decimal 170)
+   defining Unicode char U+00AB (decimal 171)
+   defining Unicode char U+00AD (decimal 173)
+   defining Unicode char U+00AE (decimal 174)
+   defining Unicode char U+00B0 (decimal 176)
+   defining Unicode char U+00B5 (decimal 181)
+   defining Unicode char U+00B6 (decimal 182)
+   defining Unicode char U+00B7 (decimal 183)
+   defining Unicode char U+00BA (decimal 186)
+   defining Unicode char U+00BB (decimal 187)
+   defining Unicode char U+00BC (decimal 188)
+   defining Unicode char U+00BD (decimal 189)
+   defining Unicode char U+00BE (decimal 190)
+   defining Unicode char U+00BF (decimal 191)
+   defining Unicode char U+00C0 (decimal 192)
+   defining Unicode char U+00C1 (decimal 193)
+   defining Unicode char U+00C2 (decimal 194)
+   defining Unicode char U+00C3 (decimal 195)
+   defining Unicode char U+00C4 (decimal 196)
+   defining Unicode char U+00C5 (decimal 197)
+   defining Unicode char U+00C6 (decimal 198)
+   defining Unicode char U+00C7 (decimal 199)
+   defining Unicode char U+00C8 (decimal 200)
+   defining Unicode char U+00C9 (decimal 201)
+   defining Unicode char U+00CA (decimal 202)
+   defining Unicode char U+00CB (decimal 203)
+   defining Unicode char U+00CC (decimal 204)
+   defining Unicode char U+00CD (decimal 205)
+   defining Unicode char U+00CE (decimal 206)
+   defining Unicode char U+00CF (decimal 207)
+   defining Unicode char U+00D0 (decimal 208)
+   defining Unicode char U+00D1 (decimal 209)
+   defining Unicode char U+00D2 (decimal 210)
+   defining Unicode char U+00D3 (decimal 211)
+   defining Unicode char U+00D4 (decimal 212)
+   defining Unicode char U+00D5 (decimal 213)
+   defining Unicode char U+00D6 (decimal 214)
+   defining Unicode char U+00D8 (decimal 216)
+   defining Unicode char U+00D9 (decimal 217)
+   defining Unicode char U+00DA (decimal 218)
+   defining Unicode char U+00DB (decimal 219)
+   defining Unicode char U+00DC (decimal 220)
+   defining Unicode char U+00DD (decimal 221)
+   defining Unicode char U+00DE (decimal 222)
+   defining Unicode char U+00DF (decimal 223)
+   defining Unicode char U+00E0 (decimal 224)
+   defining Unicode char U+00E1 (decimal 225)
+   defining Unicode char U+00E2 (decimal 226)
+   defining Unicode char U+00E3 (decimal 227)
+   defining Unicode char U+00E4 (decimal 228)
+   defining Unicode char U+00E5 (decimal 229)
+   defining Unicode char U+00E6 (decimal 230)
+   defining Unicode char U+00E7 (decimal 231)
+   defining Unicode char U+00E8 (decimal 232)
+   defining Unicode char U+00E9 (decimal 233)
+   defining Unicode char U+00EA (decimal 234)
+   defining Unicode char U+00EB (decimal 235)
+   defining Unicode char U+00EC (decimal 236)
+   defining Unicode char U+00ED (decimal 237)
+   defining Unicode char U+00EE (decimal 238)
+   defining Unicode char U+00EF (decimal 239)
+   defining Unicode char U+00F0 (decimal 240)
+   defining Unicode char U+00F1 (decimal 241)
+   defining Unicode char U+00F2 (decimal 242)
+   defining Unicode char U+00F3 (decimal 243)
+   defining Unicode char U+00F4 (decimal 244)
+   defining Unicode char U+00F5 (decimal 245)
+   defining Unicode char U+00F6 (decimal 246)
+   defining Unicode char U+00F8 (decimal 248)
+   defining Unicode char U+00F9 (decimal 249)
+   defining Unicode char U+00FA (decimal 250)
+   defining Unicode char U+00FB (decimal 251)
+   defining Unicode char U+00FC (decimal 252)
+   defining Unicode char U+00FD (decimal 253)
+   defining Unicode char U+00FE (decimal 254)
+   defining Unicode char U+00FF (decimal 255)
+   defining Unicode char U+0131 (decimal 305)
+   defining Unicode char U+0141 (decimal 321)
+   defining Unicode char U+0142 (decimal 322)
+   defining Unicode char U+0152 (decimal 338)
+   defining Unicode char U+0153 (decimal 339)
+   defining Unicode char U+0160 (decimal 352)
+   defining Unicode char U+0161 (decimal 353)
+   defining Unicode char U+0174 (decimal 372)
+   defining Unicode char U+0175 (decimal 373)
+   defining Unicode char U+0176 (decimal 374)
+   defining Unicode char U+0177 (decimal 375)
+   defining Unicode char U+0178 (decimal 376)
+   defining Unicode char U+017D (decimal 381)
+   defining Unicode char U+017E (decimal 382)
+   defining Unicode char U+0192 (decimal 402)
+   defining Unicode char U+0218 (decimal 536)
+   defining Unicode char U+0219 (decimal 537)
+   defining Unicode char U+021A (decimal 538)
+   defining Unicode char U+021B (decimal 539)
+   defining Unicode char U+0237 (decimal 567)
+   defining Unicode char U+02C6 (decimal 710)
+   defining Unicode char U+02DC (decimal 732)
+   defining Unicode char U+2013 (decimal 8211)
+   defining Unicode char U+2014 (decimal 8212)
+   defining Unicode char U+201C (decimal 8220)
+   defining Unicode char U+201D (decimal 8221)
+   defining Unicode char U+2020 (decimal 8224)
+   defining Unicode char U+2021 (decimal 8225)
+   defining Unicode char U+2022 (decimal 8226)
+   defining Unicode char U+2026 (decimal 8230)
+   defining Unicode char U+2030 (decimal 8240)
+   defining Unicode char U+2039 (decimal 8249)
+   defining Unicode char U+203A (decimal 8250)
+   defining Unicode char U+2122 (decimal 8482)
+   defining Unicode char U+FB00 (decimal 64256)
+   defining Unicode char U+FB01 (decimal 64257)
+   defining Unicode char U+FB02 (decimal 64258)
+   defining Unicode char U+FB03 (decimal 64259)
+   defining Unicode char U+FB04 (decimal 64260)
+   defining Unicode char U+FB05 (decimal 64261)
+   defining Unicode char U+FB06 (decimal 64262)
+))))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/sourcecodepro\sourcecod
+epro.sty
+Package: sourcecodepro 2025/04/06 v2.8 Adobe's Source Code Pro typeface
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+LaTeX Font Info:    Trying to load font information for T1+SourceSansPro-TLF on
+ input line 116.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/sourcesanspro\t1sources
+anspro-tlf.fd
+File: T1SourceSansPro-TLF.fd 2020/01/19 (autoinst) Font definitions for T1/Sour
+ceSansPro-TLF.
+)
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 116.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 10.95pt on input line 116.
+))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/mnsymbol\MnSymbol.sty
+Package: MnSymbol 2007/01/21 v1.4 support for the MnSymbol font
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/base\textcomp.sty
+Package: textcomp 2024/04/24 v2.1b Standard LaTeX package
+)
+LaTeX Info: Redefining \dagger on input line 84.
+LaTeX Info: Redefining \ddagger on input line 84.
+LaTeX Info: Redefining \mathparagraph on input line 84.
+LaTeX Info: Redefining \mathsection on input line 84.
+LaTeX Info: Redefining \mathdollar on input line 84.
+LaTeX Info: Redefining \mathsterling on input line 84.
+LaTeX Info: Redefining \yen on input line 84.
+LaTeX Info: Redefining \circledR on input line 84.
+LaTeX Info: Redefining \circledS on input line 84.
+LaTeX Info: Redefining \Re on input line 84.
+LaTeX Info: Redefining \Im on input line 84.
+LaTeX Info: Redefining \dotplus on input line 84.
+LaTeX Info: Redefining \thicksim on input line 84.
+LaTeX Info: Redefining \thickapprox on input line 84.
+LaTeX Info: Redefining \veebar on input line 84.
+LaTeX Info: Redefining \barwedge on input line 84.
+LaTeX Info: Redefining \doublebarwedge on input line 84.
+LaTeX Info: Redefining \centerdot on input line 84.
+LaTeX Info: Redefining \divideontimes on input line 84.
+\symMnSyA=\mathgroup6
+\symMnSyB=\mathgroup7
+\symMnSyC=\mathgroup8
+\symMnSyD=\mathgroup9
+LaTeX Font Info:    Redeclaring symbol font `largesymbols' on input line 119.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/MnSymbolE/m/n on input line 119.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/MnSymbolE/m/n on input line 119.
+LaTeX Font Info:    Redeclaring symbol font `symbols' on input line 120.
+LaTeX Font Info:    Encoding `OMS' has changed to `U' for symbol font
+(Font)              `symbols' in the math version `normal' on input line 120.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/cmsy/m/n --> U/MnSymbolF/m/n on input line 120.
+LaTeX Font Info:    Encoding `OMS' has changed to `U' for symbol font
+(Font)              `symbols' in the math version `bold' on input line 120.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/cmsy/b/n --> U/MnSymbolF/m/n on input line 120.
+LaTeX Font Info:    Overwriting symbol font `MnSyA' in version `bold'
+(Font)                  U/MnSymbolA/m/n --> U/MnSymbolA/b/n on input line 121.
+LaTeX Font Info:    Overwriting symbol font `MnSyB' in version `bold'
+(Font)                  U/MnSymbolB/m/n --> U/MnSymbolB/b/n on input line 122.
+LaTeX Font Info:    Overwriting symbol font `MnSyC' in version `bold'
+(Font)                  U/MnSymbolC/m/n --> U/MnSymbolC/b/n on input line 123.
+LaTeX Font Info:    Overwriting symbol font `MnSyD' in version `bold'
+(Font)                  U/MnSymbolD/m/n --> U/MnSymbolD/b/n on input line 124.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/MnSymbolE/m/n --> OMX/MnSymbolE/b/n on input line 1
+25.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  U/MnSymbolF/m/n --> U/MnSymbolF/b/n on input line 126.
+LaTeX Font Info:    Redeclaring math alphabet \mathcal on input line 241.
+LaTeX Font Info:    Overwriting math alphabet `\mathcal' in version `bold'
+(Font)                  OMS/MnSymbolS/m/n --> OMS/MnSymbolS/b/n on input line 2
+41.
+LaTeX Info: Redefining \longrightarrow on input line 548.
+LaTeX Info: Redefining \longleftarrow on input line 549.
+LaTeX Info: Redefining \longleftrightarrow on input line 550.
+LaTeX Info: Redefining \Longrightarrow on input line 551.
+LaTeX Info: Redefining \Longleftarrow on input line 552.
+LaTeX Info: Redefining \Longleftrightarrow on input line 553.
+LaTeX Info: Redefining \longmapsto on input line 554.
+LaTeX Info: Redefining \vdots on input line 868.
+LaTeX Font Info:    Redeclaring math symbol \braceld on input line 1721.
+LaTeX Font Info:    Redeclaring math symbol \bracelu on input line 1722.
+LaTeX Font Info:    Redeclaring math symbol \bracerd on input line 1723.
+LaTeX Font Info:    Redeclaring math symbol \braceru on input line 1724.
+LaTeX Info: Redefining \downbracefill on input line 1799.
+LaTeX Info: Redefining \upbracefill on input line 1800.
+LaTeX Info: Redefining \overbrace on input line 1819.
+LaTeX Info: Redefining \underbrace on input line 1820.
+LaTeX Info: Redefining \surd on input line 1843.
+LaTeX Font Info:    Redeclaring math accent \widehat on input line 1845.
+LaTeX Font Info:    Redeclaring math accent \widetilde on input line 1846.
+LaTeX Font Info:    Redeclaring math accent \vec on input line 1848.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/mathalpha\mathalpha.sty
+Package: mathalpha 2025/01/17 - 1.145mathalpha (License LPPL) Michael Sharpe
+`mathalpha' v1.145, 2025/01/17, a renaming of mathalfa (msharpe)
+LaTeX Font Info:    Redeclaring math alphabet \mathcal on input line 477.
+LaTeX Font Info:    Overwriting math alphabet `\mathcal' in version `normal'
+(Font)                  OMS/MnSymbolS/m/n --> U/eus/m/n on input line 477.
+LaTeX Font Info:    Overwriting math alphabet `\mathcal' in version `bold'
+(Font)                  OMS/MnSymbolS/b/n --> U/eus/m/n on input line 477.
+LaTeX Font Info:    Overwriting math alphabet `\mathcal' in version `bold'
+(Font)                  U/eus/m/n --> U/eus/b/n on input line 479.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/tools\bm.sty
+Package: bm 2025/10/21 v1.2g Bold Symbol Support (DPC/FMi)
+Package bm Info: No bold for \U/msa/m/n, using \pmb.
+Package bm Info: No bold for \U/msb/m/n, using \pmb.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/mathastext\mathastext.s
+ty
+Package: mathastext 2024/10/26 v1.4e Use the text font in math mode (JFB)
+
+Package mathastext Info: Starting the math mode configuration.
+\mst@exists@muskip=\muskip19
+\mst@forall@muskip=\muskip20
+\mst@prime@muskip=\muskip21
+\mst@do@nonletters=\toks48
+\mst@undo@nonletters=\toks49
+\mst@do@easynonletters=\toks50
+\mst@undo@easynonletters=\toks51
+\symmtoperatorfont=\mathgroup10
+\symmtletterfont=\mathgroup11
+(   mathastext:   ) will use Euler font; command \MTEulerScale
+\symmteulervm=\mathgroup12
+(   mathastext:   ) ! and ?
+(   mathastext:   ) punctuation: , . : ; and \colon
+(   mathastext:   ) \# \mathdollar \% \& 
+(   mathastext:   ) \imath and \jmath 
+LaTeX Font Info:    Overwriting math alphabet `\Mathnormalbold' in version `nor
+mal'
+(Font)                  T1/SourceSansPro-TLF/b/it --> T1/SourceSansPro-TLF/b/it
+ on input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathnormalbold' in version `bol
+d'
+(Font)                  T1/SourceSansPro-TLF/b/it --> T1/SourceSansPro-TLF/b/it
+ on input line 2934.
+LaTeX Font Info:    Overwriting symbol font `mtletterfont' in version `normal'
+(Font)                  T1/SourceSansPro-TLF/m/it --> T1/SourceSansPro-TLF/m/it
+ on input line 2934.
+LaTeX Font Info:    Overwriting symbol font `mtletterfont' in version `bold'
+(Font)                  T1/SourceSansPro-TLF/m/it --> T1/SourceSansPro-TLF/b/it
+ on input line 2934.
+LaTeX Font Info:    Overwriting symbol font `mtoperatorfont' in version `normal
+'
+(Font)                  T1/SourceSansPro-TLF/m/n --> T1/SourceSansPro-TLF/m/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting symbol font `mtoperatorfont' in version `bold'
+(Font)                  T1/SourceSansPro-TLF/m/n --> T1/SourceSansPro-TLF/b/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathbf' in version `normal'
+(Font)                  T1/SourceSansPro-TLF/b/n --> T1/SourceSansPro-TLF/b/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathbf' in version `bold'
+(Font)                  T1/SourceSansPro-TLF/b/n --> T1/SourceSansPro-TLF/b/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathit' in version `normal'
+(Font)                  T1/SourceSansPro-TLF/m/it --> T1/SourceSansPro-TLF/m/it
+ on input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathit' in version `bold'
+(Font)                  T1/SourceSansPro-TLF/m/it --> T1/SourceSansPro-TLF/b/it
+ on input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathsf' in version `normal'
+(Font)                  T1/SourceSansPro-TLF/m/n --> T1/SourceSansPro-TLF/m/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathsf' in version `bold'
+(Font)                  T1/SourceSansPro-TLF/m/n --> T1/SourceSansPro-TLF/b/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathtt' in version `normal'
+(Font)                  T1/SourceCodePro-TLF/m/n --> T1/SourceCodePro-TLF/m/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\Mathtt' in version `bold'
+(Font)                  T1/SourceCodePro-TLF/m/n --> T1/SourceCodePro-TLF/b/n o
+n input line 2934.
+LaTeX Font Info:    Overwriting symbol font `mteulervm' in version `bold'
+(Font)                  U/zeur/m/n --> U/zeur/b/n on input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\MathEulerBold' in version `norm
+al'
+(Font)                  U/zeur/b/n --> U/zeur/b/n on input line 2934.
+LaTeX Font Info:    Overwriting math alphabet `\MathEulerBold' in version `bold
+'
+(Font)                  U/zeur/b/n --> U/zeur/b/n on input line 2934.
+(   mathastext:   ) Latin letters in the `normal', resp. `bold',
+(   mathastext:   ) math versions are now set up to use the fonts
+(   mathastext:   ) T1/SourceSansPro-TLF/m/it, resp. T1/SourceSansPro-TLF/b/it.
+
+(   mathastext:   ) Other characters (digits, ...) and \log-like names will be
+(   mathastext:   ) typeset with the n shape.
+(   mathastext:   ) The italic option is in effect.
+(   mathastext:   ) Greek letters will use the Euler font.
+(   mathastext:   ) Use \MathastextEulerScale{<factor>} to scale the font.
+(   mathastext:   ) \HUGE has been (re)-defined.
+(   mathastext:   ) mathastext has declared larger sizes for subscripts.
+(   mathastext:   ) To keep LaTeX defaults, use option `defaultmathsizes'.
+
+Package mathastext Info: Loading is complete.  You can now use \Mathastext to
+(mathastext)             modify the normal and bold math versions.  Use it
+(mathastext)             with optional argument or use \MTDeclareVersion to
+(mathastext)             declare additional math versions.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerthemeBoadi
+lla.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamercolortheme
+rose.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamerinnertheme
+rounded.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamercolortheme
+dolphin.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beameroutertheme
+infolines.sty))
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/beamer\beamercolortheme
+seagull.sty)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/setspace\setspace.sty
+Package: setspace 2022/12/04 v6.7b set line spacing
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.sty
+Package: microtype 2025/07/09 v3.2b Micro-typographical refinements (RS)
+\MT@toks=\toks52
+\MT@tempbox=\box78
+\MT@count=\count359
+LaTeX Info: Redefining \noprotrusionifhmode on input line 1087.
+LaTeX Info: Redefining \leftprotrusion on input line 1088.
+\MT@prot@toks=\toks53
+LaTeX Info: Redefining \rightprotrusion on input line 1107.
+LaTeX Info: Redefining \textls on input line 1449.
+\MT@outer@kern=\dimen302
+LaTeX Info: Redefining \microtypecontext on input line 2053.
+LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
+\MT@listname@count=\count360
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype-pdf
+tex.def
+File: microtype-pdftex.def 2025/07/09 v3.2b Definitions specific to pdftex (RS)
+
+LaTeX Info: Redefining \lsstyle on input line 944.
+LaTeX Info: Redefining \lslig on input line 944.
+\MT@outer@space=\skip67
+)
+Package microtype Info: Loading configuration file microtype.cfg.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.cfg
+File: microtype.cfg 2025/07/09 v3.2b microtype main configuration file (RS)
+)
+LaTeX Info: Redefining \microtypesetup on input line 3065.
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xpars
+e.sty
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+Package: expl3 2025-12-24 L3 programming layer (loader) 
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
+tex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count361
+))
+Package: xparse 2025-10-09 L3 Experimental document command parser
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen303
+\lightrulewidth=\dimen304
+\cmidrulewidth=\dimen305
+\belowrulesep=\dimen306
+\belowbottomsep=\dimen307
+\aboverulesep=\dimen308
+\abovetopsep=\dimen309
+\cmidrulesep=\dimen310
+\cmidrulekern=\dimen311
+\defaultaddspace=\dimen312
+\@cmidla=\count362
+\@cmidlb=\count363
+\@aboverulesep=\dimen313
+\@belowrulesep=\dimen314
+\@thisruleclass=\count364
+\@lastruleclass=\count365
+\@thisrulewidth=\dimen315
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/multirow\multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip68
+\multirow@cntb=\count366
+\multirow@dima=\skip69
+\bigstrutjot=\dimen316
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen317
+\captionmargin=\dimen318
+\caption@leftmargin=\dimen319
+\caption@rightmargin=\dimen320
+\caption@width=\dimen321
+\caption@indent=\dimen322
+\caption@parindent=\dimen323
+\caption@hangindent=\dimen324
+Package caption Info: beamer document class detected.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/caption\caption-beamer.
+sto
+File: caption-beamer.sto 2022/01/06 v2.0c Adaption of the caption package to th
+e beamer document classes (AR)
+))
+\c@caption@flags=\count367
+\c@continuedfloat=\count368
+Package caption Info: hyperref package is loaded.
+Package caption Info: Hyperref support is turned off
+(caption)             because hyperref has stopped early.
+)
+\c@proposition=\count369
+\c@assumption=\count370
+\c@remark=\count371
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/import\import.sty
+Package: import 2020/04/01  v 6.2
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty
+Package: longtable 2025-10-13 v4.24 Multi-page Table package (DPC)
+\LTleft=\skip70
+\LTright=\skip71
+\LTpre=\skip72
+\LTpost=\skip73
+\LTchunksize=\count372
+\LTcapwidth=\dimen325
+\LT@head=\box79
+\LT@firsthead=\box80
+\LT@foot=\box81
+\LT@lastfoot=\box82
+\LT@gbox=\box83
+\LT@cols=\count373
+\LT@rows=\count374
+\c@LT@tables=\count375
+\c@LT@chunks=\count376
+\LT@p@ftn=\toks54
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+Package: tabularx 2023/12/11 v2.12a `tabularx' package (DPC)
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
+\col@sep=\dimen326
+\ar@mcellbox=\box84
+\extrarowheight=\dimen327
+\NC@list=\toks55
+\extratabsurround=\skip74
+\backup@length=\skip75
+\ar@cellbox=\box85
+)
+\TX@col@width=\dimen328
+\TX@old@table=\dimen329
+\TX@old@col=\dimen330
+\TX@target=\dimen331
+\TX@delta=\dimen332
+\TX@cols=\count377
+\TX@ftn=\toks56
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/tools\calc.sty
+Package: calc 2025/03/01 v4.3b Infix arithmetic (KKT,FJ)
+\calc@Acount=\count378
+\calc@Bcount=\count379
+\calc@Adimen=\dimen333
+\calc@Bdimen=\dimen334
+\calc@Askip=\skip76
+\calc@Bskip=\skip77
+LaTeX Info: Redefining \setlength on input line 86.
+LaTeX Info: Redefining \addtolength on input line 87.
+\calc@Ccount=\count380
+\calc@Cskip=\skip78
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/bytefield\bytefield.sty
+Package: bytefield 2025/01/25 v2.9 Network protocol diagrams
+\bytefield@height=\skip79
+\bytefield@height@increment=\skip80
+\entire@bytefield@picture=\box86
+\bf@bitwidth=\skip81
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 90.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 6.0pt on input line 90.
+\bf@bitheight=\skip82
+\units@wide=\skip83
+\units@tall=\skip84
+\units@high=\skip85
+\header@xpos=\skip86
+\c@header@val=\count381
+\c@max@header@val=\count382
+\curly@box=\box87
+\wordlabelr@start=\skip87
+\wordlabelr@end=\skip88
+\wordlabell@start=\skip89
+\wordlabell@end=\skip90
+\total@lbox@width=\skip91
+\label@box@width=\skip92
+\label@box@height=\skip93
+\word@label@box=\box88
+) (C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.sty
+\lst@mode=\count383
+\lst@gtempboxa=\box89
+\lst@token=\toks57
+\lst@length=\count384
+\lst@currlwidth=\dimen335
+\lst@column=\count385
+\lst@pos=\count386
+\lst@lostspace=\dimen336
+\lst@width=\dimen337
+\lst@newlines=\count387
+\lst@lineno=\count388
+\lst@maxwidth=\dimen338
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty
+File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
+File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
+\c@lstnumber=\count389
+\lst@skipnumbers=\count390
+\lst@framebox=\box90
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
+File: listings.cfg 2025/11/14 1.11b listings configuration
+))
+Package: listings 2025/11/14 1.11b (Carsten Heinz)
+==> First Aid for listings.sty no longer applied!
+    Expected:
+        2024/09/23 1.10c (Carsten Heinz)
+    but found:
+        2025/11/14 1.11b (Carsten Heinz)
+    so I'm assuming it got fixed.
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/ragged2e\ragged2e.sty
+Package: ragged2e 2023/06/22 v3.6 ragged2e Package
+\CenteringLeftskip=\skip94
+\RaggedLeftLeftskip=\skip95
+\RaggedRightLeftskip=\skip96
+\CenteringRightskip=\skip97
+\RaggedLeftRightskip=\skip98
+\RaggedRightRightskip=\skip99
+\CenteringParfillskip=\skip100
+\RaggedLeftParfillskip=\skip101
+\RaggedRightParfillskip=\skip102
+\JustifyingParfillskip=\skip103
+\CenteringParindent=\skip104
+\RaggedLeftParindent=\skip105
+\RaggedRightParindent=\skip106
+\JustifyingParindent=\skip107
+)
+Package hyperref Info: Option `pdfdisplaydoctitle' set `true' on input line 16.
+
+
+(presentation.aux)
+\openout1 = `presentation.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 21.
+LaTeX Font Info:    ... okay on input line 21.
+LaTeX Font Info:    Checking defaults for LY1/ptm/m/n on input line 21.
+LaTeX Font Info:    Trying to load font information for LY1+ptm on input line 2
+1.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/ly1\ly1ptm.fd
+File: ly1ptm.fd 2001/02/01 font definitions for LY1/ptm using Berry names.
+)
+LaTeX Font Info:    ... okay on input line 21.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: custom
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: includehead includefoot 
+* h-part:(L,W,R)=(14.22636pt, 335.74263pt, 14.22636pt)
+* v-part:(T,H,B)=(0.0pt, 273.14662pt, 0.0pt)
+* \paperwidth=364.19536pt
+* \paperheight=273.14662pt
+* \textwidth=335.74263pt
+* \textheight=244.6939pt
+* \oddsidemargin=-58.04362pt
+* \evensidemargin=-58.04362pt
+* \topmargin=-72.26999pt
+* \headheight=14.22636pt
+* \headsep=0.0pt
+* \topskip=11.0pt
+* \footskip=14.22636pt
+* \marginparwidth=4.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
+ii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count391
+\scratchdimen=\dimen339
+\scratchbox=\box91
+\nofMPsegments=\count392
+\nofMParguments=\count393
+\everyMPshowfont=\toks58
+\MPscratchCnt=\count394
+\MPscratchDim=\dimen340
+\MPnumerator=\count395
+\makeMPintoPDFobject=\count396
+\everyMPtoPDFconversion=\toks59
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
+ase.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.c
+fg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+Package hyperref Info: Link coloring OFF on input line 21.
+ (presentation.out) (presentation.out)
+\@outlinefile=\write5
+\openout5 = `presentation.out'.
+
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator-b
+asic-dictionary-English.dict
+Dictionary: translator-basic-dictionary, Language: English 
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator-b
+ibliography-dictionary-English.dict
+Dictionary: translator-bibliography-dictionary, Language: English 
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator-e
+nvironment-dictionary-English.dict
+Dictionary: translator-environment-dictionary, Language: English 
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator-m
+onths-dictionary-English.dict
+Dictionary: translator-months-dictionary, Language: English 
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator-n
+umbers-dictionary-English.dict
+Dictionary: translator-numbers-dictionary, Language: English 
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/translator\translator-t
+heorem-dictionary-English.dict
+Dictionary: translator-theorem-dictionary, Language: English 
+)
+LaTeX Info: Redefining \microtypecontext on input line 21.
+Package microtype Info: Applying patch `item' on input line 21.
+Package microtype Info: Applying patch `toc' on input line 21.
+Package microtype Info: Applying patch `eqnum' on input line 21.
+Package microtype Info: Applying patch `footnote' on input line 21.
+Package microtype Info: Applying patch `verbatim' on input line 21.
+LaTeX Info: Redefining \microtypesetup on input line 21.
+Package microtype Info: Generating PDF output.
+Package microtype Info: Character protrusion enabled (level 2).
+Package microtype Info: Using default protrusion set `alltext'.
+Package microtype Info: Automatic font expansion enabled (level 2),
+(microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
+Package microtype Info: Using default expansion set `alltext-nott'.
+Package microtype Info: Patching command `\showhyphens'.
+Package microtype Info: No adjustment of tracking.
+Package microtype Info: No adjustment of interword spacing.
+Package microtype Info: No adjustment of character kerning.
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `SourceSansPro-TLF' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: listings package is loaded.
+Package caption Info: longtable package is loaded.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/caption\ltcaption.sty
+Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
+)
+Package caption Info: End \AtBeginDocument code.
+\c@lstlisting=\count397
+
+(presentation.nav)
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 20.74pt on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/sc' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/sc' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/sc' will be
+(Font)              scaled to size 20.74pt on input line 38.
+
+Overfull \hbox (8.0pt too wide) in paragraph at lines 38--38
+[][]  
+ []
+
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 12.0pt on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 9.0pt on input line 38.
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+(RS)
+)
+Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/9'
+
+(microtype)             (new value: 9.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/7'
+
+(microtype)             (new value: 7.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/5'
+
+(microtype)             (new value: 5.0pt) on input line 38.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 38.
+
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg
+File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 38.
+
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg
+File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
+)
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/9'
+(microtype)             (new value: 9.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/7'
+(microtype)             (new value: 7.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/5'
+(microtype)             (new value: 5.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/9'
+(microtype)             (new value: 9.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/7'
+(microtype)             (new value: 7.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/5'
+(microtype)             (new value: 5.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/9'
+(microtype)             (new value: 9.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/7'
+(microtype)             (new value: 7.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/5'
+(microtype)             (new value: 5.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/9'
+(microtype)             (new value: 9.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/7'
+(microtype)             (new value: 7.0pt) on input line 38.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/5'
+(microtype)             (new value: 5.0pt) on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 7.0pt on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 5.0pt on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
+(Font)              scaled to size 9.0pt on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
+(Font)              scaled to size 7.0pt on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
+(Font)              scaled to size 5.0pt on input line 38.
+LaTeX Font Info:    Trying to load font information for U+zeur on input line 38
+.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/eulervm\uzeur.fd
+File: uzeur.fd 2005/01/11 v4.0 (WaS)
+)
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-eur.cfg
+File: mt-eur.cfg 2006/07/31 v1.1 microtype config. file: AMS Euler Roman (RS)
+)
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 8.0pt on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 38.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 4.0pt on input line 38.
+
+[1
+
+{C:/Users/Marco/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/Marc
+o/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/sourcesanspro/a_4jropk.enc}{C:/
+Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/sourcesanspro/a_emkxm
+5.enc}] (frames/introduzione.tex
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 14.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 14.4pt on input line 14.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/sc' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/sc' on input line 14.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/sc' will be
+(Font)              scaled to size 14.4pt on input line 14.
+ [2
+
+]) (frames/introduzione_ICMP.tex [3
+
+]
+<../Tesi/img/ICMP-packet-structure.png, id=31, 853.1875pt x 341.275pt>
+File: ../Tesi/img/ICMP-packet-structure.png Graphic file (type png)
+<use ../Tesi/img/ICMP-packet-structure.png>
+Package pdftex.def Info: ../Tesi/img/ICMP-packet-structure.png  used on input l
+ine 21.
+(pdftex.def)             Requested size: 302.1663pt x 120.86966pt.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/n' on input line 21.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 10.0pt on input line 21.
+
+[4
+
+ <../Tesi/img/ICMP-packet-structure.png>]
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 37.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
+(Font)              scaled to size 10.95pt on input line 37.
+
+Underfull \hbox (badness 10000) in paragraph at lines 37--37
+[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Diagnostica
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 37--37
+[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Segnalazione
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 37--37
+[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Risoluzione
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 37--37
+[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Ottenimento
+ []
+
+[5
+
+]) (frames/introduzione_Covert_Channel.tex [6
+
+]
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 27.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
+(Font)              scaled to size 8.0pt on input line 27.
+
+Overfull \hbox (8.41182pt too wide) in alignment at lines 27--27
+ [] [] 
+ []
+
+[7
+
+]
+<../Tesi/img/presentazione/thiefs_and_warden.jpg, id=57, 1027.84pt x 1027.84pt>
+
+File: ../Tesi/img/presentazione/thiefs_and_warden.jpg Graphic file (type jpg)
+<use ../Tesi/img/presentazione/thiefs_and_warden.jpg>
+Package pdftex.def Info: ../Tesi/img/presentazione/thiefs_and_warden.jpg  used 
+on input line 31.
+(pdftex.def)             Requested size: 167.8713pt x 167.86108pt.
+ [8
+
+ <../Tesi/img/presentazione/thiefs_and_warden.jpg>]
+<../Tesi/img/presentazione/covertChanne-pandaRossa.png, id=63, 1284.8pt x 733.7
+4126pt>
+File: ../Tesi/img/presentazione/covertChanne-pandaRossa.png Graphic file (type 
+png)
+<use ../Tesi/img/presentazione/covertChanne-pandaRossa.png>
+Package pdftex.def Info: ../Tesi/img/presentazione/covertChanne-pandaRossa.png 
+ used on input line 47.
+(pdftex.def)             Requested size: 161.15501pt x 92.03091pt.
+<../Tesi/img/presentazione/covertChannel-camionRosso.png, id=65, 1284.8pt x 733
+.74126pt>
+File: ../Tesi/img/presentazione/covertChannel-camionRosso.png Graphic file (typ
+e png)
+<use ../Tesi/img/presentazione/covertChannel-camionRosso.png>
+Package pdftex.def Info: ../Tesi/img/presentazione/covertChannel-camionRosso.pn
+g  used on input line 47.
+(pdftex.def)             Requested size: 161.15501pt x 92.03091pt.
+ [9
+
+ <../Tesi/img/presentazione/covertChanne-pandaRossa.png> <../Tesi/img/presentaz
+ione/covertChannel-camionRosso.png>]
+<../Tesi/img/presentazione/wheres-waldo-picture-8.jpg, id=73, 2569.6pt x 1629.0
+8624pt>
+File: ../Tesi/img/presentazione/wheres-waldo-picture-8.jpg Graphic file (type j
+pg)
+<use ../Tesi/img/presentazione/wheres-waldo-picture-8.jpg>
+Package pdftex.def Info: ../Tesi/img/presentazione/wheres-waldo-picture-8.jpg  
+used on input line 67.
+(pdftex.def)             Requested size: 335.74263pt x 212.83267pt.
+ [10
+
+ <../Tesi/img/presentazione/wheres-waldo-picture-8.jpg>]
+Underfull \hbox (badness 7116) in paragraph at lines 87--87
+[]\T1/SourceSansPro-TLF/regular/n/10.95 (+20) I \T1/SourceSansPro-TLF/bold/n/10
+.95 (+20) Tim-ing Covert Chan-nel \T1/SourceSansPro-TLF/regular/n/10.95 (+20) s
+ono
+ []
+
+
+Underfull \hbox (badness 3189) in paragraph at lines 87--87
+\T1/SourceSansPro-TLF/regular/n/10.95 (+20) quisire in-for-mazioni at-traverso 
+il
+ []
+
+<../Tesi/img/telegrafo2.jpg, id=79, 2128.95375pt x 2759.30875pt>
+File: ../Tesi/img/telegrafo2.jpg Graphic file (type jpg)
+<use ../Tesi/img/telegrafo2.jpg>
+Package pdftex.def Info: ../Tesi/img/telegrafo2.jpg  used on input line 87.
+(pdftex.def)             Requested size: 112.80801pt x 146.18372pt.
+[11
+
+ <../Tesi/img/telegrafo2.jpg>]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+Underfull \hbox (badness 1796) in paragraph at lines 5--11
+\T1/SourceSansPro-TLF/regular/n/10.95 (+20) di memo-ria con-di-visa ac-ces-si-b
+ile
+ []
+
+<../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png, id=85, 1027.84pt
+ x 1541.76pt>
+File: ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png Graphic file
+ (type png)
+<use ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/documento_inchiostrosimpati
+co.png  used on input line 14.
+(pdftex.def)             Requested size: 96.69398pt x 145.03368pt.
+) [12
+
+ <../Tesi/img/ICMP_storageCC/documento_inchiostrosimpatico.png (PNG copy)>]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+<../Tesi/img/ICMP_storageCC/packet_destination_unreachable_HEX.png, id=91, 805.
+50937pt x 402.75468pt>
+File: ../Tesi/img/ICMP_storageCC/packet_destination_unreachable_HEX.png Graphic
+ file (type png)
+<use ../Tesi/img/ICMP_storageCC/packet_destination_unreachable_HEX.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/packet_destination_unreacha
+ble_HEX.png  used on input line 5.
+(pdftex.def)             Requested size: 161.15501pt x 80.57408pt.
+LaTeX Font Info:    Trying to load font information for T1+SourceCodePro-TLF on
+ input line 9.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/sourcecodepro\t1sourcec
+odepro-tlf.fd
+File: T1SourceCodePro-TLF.fd 2025/04/07 (autoinst) Font definitions for T1/Sour
+ceCodePro-TLF.
+)
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/regular/n' aliased to
+(Font)              `T1/SourceCodePro-TLF/m/n' on input line 9.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 10.95pt on input line 9.
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `SourceCodePro-TLF' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/regular/n' aliased to
+(Font)              `T1/SourceCodePro-TLF/m/n' on input line 9.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 10.0pt on input line 9.
+) [13
+
+{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/sourcecodepro/a_r
+zhnou.enc} <../Tesi/img/ICMP_storageCC/packet_destination_unreachable_HEX.png>]
+<../Tesi/img/ICMP_behaveCC/semaforo.jpg, id=100, 475.7775pt x 316.18124pt>
+File: ../Tesi/img/ICMP_behaveCC/semaforo.jpg Graphic file (type jpg)
+<use ../Tesi/img/ICMP_behaveCC/semaforo.jpg>
+Package pdftex.def Info: ../Tesi/img/ICMP_behaveCC/semaforo.jpg  used on input 
+line 144.
+(pdftex.def)             Requested size: 161.15501pt x 107.09492pt.
+ [14
+
+ <../Tesi/img/ICMP_behaveCC/semaforo.jpg>])
+(frames/strumenti_utilizzati.tex
+LaTeX Font Info:    Trying to load font information for TS1+SourceSansPro-TLF o
+n input line 14.
+
+(C:\Users\Marco\AppData\Local\Programs\MiKTeX\tex/latex/sourcesanspro\ts1source
+sanspro-tlf.fd
+File: TS1SourceSansPro-TLF.fd 2020/01/19 (autoinst) Font definitions for TS1/So
+urceSansPro-TLF.
+)
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 14.
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 10.95pt on input line 14.
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `SourceSansPro-TLF' (encoding: TS1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ [15
+
+{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/sourcesanspro/a_5
+ponh6.enc}]
+Overfull \vbox (230.17453pt too high) detected at line 49
+ []
+
+[16
+
+]
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 73.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
+(Font)              scaled to size 10.95pt on input line 73.
+ [17
+
+] [18
+
+] [19
+
+]) (frames/implementazione_struttura.tex [20
+
+]
+<../Tesi/img/implementazione/diagramma_struttura_entita.jpg, id=139, 770.88pt x
+ 805.0075pt>
+File: ../Tesi/img/implementazione/diagramma_struttura_entita.jpg Graphic file (
+type jpg)
+<use ../Tesi/img/implementazione/diagramma_struttura_entita.jpg>
+Package pdftex.def Info: ../Tesi/img/implementazione/diagramma_struttura_entita
+.jpg  used on input line 49.
+(pdftex.def)             Requested size: 201.44762pt x 210.36568pt.
+ [21
+
+ <../Tesi/img/implementazione/diagramma_struttura_entita.jpg>]
+Overfull \hbox (8.41182pt too wide) in alignment at lines 71--71
+ [] [] 
+ []
+
+[22
+
+] [23
+
+]
+<../Tesi/img/implementazione/struttura attacker.proxy.victim 3.jpg, id=156, 522
+.95375pt x 362.35374pt>
+File: ../Tesi/img/implementazione/struttura attacker.proxy.victim 3.jpg Graphic
+ file (type jpg)
+<use ../Tesi/img/implementazione/struttura attacker.proxy.victim 3.jpg>
+Package pdftex.def Info: ../Tesi/img/implementazione/struttura attacker.proxy.v
+ictim 3.jpg  used on input line 109.
+(pdftex.def)             Requested size: 161.15501pt x 111.66501pt.
+ [24
+
+ <../Tesi/img/implementazione/struttura attacker.proxy.victim 3.jpg>]
+Overfull \hbox (8.4118pt too wide) in alignment at lines 134--134
+ [] [] 
+ []
+
+[25
+
+] [26
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 173--173
+[]|\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Numero min-imo di proxy nec-es-s
+ari per
+ []
+
+
+Overfull \hbox (8.4118pt too wide) in alignment at lines 173--173
+ [] [] 
+ []
+
+[27
+
+]) (frames/implementazione_Timing_CC.tex [28
+
+]
+Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/10
+.95'
+(microtype)             (new value: 10.95pt) on input line 39.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 39.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 39.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 39.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/10.9
+5'
+(microtype)             (new value: 10.95pt) on input line 39.
+<../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png, id=185, 12
+17.04688pt x 327.2225pt>
+File: ../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png Graphi
+c file (type png)
+<use ../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png>
+Package pdftex.def Info: ../Tesi/img/timing_channel/timing_channel_times_nonove
+rlapping.png  used on input line 39.
+(pdftex.def)             Requested size: 302.1663pt x 81.24121pt.
+ [29
+
+{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
+C.enc} <../Tesi/img/timing_channel/timing_channel_times_nonoverlapping.png>]
+Underfull \hbox (badness 1292) in paragraph at lines 67--67
+\T1/SourceSansPro-TLF/regular/n/10.95 (+20) (as-so-ci-ato al dato), fra un val-
+ore
+ []
+
+<../Tesi/img/timing_channel/timinmg_channel_2nd_function.png, id=193, 517.935pt
+ x 626.84187pt>
+File: ../Tesi/img/timing_channel/timinmg_channel_2nd_function.png Graphic file 
+(type png)
+<use ../Tesi/img/timing_channel/timinmg_channel_2nd_function.png>
+Package pdftex.def Info: ../Tesi/img/timing_channel/timinmg_channel_2nd_functio
+n.png  used on input line 67.
+(pdftex.def)             Requested size: 104.74977pt x 126.77217pt.
+[30
+
+{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
+E.enc} <../Tesi/img/timing_channel/timinmg_channel_2nd_function.png>]
+<../Tesi/img/timing_channel/timinmg_channel_rumore.png, id=201, 1113.15875pt x 
+367.87437pt>
+File: ../Tesi/img/timing_channel/timinmg_channel_rumore.png Graphic file (type 
+png)
+<use ../Tesi/img/timing_channel/timinmg_channel_rumore.png>
+Package pdftex.def Info: ../Tesi/img/timing_channel/timinmg_channel_rumore.png 
+ used on input line 88.
+(pdftex.def)             Requested size: 335.74263pt x 110.95816pt.
+
+[31
+
+ <../Tesi/img/timing_channel/timinmg_channel_rumore.png>])
+(frames/implementazione_Storage_CC.tex
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/8'
+
+(microtype)             (new value: 8.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `OMX/MnSymbolE/m/n/6'
+
+(microtype)             (new value: 6.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/8'
+(microtype)             (new value: 8.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolA/m/n/6'
+(microtype)             (new value: 6.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/8'
+(microtype)             (new value: 8.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolB/m/n/6'
+(microtype)             (new value: 6.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/8'
+(microtype)             (new value: 8.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolC/m/n/6'
+(microtype)             (new value: 6.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/8'
+(microtype)             (new value: 8.0pt) on input line 12.
+Package microtype Info: Fixing zero \fontdimen 6 for font `U/MnSymbolD/m/n/6'
+(microtype)             (new value: 6.0pt) on input line 12.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 12.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
+(Font)              scaled to size 8.0pt on input line 12.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/m/it' aliased to
+(Font)              `T1/SourceSansPro-TLF/regular/it' on input line 12.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/regular/it' will be
+(Font)              scaled to size 6.0pt on input line 12.
+
+Overfull \hbox (4.02875pt too wide) in alignment at lines 5--43
+ [] [] [] 
+ []
+
+) [32
+
+{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
+A.enc}]
+Overfull \hbox (4.02875pt too wide) in alignment at lines 104--104
+ [] [] [] 
+ []
+
+[33
+
+] (frames/storage_CC_tipologieICMP.tex
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+) [34
+
+{C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/mnsymbol/MnSymbol
+D.enc}]
+<../Tesi/img/pcap/packet_redirect_page_1.png, id=228, 2110.88625pt x 2243.38126
+pt>
+File: ../Tesi/img/pcap/packet_redirect_page_1.png Graphic file (type png)
+<use ../Tesi/img/pcap/packet_redirect_page_1.png>
+Package pdftex.def Info: ../Tesi/img/pcap/packet_redirect_page_1.png  used on i
+nput line 23.
+(pdftex.def)             Requested size: 201.44762pt x 214.08191pt.
+
+[35
+
+ <../Tesi/img/pcap/packet_redirect_page_1.png (PNG copy)>]
+<../Tesi/img/ICMP_storageCC/immagie_header_64bit.png, id=234, 521.69907pt x 782
+.17218pt>
+File: ../Tesi/img/ICMP_storageCC/immagie_header_64bit.png Graphic file (type pn
+g)
+<use ../Tesi/img/ICMP_storageCC/immagie_header_64bit.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagie_header_64bit.png  u
+sed on input line 43.
+(pdftex.def)             Requested size: 112.80801pt x 169.13046pt.
+ [36
+
+ <../Tesi/img/ICMP_storageCC/immagie_header_64bit.png>]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+Underfull \hbox (badness 10000) in paragraph at lines 9--10
+[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Dimensione dell'intero pac-
+ []
+
+
+Overfull \hbox (4.02875pt too wide) in alignment at lines 2--25
+ [] [] [] 
+ []
+
+) [37
+
+]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/b/n' aliased to
+(Font)              `T1/SourceSansPro-TLF/bold/n' on input line 3.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-TLF/bold/n' will be
+(Font)              scaled to size 9.0pt on input line 3.
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+)
+Overfull \vbox (12.74265pt too high) detected at line 111
+ []
+
+[38
+
+]
+<../Tesi/img/pcap/packet_destination_unused_page_1.png, id=254, 2110.88625pt x 
+2433.09pt>
+File: ../Tesi/img/pcap/packet_destination_unused_page_1.png Graphic file (type 
+png)
+<use ../Tesi/img/pcap/packet_destination_unused_page_1.png>
+Package pdftex.def Info: ../Tesi/img/pcap/packet_destination_unused_page_1.png 
+ used on input line 117.
+(pdftex.def)             Requested size: 201.44762pt x 232.18547pt.
+ [39
+
+ <../Tesi/img/pcap/packet_destination_unused_page_1.png (PNG copy)>]
+<../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png, id=260, 680.5
+425pt x 850.67813pt>
+File: ../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png Graphic f
+ile (type png)
+<use ../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagine_parameterproblem_u
+nused.png  used on input line 140.
+(pdftex.def)             Requested size: 112.80801pt x 141.00484pt.
+
+[40
+
+ <../Tesi/img/ICMP_storageCC/immagine_parameterproblem_unused.png>]
+\openout4 = `presentation.vrb'.
+
+
+(presentation.vrb
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+) [41
+
+]
+<../Tesi/img/pcap/packet_parameter_problem_page_1.png, id=272, 2110.88625pt x 2
+385.91376pt>
+File: ../Tesi/img/pcap/packet_parameter_problem_page_1.png Graphic file (type p
+ng)
+<use ../Tesi/img/pcap/packet_parameter_problem_page_1.png>
+Package pdftex.def Info: ../Tesi/img/pcap/packet_parameter_problem_page_1.png  
+used on input line 220.
+(pdftex.def)             Requested size: 201.44762pt x 227.68353pt.
+ [42
+
+ <../Tesi/img/pcap/packet_parameter_problem_page_1.png (PNG copy)>]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+
+Underfull \hbox (badness 10000) in paragraph at lines 15--19
+[]\T1/SourceSansPro-TLF/regular/n/10.95 (+20) Il campo \T1/SourceSansPro-TLF/re
+gular/it/10.95 (+20) Iden-ti-fier \T1/SourceSansPro-TLF/regular/n/10.95 (+20) d
+efinisce
+ []
+
+
+Underfull \hbox (badness 1436) in paragraph at lines 15--19
+\T1/SourceSansPro-TLF/regular/n/10.95 (+20) as-sumere un qual-si-asi val-ore. I
+l
+ []
+
+
+Underfull \hbox (badness 1502) in paragraph at lines 15--19
+\T1/SourceSansPro-TLF/regular/n/10.95 (+20) RFC 792), viene in-cre-men-tato ad
+ []
+
+<../Tesi/img/ICMP_storageCC/msgInformation_campoID.png, id=278, 622.57594pt x 2
+61.22594pt>
+File: ../Tesi/img/ICMP_storageCC/msgInformation_campoID.png Graphic file (type 
+png)
+<use ../Tesi/img/ICMP_storageCC/msgInformation_campoID.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/msgInformation_campoID.png 
+ used on input line 20.
+(pdftex.def)             Requested size: 161.15501pt x 67.61818pt.
+) [43
+
+ <../Tesi/img/ICMP_storageCC/msgInformation_campoID.png>]
+\openout4 = `presentation.vrb'.
+
+
+(presentation.vrb
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/regular/n' aliased to
+(Font)              `T1/SourceCodePro-TLF/m/n' on input line 1.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 8.0pt on input line 1.
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 3--4
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 4--5
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][] 
+ []
+
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 8--9
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 9--10
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][] 
+ []
+
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 13--14
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 14--15
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][] 
+ []
+
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 18--19
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (5.06084pt too wide) in paragraph at lines 19--20
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][
+][][][][][] 
+ []
+
+) [44
+
+]
+<../Tesi/img/pcap/packet_information_1_page_1.png, id=291, 2110.88625pt x 1247.
+66125pt>
+File: ../Tesi/img/pcap/packet_information_1_page_1.png Graphic file (type png)
+<use ../Tesi/img/pcap/packet_information_1_page_1.png>
+Package pdftex.def Info: ../Tesi/img/pcap/packet_information_1_page_1.png  used
+ on input line 299.
+(pdftex.def)             Requested size: 335.74263pt x 198.4305pt.
+ [45
+
+ <../Tesi/img/pcap/packet_information_1_page_1.png (PNG copy)>]
+\openout4 = `presentation.vrb'.
+
+
+(presentation.vrb
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+) [46
+
+]
+<../Tesi/img/pcap/packet_echo_solo_payload_page_1.png, id=302, 2111.89pt x 1377
+.145pt>
+File: ../Tesi/img/pcap/packet_echo_solo_payload_page_1.png Graphic file (type p
+ng)
+<use ../Tesi/img/pcap/packet_echo_solo_payload_page_1.png>
+Package pdftex.def Info: ../Tesi/img/pcap/packet_echo_solo_payload_page_1.png  
+used on input line 328.
+(pdftex.def)             Requested size: 335.74263pt x 218.91878pt.
+ [47
+
+ <../Tesi/img/pcap/packet_echo_solo_payload_page_1.png (PNG copy)>]
+Underfull \hbox (badness 6859) in paragraph at lines 344--344
+[]\T1/SourceSansPro-TLF/regular/n/10.95 (+20) INSERIRE IM-MAG-INE IN CUOI SI
+ []
+
+
+Underfull \hbox (badness 2469) in paragraph at lines 344--344
+\T1/SourceSansPro-TLF/regular/n/10.95 (+20) DI DATI TALE CHE SI SAVRANNO
+ []
+
+<../Tesi/img/ICMP_storageCC/immagine_payload.png, id=308, 732.48656pt x 359.091
+57pt>
+File: ../Tesi/img/ICMP_storageCC/immagine_payload.png Graphic file (type png)
+<use ../Tesi/img/ICMP_storageCC/immagine_payload.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagine_payload.png  used 
+on input line 344.
+(pdftex.def)             Requested size: 161.15501pt x 79.00038pt.
+[48
+
+ <../Tesi/img/ICMP_storageCC/immagine_payload.png>]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+)
+[49
+
+]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/m/n' aliased to
+(Font)              `TS1/SourceSansPro-TLF/regular/n' on input line 11.
+LaTeX Font Info:    Font shape `TS1/SourceSansPro-TLF/regular/n' will be
+(Font)              scaled to size 8.0pt on input line 11.
+<../Tesi/img/ICMP_storageCC/immagine_timestamp.png, id=321, 553.31718pt x 368.8
+7813pt>
+File: ../Tesi/img/ICMP_storageCC/immagine_timestamp.png Graphic file (type png)
+
+<use ../Tesi/img/ICMP_storageCC/immagine_timestamp.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/immagine_timestamp.png  use
+d on input line 21.
+(pdftex.def)             Requested size: 161.15501pt x 107.43346pt.
+) [50
+
+ <../Tesi/img/ICMP_storageCC/immagine_timestamp.png>]
+<../Tesi/img/pcap/packet_timestamp_2_page_1.png, id=328, 2110.88625pt x 1390.19
+376pt>
+File: ../Tesi/img/pcap/packet_timestamp_2_page_1.png Graphic file (type png)
+<use ../Tesi/img/pcap/packet_timestamp_2_page_1.png>
+Package pdftex.def Info: ../Tesi/img/pcap/packet_timestamp_2_page_1.png  used o
+n input line 408.
+(pdftex.def)             Requested size: 335.74263pt x 221.09915pt.
+ [51
+
+ <../Tesi/img/pcap/packet_timestamp_2_page_1.png (PNG copy)>]
+\openout4 = `presentation.vrb'.
+
+
+(presentation.vrb
+<../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png, id=334, 549.55313pt x 3
+67.3725pt>
+File: ../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png Graphic file (type 
+png)
+<use ../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png 
+ used on input line 15.
+(pdftex.def)             Requested size: 161.15501pt x 107.7293pt.
+) [52
+
+ <../Tesi/img/ICMP_storageCC/packet_timestamp_campo.png>]
+\openout4 = `presentation.vrb'.
+
+(presentation.vrb
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+\width=\dimen341 (locally)
+\height=\dimen342 (locally)
+\depth=\dimen343 (locally)
+\totalheight=\dimen344 (locally)
+) [53
+
+]
+Underfull \hbox (badness 2027) in paragraph at lines 493--493
+[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Decrementato di 1 per ogni
+ []
+
+
+Overfull \hbox (4.02875pt too wide) in alignment at lines 493--493
+ [] [] [] 
+ []
+
+[54
+
+])) (frames/implementazione_Behave_CC.tex
+<../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png, id=353, 1089.06876pt x 33
+3.245pt>
+File: ../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png Graphic file (type pn
+g)
+<use ../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png>
+Package pdftex.def Info: ../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png  u
+sed on input line 17.
+(pdftex.def)             Requested size: 335.74263pt x 102.73027pt.
+ [55
+
+ <../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png>]
+\openout4 = `presentation.vrb'.
+
+ (presentation.vrb) [56
+
+] [57
+
+])
+(frames/test_introduzione.tex [58
+
+]
+Underfull \hbox (badness 2293) in paragraph at lines 51--51
+[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Payload fisso +
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 51--51
+[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Payload ran-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 51--51
+[]|\T1/SourceSansPro-TLF/regular/n/8 (+20) Payload ran-
+ []
+
+
+Overfull \vbox (21.3084pt too high) detected at line 51
+ []
+
+[59
+
+] [60
+
+] [61
+
+] [62
+
+] [63
+
+] [64
+
+] [65
+
+]
+Overfull \vbox (2.75255pt too high) detected at line 348
+ []
+
+[66
+
+]) (frames/conclusioni.tex
+Overfull \vbox (331.10464pt too high) detected at line 35
+ []
+
+[67
+
+]
+Overfull \vbox (84.72826pt too high) detected at line 63
+ []
+
+[68
+
+] [69
+
+])
+\tf@nav=\write6
+\openout6 = `presentation.nav'.
+
+\tf@toc=\write7
+\openout7 = `presentation.toc'.
+
+\tf@snm=\write8
+\openout8 = `presentation.snm'.
+
+ (presentation.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+ ***********
+Package rerunfilecheck Info: File `presentation.out' has not changed.
+(rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
+ ) 
+Here is how much of TeX's memory you used:
+ 33552 strings out of 467870
+ 638463 string characters out of 5418356
+ 1025779 words of memory out of 5000000
+ 61214 multiletter control sequences out of 15000+600000
+ 876519 words of font info for 304 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 128i,13n,131p,1011b,1572s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/public/mnsymbol/MnS
+ymbol10.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/public/mn
+symbol/MnSymbol8.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/
+adobe/sourcecodepro/SourceCodePro-Regular.pfb><C:/Users/Marco/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/adobe/sourcesanspro/SourceSansPro-Bold.pfb><C:/Users/M
+arco/AppData/Local/Programs/MiKTeX/fonts/type1/adobe/sourcesanspro/SourceSansPr
+o-It.pfb><C:/Users/Marco/AppData/Local/Programs/MiKTeX/fonts/type1/adobe/source
+sanspro/SourceSansPro-Regular.pfb>
+Output written on presentation.pdf (69 pages, 15281772 bytes).
+PDF statistics:
+ 519 PDF objects out of 1000 (max. 8388607)
+ 156 named destinations out of 1000 (max. 500000)
+ 89778 words of extra memory for PDF output out of 106986 (max. 10000000)
+

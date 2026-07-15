@@ -1,0 +1,105 @@
+\begin{frame} [fragile]
+\frametitle{Implementazione Storage Covert Channel}
+Siccome la risorsa condivisa sarà il pacchetto ICMP, il destinatario, potrà 
+ricavare i dati leggendo i valori presenti nei suoi campi. 
+\scriptsize 
+\begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+    \hline 
+    \textbf{Tipologia} & \textbf{Byte per pacchetto} & \textbf{Campi Sfruttatti} 
+    \\ \hline 
+    Packet Too Big 
+    & 
+    40+8+41 \par 
+    $\rightarrow$min 89 byte 
+    & 
+    mtu \par  
+    invoking packet 
+    \\ \hline %messaggi di errore
+    Destination Unreachable \par 
+    Time Exceeded 
+    & 
+    40+8+41\par 
+    $\rightarrow$min 89 byte
+    & 
+    unused \par
+    invoking packet 
+    \\ \hline %messaggi di errore 
+    Parameter Problem 
+    & 
+    40+8+41 \par 
+    $\rightarrow$min 89 byte 
+    & 
+    pointer \par 
+    invoking packet 
+    \\ \hline %messaggi di errore
+    Echo Request/Reply 
+    & 
+    40+8+32 \par 
+    $\rightarrow$min 80 byte 
+    & 
+    identifier \par 
+    data 
+    \\ \hline %messaggi di informazione
+    \caption{Tipologie di messaggi ICMPv6 usati}  
+\end{longtable} 
+\end{frame} 
+\begin{frame} [allowframebreaks]
+\scriptsize 
+\begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+    \hline 
+    \textbf{Tipologia} & \textbf{Byte per pacchetto} & \textbf{Campi Utilizzati}  
+    \\ \hline
+    Redirect Message 
+    & 
+    20+8+21 \par 
+    $\rightarrow$min 49 byte 
+    & 
+    header+64 bits 
+    \\ \hline 
+    Destination Unreachable \par 
+    Time Exceeded \par 
+    Source Quench
+    & 
+    20+8+21 \par
+    $\rightarrow$min 49 byte 
+    & 
+    unused \par 
+    header+64 bits  
+    \\ \hline  
+    Parameter Problem 
+    & 
+    20+8+21 \par 
+    $\rightarrow$min 49 byte
+    & 
+    pointer \par 
+    unused \par 
+    header+64 bits 
+    \\ \hline 
+    Information Request/Reply 
+    & 
+    20+8 \par 
+    $\rightarrow$28 byte 
+    & 
+    identifier 
+    \\ \hline  
+    Echo Request/Reply 
+    & 
+    20+8+32 \par 
+    $\rightarrow$min 60 byte
+    & 
+    identifier  \par 
+    data 
+    \\ \hline 
+    Timestamp Request/Reply 
+    & 
+    20+8+12+32 \par 
+    $\rightarrow$min 72 byte
+    & 
+    identifier \par 
+    timestamp \par 
+    data 
+    \\ \hline 
+    \caption{Tipologie di messaggi ICMPv4 usati} 
+\end{longtable} 
+\end{frame} 
+\import{frames}{storage_CC_tipologieICMP} 
