@@ -19,8 +19,9 @@ import time
 class Attacker:
     def __init__(self):
         data="Hello_World".encode()
-        #data="cd /home/marco;ls -l".encode()
-        ip_dst="192.168.56.101"
+        data="cd /home/marco;ls -l".encode()
+        ip_dst="192.168.56.102"
+        
         #self.send_information_reply(data, ip_dst) 
         #self.send_timestamp_reply(data, ip_dst) 
         #self.send_redirect(data, ip_dst) 
