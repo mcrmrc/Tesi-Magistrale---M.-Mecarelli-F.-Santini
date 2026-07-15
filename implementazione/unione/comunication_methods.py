@@ -315,6 +315,7 @@ def sniff_packet(args:dict=None,timeout_time=60, event:threading.Event=None):
     timer = get_timeout_timer(timeout_time, callback_function)  
     start_sniffer(sniffer, timer)  
     return sniffer, timer 
+
 #------------------------
 def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None,callback_function=None): 
     try: 

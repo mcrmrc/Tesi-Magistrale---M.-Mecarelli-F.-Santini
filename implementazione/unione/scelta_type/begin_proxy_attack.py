@@ -69,7 +69,7 @@ def wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IP
         try:
             args={
                 "filter":filter
-                ,"count":1 
+                #,"count":1 
                 ,"prn":callback_wait_conn_from_victim(
                     ip_vittima
                     ,ip_host
@@ -82,6 +82,7 @@ def wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IP
             com.wait_threading_Event(event_pktconn)
         except Exception as e:
             raise Exception(f"wait_conn_from_victim sniffer: {e}") 
+        com.stop_sniffer(sniffer)
         if res:=com.stop_timer(pkt_timer): 
             print(f"La connessione per {ip_vittima} è confermata")  
         else: 
@@ -94,7 +95,7 @@ def wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IP
         )
         return res
 
-def confirm_conn_to_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, socket_attacker:socket.socket, result:bool):
+def confirm_conn_of_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, socket_attacker:socket.socket, result:bool):
     try: 
         data=com.CONFIRM_VICTIM+ip_vittima.compressed+ip_host.compressed+str(result)
         socket_attacker.sendall(data.encode()) 
@@ -104,7 +105,7 @@ def confirm_conn_to_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.I
             raise Exception(f"\t***{ip_host} non è connesso a {ip_vittima}") 
         print(f"\t***{ip_host} è connesso a {ip_vittima}")  
     except Exception as e: 
-        print(f"confirm_conn_to_victim: {e}")
+        print(f"confirm_conn_of_victim: {e}")
         exit(1) 
 
 def wait_data_from_vicitm(ip_src:ipaddress.IPv4Address, ip_dst:ipaddress.IPv4Address, attack_function:dict, data_received:list): 
@@ -173,6 +174,7 @@ def update_data_received(data, data_lock:threading.Lock, data_received):
     data_received.append(data)
     data_lock.release() 
 
+#--------------------------------
 def check_value_in_parser(args):  
     if not isinstance(args,argparse.Namespace): 
         raise Exception(f"Argomento parser non è istanza di argparse.Namespace")  
@@ -301,7 +303,7 @@ class Proxy:
             result=self.thread_response.get(self.ip_host.compressed) and result
             self.thread_lock.release()
             if not self.DEBUG:
-                confirm_conn_to_victim(
+                confirm_conn_of_victim(
                     self.ip_vittima, self.ip_host, self.socket_attacker, result
                 )
                 print("Attacccante aggiornato sullo stato della connessione con la vittima")

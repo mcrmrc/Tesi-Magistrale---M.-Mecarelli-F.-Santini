@@ -209,7 +209,7 @@ def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4A
             #    connected_proxy.remove(proxy)
             print(f"Proxy che hanno ricevuto l'aggiornamento {connected_proxy}")
         except Exception as e:
-                    raise Exception(f"send_data_to_proxies: {e}") 
+            raise Exception(f"send_data_to_proxies: {e}") 
 
 def append_END_DATA_2_command(command:list[str]):
     if not com.is_list(command):
@@ -351,10 +351,7 @@ class Victim:
             print(f"__init__ proxy conn: {e}")
             mymethods.reenable_firewall()
             exit(1) 
-        mymethods.reenable_firewall()
-    
-    def reset_variables(self):
-        pass
+        mymethods.reenable_firewall() 
     
     def define_variables(self): 
         while True:
@@ -394,6 +391,7 @@ class Victim:
                 msg="Utilizzare comunque quelli trovati? [si/no]"
                 if len(self.connected_proxy)<=0 or not mymethods.ask_bool_choice(msg) :
                     print("Interruzione del programma...")  
+                    mymethods.reenable_firewall()
                     exit(0)
                 else:
                     print("Continuo con i proxy trovati...") 
@@ -404,13 +402,11 @@ class Victim:
             #confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed 
             #checksum=mymethods.calc_checksum(confirm_text.encode()) 
             self.event_enough_proxy=com.get_threading_Event() 
-            interface=mymethods.default_iface()   
-            print(f"AAAA\t++++{interface}")
+            interface=mymethods.default_iface() 
             filter=attacksingleton.get_filter_connection_from_function(
                 "wait_icmpEcho_dst" 
                 ,ip_dst=self.ip_host
-            )  
-            print(f"AAAA\t++++{filter}")
+            ) 
         except Exception as e:
             print(f"wait_conn_from_proxy filter: {e}") 
             return 
@@ -429,7 +425,6 @@ class Victim:
                 #,"store":True 
                 ,"iface":interface
             } 
-            print(f"AAAA\t++++{args}")
             callback_function_timer = lambda: done_waiting_timeout(
                 self.sniffer
                 ,self.enough_proxy_timer
@@ -487,9 +482,6 @@ class Victim:
             print(f"Eccezione: {e}")
             exit(1)
     
-    
-    
-
     
 
 if __name__ == "__main__": 
