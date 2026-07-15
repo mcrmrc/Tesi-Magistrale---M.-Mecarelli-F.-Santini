@@ -101,8 +101,8 @@ def calc_gateway_ipv6(ip_dst=None):
 
 def iface_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
     if not isinstance(addr_target, ipaddress.IPv4Address) and not isinstance(addr_target, ipaddress.IPv6Address):
-        print(f"Indirizzo IP {addr_target} non valido. Il tipo non è ipaddress.IPv4Address o ipaddress.IPv6Address",file=sys.stderr)
-        return None
+        raise Exception(f"L'indirizzo è una {type(addr_target)}. Richiesto o un 'ipaddress.IPv4Address' o un 'ipaddress.IPv6Address': ",file=sys.stderr)
+    result_output = None
     try:
         #print(f"Indirizzo IPv{addr_target.version}: {addr_target.compressed}")
         process=subprocess.Popen(
@@ -113,28 +113,27 @@ def iface_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
         )
         stdout, stderr = process.communicate()
         #print(f"Codice di ritorno {process.returncode}", flush=True)
+        if process.returncode == 0:  
+            result_output = stdout.strip()
+            #print(f"Output della route: {result_output}",flush=True)
+        else:
+            #print(f"Codice di ritorno {process.returncode}", file=sys.stderr)
+            #print(f"Errore: {stderr.strip()}", file=sys.stderr)  
+            return None
     except subprocess.CalledProcessError as e:
-        print(f"Errore durante l'esecuzione del comando: {e}", file=sys.stderr)
+        #print(f"Errore durante l'esecuzione del comando: {e}", file=sys.stderr)
         return None
     except ValueError as e:
         #print(f"Errore di valore: {e}", file=sys.stderr)
         return None  
-    result_output = None
-    if process.returncode == 0:  
-        result_output = stdout.strip()
-        print(f"Output della route: {result_output}",flush=True)
-    else:
-        #print(f"Codice di ritorno {process.returncode}", file=sys.stderr)
-        print(f"Errore: {stderr.strip()}", file=sys.stderr)  
-        return None
     if result_output is not None:  
         match_src = re.search(r"\bsrc\s+([\da-fA-F\.:]+)\b", result_output)  
         match_dev = re.search(r"dev (\S+)", result_output)
         if not match_src and not match_dev:
             print(f"Impossibile estrarre sorgente o interfaccia da output",file=sys.stderr)
             return None
-        print("match_src: ",match_src)
-        print("match_dev: ",match_dev)
+        #print("match_src: ",match_src)
+        #print("match_dev: ",match_dev)
         ip_src=match_src.group(0).replace("src ","").strip()
         iface=match_dev.group(0).replace("dev ","").strip()
         #print(f"Sorgente trovata: {ip_src}")
