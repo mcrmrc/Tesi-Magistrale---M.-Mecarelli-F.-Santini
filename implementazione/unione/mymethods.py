@@ -2,6 +2,20 @@ from scapy.all import get_if_list, get_if_addr
 from scapy.all import conf
 import argparse
 
+def add_argument(param_arg, parser=None):
+    if parser is None:
+        raise Exception("Parser nullo")
+    if len(param_arg)!=3:
+        raise Exception("Numero di parametri non corretto")
+    if type(param_arg[0]) is not str:
+        raise Exception("L'argomento non è una stringa")
+    if type(param_arg[2]) is not str:
+        raise Exception("Il messaggio di aiuto non è una stringa")
+    if not param_arg[0].startswith("--") and not param_arg[0].startswith("-"):
+        raise Exception("L'argomento deve iniziare con - oppure con --")
+    return parser.add_argument(param_arg[0],type=param_arg[1], help=param_arg[2])
+    
+
 def supported_arguments(parser=None):
     if parser is None:
         raise Exception("Parser nullo")
@@ -65,29 +79,16 @@ def test_calc_checksum():
     result = calc_checksum(example_data)
     print(f"Checksum: {result:#06x}")  # Print checksum in hexadecimal format
 
-def iface_for_IP(target_ip=None):
+def iface_from_IP(target_ip=None):
     if target_ip is None:
         raise Exception("Indirizzo IP uguale a None")
     iface_name = conf.route.route(target_ip)[0]
     iface_ip = conf.route.route(target_ip)[1] 
-    return iface_ip,iface_name
+    return iface_ip,iface_name 
 
-def interfaccia_byIP(target_ip=None):
-    if target_ip is None:
-        raise Exception("Indirizzo IP uguale a None")
-    for iface in get_if_list():
-        try:
-            if get_if_addr(iface) == target_ip:
-                #print(f"L'interfaccia per {target_ip} è: {iface}")
-                return iface
-        except Exception as e:
-            # Alcune interfacce (es. virtuali) potrebbero non avere un IP assegnato
-            print(f"Eccezione: {e}") 
-    return None
-
-def test_get_interface():
-    target_ip="192.168.56.101"
-    iface_ip,iface_name=iface_for_IP(target_ip)
+def test_iface_from_IP():
+    target_ip="192.168.56.1"
+    iface_ip,iface_name=iface_from_IP(target_ip)
     if iface_ip is not None:
         print(f"L'interfaccia per {target_ip} è: {iface_ip}")
     if iface_name is not None:
@@ -95,4 +96,4 @@ def test_get_interface():
 
 
 if __name__=="__main__":
-    test_get_interface() 
+    test_iface_from_IP() 
