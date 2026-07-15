@@ -8,32 +8,21 @@
 %https://www.activecountermeasures.com/intro-to-rita-v5/
 
 
-\section{Come funziona RITA}  
-Una costante assoluta su cui noi possiamo fare affidamento per rilevare i malware, è che dovranno chiamare "casa". 
-Da questo presupposto; analizzando il traffico di rete, possiamo rilevare le chiamate C2 indipendentemente dalla 
-piattaforma. %e senza la necessità di agenti endpoint.
-%By analyzing network traffic, we can detect C2 calling home regardless of platform and without the need of endpoint agents. 
 
-L'analisi manuale dei log, e la lettura delle singole voci di connessione, difficilmente porterà alla 
-rilevazione di potenziali attività C2. %vi allerteranno
-Per una maggiore fedeltà, l'analisi del comportamento e dei pattern presneit, deve analizzare la comunicazione 
-che avviene nel tempo fra un host interno ed esterno.  
-%For better fidelity, behavior and pattern analysis needs to look at the communication between an 
-%internal and external host over time. 
-La persistenza è l'attributo chiave che ricerchiamo quando cerchiamo sistemi compromessi. 
-RITA cerca gli indicatori principali relativi a questa persistenza. 
-%consentendovi di concentrarvi sull'analisi delle attività segnalate dai suoi risultati.
-%RITA looks for the primary indicators of this persistency, 
-%allowing you to focus on vetting the activities flagged by its findings.
-Durante la fase di analisi, si suddividono questi indicatori principali di persistenza in moduli separati. 
+
+Durante la fase di analisi, RITA suddivide questi indicatori principali di persistenza in moduli separati [Tabella \ref{tabella:RITA:moduliPrincipali} ], 
 per poi visualizzare i risultati in base a un indicatore specifico. 
 %RITA’s analysis stage splits these primary indicators of persistency into separate modules, 
-%allowing results to be viewed based on a specific indicator. 
-RITA acquisisce i log di connessione di Zeek e tramite l'utilizzo dell'analisi comportamentale identifica i sistemi potenzialmente compromessi.
-%It ingests Zeek connection logs and uses behavioral analytics to identify potentially compromised systems.
-\vspace{2ex} \newline  
-La gravità di ciascun beacon è determinata da quattro fattori. 
+%allowing results to be viewed based on a specific indicator.  
+La gravità di ciascun beacon 
+è determinata da quattro fattori; 
 %Scoring Breakdown: The score of each beacon is determined by four factors.
+le cui soglie che possono essere modificate nel file di configurazione. %di RITA.
+%The beacon modules also allow you to customize the weight each subscore 
+%(see Score Breakdown in Beacons section) has on the final score. 
+%I moduli beacon consentono anche di personalizzare il peso di ogni sottopunteggio 
+%(vedi la sezione "Scomposizione del punteggio nei beacon") 
+sul punteggio finale.
 \begin{itemize}
     \item Analisi del timestamp: coerenza nell'intervallo di tempo tra le sessioni. 
     %Timestamp Analysis - Time interval consistency between sessions.
@@ -50,7 +39,7 @@ La gravità di ciascun beacon è determinata da quattro fattori.
     \textbf{Modulo} & \textbf{Descrizione} \\
     \hline
     Beacons &  
-    I 'Beacon' sono impulsi di comunicazioni fra due host. 
+    Sono impulsi di comunicazioni fra due host. 
     %Beacons are repeating “heartbeat” communications between a pair of hosts. 
     Mentre alcuni sono innocui, un sistema compromesso li userà per esfiltrare dati o ricevere istruzioni. 
     %While some beacons are innocuous, a compromised system will use beaconing to continuously request instructions 
@@ -61,44 +50,44 @@ La gravità di ciascun beacon è determinata da quattro fattori.
     %a legitimate business need.
     \\ 
     \hline 
-    IP &  
-    Un beacon IP può indicare che un sistema compromesso sta comunicando con un server C2 con un indirizzo IP specifico.
+%    IP &  
+%    Un beacon IP può indicare che un sistema compromesso sta comunicando con un server C2 con un indirizzo IP specifico.
     %An IP beacon may indicate that a compromised internal system is communicating 
     %with a C2 server at a specific IP address. 
-    Questo modulo analizza le connessioni tra un IP sorgente interno al sitema e un IP di destinazione esterno ad esso. 
+%    Questo modulo analizza le connessioni tra un IP sorgente interno al sitema e un IP di destinazione esterno ad esso. 
     %This module analyzes connections between an internal source IP and an external destination IP pair. 
     %\begin{lstlisting}
     %$ rita show-beacons
     %\end{lstlisting}
-    \\
-    \hline 
-    Web &  
-    I web beacon sono casi in cui un host interno comunica con un server C2 tramite una CDN. 
+%    \\
+%    \hline 
+%    Web &  
+%    I web beacon sono casi in cui un host interno comunica con un server C2 tramite una CDN. 
     %Web beacons are cases where an internal host communicates with a C2 server through a CDN. 
-    Il CDN distribuirà il traffico su più IP e lo mescolerà con il traffico legittimo. 
+%    Il CDN distribuirà il traffico su più IP e lo mescolerà con il traffico legittimo. 
     %The CDN will spread out the C2 traffic over multiple IPs and mix it in with legitimate traffic. 
-    RITA inverte questo processo per rendere le connessioni malevole chiaramente visibili. 
+%    RITA inverte questo processo per rendere le connessioni malevole chiaramente visibili. 
     %RITA reverses this process to make C2 connections clearly visible.
     %\begin{lstlisting} 
     %$ rita show-beacons-sni
     %\end{lstlisting}
-    \\
-    \hline  
-    Proxy &  
-    Gli ambienti che utilizzano uno o più server proxy per le comunicazioni esterne potrebbero avere 
-    difficoltà a identificare i beacon a causa del fatto che il server proxy appare come destinazione 
-    di una richiesta HTTP/HTTPS.
+%    \\
+%    \hline  
+%    Proxy &  
+%    Gli ambienti che utilizzano uno o più server proxy per le comunicazioni esterne potrebbero avere 
+%    difficoltà a identificare i beacon a causa del fatto che il server proxy appare come destinazione 
+%    di una richiesta HTTP/HTTPS.
     %Environments that use one or more proxy servers for external communication may struggle to identify 
     %beacons due to the proxy server appearing as the destination of an HTTP/HTTPS request. 
-    Questo modulo utilizza le informazioni dell'intestazione Proxy CONNECT per determinare la 
-    destinazione originariamente richiesta per l'analisi dei beacon.
+%    Questo modulo utilizza le informazioni dell'intestazione Proxy CONNECT per determinare la 
+%    destinazione originariamente richiesta per l'analisi dei beacon.
     %This module uses Proxy CONNECT header information to determine the originally requested destination 
     %for its beacon analysis.
     %\begin{lstlisting} 
     %$ rita show-beacons-proxy
     %\end{lstlisting}
-    \\
-    \hline  
+%    \\
+%    \hline  
     Strobes &  
     Le coppie (host interno, host esterno) che attivano una nuova connessione (una o più volte al secondo) vengono chiamate Strobe.
     %Internal to external host pairs that trigger a new connection one or more times per second are called strobes. 
@@ -129,9 +118,9 @@ La gravità di ciascun beacon è determinata da quattro fattori.
     %\end{lstlisting}
 %    \\
 %    \hline  
-    Long Connections &  
+    Connessioni lunghe &  
     %Long connections can be an indicator of well-established malware, allowing a compromised system to receive commands and exfiltrate data without constantly checking in with the C2 server. 
-    Le connessioni lunghe possono essere un indicatore. %di malware ben consolidato, 
+%    Le connessioni lunghe possono essere un indicatore. %di malware ben consolidato, 
     Consentono a un sistema compromesso di ricevere comandi ed esfiltrare dati senza 
     dover effettuare costantemente il check-in con il server. %C2. 
     %Longer sessions also create fewer log entries, making them difficult to detect. 
@@ -180,7 +169,7 @@ La gravità di ciascun beacon è determinata da quattro fattori.
     %\end{lstlisting}
     \\
     \hline 
-\caption{Moduli principali di RITA per l'analisi} 
+\caption{Moduli principali di RITA} 
 \label{tabella:RITA:moduliPrincipali} 
 \end{longtable} 
 \end{center}  
@@ -201,18 +190,11 @@ La gravità di ciascun beacon è determinata da quattro fattori.
 %
 %If you find a suspicious result, you can use your Zeek logs to gather more context 
 %clues about the hosts or connections. 
-Se si trova un risultato sospetto, si possono utilizzare i log di Zeek per raccogliere ulteriori 
-indizi sugli host o sulle connessioni.
+%Se si trova un risultato sospetto, si possono utilizzare i log di Zeek per raccogliere ulteriori 
+%indizi sugli host o sulle connessioni.
 %Check out the Useful Threat Hunting Scripts article for some examples.
 %Consulta l'articolo "Utili script di Threat Hunting" per alcuni esempi.
 %Most modules have thresholds that can be adjusted via RITA’s configuration file. 
-Inoltre la maggior parte dei moduli ha soglie che possono essere modificate tramite il file di configurazione. %di RITA.
-%The beacon modules also allow you to customize the weight each subscore 
-%(see Score Breakdown in Beacons section) has on the final score. 
-I moduli beacon consentono anche di personalizzare il peso di ogni sottopunteggio 
-%(vedi la sezione "Scomposizione del punteggio nei beacon") 
-sul punteggio finale.
-
 
 
 
