@@ -7,7 +7,8 @@ from scapy.all import get_if_hwaddr, sendp, sr1, sniff, send, srp1
 from scapy.all import * 
 from enum import Enum 
 from abc import ABC, abstractmethod 
-from check_type import *
+from check_type import * 
+from get_type import * 
 
 #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
 #print("IP_GOOGLE: ",ip_google)  
@@ -425,7 +426,7 @@ class _IPx:
     
     data=[] 
     host_attivi=None 
-    #event_pktconn=GET.threading_Event() 
+    #event_pktconn=get_threading_Event() 
     stop_flag={"value":False}  
     stop_integer:int=255
     time_timeout=60 #sec
@@ -1396,7 +1397,7 @@ class IPV4_TIMING(_IPx):
             if self.last_packet_time is None: 
                 self.last_packet_time=packet.time 
                 self.timer.cancel()
-                self.timer=GET.timer(MAX_TIME, self.timeout_timer_callback) 
+                self.timer=get_timer(MAX_TIME, self.timeout_timer_callback) 
                 self.timer.start() 
                 return  
             if packet.time is not None: 
@@ -1408,9 +1409,9 @@ class IPV4_TIMING(_IPx):
                 self.last_packet_time=packet.time
                 self.timer.cancel() 
                 if len(self.data)%8==0: 
-                    self.timer=GET.timer(MINUTE_TIME,self.timeout_timer_callback) 
+                    self.timer=get_timer(MINUTE_TIME,self.timeout_timer_callback) 
                 else:
-                    self.timer=GET.timer(MAX_TIME,self.timeout_timer_callback) 
+                    self.timer=get_timer(MAX_TIME,self.timeout_timer_callback) 
                 self.timer.start()
         return callback
     
@@ -2250,7 +2251,7 @@ class IPV6_TIMING(_IPx):
             raise Exception("Numero di bit non valido")
         super().__init__(ip_dst, host_attivi)
         self.timeout_callback=lambda: self.timeout_timer_callback()
-        self.timer=GET.timer(None,self.timeout_callback)  
+        self.timer=get_timer(None,self.timeout_callback)  
         self.DISTANZA_TEMPI=2 #sec
         self.TEMPI_CODICI=[
             3+index*2*self.DISTANZA_TEMPI for index in range(2**self.numero_bit)
@@ -2274,7 +2275,7 @@ class IPV6_TIMING(_IPx):
             if self.last_packet_time is None: 
                 self.last_packet_time=packet.time 
                 self.timer.cancel()
-                self.timer=GET.timer(MAX_TIME,self.timeout_callback) 
+                self.timer=get_timer(MAX_TIME,self.timeout_callback) 
                 self.timer.start() 
                 return  
             if packet.time is not None: 
@@ -2286,9 +2287,9 @@ class IPV6_TIMING(_IPx):
                 self.last_packet_time=packet.time
                 self.timer.cancel() 
                 if len(self.data)%8==0: 
-                    self.timer=GET.timer(MINUTE_TIME,self.timeout_callback) 
+                    self.timer=get_timer(MINUTE_TIME,self.timeout_callback) 
                 else:
-                    self.timer=GET.timer(MAX_TIME,self.timeout_callback) 
+                    self.timer=get_timer(MAX_TIME,self.timeout_callback) 
                 self.timer.start()
         return callback
     

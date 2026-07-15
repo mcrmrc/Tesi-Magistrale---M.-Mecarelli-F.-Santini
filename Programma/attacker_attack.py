@@ -15,6 +15,7 @@ from mymethods import *
 from custom_enum import SEPARAZIONE_DATI, ENTITY
 from scapy.all import * 
 from check_type import * 
+from get_type import *
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)
@@ -34,9 +35,9 @@ class DATA:
             self.ipaddress:ipaddress.IPv4Address=proxy 
             self.port=proxy_port
             self.socket:socket.socket=None 
-            self.event:threading.Event=GET.threading_Event() 
+            self.event:threading.Event=get_threading_Event() 
             self.data_received:list[str]=[] 
-            self.data_lock=GET.threading_Lock() 
+            self.data_lock=get_threading_Lock() 
     
     class METHODS: 
         def invia_dati(type_separazione:Enum): 
@@ -125,7 +126,7 @@ class THREAD:
         def __init__(self, proxy_list:dict[str,DATA.PROXY]):
             if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
                 raise ValueError("Lista dei proxy non valida") 
-            self.thread_lock=GET.threading_Lock() 
+            self.thread_lock=get_threading_Lock() 
             self.thread_list:dict[str:threading.Thread]=dict()
             for proxy in proxy_list.values(): 
                 self.thread_list[proxy.ipaddress.compressed]=None  
@@ -242,7 +243,7 @@ class THREAD:
         def __init__(self, proxy_list:dict[str,DATA.PROXY]): 
             if not isinstance(proxy_list, DATA.PROXY) or not len(proxy_list.values())>0: 
                 raise ValueError("Lista dei proxy non valida") 
-            self.thread_lock=GET.threading_Lock() 
+            self.thread_lock=get_threading_Lock() 
             self.thread_list:dict[str:threading.Thread]=dict() 
             self.thread_response:dict[str:threading.Thread]=dict() 
             for proxy in proxy_list.values(): 
@@ -301,7 +302,7 @@ class ICMP_THREAD:
             raise ValueError("proxy_list non valida") 
         if not is_callable_function(callback_function): 
             raise TypeError("callback_function not callable")
-        self.thread_lock=GET.threading_Lock() 
+        self.thread_lock=get_threading_Lock() 
         for proxy in proxy_list: 
             if not is_ipaddress(proxy): 
                 print(f"***\t{proxy} non è un indirizzo valido")
@@ -482,7 +483,7 @@ class Attacker:
         self.ip_vittima=config_args.ip_vittima 
         self.ip_host=config_args.ip_host 
         self.attack_type=config_args.attack_type 
-        self.lock_proxy_list:threading.Lock=GET.threading_Lock() 
+        self.lock_proxy_list:threading.Lock=get_threading_Lock() 
         self.proxy_list:dict[str,DATA.PROXY]=dict() 
         for proxy in config_args.proxy_list : 
             if not is_ipaddress(proxy): 
