@@ -9,6 +9,7 @@ from enum import Enum
 from abc import ABC, abstractmethod 
 from check_type import * 
 from get_type import * 
+from network import *
 
 #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
 #print("IP_GOOGLE: ",ip_google)  
@@ -134,12 +135,12 @@ class SendSingleton:
         self.host_attivi=[]
         match self.type_sender: 
             case SENDER_TYPE.TRUE_SENDER: 
-                ip,err=NETWORK.IP.find_local_IP()
+                ip,err=IP.find_local_IP()
                 if err:
                     raise Exception("Impossibile trovare l'IP locale: ", err)
                 self.host_attivi=[ip]
             case SENDER_TYPE.FAKE_SENDER_ACTIVE: 
-                active_host= NETWORK.HOST_ATTIVI().active_host  
+                active_host= HOST_ATTIVI().active_host  
                 for index in range(len(active_host)): 
                     try: 
                         self.host_attivi.append(ipaddress.ip_address(active_host[index]))
@@ -147,7 +148,7 @@ class SendSingleton:
                         print("Errore:",value_err) 
                 print("ATTIVI:",self.host_attivi)
             case SENDER_TYPE.FAKE_SENDER_INACTIVE: 
-                inactive_host= NETWORK.HOST_ATTIVI().inactive_host 
+                inactive_host= HOST_ATTIVI().inactive_host 
                 for index in range(len(inactive_host)): 
                     try: 
                         self.host_attivi.append(ipaddress.ip_address(inactive_host[index]))
@@ -155,8 +156,8 @@ class SendSingleton:
                         print("Errore:",value_err) 
                 print("INATTIVI:",self.host_attivi)
             case SENDER_TYPE.FAKE_SENDER_BOTH:
-                classe_host= NETWORK.HOST_ATTIVI() 
-                classe_host= NETWORK.HOST_ATTIVI() 
+                classe_host= HOST_ATTIVI() 
+                classe_host= HOST_ATTIVI() 
                 active_host= classe_host.active_host 
                 for index in range(len(active_host)): 
                     try: 
@@ -186,13 +187,13 @@ class SendSingleton:
         self.check_self_var() 
         if not is_ipaddress(ip_dst): 
             raise Exception("ip_dst: non valido")
-        dst_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower() 
+        dst_mac=GET_MAC_ADDRESS(ip_dst).mac_address.strip().replace("-",":").lower() 
         if not dst_mac: 
             raise ValueError("dst_mac non valido") 
-        default_interface=NETWORK.DEFAULT_INTERFACE().default_iface
-        NETWORK.ping_once(ip_dst, default_interface) 
+        default_interface=DEFAULT_INTERFACE().default_iface
+        ping_once(ip_dst, default_interface) 
         interface=(
-            NETWORK.INTERFACE_FROM_IP(ip_dst).interface or 
+            INTERFACE_FROM_IP(ip_dst).interface or 
             default_interface
         )  
         if not interface: 
@@ -300,7 +301,7 @@ class ReceiveSingleton:
         if not is_enum_member(attacco, AttackType): 
             raise TypeError("attacco non valido")  
         self.attacco=attacco  
-        self.ip_dst,err=NETWORK.IP.find_local_IP() 
+        self.ip_dst,err=IP.find_local_IP() 
         if err or not is_ipaddress(self.ip_dst): 
             print(err)
             raise Exception(f"ip_dst non valido") 
@@ -435,14 +436,14 @@ class _IPx:
         if not is_ipaddress(ip_dst) :   
             raise TypeError("IP di destinazione non corretto") 
         self.ip_dst=ip_dst  
-        self.dst_mac=NETWORK.GET_MAC_ADDRESS(ip_dst).mac_address
+        self.dst_mac=GET_MAC_ADDRESS(ip_dst).mac_address
         #print(f"MAC destinazione: {self.dst_mac}")
         if not self.dst_mac: 
             raise ValueError(f"dst_mac non valido") 
-        default_interface=NETWORK.DEFAULT_INTERFACE().default_iface
-        NETWORK.ping_once(ip_dst, default_interface)
+        default_interface=DEFAULT_INTERFACE().default_iface
+        ping_once(ip_dst, default_interface)
         self.interface=(
-            NETWORK.INTERFACE_FROM_IP(ip_dst).interface or 
+            INTERFACE_FROM_IP(ip_dst).interface or 
             default_interface
         ) 
         if not self.interface: 
@@ -619,9 +620,9 @@ class IPV4_INFORMATION(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4: 
             raise Exception("ip_dst non valido") 
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface
         if not is_ipaddress(ip_src) or ip_src.version!=4: #ip_src:ipaddress.IPv4Address=None
             raise Exception("ip_src non valido",ip_src) 
         for index in range(0, len(data), 2): 
@@ -677,9 +678,9 @@ class IPV4_TIMESTAMP(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4:
             raise Exception(f"ip_dst non corretto") 
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface  
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface  
         if not is_ipaddress(ip_src) or ip_src.version!=4:  
             raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), 5): 
@@ -766,9 +767,9 @@ class IPV4_REDIRECT(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4:
             raise Exception("ip_dst non corretto")
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface     
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface     
         if not is_ipaddress(ip_src) or ip_src.version!=4:  
             raise Exception("ip_src non valido",ip_src)  
         for index in range(0, len(data), 9): 
@@ -873,9 +874,9 @@ class IPV4_SOURCE_QUENCH(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4:
             raise Exception("ip_dst non valido")
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface 
         if not is_enum_member(type_attacco, AttackType): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_unused"): 
@@ -984,9 +985,9 @@ class IPV4_PARAMETER_PROBLEM(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4:
             raise Exception(f"ip_dst non valido")  
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface   
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface   
         if not is_enum_member(type_attacco, AttackType): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_unused"): 
@@ -1086,9 +1087,9 @@ class IPV4_TIME_EXCEEDED(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4:
             raise Exception(f"ip_dst non corretto")  
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface 
         if not is_enum_member(type_attacco, AttackType): 
             raise Exception("type_attacco non valido: ") 
         if "_unused" in type_attacco.name: 
@@ -1194,9 +1195,9 @@ class IPV4_DESTINATION_UNRECHABLE(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4:
             raise Exception("ip_dst non valido")
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface 
         if not is_enum_member(type_attacco, AttackType): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_unused"): 
@@ -1325,9 +1326,9 @@ class IPV4_ECHO(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4:
             raise Exception("ip_dst non valido")
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface
         if not is_enum_member(type_attacco, AttackType): 
             raise Exception("type_attacco non valido: ") 
         if type_attacco.name.endswith("_campi"): 
@@ -1456,9 +1457,9 @@ class IPV4_TIMING(_IPx):
         if not is_ipaddress(self.ip_dst) or self.ip_dst.version!=4: 
             raise TypeError("ip_dst non valido") 
         if not self.dst_mac:
-            self.dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
+            self.dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower()
         if not self.interface:
-            self.interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
+            self.interface=INTERFACE_FROM_IP(self.ip_dst).interface 
         if not is_ipaddress(ip_src) or ip_src.version!=4:  
             raise Exception("ip_src non valido",ip_src)   
         pkt= Ether(dst=self.dst_mac)/\
@@ -1595,10 +1596,10 @@ class IPV4_TIMING_8BIT(_IPx):
             raise TypeError("data non integer") 
         if not is_integer(self.stop_integer) or not (0<=self.stop_integer <=255): 
             raise TypeError("data non integer") 
-        dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
+        dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
         if not dst_mac: 
             raise ValueError("dst_mac non valido")
-        interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
+        interface=INTERFACE_FROM_IP(self.ip_dst).interface 
         if not interface: 
             raise ValueError("interface non valida")
         pkt = Ether(dst=dst_mac)/\
@@ -1742,10 +1743,10 @@ class IPV4_TIMING_8BIT_NOISE(_IPx):
             raise TypeError("rumore non integer") 
         if not is_integer(self.seed):
             raise TypeError("seed non integer") 
-        dst_mac = NETWORK.GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
+        dst_mac = GET_MAC_ADDRESS(self.ip_dst).mac_address.strip().replace("-",":").lower() 
         if not dst_mac: 
             raise ValueError("dst_mac non valido")
-        interface=NETWORK.INTERFACE_FROM_IP(self.ip_dst).interface 
+        interface=INTERFACE_FROM_IP(self.ip_dst).interface 
         if not interface: 
             raise ValueError("interface non valida") 
         #self.min_delay+=self.rumore
@@ -1822,7 +1823,7 @@ class IPV6_ECHO(_IPx):
         if not is_ipaddress(ip_src) or ip_src.version!=6:  
             raise Exception("ip_src non valido",ip_src)   
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -1842,11 +1843,11 @@ class IPV6_ECHO(_IPx):
             sendp(pkt, verbose=1,iface=self.interface) 
     
     def send_last(self): 
-        ip_src=NETWORK.IP.find_local_IP() 
+        ip_src=IP.find_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -1896,11 +1897,11 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
             raise ValueError("dst_mac non valido") 
         if not self.interface: 
             raise ValueError("interface non valida") 
-        #ip_src=NETWORK.IP.find_local_IP()  
+        #ip_src=IP.find_local_IP()  
         if not is_ipaddress(ip_src) or ip_src.version!=6:  
             raise Exception("ip_src non valido",ip_src)  
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -1930,11 +1931,11 @@ class IPV6_PARAMETER_PROBLEM(_IPx):
             sendp(pkt, verbose=1,iface=self.interface)  
         
     def send_last(self): 
-        ip_src=NETWORK.IP.find_local_IP() 
+        ip_src=IP.find_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -1998,7 +1999,7 @@ class IPV6_TIME_EXCEEDED(_IPx):
         if not is_ipaddress(ip_src) or ip_src.version!=6:  
             raise Exception("ip_src non valido",ip_src)   
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -2024,11 +2025,11 @@ class IPV6_TIME_EXCEEDED(_IPx):
             sendp(pkt, verbose=1,iface=self.interface) 
     
     def send_last(self): 
-        ip_src=NETWORK.IP.find_local_IP() 
+        ip_src=IP.find_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -2091,7 +2092,7 @@ class IPV6_PACKET_BIG(_IPx):
         if not is_ipaddress(ip_src) or ip_src.version!=6:  
             raise Exception("ip_src non valido",ip_src)   
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -2120,11 +2121,11 @@ class IPV6_PACKET_BIG(_IPx):
             sendp(pkt, verbose=1,iface=self.interface) 
     
     def send_last(self): 
-        ip_src=NETWORK.IP.find_local_IP() 
+        ip_src=IP.find_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -2188,7 +2189,7 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
         if not is_ipaddress(ip_src) or ip_src.version!=6:  
             raise Exception("ip_src non valido",ip_src)   
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -2210,11 +2211,11 @@ class IPV6_DESTINTION_UNREACHABLE(_IPx):
             sendp(pkt, verbose=1,iface=self.interface)  
         
     def send_last(self): 
-        ip_src=NETWORK.IP.find_local_IP() 
+        ip_src=IP.find_local_IP() 
         if not is_ipaddress(ip_src): 
             raise ValueError("ip_src non valido",ip_src)
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  
@@ -2328,7 +2329,7 @@ class IPV6_TIMING(_IPx):
         if not is_ipaddress(ip_src) or ip_src.version!=6:  
             raise Exception("ip_src non valido",ip_src)   
         src_mac=(
-            NETWORK.GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
+            GET_MAC_ADDRESS(ip_src).mac_address.strip().replace("-",":").lower() or 
             get_if_hwaddr(self.interface) 
         )
         if not src_mac:  

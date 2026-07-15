@@ -11,6 +11,7 @@ import socket
 
 from mymethods import *  
 from scapy.all import * 
+from network import *
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)
@@ -139,7 +140,7 @@ class Proxy:
 
     def __init__(self): 
         def get_ip_host(): 
-            ip_host, errore=NETWORK.IP.find_local_IP() 
+            ip_host, errore=IP.find_local_IP() 
             if errore:
                 print("errore:",errore)  
                 msg="Inserire indirizzo IP dell'host:\n\t#" 
@@ -211,7 +212,7 @@ class Proxy:
                 raise SystemError("NON CONNESSO ALLA VITITMA",self.ip_vittima) 
             print("CONNESSO A",self.ip_vittima)  
         #---------------------------
-        #NETWORK.FIREWALL.disable()  
+        #FIREWALL.disable()  
         try: 
             self.connessione_attaccante() 
         except Exception as e: 
@@ -232,7 +233,7 @@ class Proxy:
         except Exception as e: 
             print(e)
             exit(-1) 
-        #NETWORK.FIREWALL.enable() 
+        #FIREWALL.enable() 
     
     def connessione_attaccante(self): 
         def setup_server(): 
@@ -411,7 +412,7 @@ class Proxy:
             timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer())  
             if not is_threading_Timer(timer): 
                 raise TypeError("timer is not threading.Timer",type(timer))  
-            interface=NETWORK.INTERFACE_FROM_IP(oggetto.ip_vittima).interface 
+            interface=INTERFACE_FROM_IP(oggetto.ip_vittima).interface 
             if interface is None: 
                 raise ValueError("interface is None",interface) 
             print("INTERFACE",interface) 
