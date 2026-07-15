@@ -1,8 +1,11 @@
-import argparse, socket, subprocess, ipaddress, threading  
+import argparse
+import socket
+import subprocess
+import ipaddress
+import threading  
 from enum import Enum   
 from scapy.all import AsyncSniffer
 
-#class TYPE: 
 def is_callable_function(var_ToCheck=None):
     #the type of a function can be 'function' or 'method' 
     if callable(var_ToCheck): 

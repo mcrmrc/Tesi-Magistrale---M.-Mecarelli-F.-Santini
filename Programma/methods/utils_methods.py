@@ -1,5 +1,6 @@
+import sys
 import string, time, threading, ipaddress
-from type.check_type import is_ipaddress, is_threading_Lock, is_dictionary, is_boolean, is_callable_function, is_list
+from Programma.methods.check_type import is_ipaddress, is_threading_Lock, is_dictionary, is_boolean, is_callable_function, is_list
 
 systemsDictionary={
     'aix':"AIX",
@@ -113,3 +114,38 @@ def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address]=None,c
     print("Definito per ogni proxy il proprio Thread") #print(f"Thread creati:\t{thread_list}")
     print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
     return thread_lock, thread_response, thread_list 
+
+def ping_once(ip_dst:ipaddress.IPv4Address=None, iface:str=None, timeout=1): 
+    #if not is_string(iface): 
+    #    raise TypeError("iface non valida")
+    if not is_ipaddress(ip_dst): 
+        raise TypeError("ip_dst non valido")
+    if sys.platform == "win32": 
+        if ip_dst.version==4: 
+            cmd=["ping","-n","1",f"{ip_dst.compressed}"]
+        elif ip_dst.version==6: 
+            cmd=["ping","-6","-n","1",f"{ip_dst.compressed}%{iface}"]
+    elif sys.platform=="linux": 
+        if ip_dst.version==4: 
+            cmd=["ping","-c","1",f"{ip_dst.compressed}"] 
+            #cmd=["ping","-c","1","-I",iface,f"{ip_dst.compressed}"]
+        elif ip_dst.version==6: 
+            cmd=["ping","-6","-c","1",f"{ip_dst.compressed}%{iface}"] 
+            #cmd=["ping","-6","-c","1","-I",iface,f"{ip_dst.compressed}%{iface}"]
+    else: raise Exception("Os non supportato") 
+
+def check_sniffer_args(args:dict=None): 
+    if not isinstance(args, dict): 
+        raise Exception(f"Gli argomenti passati non sono un dizionario") 
+    accepted_key_dict=[
+        "iface","filter","prn","store","count", "timeout" ,"lfilter", 
+        "opened_socket","session","started_callback","offline","quiet" 
+    ]  
+    invalid_args=[key for key in args if key not in accepted_key_dict]
+    if len(invalid_args)>0: 
+        print(f"Argomenti non validi {invalid_args}") 
+        return False
+    return True 
+
+
+
