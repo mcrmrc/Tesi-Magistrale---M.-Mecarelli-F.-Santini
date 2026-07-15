@@ -11,7 +11,7 @@ import threading
 #------------------------------------
 def update_victim_end_communication(ip_vittima):
     try:
-        com.is_valid_ipaddress(ip_vittima)
+        com.is_valid_ipaddress_v4(ip_vittima)
     except Exception as e:
         raise Exception(f"update_victim_end_communication: {e}")
     data=com.END_COMMUNICATION
@@ -105,11 +105,11 @@ def check_value_in_parser(args):
         return False
     if args.ip_attaccante is None or type(args.ip_attaccante) is not str or re.match(com.ip_reg_pattern, args.ip_attaccante) is None:
         print("IP attaccante non valido o non specificato")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         return False   
     if type(args.ip_host) is not str or re.match(com.ip_reg_pattern, args.ip_host) is None:
         print("IP host non valido o non specificato")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         return False
     return True
 
@@ -168,9 +168,9 @@ class Proxy:
     
     def confirm_conn_to_attacker(self):
         try: 
-            if not com.is_valid_ipaddress(self.ip_vittima):
+            if not com.is_valid_ipaddress_v4(self.ip_vittima):
                 raise Exception(f"confirm_conn_to_attacker: indirizzo vittima non valido")
-            if not com.is_valid_ipaddress(self.ip_host):
+            if not com.is_valid_ipaddress_v4(self.ip_host):
                 raise Exception(f"confirm_conn_to_attacker: indirizzo vittima non valido")
         except ValueError as e:
             raise Exception(f"confirm_conn_to_attacker: {e}") 

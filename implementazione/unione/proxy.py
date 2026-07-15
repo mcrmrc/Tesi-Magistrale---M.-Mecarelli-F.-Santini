@@ -213,11 +213,11 @@ def check_value_in_parser(args):
         return False
     if args.ip_attaccante is None or type(args.ip_attaccante) is not str or re.match(com.ip_reg_pattern, args.ip_attaccante) is None:
         print("IP attaccante non valido o non specificato")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         return False   
     #if args.ip_vittima is None or type(args.ip_vittima) is not str or re.match(com.ip_reg_pattern, args.ip_vittima) is None:
         #print("IP vittima non valido o non specificato")
-        #mymethods.supported_arguments(parser)
+        #mymethods.print_parser_supported_arguments(parser)
         #return False
     return True
 
