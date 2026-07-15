@@ -1,8 +1,4 @@
-\import{./icmp}{introduzione}  
-\import{./icmp}{caratteristiche}  
-%\import{./icmp}{utilizzi}  
 %\import{./icmp}{attacchi} 
-\import{./icmp}{sfruttamento_tipologia} 
 
 %https://it.wikipedia.org/wiki/Internet_Control_Message_Protocol
 %https://www.geeksforgeeks.org/internet-control-message-protocol-icmp/
@@ -32,3 +28,22 @@
     %\item Bypassing Captive Portals: Many public Wi-Fi use Captive Portals to authenticate users, i.e. after connecting to the Wi-Fi the user is redirected to a webpage that requires a login. icmptunnel can be used to bypass such authentications in transport/application layers.
     %\item Bypassing firewalls: Firewalls are set up in various networks to block certain type of traffic. icmptunnel can be used to bypass such firewall rules. Obfuscating the data payload can also be helpful to bypass some firewalls.
 %\end{enumerate}
+
+
+
+%L’ICMP è progettato per fornire feedback su problemi di comunicazione di una rete TCP/IP. 
+%L’ ICMP si affida al supporto di base dell’IP come parte di protocollo di livello superiore. 
+%A causa di questa dipendenza, sia ICMPv4 che ICMPv6 esistono per entrambe le versioni di IP. 
+%Applicazioni come ad es. traceroute e ping utilizzano i messaggi ICMP per raccogliere informazioni e diagnosticare eventuali 
+%problemi di rete. 
+%\vspace{1ex} \newline
+%I canali nascosti spesso sfruttano per i propri flussi di informazioni, alcune caratteristiche tecniche incorporate nelle reti 
+%IEEE 802, caratteristiche che normalmente non vengono “viste” a livello di rete più alto perché considerate di servizio.
+%\vspace{1ex} \newline
+%L’idea di utilizzare l’ICMP come canale nascosto è quindi quella di sfruttare una comunicazione standard con un protocollo inferiore 
+%rispetto a TCP o UDP. Questo avrà un “ingombro” ridotto in tutto il traffico di rete e potrà passare inosservato agli amministratori 
+%di rete e agli analizzatori di traffico, in quanto, come detto, normalmente è utilizzato per la diagnostica e manutenzione della rete 
+%e degli host connessi, non per il trasporto dati, quindi difficilmente bloccato da policy di sicurezza.
+%Questo rende il protocollo ICMP un canale nascosto decisamente praticabile, l’uso di campi dati o payload all’interno di determinati 
+%messaggi ICMP permette di incorporare il messaggio del canale nascosto facilmente e trasforma paradossalmente l’ICMP stesso in un 
+%canale nascosto. Questi semplici fattori consentono all’ICMP di essere di fatto un traffico invisibile, vediamo un esempio. 
