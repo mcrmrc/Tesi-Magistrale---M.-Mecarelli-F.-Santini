@@ -1,4 +1,4 @@
-#from scapy.all import conf 
+from scapy.all import conf 
 
 import string
 import re
@@ -100,6 +100,29 @@ def calc_gateway_ipv6(ip_dst=None):
 def iface_src_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
     if not isinstance(addr_target, ipaddress.IPv4Address) and not isinstance(addr_target, ipaddress.IPv6Address):
         raise Exception(f"L'indirizzo non è istanza ne di IPv4Address ne di IPv6Address",file=sys.stderr)
+    if sys.platform == "win32":
+        return _windows_iface_src_from_IP(addr_target)
+    elif sys.platform=="linux":
+        return _linux_iface_src_from_IP(addr_target)
+    
+def _windows_iface_src_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
+    if not isinstance(addr_target, ipaddress.IPv4Address) and not isinstance(addr_target, ipaddress.IPv6Address):
+        raise Exception(f"L'indirizzo non è istanza ne di IPv4Address ne di IPv6Address",file=sys.stderr)
+    try:
+        if addr_target.version == 6: 
+            route_info = conf.route6.route(str(addr_target))
+        elif (addr_target.version == 4):
+            route_info = conf.route.route(str(addr_target))
+        else: print("Caso non contemplato")
+        iface, ip_src = conf.route.route(str(addr_target))[:2]
+        return iface, ip_src
+    except Exception as e:
+            print(f"Errore Scapy su Windows: {e}", file=sys.stderr)
+            return None, None 
+
+def _linux_iface_src_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=None):
+    if not isinstance(addr_target, ipaddress.IPv4Address) and not isinstance(addr_target, ipaddress.IPv6Address):
+        raise Exception(f"L'indirizzo non è istanza ne di IPv4Address ne di IPv6Address",file=sys.stderr)
     result_output = None
     try:
         #print(f"Indirizzo IPv{addr_target.version}: {addr_target.compressed}")
@@ -111,13 +134,12 @@ def iface_src_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=No
         )
         stdout, stderr = process.communicate()
         #print(f"Codice di ritorno {process.returncode}", flush=True)
-        if process.returncode == 0:  
-            result_output = stdout.strip()
-            #print(f"Output della route: {result_output}",flush=True)
-        else:
-            #print(f"Codice di ritorno {process.returncode}", file=sys.stderr)
-            #print(f"Errore: {stderr.strip()}", file=sys.stderr)  
+        if process.returncode != 0:  
+            print(f"Codice di ritorno {process.returncode}", file=sys.stderr)
+            print(f"Errore: {stderr.strip()}", file=sys.stderr)  
             return None, None 
+        result_output = stdout.strip()
+        #print(f"Output della route: {result_output}",flush=True)     
     except subprocess.CalledProcessError as e:
         #print(f"Errore durante l'esecuzione del comando: {e}", file=sys.stderr)
         return None, None 
@@ -139,7 +161,56 @@ def iface_src_from_IP(addr_target:ipaddress.IPv4Address|ipaddress.IPv6Address=No
         return iface, ip_src
     return None, None 
 
+
+def get_default_iface_and_ip():
+    try:
+        iface = conf.iface
+        ip_src = conf.route.route("0.0.0.0")[1]
+        return iface, ip_src
+    except Exception as e:
+        print(f"Errore: {e}", file=sys.stderr)
+        return None, None
+
 def default_iface(): 
+    if sys.platform == "win32":
+        return _windows_default_iface()
+    elif sys.platform=="linux":
+        return _linux_default_iface() 
+    else: return _general_default_iface()
+
+def _general_default_iface():
+    try:
+        iface = conf.iface  # Automatically detects default iface
+        return iface
+    except Exception as e:
+        print(f"Errore scapy: {e}", file=sys.stderr)
+        return None
+
+def _windows_default_iface():
+    try:
+        process = subprocess.Popen(
+            ["netsh", "interface", "ipv4", "show", "interfaces"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            print(f"Errore netsh: {stderr.strip()}", file=sys.stderr)
+            return None
+    except Exception as e:
+        print(f"Errore durante esecuzione netsh: {e}", file=sys.stderr)
+        return None
+    lines = stdout.splitlines()
+    for line in lines:
+        if "Connected" in line:
+            parts = re.split(r"\s{2,}", line.strip())
+            if len(parts) >= 4:
+                iface_name = parts[3]
+                return iface_name
+    return None
+
+def _linux_default_iface():
     try: 
         process=subprocess.Popen(
             ["ip", "route"],
@@ -172,7 +243,8 @@ def default_iface():
         iface=match_dev.group(0).replace("dev ","").strip() 
         #print(f"Interfaccia trovata: {iface}")
         return iface
-    return None 
+    return None
+
 
 def find_local_IP():
     local_ip=None
@@ -218,6 +290,42 @@ def getShellProcess():
     raise Exception(
         "Sistema operativo non supportato per l'apertura della shell"
     )
+
+def get_shellProcess_command(command:list[str]):
+    if not isinstance(command, list) or len(command)<=0 or not isinstance(command[0],str):
+        raise Exception(f"Argomenti non validi: {type(command)}")
+    #process = subprocess.Popen(
+    #    command_list,
+    #    stdout=subprocess.PIPE,
+    #    stderr=subprocess.PIPE,
+    #    text=True,
+    #    bufsize=1  # line-buffered
+    #)
+    if sys.platform == "win32":
+        print("Il sistema è Windows...")
+        return subprocess.Popen(
+            ["cmd.exe", "/c", command], 
+            stdin=subprocess.PIPE
+            ,stdout=subprocess.PIPE
+            ,stderr=subprocess.PIPE
+            ,text=True
+            ,bufsize=1
+        )
+    elif sys.platform=="linux":
+        print("Il sistema è Linux...")
+        return subprocess.Popen(
+            ["bash", "-c", command] 
+            ,stdin=subprocess.PIPE 
+            ,stdout=subprocess.PIPE 
+            ,stderr=subprocess.PIPE 
+            ,text=True
+            ,bufsize=1
+        )
+    print("Sistema operativo non supportato per l'apertura della shell.")
+    raise Exception(
+        "Sistema operativo non supportato per l'apertura della shell"
+    )
+    
 
 #------STRING METHODS------
 def sanitize(stringa):
