@@ -1,4 +1,4 @@
-\documentclass[a4paper,12 pt]{article}
+\documentclass[a4paper,12 pt]{report}
 \usepackage{latexsym}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
@@ -8,6 +8,7 @@
 
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18} 
+
 
 %pacchetti matematica
 \usepackage{amsmath}
@@ -32,11 +33,11 @@
 
 \usepackage{bytefield} 
 
-\usepackage[table,xcdraw]{xcolor} 
+
 
 \usepackage{url}
 
-\usepackage{xcolor}
+
 \usepackage[T1]{fontenc}
 \newcommand\myworries[1]{\textcolor{red}{#1}}
 
@@ -44,8 +45,7 @@
 \usepackage{float} 
 \usepackage{tikz}
 \usepackage{multirow}
-\usepackage{todonotes}
-\usepackage{amsmath, amssymb}
+\usepackage{todonotes} 
 \usepackage{placeins} 
  
 \usepackage{array}
@@ -56,8 +56,10 @@
 
 \usepackage[square,numbers]{natbib}
 
-\usepackage{changepage} 
-\usepackage{xtab} 
+\usepackage{changepage}  
+
+\usepackage{refcount}
+\usepackage{footmisc}
 
 \newtheorem{definizione}{Definizione}[section]
 
@@ -139,6 +141,8 @@
 
 \definecolor{blu_dmi}{HTML}{002e62}
 
+\renewcommand{\lstlistingname}{Codice}
+
 %\usepackage{showframe}
 \begin{document}
     \input{frontmatter}
@@ -148,43 +152,46 @@
     % \input{sommario}
 \tableofcontents \newpage
 %\lstlistoflistings \newpage
-%\listoffigures \newpage
+\listoffigures \newpage
+\listoftables \newpage
 
-%\section{Prima Parte} \addcontentsline{toc}{section}{\protect\numberline{}Introduzione}  
-\section{Background} 
+\chapter{Introduzione} 
 \import{main_background}{icmp} 
 \import{main_background}{covert} 
 \newpage 
 
-\section{Strumenti Utilizzati}
-\import{}{main_strumenti} \newpage   
+\chapter{Strumenti Utilizzati}
+\import{}{main_strumenti} 
+\newpage   
 
-\section{Implementazione \cite{repoGITHUB}} 
+
+\chapter{Implementazione} 
 \import{main_implementazione}{introduzione} 
-\subsection{Struttura della comunicazione fra le entità} 
 \import{main_implementazione}{struttura_comunicazione}  
-\subsection{Implementazione del Timing Covert Channel}
 \import{main_implementazione}{icmp_timing} 
-\subsection{Implementazione del Storage Covert Channel} 
 \import{main_implementazione}{icmp_storage} 
-\subsection{Implementazione del Behavioural Covert Channel} 
 \import{main_implementazione}{icmp_behave} 
-\subsection{Implementazione di un Hybrid Covert Channel} 
 \import{main_implementazione}{icmp_hybrid} 
 \newpage  
+
 %\import{./file}{covert_channel_implementati} \newpage 
 %Per ognuno di essi, dove possibile, si effettuerà una richiesta alla vittima; 
 %prima partendo da un comando leggero (e.g \textbf{pwd}) per poi passare a comandi 
 %sempre più difficili e quindi maggiormente rilevabili (e.g \textbf{cd /path; ls -l} 
 %oppure \textbf{cat ./file\_grande}, \dots)
-%
-\section{Test e Risultati} 
-\import{}{main_test} \newpage  
+
+\chapter{Test e Risultati} 
+\import{./file/ids/RITA}{test_RITA}  
+%\import{}{main_test} 
+\newpage  
 %\import{./file}{RITA} \newpage 
+
 %
 %\section*{Quarta Parte} \addcontentsline{toc}{section}{\protect\numberline{}Mitigazioni}  
 %\import{./file}{mitigazione} \newpage 
 
+\chapter{Conclusioni} 
+\import{}{conclusioni} 
 
 %\appendix
 %\import{./file/appendix}{ } \newpage  
