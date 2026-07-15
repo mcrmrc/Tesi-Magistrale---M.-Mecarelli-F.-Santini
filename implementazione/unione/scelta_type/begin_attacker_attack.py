@@ -80,6 +80,11 @@ def reset_event_update_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipadd
     for proxy in proxy_list:
         event_proxy_update.get(proxy.compressed).clear() 
 
+def restart_thread(thread_list:dict[str:threading.Thread]): 
+    for thread in thread_list.values():
+        thread.start()
+
+
 def create_event_update_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]):
     try:
         if not com.is_list(proxy_list) or len(proxy_list)<=0:
@@ -222,7 +227,7 @@ def get_args_from_parser():
         mymethods.print_parser_supported_arguments(parser)
         raise Exception(f"get_args_from_parser: {e}") 
 
-#-----------------------------------------
+#-----------------------------------------  
 class Attacker:
     default_file_path:str = "./attack_file.json" 
     
@@ -239,14 +244,16 @@ class Attacker:
         try:
             self.attack_function=attack_type(config_file) 
             print(f"Attacco selezionato: {self.attack_function}") 
-
             self.ip_vittima=setIP_vittima(config_file) 
             print(f"IP vittima valido: {type(self.ip_vittima) } {self.ip_vittima }")
-
             self.ip_host=setIP_host()
             print(f"IP host valido: {type(self.ip_host)} {self.ip_host}")
-
             self.proxy_list=set_proxy_list(config_file)  
+
+            self.received_data:dict[str,list]={}
+            for proxy in self.proxy_list:
+                self.received_data.update({proxy.compressed:[]}) 
+            self.dati_separati={}
         except Exception as e:
             print(f"__init__ main variable: {e}", file=sys.stderr)
             exit(1)  
@@ -269,9 +276,7 @@ class Attacker:
             exit(1)  
         
         try: 
-            self.received_data:dict[str,list]={}
-            for proxy in self.proxy_list:
-                self.received_data.update({proxy.compressed:[]})
+            
             self.send_command_to_victim() 
         except Exception as e:
             print(f"__init__ send command: {e}") 
@@ -339,8 +344,7 @@ class Attacker:
                 thread.join()  
             #print("ABCDEFG: ",self.received_data)
 
-            print("Separazione dati per SEQ")
-            self.dati_separati={}
+            print("Separazione dati per SEQ") 
             separa_dati_byID(self.received_data, self.dati_separati)
             #print("\n***dati_separati: ", self.dati_separati) 
             print("Dati separati per Sequenza")   
@@ -351,7 +355,7 @@ class Attacker:
                 print("aiuto eccezzione: ",e) 
             
             #reset thread and reset received_data
-            reset_event_update_foreach_proxy(self.proxy_list, self.event_thread_update)
+            self.reset_variables()
             command=input(msg) 
         print("Uscita dalla shell\texit")  
         for proxy in self.proxy_list:
@@ -378,6 +382,41 @@ class Attacker:
                 break
         print("Received all data") 
         return 
+    
+    def reset_variables(self):
+        reset_event_update_foreach_proxy(self.proxy_list, self.event_thread_update) 
+        self.thread_list={}
+        self.dati_separati={}
+        self.received_data:dict[str,list]={}
+        for proxy in self.proxy_list: 
+            if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
+                print(f"***\t{proxy} non è un indirizzo valido")
+                continue
+            self.received_data.update({proxy.compressed:[]}) 
+            thread=threading.Thread(
+                target=self.wait_data_from_proxy 
+                ,args=[proxy]
+            )
+            thread.name=f"Thread-{proxy.compressed}"
+            self.thread_list.update({proxy.compressed:thread})
+        for proxy in self.proxy_list:
+            self.event_thread_update.get(proxy.compressed).clear() 
+        restart_thread(self.thread_list) 
+
+        #com.setup_thread_foreach_address(self.proxy_list, self.wait_data_from_proxy)
+        
+        #thread=threading.Thread(
+        #    target= callback_function #wait_proxy_update
+        #    ,args=[proxy]
+        #) 
+        #thread_list.update({proxy.compressed:thread})
+        #thread.start() 
+        
+        #if want_to_choose_new_attack():
+        #    self.attack_function=choose_new_attack() 
+        #if want_to_choose_new_victim:
+        #   self.ip_vittima= choose_new_victim() 
+    
     
 
 if __name__=="__main__": 
