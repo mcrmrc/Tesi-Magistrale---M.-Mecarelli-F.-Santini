@@ -9,18 +9,18 @@ class ENTITY(Enum):
     PROXY="proxy"
 
 class MSG(Enum):
-    CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
-    CONFIRM_VICTIM="__CONFIRM_VICTIM__"
-    CONFIRM_PROXY="__CONFIRM_PROXY__"
-    CONFIRM_COMMAND="__CONFIRM_COMMAND__"
-    ATTACK_FUNCTION="__ATTACK_FUNCTION__"
-    LAST_PACKET="__LAST_PACKET__"
-    WAIT_DATA="__WAIT_DATA__"
-    END_COMMUNICATION="__END_COMMUNICATION__"
-    END_DATA="__END_DATA__"
-    START_SOURCES="__START_SOURCES__"
-    END_SOURCES="__END_SOURCES__" 
-    END_SOCKETSEND="__END_SEND__"
+    CONFIRM_ATTACKER="__confirm_attacker__"
+    CONFIRM_VICTIM="__confirm_victim__"
+    CONFIRM_PROXY="__confirm_proxy__"
+    CONFIRM_COMMAND="__confirm_command__"
+    ATTACK_FUNCTION="__attack_function__"
+    LAST_PACKET="__last_packet__"
+    WAIT_DATA="__wait_data__"
+    END_COMMUNICATION="__end_communication__"
+    END_DATA="__end_data__"
+    START_SOURCES="__start_sources__"
+    END_SOURCES="__end_sources__" 
+    END_SOCKETSEND="__end_socketsend__"
     SEPARATORE_INDEX_DATA="&&"
     SEPARATORE_BATCH="&&"
 
@@ -83,4 +83,4 @@ class ATTACK_TYPE(Enum):
 class EXIT_CASES(Enum): 
     EXIT="exit"
     QUIT="quit"
-    END_COMMUNICATION=MSG.END_COMMUNICATION.value 
+    END_COMMUNICATION=MSG.END_COMMUNICATION.value.lower()
