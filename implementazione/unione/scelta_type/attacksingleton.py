@@ -424,9 +424,9 @@ class SendSingleton():
             pkt= Ether(dst=target_mac)/ IP(dst=ip_dst.compressed)/\
                 ICMP(type=TYPE_DESTINATION_UNREACHABLE, code=3, unused=int.from_bytes(data[index:index+4]) )/\
                 Raw(load=bytes(dummy_ip)[:28]) 
-            print(f"Data: {data[index:index+4]}\t{int.from_bytes(data[index:index+4])}")
-            print(f"Data: {data[index+4:index+6]}\t{int.from_bytes(data[index+4:index+6])}") 
-            print(f"Data: {data[index+6:index+8]}\t{int.from_bytes(data[index+6:index+8])}") 
+            #print(f"Data: {data[index:index+4]}\t{int.from_bytes(data[index:index+4])}")
+            #print(f"Data: {data[index+4:index+6]}\t{int.from_bytes(data[index+4:index+6])}") 
+            #print(f"Data: {data[index+6:index+8]}\t{int.from_bytes(data[index+6:index+8])}") 
             pkt.summary()
             #pkt.show()
             sendp(pkt, verbose=1, iface=interface)  if pkt else print("Pacchetto non presente")
@@ -1374,17 +1374,17 @@ class CALLBACK():
             return callback
 
     def callback_ipv4_information_request(event_pktconn,data ):
-            def callback(packet): 
-                if packet.haslayer(IP) and packet.haslayer(ICMP):   
-                    if packet[ICMP].id==0 and packet[ICMP].seq==1: 
-                        THREADING_EVENT.set(event_pktconn)
-                        return
-                    icmp_id=packet[ICMP].id
-                    byte1 = (icmp_id >> 8) & 0xFF 
-                    byte2 = icmp_id & 0xFF  
-                    data.extend([chr(byte1),chr(byte2)]) 
-                    print(f"Callback received: {byte1} / {byte2}")
-            return callback
+        def callback(packet): 
+            if packet.haslayer(IP) and packet.haslayer(ICMP):   
+                if packet[ICMP].id==0 and packet[ICMP].seq==1: 
+                    THREADING_EVENT.set(event_pktconn)
+                    return
+                icmp_id=packet[ICMP].id
+                byte1 = (icmp_id >> 8) & 0xFF 
+                byte2 = icmp_id & 0xFF  
+                data.extend([chr(byte1),chr(byte2)]) 
+                print(f"Callback received: {byte1} / {byte2}")
+        return callback
 
     def callback_v4_timestamp_request(event_pktconn,data ):
             def callback(packet): 

