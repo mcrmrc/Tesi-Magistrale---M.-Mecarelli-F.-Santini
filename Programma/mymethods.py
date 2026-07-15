@@ -16,6 +16,14 @@ import os
 import time 
 from enum import Enum
 
+class SEPARAZIONE_DATI(Enum): 
+    ID="by_id"
+
+class ENTITY(Enum):
+    ATTACKER="attacker"
+    VICTIM="victim"
+    PROXY="proxy"
+
 class MSG(Enum):
     CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
     CONFIRM_VICTIM="__CONFIRM_VICTIM__"
@@ -28,6 +36,7 @@ class MSG(Enum):
     END_DATA="__END_DATA__"
     START_SOURCES="__START_SOURCES__"
     END_SOURCES="__END_SOURCES__" 
+    END_SOCKETSEND="__END_SEND__"
 
 exit_cases=["exit","quit",MSG.END_COMMUNICATION.value]
 
