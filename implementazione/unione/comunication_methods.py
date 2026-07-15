@@ -7,6 +7,7 @@ import time
 import re 
 import subprocess 
 import ipaddress
+import sys
 
 CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
 CONFIRM_VICTIM="__CONFIRM_VICTIM__"
@@ -27,14 +28,31 @@ def is_callback_function(callback_function=None):
     return True
 
 def is_valid_ipaddress(ip_address:str): 
+    #print(f"\tControllo la validità dell'indirizzo IP: {ip_address}")
+    try:
+        addr=ipaddress.IPv4Address(ip_address)
+        if addr is not None:
+            #print(f"\tis_valid_ipaddress: {addr} è un indirizzo IPv4 valido")
+            return addr
+    except ValueError as e:
+        #print(f"\tis_valid_ipaddress: {e}", file=sys.stderr)  
+        pass
+    try:
+        addr=ipaddress.IPv6Address(ip_address) 
+        if addr is not None:
+            #print(f"\tis_valid_ipaddress: {addr} è un indirizzo IPv6 valido")
+            return addr 
+    except ValueError as e:
+        #print(f"\tis_valid_ipaddress: {e}", file=sys.stderr) 
+        pass
+    #print(f"\tis_valid_ipaddress: {ip_address} non è un indirizzo IPv4 o IPv6 valido ",file=sys.stderr)
+    return None
+
+def is_valid_ipaddress_v4(ip_address:str): 
     try:
         return ipaddress.IPv4Address(ip_address)
     except ValueError:
-        raise ValueError(f"is_valid_ipaddress: ip_address non è un indirizzo IPv4 valido {ip_address}") 
-    ip_reg_pattern=r"^\d+\.\d+\.\d+\.\d+$"
-    if type(ip_address) is not str or re.match(ip_reg_pattern, ip_address) is None:
-        raise ValueError(f"is_valid_ipaddress: ip_address non è un indirizzo valido {ip_address}") 
-    return True
+        raise ValueError(f"is_valid_ipaddress_v4: ip_address non è un indirizzo IPv4 valido {ip_address}") 
 
 def is_valid_ipaddress_v6(ip_address:str): 
     try:
@@ -117,19 +135,19 @@ def check_args_sniffer(args:dict=None):
         raise ValueError(f"check_args_sniffer: Invalid keys in dictionary {invalid_args}")
     return True
 
-def check_proxy_ipaddress(proxy_list:list):
+def get_wrong_ipaddress(proxy_list:list):
     wrong_ips=[]
     for proxy in proxy_list:
         try:  
-            if not is_valid_ipaddress(proxy): 
+            if is_valid_ipaddress(proxy) is None: 
                 wrong_ips.append(proxy)
         except Exception as e: 
-            print(f"check_proxy_ipaddress: {e}") 
+            print(f"\tcheck_proxy_ipaddress: {e}") 
             wrong_ips.append(proxy)
     return wrong_ips  
 
 #-------------------- 
-def get_threading_Event(): 
+def get_threading_Event()->threading.Event: 
     event = threading.Event()
     try:
         is_threading_Event(event)
@@ -155,7 +173,7 @@ def get_timeout_timer(timeout_time=60, callback_function=None):
 
 def get_thread_response(proxy:str=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=True):
     try:
-        is_valid_ipaddress(proxy)
+        is_valid_ipaddress_v4(proxy)
         is_threading_lock(thread_lock)
         is_dictionary(thread_response)
         is_boolean(response)
@@ -169,7 +187,7 @@ def get_thread_response(proxy:str=None,thread_lock:threading.Lock=None,thread_re
 
 def update_thread_response(proxy:str=None,thread_lock:threading.Lock=None,thread_response:dict=None,response:bool=False):
     try:
-        if not is_valid_ipaddress(proxy):
+        if not is_valid_ipaddress_v4(proxy):
             raise Exception(f"update_thread_response: ipaddress {proxy}") 
         if not is_threading_lock(thread_lock):
             raise Exception(f"update_thread_response: lock {thread_lock}") 
@@ -249,7 +267,7 @@ def stop_timer(timer:threading.Timer=None):
 #------------------------
 def send_packet(data:bytes=None,ip_dst=None, time=10,icmp_seq=0,id=None):
     try:
-        is_valid_ipaddress(ip_dst)
+        is_valid_ipaddress_v4(ip_dst)
         if data is None or not isinstance(data,bytes): 
             raise Exception("send_packet: I dati devono essere bytes")
     except Exception as e:
@@ -257,7 +275,7 @@ def send_packet(data:bytes=None,ip_dst=None, time=10,icmp_seq=0,id=None):
     if id is None:
         icmp_id=mymethods.calc_checksum(data) 
     pkt = IP(dst=ip_dst)/ICMP(id=icmp_id,seq=icmp_seq) / data  
-    print(f"Sending {pkt.summary()}") 
+    print(f"\tSending {pkt.summary()}") 
     ans = sr1(pkt, timeout=time, verbose=1)
     if ans:
         #print(f"Reply: \t{ip_dst} is alive\n") 
@@ -294,11 +312,12 @@ def sniff_packet(args:dict=None,timeout_time=60, event:threading.Event=None):
     start_sniffer(sniffer, timer) 
     return sniffer, timer 
 #------------------------
-def setup_thread_4_foreach_proxy(proxy_list:list=None,callback_function=None): 
+def setup_thread_foreach_proxy(proxy_list:list=None,callback_function=None): 
     try: 
-        is_callback_function(callback_function)
+        if not is_callback_function(callback_function):
+            raise Exception(f"callback_function non valida {callback_function}")
         if not is_list(proxy_list) or len(proxy_list)<=0:
-            raise Exception(f"setup_thread_4_foreach_proxy: lista non vlaida")
+            raise Exception(f"lista non valida")
     except Exception as e:
         raise Exception(f"setup_thread_4_foreach_proxy: {e}")
     thread_lock=threading.Lock()
@@ -311,48 +330,10 @@ def setup_thread_4_foreach_proxy(proxy_list:list=None,callback_function=None):
         )
         thread_list.update({proxy:thread})
         thread_proxy_response.update({proxy:False}) 
-    print(f"Lock creato:\t{thread_lock}")
-    print(f"Thread creati:\t{thread_list}")
-    print(f"Risposte create:\t{thread_proxy_response}")
+    print(f"Definito il threading lock per quando si accede alle risposte dei proxy") #print(f"Lock creato:\t{thread_lock}")
+    print("Definito per ogni proxy il proprio Thread") #print(f"Thread creati:\t{thread_list}")
+    print("Definito il dizionario contenente le risposte ricevute dai proxy") #print(f"Risposte create:\t{thread_proxy_response}")
     return thread_lock, thread_proxy_response, thread_list
-
-def aaa_get_mac_by_ipv6(ipv6_dst:str=None, ipv6_src:str=None, iface_name:str=None): 
-    try:
-        is_string(ipv6_dst)
-    except Exception as e:
-        raise Exception(f"get_mac_by_ipv6: ipv6_dst non è una stringa valida {ipv6_dst}")
-    try:
-        is_string(iface_name)
-    except Exception as e:
-        raise Exception(f"get_mac_by_ipv6: iface_name non è una stringa valida {iface_name}")
-    try:  
-        address_dst=is_valid_ipaddress_v6(ipv6_dst)
-        address_src=is_valid_ipaddress_v6(ipv6_src)
-        src_mac=get_if_hwaddr(iface_name)
-        multicast_mac = "33:33:" + address_dst.packed[-4:].hex()[:2] + ":" + \
-            address_dst.packed[-4:].hex()[2:4] + ":" + \
-            address_dst.packed[-4:].hex()[4:6] + ":" + \
-            address_dst.packed[-4:].hex()[6:8]
-        solicited_node_multicast = "ff02::1:ff" + address_dst.exploded[-7:].replace(":", "")
-
-        ns_multicast_ip = in6_getnsma(address_dst.packed)
-        dst_multicast_mac = in6_getnsmac(address_dst.packed) 
-        
-        ndp_pkt= (
-            Ether(dst=dst_multicast_mac, src=src_mac) / \
-            IPv6(src=address_src.packed, dst=str(ns_multicast_ip)) /\
-            ICMPv6ND_NS(tgt=address_dst.packed) /\
-            ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
-        )
-        response = sr1p(ndp_pkt, verbose=False, timeout=2, iface=iface_name)
-        if response and ICMPv6NDOptDstLLAddr  in response:
-            resolved_mac = resp[ICMPv6NDOptDstLLAddr].lladdr
-            print(f"Resolved MAC: {resolved_mac}")
-            return resolved_mac
-        else:
-            raise RuntimeError("get_mac_by_ipv6: Failed to resolve MAC via NDP")
-    except Exception as e:
-        raise Exception(f"get_mac_by_ipv6: {e}")
 
 import socket
 def get_mac_by_ipv6(ipv6_dst: str, ipv6_src: str, iface_name: str):
