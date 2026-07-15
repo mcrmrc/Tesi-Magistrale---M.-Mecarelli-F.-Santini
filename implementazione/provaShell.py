@@ -221,7 +221,36 @@ def prova():
     #print(result.stderr)
 
 
-#https://medium.com/@prachi1808saini/title-sending-messages-using-the-ping-command-in-linuxu-d6083b0a8517
+#https://medium.com/@prachi1808saini/title-sending-messages-using-the-ping-command-in-linuxu-d6083b0a8517 
+
+#https://thepythoncode.com/article/sniff-http-packets-scapy-python
+#https://www.geeksforgeeks.org/packet-sniffing-using-scapy/
+#https://0xbharath.github.io/art-of-packet-crafting-with-scapy/scapy/sniffing/index.html
+
+
+
+#iface: Specify the network interface to sniff on.
+#count: The number of packets to capture. If omitted, sniffing will continue until stopped.
+#filter: Apply a BPF (Berkeley Packet Filter) to capture only certain packets.
+#prn: Define a callback function to execute with each captured packet.
+#store: Whether to store sniffed packets or discard them.
+
+
+
+#Scapy can also store sniffed packets in a .pcap file, which can be analyzed later with tools like Wireshark. To save packets to a file, use the wrpcap() function:
+#   Save captured packets to a file
+#   wrpcap('captured.pcap', packets)
+
+#Scapy can read packets from a .pcap file using the rdpcap() function or by setting the offline parameter in the sniff() function:
+#   Read packets from a file
+#   packets = rdpcap('captured.pcap')
+
+
+#Try disabling the firewall temporarily on the VM to test:
+#   On Windows: 
+#   netsh advfirewall set allprofiles state off
+#On Linux: 
+#   sudo ufw disable (if ufw is used)
 
 
 
