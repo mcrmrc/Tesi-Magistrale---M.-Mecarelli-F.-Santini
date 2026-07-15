@@ -51,59 +51,6 @@ def get_wrong_ipaddress(proxy_list:list):
             wrong_ips.append(proxy)
     return wrong_ips  
 
- 
-#------------------------
-def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, time=10,icmp_seq:int=0,icmp_id:int=None,interface=""):
-    try:
-        if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
-            raise Exception("iip_dst non è ne istanza di IPv4Address ne IPv6Address")
-        if not isinstance(data,bytes): 
-            raise Exception(f"I dati non sono bytes: {type(data)}")
-    except Exception as e:
-        raise Exception(f"send_packet: {e}") 
-    if icmp_id is None:
-        icmp_id=mymethods.calc_checksum(data) 
-    pkt = IP(dst=ip_dst.compressed)/ICMP(id=icmp_id,seq=icmp_seq) / data  
-    print(f"\tSending {pkt.summary()}") 
-    if isinstance(interface,str) and interface !="":
-        ans=sendp(pkt, verbose=1, iface=interface)
-    else:
-        ans = sr1(pkt, timeout=time, verbose=1)
-    if ans:
-        #print(f"Reply: \t{ip_dst} is alive\n") 
-        return True 
-    #print(f"No reply: \t{ip_dst} is not responding\n")
-    return False
-
-def sniff_packet_w_callbak(args:dict=None,timeout_time=60, callback_function=sniffer_timeout):
-    try:
-        check_args_sniffer(args) 
-        if timeout_time is not None:
-            is_valid_time(timeout_time)
-        is_callback_function(callback_function) 
-    except Exception as e: 
-        raise Exception(f"sniff_packet_w_callbak: {e}")
-    timeout_time=int(timeout_time) if timeout_time is not None else timeout_time
-    sniffer= get_AsyncSniffer(args)  
-    timer = get_timeout_timer(timeout_time, callback_function) 
-    start_sniffer(sniffer, timer) 
-    return sniffer, timer 
-
-def sniff_packet(args:dict=None,timeout_time=60, event:threading.Event=None):
-    try:
-        check_args_sniffer(args) 
-        if timeout_time is not None:
-            is_valid_time(timeout_time)
-        is_threading_Event(event) 
-    except Exception as e: 
-        raise Exception(f"sniff_packet: {e}")  
-    sniffer= get_AsyncSniffer(args)  
-    callback_function=lambda: sniffer_timeout(sniffer, event) 
-    timeout_time=int(timeout_time) if timeout_time is not None else timeout_time 
-    timer = get_timeout_timer(timeout_time, callback_function)  
-    start_sniffer(sniffer, timer)  
-    return sniffer, timer 
-
 #------------------------
 def setup_thread_foreach_address(address_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None,callback_function=None): 
     try: 
