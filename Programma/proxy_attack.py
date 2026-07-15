@@ -36,36 +36,7 @@ default_file_path:str = "./attack_file.json"
 type_sender=SENDER_TRUE_SENDER 
 use_delay=False 
 timeout_time=20
-#-------------------------------- 
-class GET_ARGS:  
-    def from_parser(oggetto=None): 
-        if isinstance(oggetto,Proxy): 
-            print("_proxy_get_args_from_parser") 
-            parser = argparse.ArgumentParser()
-            parser.add_argument("--ip_attaccante",type=str, help="IP dell'attaccante") 
-            #parser.add_argument("--provaFlag",type=str, help="Comando da eseguire")
-            try:
-                args,unknown =PARSER.check_arguments(parser) 
-                if not is_namespace(args) or not is_list(unknown) or len(unknown)>0:  
-                    raise ValueError(f"Argomenti sconosciuti: {unknown}") 
-                return args if GET_ARGS.check_value_in_parser(oggetto, args) else None
-            except Exception as e: 
-                print(e)
-                PARSER.print_supported_arguments(parser) 
-        #elif isinstance(oggetto,Proxy): 
-        #    print("Proxy") 
-        #elif isinstance(oggetto,Victim): 
-        #    print("Proxy") 
-        return None
-    
-    def check_value_in_parser(oggetto, args): 
-        if not isinstance(args,argparse.Namespace): 
-            print(f"args non vlaido")  
-        if isinstance(oggetto,Proxy):  
-            if not args.ip_attaccante or not is_string(args.ip_attaccante): 
-                print(f"--ip_attaccante non specificato") 
-            else: return True  
-        return False
+#--------------------------------  
 
 class THREAD_VAR: 
     lock:threading.Lock=None
@@ -129,7 +100,7 @@ class THREAD_VAR:
 attacker_mode=True
 class Proxy: 
     ip_attaccante:ipaddress._IPAddressBase=None 
-    ip_host:ipaddress._IPAddressBase=None 
+    
     ip_vittima=None 
     attack_function:ATTACK_TYPE=None 
     data_received:list=None
@@ -158,11 +129,13 @@ class Proxy:
                 return None
             print(f"ip_host: {type(ip_host)} {ip_host}") 
             return ip_host
-        #--------------------------
-        self.data_received=[]
+        #-------------------------- 
+        self.ip_host:ipaddress._IPAddressBase=None 
         while not is_ipaddress(self.ip_host): 
             self.ip_host=get_ip_host() 
         print(f"IP HOST",self.ip_host) 
+        self.data_received=[]
+        
         #GET-ARGS
         args=GET_ARGS.from_parser(self) 
         if not is_namespace(args): 
