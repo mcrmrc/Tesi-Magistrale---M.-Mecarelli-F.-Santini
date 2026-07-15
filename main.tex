@@ -26,6 +26,7 @@
 \usepackage{graphicx} 
 
 \usepackage[table,xcdraw, dvipsnames]{xcolor}
+\usepackage{longtable}
 \usepackage{setspace} 
 
 \usepackage{listings}
@@ -59,7 +60,6 @@
 \usepackage[square,numbers]{natbib}
 
 \usepackage{changepage} 
-%\usepackage{showframe}
 
 \newtheorem{definizione}{Definizione}[section]
 
@@ -141,6 +141,7 @@
 
 \definecolor{blu_dmi}{HTML}{002e62}
 
+\usepackage{showframe}
 \begin{document}
     \input{frontmatter}
     %\input{dedica}
@@ -151,36 +152,29 @@
 \lstlistoflistings \newpage
 \listoffigures \newpage
 
-\section*{Parte 1 - Introduzione} \addcontentsline{toc}{section}{\protect\numberline{}Introduzione}  
-\section{Covert Channel} 
-\import{./file}{covert_channel} \newpage 
+\section{Parte 1 - Introduzione} \addcontentsline{toc}{section}{\protect\numberline{}Introduzione}  
+\import{./file}{introduzione} %\newpage 
 %
-\section{Attacchi ICMP Covert Channel} 
-\import{./file}{icmp_covertChannel} \newpage 
+\subsection{Strumenti Utilizzati}
+\import{./file}{tools} \newpage  
 %
-\section{Protocollo ICMP} 
-\import{./file}{icmp} \newpage 
+\section{Parte 2 - Covert Channel implementati} \addcontentsline{toc}{section}{\protect\numberline{}Covert Channel implementati}  
+\import{./file}{covert_channel_implementati} \newpage 
+%Per ognuno di essi, dove possibile, si effettuerà una richiesta alla vittima; prima partendo da un comando leggero (e.g \textbf{pwd}) per poi passare a comandi sempre più difficili e quindi maggiormente rilevabili (e.g \textbf{cd /path; ls -l} oppure \textbf{cat ./file\_grande}, \dots)
+
 %
-\section*{Strumenti Utilizzati} \addcontentsline{toc}{section}{\protect\numberline{}Strumenti Utilizzati}  
-\import{./file}{tools} \newpage 
-%
-\section*{Parte 2 - Implementazione di un Covert Channel} \addcontentsline{toc}{section}{\protect\numberline{}Implementazione di un Covert Channel}  
-\import{./file}{implementazione} \newpage 
-%
-%\section*{Parte 3 - RITA} \addcontentsline{toc}{section}{\protect\numberline{}RITA}  
+\section*{Parte 3 - Test e Risultati} \addcontentsline{toc}{section}{\protect\numberline{}Test e Risultati}  
 %\import{./file}{RITA} \newpage 
 %
-%\section*{Parte 4 - Implementazione di Mitigazioni} \addcontentsline{toc}{section}{\protect\numberline{}Implementazione di Mitigazioni}  
+%\section*{Parte 4 - Mitigazioni} \addcontentsline{toc}{section}{\protect\numberline{}Mitigazioni}  
 %\import{./file}{mitigazione} \newpage 
 %\import{./mitigazione/file}{pratiche} 
 %\import{./mitigazione/file}{strategie} 
 %\import{./mitigazione/file}{covertchannel_strategie} 
 
 \appendix
-\import{./file/appendix}{appendix_attacker} \newpage 
-\import{./file/appendix}{appendix_proxy} \newpage 
-\import{./file/appendix}{appendix_victim} \newpage 
-\import{./file/appendix}{appendix_librerie} \newpage 
+%\import{./file/appendix}{ } \newpage  
+
 
 \end{document}
 
