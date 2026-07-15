@@ -7,49 +7,28 @@ import time
 import comunication_methods as com
 import re
 
-sniffed_data=None  
-
-def conn_attaccante():
-    com.pkt_conn_received.wait()  
-    com.sniffer.stop()
-    print(f"Si stabilisce una connessione con {ip_attacker}")
-    pkt = IP(dst=ip_attacker)/ICMP() / "".join( "__CONNECT__ " )
-    ans = sr1(pkt, timeout=2, verbose=1)
-    if ans:
-        print(f"{ip_attacker} is alive")
-        #ans.show()
-        print("Proxy IPs: {}".format(proxy_ip))
-    else:
-        print(f"No reply: {ip_attacker} is not responding") 
-
-def send_data():
-    print("Waiting to start the connection...")
-    com.pkt_conn_received.wait() 
-    com.sniffer.stop()
-    print("__CONNECT_ received. Sending data...") 
-    command=input("Inserisci il comando. Inserisci 'exit' o 'quit' per terminare\n>>>\t")
-    while command not in ["exit","quit"]: 
-        print(command)
-        command=input(">>>\t")
-    exit(0)  
+sniffed_data=None    
 
 #--Parte 2--# 
 def done_waiting_timeout():
     if len(proxy_ip)>= num_proxy: 
         print("Timeout: Enough proxy has arrived")
         com.sniffer.stop() 
-        com.pkt_conn_received.set()
+        com.set_pkt_conn_received()
     else:
         print("Timeout: Not enough proxy has arrived")
         global timeout_done_waiting
         timeout_done_waiting = threading.Timer(60, done_waiting_timeout)
 
-def proxy_callback(packet):
-    print("Packet received: {}".format(packet.summary()))
-    global ip_attacker, proxy_ip, timeout_timer
+def callback_conn_from_proxy(packet): 
+    print("Packet received: {}".format(packet.summary())) 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
-        if b'__CONNECT__' in bytes(packet[Raw].load):  
-            if com.send_packet(packet[Raw].load,packet[IP].src):
+        if packet[IP].src in proxy_ip:
+            print(f"proxy:{packet[IP].src}\t{proxy_ip}")
+            return
+        print(f"CONNECT in msg:{com.CONNECT.encode() in packet[Raw].load}")
+        if com.CONNECT.encode() in packet[Raw].load: 
+            if com.send_packet(com.CONFIRM_PROXY.encode(),packet[IP].src):
                 proxy_ip.append(packet[IP].src) if packet[IP].src not in proxy_ip else None
                 print("Proxy: {}".format(packet[IP].src)) 
                 print(f"Proxy IPs: {proxy_ip}") 
@@ -58,24 +37,23 @@ def proxy_callback(packet):
             print(f"Necessari ancora {num_proxy-len(proxy_ip)} proxy")
         if len(proxy_ip)>= num_proxy:
             com.timeout_timer.cancel() 
-            com.pkt_conn_received.set() 
+            com.set_pkt_conn_received() 
 
-def wait_conn_proxy(): 
+def conn_from_proxy(): 
     args={
         "filter":f"icmp and dst {ip_host}" 
         #,"count":1 
-        ,"prn":proxy_callback 
+        ,"prn":callback_conn_from_proxy 
         #,"store":True 
         ,"iface":mymethods.iface_from_IP(gateway_host)[1] 
     }
     com.sniff_packet(args,None) 
     global timeout_done_waiting
     timeout_done_waiting = threading.Timer(60, done_waiting_timeout)
-    timeout_done_waiting.start()
-    com.pkt_conn_received.wait() 
+    timeout_done_waiting.start() 
+    com.wait_pkt_conn_received() 
     if com.sniffer.running: 
         com.sniffer.stop() 
-        com.sniffer.join() 
     if timeout_done_waiting.is_alive(): 
         timeout_done_waiting.cancel()
     if com.timeout_timer.is_alive(): 
@@ -134,7 +112,8 @@ if __name__=="__main__":
         exit(1)
     #2) Connessione con tutti i proxy
     try:
-        wait_conn_proxy()
+        print("\tconn_from_proxy")
+        conn_from_proxy()
     except Exception as e:
         print(f"An Exception has occured: {e}") 
         exit(1)  
