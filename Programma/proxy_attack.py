@@ -36,67 +36,7 @@ default_file_path:str = "./attack_file.json"
 type_sender=SENDER_TRUE_SENDER 
 use_delay=False 
 timeout_time=20
-#--------------------------------  
-
-class THREAD_VAR: 
-    lock:threading.Lock=None
-    response:bool=False 
-    thread:threading.Thread=None 
-    
-    def __init__(self, callback_function=None, args:list=None):  
-        if not is_callable_function(callback_function): 
-            raise TypeError("callback_function non valido") 
-        if args and not is_list(args): 
-            raise TypeError("args non valido") 
-        self.lock=get_threading_Lock()  
-        self.response=False  
-        if args is None: 
-            self.thread=threading.Thread(target=callback_function)  
-        else: 
-            self.thread=threading.Thread(
-                target=callback_function, 
-                args=args
-            )   
-    
-    def start(self): 
-        if not is_threading_Thread(self.thread): 
-            raise TypeError("thread non valido") 
-        #print("FUNCTION", self.thread.target) 
-        #self.thread.clear()
-        self.thread.start() 
-    def restart(self, callback_function=None, args:list=None): 
-        if not is_callable_function(callback_function): 
-            raise TypeError("callback_function non valido") 
-        if args and not is_list(args): 
-            raise TypeError("args non valido") 
-        if args is None: 
-            self.thread=threading.Thread(target=callback_function)  
-        else: 
-            self.thread=threading.Thread(
-                target=callback_function, 
-                args=args
-            )  
-    def wait(self): 
-        if not is_threading_Thread(self.thread): 
-            raise TypeError("thread non valido") 
-        print("THREAD_VAR: Aspetto che il thread termini")
-        self.thread.join() 
-    
-    def acquire_lock(self): 
-        self.lock.acquire() 
-    def release_lock(self): 
-        self.lock.release() 
-    
-    def update_response(self, response:bool=False): 
-        if not is_boolean(response): 
-            raise TypeError("response non boolean")
-        if not is_threading_Lock(self.lock): 
-            raise TypeError("lock non valido")    
-        self.acquire_lock()
-        self.response=response
-        self.release_lock() 
-        print("RISPOSTA AGGIORNATA")
-
+#--------------------------------    
 class PROXY_THREAD: 
     class VICTIM_CONNECTION: 
         thread:threading.Thread=None 
