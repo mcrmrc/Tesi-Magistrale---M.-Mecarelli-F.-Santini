@@ -1,28 +1,19 @@
 \section{Implementazione del Timing Covert Channel}
 Per poter temporizzare i dati da inviare, c'è bisogno sia di un metodo per la codifica e decodifica dei tempi. 
 Dovrà quindi essere presente una funzione che è responsabile di mappare un dato binario a un intervallo di tempo. 
-\vspace{1ex} \newline  
-Per la \textbf{codifica}, si calcolerà dal dato il delay associato; che verrà usato per indicare il tempo da aspetare prima di inviare un nuovo pacchetto. 
-%metodo di codifica, usato dal mittente, che ricaverà il tempo associato ad un dato e poi aspetterà tale intervallo di tempo. 
+\vspace{1ex} \newline 
+Per la \textbf{codifica}, si calcolerà dal dato il delay associato; che verrà usato per indicare il tempo da aspetare prima di inviare un nuovo 
+pacchetto.  
 Per esempio al dato binario 1001 potrebbe essere associato il tempo 3; quindi il programma, prima di mandare un nuovo pacchetto, aspetterà tre secondi. 
-\vspace{1ex} \newline
+\vspace{1ex} \newline 
 Invece per la \textbf{decodifica}, il destinatario rimane in attesa dei pacchetti che gli vengono inviati. 
-Ogni volta calcolerà l'intervallo di tempo fra un pacchetto e il successivo, e da quello ricaverà il dato che gli è associato. 
-%Successivamente ricaverà l'intervallo di tempo fra il pacchetto precedente e quello corrente e poi ricaverà il valore associato. 
+Ogni volta calcolerà l'intervallo di tempo fra un pacchetto e il successivo, e da quello ricaverà il dato che gli è associato.  
 Per esempio se l'intervallo di tempo risultasse di 6 secondi, il destinatario controllerà a chi è associato tale tempo e ricaverà il dato binario 1101. 
-%In questo caso si definisce un Covert Channel Temporale inviando pacchetti ICMP (di tipo Echo) in intervalli specifici. 
-%Tramite la differenza fra il tempo precedente e il tempo di ircezione del nuovo pacchetto; 
-%l'attaccante riuscirà a codificare un bit (o coppie di bit) mentre la vittima riuscirà a decodificare il bit (o la coppia di bit) associato all'intervallo. 
-%In altre parole: ogni possibile combinazione dei valori assumibili dal byte, si può vedere
-%come un punti su una linea retta (la linea del tempo). 
 \vspace{3ex} \newline 
 Per l'invio dei dati, si è preso spunto dall'approccio implementato in ICMP Exfill \cite{icmp-exfill} 
 nel quale il delay viene determinato dal valore del byte che si vuole esfiltrare. 
 Ciò è possibile siccome un carattere di un testo viene memorizzato tramite una sequenza di bit 
-la quale potrà essere interpretata anche come un numero intero.
-%L'intervallo di tempo verrà quindi ricavato dall'intero associato al byte da codificare. 
-%viene quindi ricavato convertendo in un intero la rappresentazione in memoria dei bit presenti. 
-%Il byte rappresentante il carattere, verrà quindi letto come un numero intero ed usato per determinar il tempo di delay. 
+la quale potrà essere interpretata anche come un numero intero. 
 
 
 \subsubsection{Funzione di codifica} 
@@ -50,14 +41,10 @@ $\text{tempo\_base}+\text{indice}\times\text{distanza\_tempi}$
     \textbf{Indice} & 
     \uppercase{è} l'indice associato alla codifica del dato. 
     Il suo valore và da 0 sino a 255 siccome si prende un byte alla volta. 
-    %al masismo numero di codifiche possibili per i dati. 
-    %Siccome si trattano bit, corrisponderà all'intero rappresentato dalla coppia di bit (eg 101=5). 
     \\ 
     \hline 
     \textbf{Distanza fra i tempi} & 
     Distanza minima di secondi che tutte le codifiche dovranno avere fra di loro. 
-    %Lo scopo è evitare che i tempi relativi a due codifiche si sovrappongano. 
-    %In quei casi la decodifica potrà essere erronea. 
 \\
 \hline
 \end{longtable} 
@@ -67,70 +54,29 @@ Le distanze fra i vari intervalli di tempo sono necessarie per evitare
 errori nella decodifica. 
 Infatti durante la trasmissione dela pacchetto possono avvenire dei 
 ritardi non costanti per tutti i datagram inviati \cite{packet_delay1}\cite{packet_delay2}. 
-%\vspace{1ex} \newline 
-%Generalmente questi ritardi sono dati dal tempo di propagazione\footnote{tempo richiesto affinchè l'ultimo bit raggiunga la destinazione} 
-%e il tempo di coda\footnote{tempo in cui il datagram aspetta nella buffer di destinazione}. 
-%Inoltre sono presenti anche il tempo di trasmissione \footnote{tempo richiesto da un host per trasmettere il pacchetto nel canale di trasmisisone} 
-%e il tempo di elaborazione\footnote{tempo richiesto dai router intermedi per inoltrare il pacchetto} 
-%il tempo in cui la destinazione riceverà il messaggio è dato dal delay per codificare il dato 
-%più il ritardo di rete. 
 La variazione del valore di questo parametro dipenderà dall'ubicazione geografica dell'entità mittente 
 e di quella destinataria, oltre alla reattività delle due macchine.
 \vspace{1ex} \newline 
 La mediana di questo valore \cite{latency_statistics} è di solito 122 ms con 
 un massimo di 266 ms\footnote{
     I dati presi in analisi sono quelli relativi all'Italia
-}. 
-%\href{https://learn.microsoft.com/en-us/azure/networking/azure-network-latency?tabs=Americas%2CWestUS}{text}
-%https://andrewpakhomov.com/posts/latency-tail-latency-and-response-time-in-distributed-systems/
-%https://www.kentik.com/kentipedia/network-latency-understanding-impacts-on-network-performance/
-%La formula per calcolare i tempi associati alle codifiche dei bit è la seguente: \newline
-%\begin{lstlisting}
-%DISTANZA_TEMPI=2 #sec 
-%TEMPI_CODICI=[3+index*2*DISTANZA_TEMPI for index in range(2**2)] #00, 01, 10, 11 
-%TEMPO_BYTE=0*60 #minuti
-%\end{lstlisting} 
-%\captionof{lstlisting}{heading} 
-%Si definisce un \textbf{tempo di base} di \textit{3 secondi} e una \textbf{distanza} minima che tutti i tempi dovranno avere. 
-%In questo caso si è deciso che la distanza sia di almeno \textit{2 secondi}. 
+}.  
 \vspace{3ex}\newline
 \begin{minipage}{\textwidth}
     \centering
-    \captionof{figure}{Assegnazione degli intervalli con la distanza \cite{draw_io}} %di tempo 
+    \captionof{figure}{Assegnazione degli intervalli con la distanza \cite{draw_io}}   
     \label{fig:covertTiming:intervalli:distanza}
     \includegraphics[width=\textwidth]{./img/timing_channel/timing_channel_times_nonoverlapping.png}
-\end{minipage}  
-%\begin{minipage}{\textwidth}
-%    \includegraphics[width=\textwidth]{./img/timing_channel/timing_channel_times_overlapping.png}
-%    \captionof{figure}{Funzione 1: Assegnazione degli intervalli senza la distanza}  %di tempo 
-%\end{minipage}  
-%\begin{minipage}{\textwidth}
-%    \includegraphics[width=\textwidth]{./img/timing_channel/timinmg_channel_network_latency.png}
-%    \captionof{figure}{Schema latenza nel sistema} 
-%\end{minipage}   
+\end{minipage}     
 \vspace{2ex} \newline
 Lo svantaggio di questo approccio sono i tempi che si aspettano. 
 Nel miglior caso si aspetterà solo il tempo di base 
-nel caso peggiore invece 255 volte la distanza scelta.  
-%Nel caso in cui il byte rappresenti l'intero 0 si aspetterà solo il tempo di base; 
-%invece nel caso in cui il byte rappresenti l'intero 255 si aspetteà il $\text{tempo di base}+255*\text{distanza}$. 
-%Supponendo che il tempo di base sia di 3 secondi e che la distanza fra i vari tempi sia di 
-%600 ms (o 0.6 secondi) nel caso peggiore si aspetteranno 156 secondi (ovvero circa tre minuti). 
+nel caso peggiore invece 255 volte la distanza scelta. 
 \vspace{4ex} \newline 
 Cercando di avere una stima più precisa, si sa che i caratteri stampabili vanno da 32 a 126\cite{unicode_printable_char}. 
 Da ciò si ricava che in media si aspetteranno 79 secondi\footnote{
     $\frac{32+126}{2}=79$ 
-} per ciascun carattere.  
-%\vspace{1ex} \newline 
-%Un ulteriore affinamento è tramite la frequenze delle lettere con cui appaiono sia nella lingua 
-%inglese che in quella italiana \cite{letter_frquency}. 
-%Se invece si analizzasse un caso realistico, tramite la frequenza 
-%delle lettere nel testo inglese \cite{letter_frquency}, 
-%si avrà in media un tempo di attesa di 57 secondi. 
-%La prima avrà un tempo di attesa pari a 107 volte la distanza mentre l'ultima di 105 volte.
-%\vspace{2ex} \newline 
-%Se si suppone che il tempo di base sia di 3 secondi e che la distanza fra i vari tempi sia di 600 ms (o 0.6 secondi)
-%Ciò si traduce in un tempo di attesa di 68 secondi per i testi inglesi mentre di 66 secondi per quelli italiani. 
+} per ciascun carattere. 
 Supponendo che il tempo di base sia di 3 secondi e che la distanza fra i 
 tempi sia di 0.6 secondi (600 ms); in media si aspetteranno circa 51 secondi\footnote{
     $3+\frac{32+126}{2}*0.6=50.4$
@@ -139,16 +85,14 @@ tempi sia di 0.6 secondi (600 ms); in media si aspetteranno circa 51 secondi\foo
 evitare tempi di attesa eccessivamente lunghi. 
 \vspace{4ex} \newline 
 Siccome il collo di bottiglia risultava il valore che lo stesso byte aveva, 
-si è pensato di ridurre
-%la distanza associata ai vari possibili dati 
-i dati trasmissibili riducendo i valori ASCII usati nella trasmisisone. 
-In particoalre si sarinvieranno solo i caratteri stampabili. 
+si è pensato di ridurre 
+i dati trasmissibili riducendo i valori ASCII usati nella trasmissione. 
+In particoalre si invieranno solo i caratteri stampabili. 
 \vspace{2ex} \newline
 La scelta è stata ritenuta valida siccome nella codifica ASCII i principali 
 caratteri stampabili vanno da 32 sino a 126 (come mostra la Tabella \ref{tabella:ASCII:table}). 
 Tuttavia ciò, oltre ad aggiungere overhead inutile, avrebbe tagliato fuori alcuni caratteri 
-speciali (come il tab o il carattere di nuova linea). 
-%Di conseguenza caratteri speciali come \\n o \\t non sarebbero potuti essere inviati. 
+speciali (come il tab o il carattere di nuova linea).  
 Inoltre il metodo sarebbe stato vincolato alla codifica ASCII. 
 Quindi se i dati fossero stati codificati tramite un altro metodo, 
 o si fosse mandato un file che non fosse di testo,
@@ -160,22 +104,15 @@ sarebbero stati tagliati dati importanti.
     \hline
     \textbf{Range} & \textbf{Descrizione} \\
     \hline
-    \textbf{Control Character} [0-31] &  
-    %The first 32 characters in the ASCII-table are unprintable control codes and are used to control peripherals such as printers. 
-    Codici di controllo non stampabili e che vengono utilizzati per controllare le periferiche. \\ %(come le stampanti). \\
+    \textbf{Control Character} [0-31] &    
+    Codici di controllo non stampabili e che vengono utilizzati per controllare le periferiche. \\  
     \hline 
-    \textbf{Printable character} [32-127] & 
-    %Codes 32-127 are common for all the different variations of the ASCII table, they are called printable characters, represent 
-    %letters, digits, punctuation marks, and a few miscellaneous symbols. You will find almost every character on your keyboard. 
-    %Character 127 represents the command DEL. 
+    \textbf{Printable character} [32-127] &  
     Rappresentano lettere, cifre, segni di punteggiatura e vari simboli. \\ 
     \hline 
-    \textbf{Extended ASCII Codes} [128-255] & 
-    %There are several different variations of the 8-bit ASCII table. 
-    %I valori fra 128 a 255 
+    \textbf{Extended ASCII Codes} [128-255] &  
     Non fanno parte dell'ASCII standard ma alla sua versione estesa. 
-    I caratteri presenti dipendono dalla codifica utilizzata. 
-    %La più comune è ISO 8859-1 (chiamata anche ISO Latin-1). 
+    I caratteri presenti dipendono dalla codifica utilizzata.  
     \\
 \hline
 \end{longtable} 
@@ -191,13 +128,6 @@ Tramite questo approoccio; l'ampiezza dell'intervello permetterà di
 regolare la velocità di trasmissione delle informazioni (che può essere 
 magiore o minore) con il costo di avere una maggiore sensibilità ai delay 
 fra l'invio e la ricezione dei pacchetti. 
-%E questo ha permesso l'invio di 72 byte in circa 13/14 minuti. 
-%\vspace{2ex} \newline 
-%Bisogna quindi impostare correttamente il valore minimo e massimo 
-%affinche i dati vengano decodificati in maniera appropriata.  
-%minore è la loro differenza maggiore sarà la probabilità che i ritardi influenzino il risultato. 
-%di decodificare il carattere sbagliato.  
-%maggiore rispetto ai metodi che implementavano una distanz adi sicurezza. 
 \vspace{3ex}\newline
 \begin{minipage}{\textwidth}
     \centering
@@ -205,11 +135,10 @@ fra l'invio e la ricezione dei pacchetti.
     \label{fig:covertTiming:intervalli:normalizzazione} 
     \includegraphics[width=0.45\textwidth]{./img/timing_channel/timinmg_channel_2nd_function.png}
 \end{minipage} 
-%
+
 \subsection{Randomizzazione dei tempi di invio} 
 Un invio dei pacchetti con tempi costanti può essere facilmente individuato 
-dagli IDS. 
-%Ciò è necessario siccome gli IDS riescono ad individuare gli schemi temporali, 
+dagli IDS.  
 Segue che uno schema che sembri randomico, permetterà di non essere rilevati. 
 Si evolverà quindi il Covert Channel implementando del rumore. 
 La Figura \ref{fig:covertTiming:intervalli:casuali} mostra come il tempo 
@@ -217,14 +146,6 @@ di delay venga randomizzato aggiungendo del rumore.
 \vspace{2ex} \newline 
 Il tempo di delay associato a un byte non sarà più costante ma spazierà fra 
 un range di valori, nel quale potrà variare. 
-%tempo di delay non sarà più un tempo costante fra un pacchetto e il successivo. 
-%Quindi invece di aspettare un tempo costante per lo stesso carattere. 
-%Siccome la quantità di rumore aggiunta dovrà risultare casuale, si è definito un range di tempo nel quale può variare.  
-%dipenderà in un determinato range di tempo. %di tempo associato in cui il carattere può variare. 
-%si è definito un range così da poter mandare tempi randomici e non costanti. 
-%\vspace{2ex} \newline 
-%Ora la codifica di un byte, non è più definita da un singolo, costante e prevedibile intervallo di tempo, 
-%ma da un range di intervalli temporali. %che continuamente cambiano.    
 Questo porta che, per potersi scambiare i dati, il mittente e il destinatario 
 devono potersi sincronizzare sulla quantità di rumore che si è aggiunto. 
 Le strade possibili sono due: 
@@ -254,12 +175,5 @@ ricava il dato associato all'intervallo di tempo; avrà bisogno di un
 messaggio che indichi quando la trasmissione inizia. 
 Nel timing channel si dovrà quindi prevedere un modo per indicare l'inizio 
 della comunicazione. Il metodo potrà essere una particolare sequenza inserita 
-in un campo del pacchetto mentre oppura una particolare tipologia di messaggio 
-ICMP (se non entrambi i metodi). 
-%Questo serve e impostare il tempo di inizio; 
-%se non lo si determina, il destinatario all'inizio non riuscirà a calcoalre l'intervallo di tempo fra il pacchetto corrente e quello precedente. 
-%E quindi non si riuscirà a decodificare il primo bit. 
-%
-%Dopodichè si manda un pacchetto per inizializzare il tempo del ricevente e si procede con il ciclo. 
-%Successivamente si itererà l'intera lista contenente i singoli bit e si aspetterà il tempo associato. 
-%\vspace{4ex} \newline 
+in un campo del pacchetto oppura una particolare tipologia di messaggio 
+ICMP (se non entrambi i metodi).  

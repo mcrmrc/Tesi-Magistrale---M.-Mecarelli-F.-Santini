@@ -1,29 +1,16 @@
-\section{Implementazione del Storage Covert Channel} 
-%ICMP: The Good, the Bad, and the Ugly
-%https://www.researchgate.net/publication/224349250_Implementation_of_an_ICMP-based_covert_channel_for_file_and_message_transfer 
-%
+\section{Implementazione del Storage Covert Channel}  
 In uno Storage Covert Channel, la risorsa condivisa sarà il pacchetto ICMP 
 inviato e i dati saranno scritti nei suoi campi. Il destinatario, una volta 
 ricevuto, potrà poi leggere i valori codificati al loro interno. 
 Nelle Tabelle \ref{table:icmpv4:tipologie} e \ref{table:icmpv6:tipologie} 
 sono indicati le tipologie di messaggi sfruttate. Le tabelle indicano anche 
 quali campi sono stati utilizzati e quanti byte pesa un singolo pacchetto. 
-%Inoltre è stato indicato anche quant'è il peso di un singolo pacchetto di quella tipologia. 
 \vspace{2ex} \newline 
 Tuttavia, nel caso di alcune tipologie (come i messaggi Echo Request/Reply), 
 si avranno delle varianti sia nella quantità di dati esfiltrabili sia sulla 
 quantità di byte che vengono trasmessi per singolo datagram.  
 Ciò è dovuto alla presenza del campo \textit{data} che permette di inserire 
 una quantità maggiore di dati. 
-%Questo perchè il messaggio può trasportare un payload al suo interno. 
-%Le varianti implicheranno quindi l'utliizzazione o meno di questo campo. 
-%Nel caso lo si utilizzi il payload o conterrà 32 byte di informazione oppure 56 byte; 
-%il primo caso verrà usato perchè è il valore di defualt usato nei sistemi Windows il secondo è invece il sistema usato nei sistemi Linux. 
-%Anche il TTL varierà, il suo valore sarà 128 nei sistemi windows mentre 64 nei sistemi Linux. 
-%\vspace{2ex} \newline 
-%Altre varianti potranno essere presenti per qeulle tipologie che richiedono il pacchetto che ha causato l'errore (Redirect, Destination Unreachable). 
-%In questi casi si potranno usare diverse tipologie di pacchetti purchè la loro lunghezza non superi i 28 bit. 
-%Possibili alternative trovate sono con IP/ICMP e con TCP/IP con entrambe che permettono l'invio di due byte. 
 \begin{longtable}{|c|c|c|}
 \caption{Tipologie di messaggi ICMPv4 usati} 
 \label{table:icmpv4:tipologie} \\
@@ -103,7 +90,7 @@ al suo interno (come mostra la Figura \ref{fig:covertStorage:sourcequench:errSca
 Il problema può essere risolto tramite degli accorgimenti.  
 Tramite la libreria \textbf{struct} \cite{struct}, \uppercase{è} possibile 
 inserire dei dati all'interno del campo. Infatti si può riscrivere, il 
-pacchetto evitando di farlo creare Scapy. 
+pacchetto evitando di farlo creare da Scapy. 
 Così, quando lo si farà inviare da Scapy, al suo interno saranno presenti i dati. 
 In Figura \ref{fig:covertStorage:unused} si vede la loro presenza. 
 \vspace{3ex}\newline
@@ -116,8 +103,7 @@ In Figura \ref{fig:covertStorage:unused} si vede la loro presenza.
 \vspace{2ex} \newline 
 Siccome il suo utilizzo rende il messaggio non conforme agli standard RFC \cite{icmpv4_message_type}\cite{icmpv6_message_type}; 
 un IDS che implementi la Deep Packet Inspection rileverà l'anomalia. 
-Si potrà quindi scegliere se inserire dati nel campo o non. 
-%Tuttavia nel nostro caso è stato utilizzato per testare la presenza della \textit{Deep Packet Inspection}.  
+Si potrà quindi scegliere se inserire dati nel campo o no.   
 
 \subsubsection{Campo \textbf{Header+64 bits}} 
 Nel campo si dovranno inserire l'header IP più 8 byte. %si potranno usare varie coppie nelle quali inserire i dati. 
@@ -155,12 +141,7 @@ invece mostra un caso applicato ai protocolli IP e ICMP.
     Sequence & 2 byte & Numero di sequenza del messaggio di richiesta invocato \\  
     \hline
 \end{longtable} 
-\end{minipage}
-%Ma può essere utilizzato anche TCP/IP o altri protocolli purchè lunghezza passata, 
-%non sfori i 28 bytes.-
-%si userà il campo \textbf{len} del protocollo \textit{IP} e il campo \textbf{id} del protocollo \textit{ICMP}. 
-%Tuttavia si dovrebbe inserire solo il primo byte del datagram originale. 
-%Ciò cambierà la visibilità del pacchetto siccome non conforme allo standard. 
+\end{minipage} 
 \vspace{3ex} \newline
 \begin{minipage}{\textwidth}
     \centering
@@ -190,7 +171,6 @@ attenti a non superare la \textit{IPv6 MTU}.
 Nel nostro caso, ciò non succederà siccome si useranno i protocolli IPv4 la 
 cui intestazione è di 40 byte, ed il protocollo ICMPv4, la cui intestazione 
 è di 8 byte. 
-%Nel campo \textbf{Invoking Packet} si userà il campo \textbf{plen} del protocollo \textit{IPv6} e il campo \textbf{id} del protocollo \textit{ICMPv6}. 
 La Tabella \ref{table:icmpv6:invokinppacket} indica i campi utilizzati nel caso IPv6/ICMPv6. 
 \newline
 \begin{longtable}{|p{0.3\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|} 
@@ -220,7 +200,6 @@ Indica l'ottetto del messaggio in cui è presente l'errore;
 tuttavia può contenere dei dati non correlati ad esso. 
 Nel nostro caso, verranno inseriti tanti dati quanto la sua capacità; 
 come mostra la Figura \ref{fig:covertStorage:pointer}. 
-%può contenere i dati e, siccome rappresenta l'ottetto in cui è stato rilevato l'errore, potrà essere variabile.
 \vspace{3ex}\newline
 \begin{minipage}{\textwidth}
     \centering 
@@ -248,8 +227,8 @@ Il campo \textit{Identifier} definisce l'identificativo delle richieste e
 può assumere un qualsiasi valore. 
 Il campo \textit{Sequenza} (dalle specifiche RFC 792 \cite{icmpv4_message_type}), 
 viene incrementato ad ogni richiesta inviata con lo stesso Identifier. 
-Se suo valore cambiasse troppo spesso la cosa potrebbe risultare sospetta 
-(a differenza del campo \textit{Identifier}). %in maniera estremamente variabile (e non fosse strettamente crescente)
+Se il suo valore cambiasse troppo spesso la cosa potrebbe risultare sospetta 
+(a differenza del campo \textit{Identifier}). 
 Quindi sebbene può essere utilizzato per inserire le informazioni, si 
 userà quasi esclusivamente il campo Identifier (come mostra la Figura \ref{fig:covertStorage:identifier}). 
 \vspace{3ex}\newline
@@ -292,9 +271,7 @@ userà quasi esclusivamente il campo Identifier (come mostra la Figura \ref{fig:
 In questo campo il mittente può inserire quanti dati preferisce. 
 Ma per sicurezza la dimensione sarà o 32 o 64 byte. 
 Inoltre una quantità di dati eccessiva può far mandare più pacchetti di risposta 
-nel caso si fosse inviata una richiesta. 
-%dovrà inferiore a 1400 bytes se non 
-%strettamente uguale o inferiore a 32 bytes. %(o 56 bytes nel caso li si mandi da Linux).
+nel caso si fosse inviata una richiesta.  
 \vspace{3ex} \newline  
 \begin{minipage}{\textwidth}
     \centering 
@@ -322,10 +299,6 @@ nel caso si fosse inviata una richiesta.
 \subsubsection{Campo \textbf{Timestamp}}
 Contiene i millisecondi dalla mezzanotte UT e ciascun campo ha un ordine temporale 
 specifico; che dovrà rimanere congruente quando si inseriscono i dati. 
-%Siccome i campi hanno un ordine temporale L'ordine dei tempi presenti in ciascuno dei campi dovrà essere congruente. 
-%Si potrebbero inserire un numero magigore di dati sfruttando l'intera lunghezza dei campi ma 
-%poi i tempi non risulterebbero congruenti fra di loro
-%\footnote{Si potrebbe avere il caso che il destinatario ha modificato il messagio prima di poterlo ricevere}
 La Figura \ref{fig:covertStorage:timestamp:output} mostra come in ciascun 
 campo timestamp verrà inserito un byte nella parte 
 dei millisecondi come si può vedere nella 
@@ -352,9 +325,9 @@ Non è possibile inserire ulteriori informazioni nelle altre parti  del
 campo temporale: rappresentando le ore, i minuti ed i secondi. 
 Infatti hanno dei valori definiti e limitati, come si vede dalla Figura \ref{fig:covertStorage:time} (che mostra il valore contenuto nei campi). 
 \vspace{1ex} \newline
-Si potrebbero inserire il dato in tutto il campo rappresentnate il dato temporale; 
+Si potrebbero inserire il dato in tutto il campo rappresentante il dato temporale; 
 ma questo ci espone al rischio di avere tempi errati\footnote{
-    Per esempio l pacchetto viene risultare ricevuto prima che sia stato inviato. 
+    Per esempio il pacchetto risulta ricevuto prima che sia stato inviato. 
 }. 
 \vspace{2ex} \newline 
 Inoltre dalla Figura \ref{fig:covertStorage:time} si può constatare la presenza 
@@ -368,25 +341,25 @@ valori nella codifica ASCII \cite{ascii-table} sono 82, 71 e 79.
     \label{fig:covertStorage:time} 
     \includegraphics[width=0.6\textwidth]{./img/ICMP_storageCC/immagine_timestamp.png}
 \end{minipage}   
-\begin{center}
-\begin{minipage}{0.9\linewidth}
-\centering
-\begin{lstlisting} [basicstyle=\ttfamily\scriptsize] 
-#PACCHETTO No1
-0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
-0010  00 28 00 01 00 00 40 01 F7 25 C0 A8 01 0F C0 A8  .(....@..%......
-0020  01 4F 0E 00 00 B3 42 4F 00 00 04 DF 31 92 04 DF  .O....BO....1...
-0030  35 6F 04 DF 39 5F                                5o..9_ 
-#PACCHETTO No2
-0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
-0010  00 28 00 01 00 00 40 01 F7 25 C0 A8 01 0F C0 A8  .(....@..%......
-0020  01 4F 0E 00 FB C9 47 4E 00 00 04 DF 31 81 04 DF  .O....GN....1...
-0030  35 6A 04 DF 39 5F                                5j..9_
-\end{lstlisting}
-\captionof{figure}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:time}}
-\label{code:covertStorage:data} 
-\end{minipage}
-\end{center}
+%\begin{center}
+%\begin{minipage}{0.9\linewidth}
+%\centering
+%\begin{lstlisting} [basicstyle=\ttfamily\scriptsize] 
+%#PACCHETTO No1
+%0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+%0010  00 28 00 01 00 00 40 01 F7 25 C0 A8 01 0F C0 A8  .(....@..%......
+%0020  01 4F 0E 00 00 B3 42 4F 00 00 04 DF 31 92 04 DF  .O....BO....1...
+%0030  35 6F 04 DF 39 5F                                5o..9_ 
+%#PACCHETTO No2
+%0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+%0010  00 28 00 01 00 00 40 01 F7 25 C0 A8 01 0F C0 A8  .(....@..%......
+%0020  01 4F 0E 00 FB C9 47 4E 00 00 04 DF 31 81 04 DF  .O....GN....1...
+%0030  35 6A 04 DF 39 5F                                5j..9_
+%\end{lstlisting}
+%\captionof{figure}{Dump esadecimale del messaggio in Figura \ref{fig:covertStorage:time}}
+%\label{code:covertStorage:data} 
+%\end{minipage}
+%\end{center}
 
 \subsubsection{Campo \textbf{MTU}}
 Nel campo viene indicata la capacità massima del collegamento, 
