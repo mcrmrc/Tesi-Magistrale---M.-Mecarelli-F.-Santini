@@ -6,6 +6,7 @@ import threading
 
 from custom_enum import SEPARAZIONE_DATI, ENTITY
 from attacksingleton import *  
+from thread_methods import THREAD_ATTACCANTE
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)
@@ -83,7 +84,7 @@ class Attacker:
             #if want_to_choose_new_victim:
             #   self.ip_vittima= choose_new_victim()  
         #------------------------ 
-        self.thread_proxiesConnection=PROXIES_CONECTION(self.proxy_list, self.proxy_port, self.lock_proxy_list) 
+        self.thread_proxiesConnection=THREAD_ATTACCANTE.PROXIES_CONECTION(self.proxy_list, self.proxy_port, self.lock_proxy_list) 
         self.thread_proxiesConnection.start(
             self.ip_vittima,self.attack_type
         )  
@@ -91,7 +92,7 @@ class Attacker:
         if len(self.proxy_list)<=0: 
             print("Nessun Proxy disponibile")
             exit(0) 
-        self.thread_waitData=WAIT_DATA(self.proxy_list) 
+        self.thread_waitData=THREAD_ATTACCANTE.WAIT_DATA(self.proxy_list) 
         self.thread_waitData.start(self.proxy_list) 
         msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
         command=input(msg) 
