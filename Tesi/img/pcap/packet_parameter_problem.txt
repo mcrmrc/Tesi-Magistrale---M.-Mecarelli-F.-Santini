@@ -1,0 +1,56 @@
+Detailed packet information:
+###[ Ethernet ]###
+  dst       = 24:77:03:18:7b:74
+  src       = 18:c0:4d:74:bb:ae
+  type      = IPv4
+###[ IP ]###
+     version   = 4
+     ihl       = 5
+     tos       = 0x0
+     len       = 56
+     id        = 1
+     flags     = 
+     frag      = 0
+     ttl       = 64
+     proto     = icmp
+     chksum    = 0xf715
+     src       = 192.168.1.15
+     dst       = 192.168.1.79
+     \options   \
+###[ ICMP ]###
+        type      = parameter-problem
+        code      = ip-header-bad
+        chksum    = 0xb1ff
+        ptr       = 66
+        length    = 0
+        unused    = 0
+        extpad    = b''
+        ext       = None
+###[ IP in ICMP ]###
+           version   = 4
+           ihl       = 5
+           tos       = 0x0
+           len       = 20306
+           id        = 18255
+           flags     = 
+           frag      = 0
+           ttl       = 71
+           proto     = icmp
+           chksum    = 0xb9a
+           src       = 192.168.1.10
+           dst       = 8.8.8.8
+           \options   \
+###[ ICMP in ICMP ]###
+              type      = echo-reply
+              code      = 0
+              chksum    = 0x6f6f
+              id        = 0x4e41
+              seq       = 0x424f
+              unused    = b''
+
+Hexdump of the packet:
+0000  24 77 03 18 7B 74 18 C0 4D 74 BB AE 08 00 45 00  $w..{t..Mt....E.
+0010  00 38 00 01 00 00 40 01 F7 15 C0 A8 01 0F C0 A8  .8....@.........
+0020  01 4F 0C 00 B1 FF 42 00 00 00 45 00 4F 52 47 4F  .O....B...E.ORGO
+0030  00 00 47 01 0B 9A C0 A8 01 0A 08 08 08 08 00 00  ..G.............
+0040  6F 6F 4E 41 42 4F                                ooNABO
