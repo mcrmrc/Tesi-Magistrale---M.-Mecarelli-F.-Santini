@@ -1,21 +1,17 @@
 \begin{frame}
-\vfill
-\begin{center}
-{\huge Implementazione della struttura di comunicazione}
-\end{center}
-\vfill 
-\end{frame} 
-\begin{frame}
-Spunti ricavati dall'analisi di ICMP Tunnel: 
+Spunti ricavati dall'analisi di ICMP Tunnel e ICMP Door: 
 \begin{itemize}
 \item Presenza di proxy intermediari fra le due macchine
 \item La quantità di dati che si invia
 \item Le tipologie di messaggi utilizzati ed i campi utilizzati
 \end{itemize}
 \vspace{2ex}
-\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMPtunnel/architettura_generale.png} 
-\captionof{figure}{Architettura generale di \textbf{icmp tunnel}} 
-\end{frame}
+%\includegraphics[width=0.8\textwidth]{../Tesi/img/ICMPtunnel/architettura_generale.png} 
+%\captionof{figure}{Architettura generale di \textbf{icmp tunnel}} 
+\includegraphics[width=0.7\textwidth]{../Tesi/img/implementazione/struttura attacker.proxy.victim 3.jpg} 
+%\captionof{figure}{Entità presenti} 
+\end{frame} 
+
 %\begin{frame}
 %\frametitle{Implementazione della comunicazione} 
 %Per una prima struttura, si è preso spunto da \textbf{icmp tunnel}.  
@@ -126,11 +122,11 @@ Spunti ricavati dall'analisi di ICMP Tunnel:
 \end{frame} 
 \begin{frame} 
 \includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_attaccante1.jpg} 
-\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+%\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
 \end{frame} 
 \begin{frame} 
 \includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_attaccante2.jpg} 
-\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+%\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
 \end{frame} 
 
 \begin{frame} 
@@ -138,11 +134,11 @@ Spunti ricavati dall'analisi di ICMP Tunnel:
 \begin{enumerate}
 \item Definisce: 
 \begin{itemize} 
-\item l'indirizzo IP della attaccante
+\item l'indirizzo IP dell'attaccante
 \end{itemize} 
-\item Stabilisce una connesisone cone le macchine di cui farà da tramite 
-\item Aspetta di ricevere delle informazioni  da una machcina
-\item Inoltra le informazioni ricevute all'altra macchina
+\item Stabilisce una connessione con le macchine di cui farà da tramite 
+\item Aspetta di ricevere delle informazioni  da una macchina
+\item Inoltra le informazioni ricevute dall'altra macchina
 \end{enumerate}
 \end{frame} 
 \begin{frame}  
@@ -153,11 +149,11 @@ Spunti ricavati dall'analisi di ICMP Tunnel:
 \end{frame} 
 \begin{frame} 
 \includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_proxy1.jpg} 
-\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+%\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
 \end{frame} 
 \begin{frame} 
 \includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_proxy2.jpg} 
-\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+%\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
 \end{frame} 
 
 \begin{frame} 
@@ -165,11 +161,11 @@ Spunti ricavati dall'analisi di ICMP Tunnel:
 \begin{enumerate}
 \item Definisce: 
 \begin{itemize} 
-\item minimo numero di entità connesse necessarie per l'invio de dati.
+\item minimo numero di entità connesse necessarie per l'invio dei dati.
 \end{itemize} 
 \item Attende che i proxy si connettano con essa
 \item Attende di ricevere delle informazioni da una delle macchine connesse
-\item Invia la conferma della ricezione dell'informazione o i risultati dell'comando ricevuto
+\item Invia la conferma della ricezione dell'informazione o i risultati del comando ricevuto
 \end{enumerate}
 \end{frame} 
 \begin{frame}  
@@ -177,11 +173,11 @@ Spunti ricavati dall'analisi di ICMP Tunnel:
 \end{frame} 
 \begin{frame} 
 \includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_vittima1.jpg} 
-\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+%\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
 \end{frame} 
 \begin{frame} 
 \includegraphics[width=0.9\textwidth]{../Tesi/img/implementazione/UML-timeDiagram-flussoComunicazione_esfiltrazione_vittima2.jpg} 
-\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
+%\captionof{figure}{Flusso per l'esfiltrazione dei dati} 
 \end{frame} 
 
 
