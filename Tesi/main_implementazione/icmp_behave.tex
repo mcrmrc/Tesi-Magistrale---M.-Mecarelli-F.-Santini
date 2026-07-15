@@ -11,19 +11,19 @@ ogni evento permetterà di codificare 4 bit alla volta\footnote{
 }. 
 L'evento che rimane inutilizzato, verrà usato per indicare l'inizio e la 
 terminazione dell'invio dei dati. 
-\vspace{1ex} \newline
+\vspace{3ex}\newline
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_behaveCC/behavioural_channel_1.png}
-    \captionof{figure}{Schema Hybrid Channel \cite{francesco_santini}} 
+    \captionof{figure}{Schema Hybrid Channel  \cite{francesco_santini}\cite{draw_io}} 
     \label{fig:behaveCC:eventi:mappatura}
+    \includegraphics[width=\textwidth]{./img/ICMP_behaveCC/behavioural_channel_1.png}
 \end{minipage}  
 \vspace{1ex} \newline 
 Siccome un singolo evento può trasmettere solo 4 bit; l'invio di un byte, 
 prevede la sua divisione in due parti. 
 Quindi i primi quattro bit ricavati (così come gli ultimi quattro), 
 determineranno la tipologia ed il codice del messaggio da inviare.   
-Il Codice \ref{listing:behaveCC:divisionebyte} mostra questo processo.  
+La Figura \ref{listing:behaveCC:divisionebyte} mostra questo processo.  
 \begin{lstlisting} 
 data='m' 
 data.hex=0x6D
@@ -46,7 +46,7 @@ Mappa b'1101' alla tipologia ed al codice:
 Invia un messaggio ICMP Time Exceeded con codice 0
 Invia un messaggio ICMP Redirect con codice 3
 \end{lstlisting}
-\captionof{lstlisting}{Esempio dell'invio di un byte tramite due eventi}
+\captionof{figure}{Esempio dell'invio di un byte tramite due eventi}
 \label{listing:behaveCC:divisionebyte} 
 \vspace{2ex} 
 Il destinatario, per ricavare i dati, monitora il traffico di rete e controllerà le tipologie di 
