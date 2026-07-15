@@ -1,0 +1,161 @@
+%Prima di iniizare a testare RITA, è necessario configurarlo. 
+%Questo passaggio è fondamentale per il corretto funzionamento del sistema. %di rilevamento delle intrusioni. 
+%Senza una configurazione appropriata, il sitema non avrebbe rilevato l'attaccante in modo efficace.
+
+Sebbene per i test verrà utilizzato RITA con le configurazioni di default, si studierà la struttura del file 
+di configurazione per compèrendere al meglio come funziona RITA e strutturate dei test migliori. 
+%in modo da poter eventualmente modificare i parametri in futuro per migliorare le capacità di rilevamento di RITA.
+\vspace{1ex} \newline
+La configurazione di RITA avviene tramite il file di configurazione \textbf{config.hjson} che si trova nella 
+cartella \textbf{/etc/rita/}. In questo file si possono settare diversi parametri che influenzano il funzionamento di RITA.
+
+Alcuni campi presenti sono:
+\begin{itemize}
+    \item \textbf{filtering}: 
+    Il campo imposta i filtri che RITA utilizzerà durante l'analisi dei log di Zeek [Tabella \ref{tabella:RITA:config:filtering}]. 
+    %# These are filters that affect the import of connection logs. They
+    %# currently do not apply to dns logs.
+    %# A good reference for networks you may wish to consider is RFC 5735.
+    %# https://tools.ietf.org/html/rfc5735#section-4
+    \item \textbf{scoring}: 
+    In questo campo si può impostare come RITA assegnerà i punteggi ad ogni tipologia di comunicazione 
+    sospetta [Tabella \ref{tabella:RITA:config:scoring}]. 
+    %In particolare definirà in base a quali parametri verràdefinito un beacon, 
+    %il punteggio che verrà assegnato in base alla durata della connessione ed altri. 
+    %\item 
+\end{itemize} 
+%
+\begin{center} 
+\begin{longtable}{|p{0.35\textwidth}|p{0.6\textwidth}|} 
+    \hline
+    \textbf{Sottocampo} & \textbf{Descrizione} \\
+    \hline
+    internal\_subnets &  
+    RITA analizza il traffico di rete in base alla distinzione tra host interni ed esterni.
+    Il campo specifica gli indirizzi IP che si considereranno interni alla rete. 
+    %In questo caso è stato lasciato il valore di default ma si poteva specifcare o direttamente l'indirizzo IP 
+    %della macchina vittima o la sottorete a cui appartiene. 
+    %Si può specificare l'indirizzo di una sottorete (e.g 192.168.1.0/24) ma 
+    %Siccome l'attaccante e la vittima sono all'interno della stesse rete; nel campo è stato inserito solamente l'indirizzo IP della vititma. 
+    %I valori di defualt sono stati rimossi. 
+    \\ 
+    \hline 
+    always\_included\_subnets &  
+    In esso vengono specificate le reti che RITA dovrà sempre includere nell'analisi. 
+    %Siccome come rete interna si è specificato solo la vittima, il campo verrà lasciato al suo valore di default. 
+    %Altrimenti si sarebbe potuta specificare la sottorete della macchina vittima (ovvero 192.168.1.0/24).
+    %Il valore di default è un array vuoto, ma nel nostro caso si è aggiunta la sottorete della macchina vittima. 
+    %Questo perchè sia l'attaccante che la vittima si trovano nella stessa sottorete: 192.168.1.0/24.
+    \\
+    \hline 
+    filter\_external\_to\_internal &  
+    Se impostato a true, indica di ingnorare tutte le comunicazioni che avvengono tra un host esterno ad 
+    uno interno. Se è impostato a false, RITA analizzerà anche queste comunicazioni.
+    %Ciò è importante perchè l'attaccante si trova all'interno della rete e la vittima anche.
+    \\
+    \hline 
+\caption{Sottocampi in \textit{filtering}} 
+\label{tabella:RITA:config:filtering} 
+\end{longtable} 
+\end{center} 
+%
+\begin{center} 
+\begin{longtable}{|p{0.35\textwidth}|p{0.6\textwidth}|} 
+    \hline
+    \textbf{Ccampo} & \textbf{Descrizione} \\
+    \hline
+    beacon &  
+    RITA computes a final beacon score (0-100) for each host-pair, based on a weighted average of four 
+    independent subscores [Tabella \ref{tabella:RITA:config:beacon:sottocampi}]. 
+    Each subscore individually ranges from 0 to 100. 
+    Default weights all equal 0.25, so each category contributes equally.
+    \\ 
+    \hline 
+    long\_conn\_score\_thresholds &  
+    Detect C2-like long-lived TCP connections. 
+    base    = 1 hour
+    low     = 4 hours
+    medium  = 8 hours
+    high    = 12 hours
+    \\
+    \hline 
+    c2\_score\_thresholds &  
+    Used in DNS analysis.
+    \\
+    \hline 
+    strobe\_impact &  
+    Any strobe hit or threat-intel match is automatically placed in category = high.
+    \\
+    \hline 
+    %threat\_intel\_impact &  
+    %
+    %\\
+    %\hline 
+\caption{Campi in \textit{scoring}} 
+\label{tabella:RITA:config:scoring} 
+\end{longtable} 
+\end{center} 
+%
+\begin{center} 
+\begin{longtable}{|p{0.35\textwidth}|p{0.6\textwidth}|} 
+    \hline
+    \textbf{Ccampo} & \textbf{Descrizione} \\
+    \hline
+    Timestamp Score &  
+    Focus on the regularity of intervals between connections (the essence of beaconing).
+    Looks at inter-arrival times.
+    Low variance means more beacon-like and so higher score.
+    Has no special config fields beyond the weight.
+    \\ 
+    \hline 
+    Data Size Score &  
+    Focus on the consistency in packet sizes. 
+    If the data transferred each time is very similar it will have an higher score. 
+    If sizes fluctuate heavily it will have lower score. 
+    Weight configurable via datasize\_score\_weight. 
+    \\
+    \hline 
+    Duration Score &  
+    This score is only calculated if: hours\_seen > duration\_min\_hours\_seen 
+    Default: duration\_min\_hours\_seen = 6 
+    So if the client and the server communicate for less than 6 hours total (across the dataset), 
+    duration scoring is skipped or heavily penalized.
+    \vspace{1ex} \newline
+    Consistency ideal:  duration\_consistency\_ideal\_hours\_seen = 12
+    If beacon appears over $\geq$12 hours, the consistency subscore can be 100.
+    \\
+    \hline 
+    Histogram Score &  
+    The histogram score tries to detect: 
+    Mode flatness (how uniform the traffic per time bucket is) 
+    Bimodality (are there two “peaks”? Often malware behavior) 
+    Subsettings: 
+    a) histogram\_mode\_sensitivity (default 0.05) 
+    Defines bucket width as:  bucket\_size = max\_connection\_count * histogram\_mode\_sensitivity 
+    Higher sensitivity means the algorithm more tolerant to variation.
+    b) histogram\_bimodal\_outlier\_removal (default 1) 
+    How many “outlier buckets” can be removed to avoid false flags. 
+    c) histogram\_bimodal\_min\_hours\_seen (default 11) 
+    If the conversation spans fewer than 11 hours, the bimodal subscore is skipped (avoiding noisy small samples).
+    \\
+    \hline 
+\caption{Sottocampi in \textit{beacon}} 
+\label{tabella:RITA:config:beacon:sottocampi} 
+\end{longtable} 
+\end{center} 
+After computing the final 0–100 score, RITA assigns the connection to a category:
+Final Score	Category	Meaning
+< 50	insignificant	probably not a beacon
+50–69	base	weak suspicion
+70–89	low	suspicious
+90–99	medium	strong suspicion
+100	high	extremely strong, very regular beacon
+\vspace{1ex} \newline
+A score of 100 generally means:
+perfect timing regularity
+very stable packet sizes
+long and consistent duration
+histogram strongly suggests periodic behavior
+
+
+

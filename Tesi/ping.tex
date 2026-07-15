@@ -1,0 +1,129 @@
+%https://it.wikipedia.org/wiki/Ping
+%https://www.linux.org/docs/man8/ping.html
+%https://www.unix.com/man_page/linux/8/ping
+
+%https://www.aranzulla.it/come-testare-ping-984680.html
+\section{Ping}
+Il ping (acronimo di Packet Internet Groper) misura la latenza di una connessione espressa in millisecondi (ms).
+
+La latenza di trasmissione o delay di un collegamento Internet misura il tempo impiegato da uno o più pacchetti di dati nel raggiungere un altro computer o server in rete (sia esso collegato tramite Internet o LAN).
+
+In linea generale, i valori di riferimento da tenere in considerazione durante un ping test sono:
+\begin{itemize}
+    \item da 0 a 20 ms, lo stato della connessione è eccellente perché più il valore è prossimo alle 0, più il tempo di latenza non ha alcuna rilevanza;
+    \item da 30 a 80 ms, la comunicazione tra dispositivo e server è buona e può ancora essere considerata all'interno di un range normale, anche se non è il massimo delle prestazioni;
+    \item da 80 ms in poi, vi è un notevole ritardo nella risposta da parte della rete, dovuto a un livello di latenza troppo elevato.
+\end{itemize}
+
+Il ping — acronimo di Packet Internet Groper — è uno strumento software utilizzato per misurare il tempo necessario per trasmettere dei pacchetti di dati verso una destinazione. 
+In poche parole è quello che viene usato tipicamente per capire quanto il proprio PC o il proprio smartphone impiegano per contattare un sito Internet. 
+Il valore restituito dal ping è espresso in millisecondi (ms) e, insieme alla velocità di download e a quella di upload, rappresenta uno degli indicatori della qualità di accesso a Internet.
+
+Come anticipato in apertura, tanto più il ping presenta valori bassi, tanto migliore è la qualità della connessione a Internet in uso. 
+Sulla base di ciò, per interpretare al meglio i valori del ping puoi attenerti al seguente schema.
+\begin{itemize}
+    \item Un ping tra 0 e 30 ms è considerato ottimo.
+    \item Un ping tra 30 e 50 ms è considerato molto buono.
+    \item Un ping tra 50 60 ms è considerato buono.
+    \item Un ping tra 60 e 80 ms è considerato sufficiente.
+    \item Un ping tra 80 e oltre ms è considerato insufficiente.
+\end{itemize}
+
+
+%https://linux.die.net/man/8/ping
+%https://www.man7.org/linux/man-pages/man8/ping.8.html
+\section{Ping}
+ping, ping6 - send ICMP ECHO_REQUEST to network hosts
+
+ping uses the ICMP protocol's mandatory ECHO_REQUEST datagram to elicit an ICMP ECHO_RESPONSE from a host or gateway. 
+ECHO_REQUEST datagrams (''pings'') have an IP and ICMP header, followed by a struct timeval and then an arbitrary number of ''pad'' bytes used to fill out the packet.
+
+ping uses the ICMP protocol's mandatory ECHO_REQUEST datagram to
+       elicit an ICMP ECHO_RESPONSE from a host or gateway. ECHO_REQUEST
+       datagrams (“pings”) have an IP and ICMP header, followed by a
+       struct timeval and then an arbitrary number of “pad” bytes used to
+       fill out the packet.
+
+       ping works with both IPv4 and IPv6. Using only one of them
+       explicitly can be enforced by specifying -4 or -6.
+
+       ping can also send IPv6 Node Information Queries (RFC4620).
+       Intermediate hops may not be allowed, because IPv6 source routing
+       was deprecated (RFC5095).
+
+Options
+-a Audible ping.
+-A Adaptive ping. Interpacket interval adapts to round-trip time, so that effectively not more than one (or more, if preload is set) unanswered probes present in the network. Minimal interval is 200msec for not super-user. On networks with low rtt this mode is essentially equivalent to flood mode.
+-b Allow pinging a broadcast address.
+-B Do not allow ping to change source address of probes. The address is bound to one selected when ping starts.
+-c count Stop after sending count ECHO_REQUEST packets. With deadline option, ping waits for count ECHO_REPLY packets, until the timeout expires.
+-d Set the SO_DEBUG option on the socket being used. Essentially, this socket option is not used by Linux kernel.
+-F flow label Allocate and set 20 bit flow label on echo request packets. (Only ping6). If value is zero, kernel allocates random flow label.
+-f Flood ping. For every ECHO_REQUEST sent a period ''.'' is printed, while for ever ECHO_REPLY received a backspace is printed. This provides a rapid display of how many packets are being dropped. If interval is not given, it sets interval to zero and outputs packets as fast as they come back or one hundred times per second, whichever is more. Only the super-user may use this option with zero interval.
+-i interval Wait interval seconds between sending each packet. The default is to wait for one second between each packet normally, or not to wait in flood mode. Only super-user may set interval to values less 0.2 seconds.
+-I interface address Set source address to specified interface address. Argument may be numeric IP address or name of device. When pinging IPv6 link-local address this option is required.
+-l preload If preload is specified, ping sends that many packets not waiting for reply. Only the super-user may select preload more than 3.
+-L Suppress loopback of multicast packets. This flag only applies if the ping destination is a multicast address.
+-n Numeric output only. No attempt will be made to lookup symbolic names for host addresses.
+-p pattern You may specify up to 16 ''pad'' bytes to fill out the packet you send. This is useful for diagnosing data-dependent problems in a network. For example, -p ff will cause the sent packet to be filled with all ones.
+-Q tos Set Quality of Service -related bits in ICMP datagrams. tos can be either decimal or hex number. Traditionally (RFC1349), these have been interpreted as: 0 for reserved (currently being redefined as congestion control), 1-4 for Type of Service and 5-7 for Precedence. Possible settings for Type of Service are: minimal cost: 0x02, reliability: 0x04, throughput: 0x08, low delay: 0x10. Multiple TOS bits should not be set simultaneously. Possible settings for special Precedence range from priority (0x20) to net control (0xe0). You must be root (CAP_NET_ADMIN capability) to use Critical or higher precedence value. You cannot set bit 0x01 (reserved) unless ECN has been enabled in the kernel. In RFC2474, these fields has been redefined as 8-bit Differentiated Services (DS), consisting of: bits 0-1 of separate data (ECN will be used, here), and bits 2-7 of Differentiated Services Codepoint (DSCP).
+-q Quiet output. Nothing is displayed except the summary lines at startup time and when finished.
+-R Record route. Includes the RECORD_ROUTE option in the ECHO_REQUEST packet and displays the route buffer on returned packets. Note that the IP header is only large enough for nine such routes. Many hosts ignore or discard this option.
+-r Bypass the normal routing tables and send directly to a host on an attached interface. If the host is not on a directly-attached network, an error is returned. This option can be used to ping a local host through an interface that has no route through it provided the option -I is also used.
+-s packetsize Specifies the number of data bytes to be sent. The default is 56, which translates into 64 ICMP data bytes when combined with the 8 bytes of ICMP header data.
+-S sndbuf Set socket sndbuf. If not specified, it is selected to buffer not more than one packet.
+-t ttl Set the IP Time to Live.
+-T timestamp option Set special IP timestamp options. timestamp option may be either tsonly (only timestamps), tsandaddr (timestamps and addresses) or tsprespec host1 [host2 [host3 [host4]]] (timestamp prespecified hops).
+-M hint Select Path MTU Discovery strategy. hint may be either do (prohibit fragmentation, even local one), want (do PMTU discovery, fragment locally when packet size is large), or dont (do not set DF flag).
+-U Print full user-to-user latency (the old behaviour). Normally ping prints network round trip time, which can be different f.e. due to DNS failures.
+-v Verbose output.
+-V Show version and exit.
+-w deadline Specify a timeout, in seconds, before ping exits regardless of how many packets have been sent or received. In this case ping does not stop after count packet are sent, it waits either for deadline expire or until count probes are answered or for some error notification from network.
+-W timeout Time to wait for a response, in seconds. The option affects only timeout in absense of any responses, otherwise ping waits for two RTTs.
+
+\vspace{4ex} \newline
+When using ping for fault isolation, it should first be run on the local host, to verify that the local network interface is up and running. 
+Then, hosts and gateways further and further away should be ''pinged''. 
+Round-trip times and packet loss statistics are computed. 
+If duplicate packets are received, they are not included in the packet loss calculation, although the round trip time of these packets is used in calculating the minimum/average/maximum round-trip time numbers. 
+When the specified number of packets have been sent (and received) or if the program is terminated with a SIGINT, a brief summary is displayed. 
+Shorter current statistics can be obtained without termination of process with signal SIGQUIT.
+\vspace{1ex} \newline
+If ping does not receive any reply packets at all it will exit with code 1. 
+If a packet count and deadline are both specified, and fewer than count packets are received by the time the deadline has arrived, it will also exit with code 1. 
+On other error it exits with code 2. Otherwise it exits with code 0. 
+This makes it possible to use the exit code to see if a host is alive or not.
+\vspace{1ex} \newline
+This program is intended for use in network testing, measurement and management. 
+Because of the load it can impose on the network, it is unwise to use ping during normal operations or from automated scripts.
+
+\vspace{4ex} \newline %Icmp Packet Details
+An IP header without options is 20 bytes. 
+An ICMP ECHO_REQUEST packet contains an additional 8 bytes worth of ICMP header followed by an arbitrary amount of data. 
+When a packetsize is given, this indicated the size of this extra piece of data (the default is 56). 
+Thus the amount of data received inside of an IP packet of type ICMP ECHO_REPLY will always be 8 bytes more than the requested data space (the ICMP header).
+\vspace{1ex} \newline
+If the data space is at least of size of struct timeval ping uses the beginning bytes of this space to include a timestamp which it uses in the computation of round trip times. 
+If the data space is shorter, no round trip times are given.
+
+\vspace{4ex} \newline %Duplicate and Damaged Packets
+ping will report duplicate and damaged packets. 
+Duplicate packets should never occur, and seem to be caused by inappropriate link-level retransmissions. 
+Duplicates may occur in many situations and are rarely (if ever) a good sign, although the presence of low levels of duplicates may not always be cause for alarm.
+\vspace{1ex} \newline
+Damaged packets are obviously serious cause for alarm and often indicate broken hardware somewhere in the ping packet's path (in the network or in the hosts).
+
+\vspace{4ex} \newline %Trying Different Data Patterns
+The (inter)network layer should never treat packets differently depending on the data contained in the data portion. 
+Unfortunately, data-dependent problems have been known to sneak into networks and remain undetected for long periods of time. 
+In many cases the particular pattern that will have problems is something that doesn't have sufficient ''transitions'', such as all ones or all zeros, or a pattern right at the edge, such as almost all zeros. 
+It isn't necessarily enough to specify a data pattern of all zeros (for example) on the command line because the pattern that is of interest is at the data link level, and the relationship between what you type and what the controllers transmit can be complicated.
+\vspace{1ex} \newline
+This means that if you have a data-dependent problem you will probably have to do a lot of testing to find it. 
+If you are lucky, you may manage to find a file that either can't be sent across your network or that takes much longer to transfer than other similar length files. 
+You can then examine this file for repeated patterns that you can test using the -p option of ping.
+
+
+The TTL value of an IP packet represents the maximum number of IP routers that the packet can go through before being thrown away. 
+In current practice you can expect each router in the Internet to decrement the TTL field by exactly one.
+
