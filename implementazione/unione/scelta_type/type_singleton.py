@@ -157,6 +157,7 @@ class AttackType:
         if not isinstance(function_name,str):
             raise ValueError(f"La funzione passata non è una stringa: {type(function_name)} {function_name}")
         match function_name:
+            #---------------------
             case "wait_conn_from_proxy" | "wait_proxy_update"| "wait_conn_from_victim": 
                 if not isinstance(checksum, int):
                     raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
@@ -167,40 +168,44 @@ class AttackType:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and icmp[4:2]={checksum}" 
                 elif ip_src.version==6:
                     return f"icmp6 and (icmp6[0]=={IPv6_ECHO_REQUEST_TYPE} and src {ip_src.compressed} and icmp[4:2]={checksum}" 
-                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+                else: print(f"Caso non contemplato: {ip_src.version}") 
+            #---------------------
             case "wait_data_from_proxy" | "wait_conn_from_attacker" | "wait_command_from_attacker": 
                 if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
                 if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
                 
-                if ip_src.version==4:
+                if ip_src.version==4 and ip_dst.version==4:
                     return f"icmp and icmp[0]==8 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
-                elif ip_src.version==6:
+                elif ip_src.version==6 and ip_dst.version==6:
                     return f"icmp6 and icmp6[0]==128 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
-                else: raise Exception(f"Caso non contemplato: {ip_src.version}")  
+                else: print(f"Caso non contemplato: {ip_src.version}/{ip_dst.version}")  
+            #---------------------
             case "wait_data_from_vicitm":
                 if not isinstance(ip_src,ipaddress.IPv4Address) and not isinstance(ip_src,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(function_name)} {function_name}")
                 if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
 
-                if ip_src.version==4:
+                if ip_src.version==4 and ip_dst.version==4:
                     return f"icmp and src {ip_src.compressed} and dst {ip_dst.compressed}" 
-                elif ip_src.version==6:
+                elif ip_src.version==6 and ip_dst.version==6:
                     return f"icmp6 and src {ip_src.compressed} and dst {ip_dst.compressed}" 
-                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
-            case "wait_conn_from_proxy":
+                else: print(f"Caso non contemplato: {ip_src.version}/{ip_dst.version}") 
+            #---------------------
+            case "wait_conn_from_proxy" | "victim_wait_conn_from_proxy":
                 if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}") 
                 if not isinstance(checksum, int):
                     raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
                 
-                if ip_src.version==4:
+                if ip_dst.version==4:
                     return f"icmp and icmp[0]==8 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}" 
-                elif ip_src.version==6:
+                elif ip_dst.version==6:
                     return f"icmp6 and icmp6[0]==128 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}" 
-                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+                else: print(f"Caso non contemplato: {ip_src.version}") 
+            #---------------------
             case "wait_attacker_command":
                 if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
                     raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
@@ -209,29 +214,19 @@ class AttackType:
                     return f"icmp and icmp[0]==8 and dst {ip_dst.compressed}" 
                 elif ip_dst.version==6:
                     return f"icmp6 and icmp6[0]==128 and dst {ip_dst.compressed}" 
-                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
-            case "victim_wait_conn_from_proxy":
-                if not isinstance(ip_dst,ipaddress.IPv4Address) and not isinstance(ip_dst,ipaddress.IPv6Address): 
-                    raise ValueError(f"Il proxy passato non è ne un IPv4Address ne un IPv6Address: {type(ip_dst)} {ip_dst}")
-                if not isinstance(checksum, int):
-                    raise ValueError(f"Il checksum passato non è un intero: {type(function_name)} {function_name}")
-                
-                if ip_dst.version==4:
-                    return f"icmp and icmp[0]==8 and dst {ip_dst.compressed} and icmp[4:2]=={checksum}"
-                elif ip_dst.version==6:
-                    return aaa
-                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+                else: print(f"Caso non contemplato: {ip_src.version}") 
+            #---------------------
             case "":
                 if ip_src.version==4:
                     return aaa
                 elif ip_src.version==6:
                     return aaa
-                else: raise Exception(f"Caso non contemplato: {ip_src.version}") 
+                else: print(f"Caso non contemplato: {ip_src.version}") 
         
     
 
 def is_scelta_SI_NO(scelta:str=None):
-    if not isinstance(scelta,str) or scelta is None:
+    if not isinstance(scelta,str): 
          return False
     is_scelta_yes=False 
     whitebox=["yes","si","yeah"]
@@ -242,8 +237,8 @@ def is_scelta_SI_NO(scelta:str=None):
     return is_scelta_yes
 
 def print_dictionary(dictionary:dict=None):
-    if dictionary is None or not isinstance(dictionary,dict):
-        raise Exception("Dizionario passato non valido") 
+    if not isinstance(dictionary,dict):
+        raise Exception("print_dictionary: Dizionario passato non valido") 
     elif len(dictionary)<=0:
         print("Il dizionario è vuoto")
         return
