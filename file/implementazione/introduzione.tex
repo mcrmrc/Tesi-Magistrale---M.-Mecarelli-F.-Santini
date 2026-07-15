@@ -1,0 +1,51 @@
+Dopo aver analizzato strumenti già sviluppati riguardo l'argomento, procediamo nel crearne uno.
+
+
+Prima di sviluppare un covert Channel Channel che potesse esfiltrare i dati dalla macchina vittima; 
+si sono analizzati strumenti già presenti per studiarne il comportamento. 
+\vspace{2ex} \newline
+Da ciò si è arrivati alle seguenti conclusioni: 
+\begin{enumerate}
+    \item Il bisogno di un proxy intermediario fra la vittima e l'attaccante così da nasconderne l'entita. 
+    \item Un numero di proxy che permetta la distribuzione omogenea del traffico generato e non generare un throughput elevato (dato il numero di messaggi scambiati)
+    \item  Un limite alla dimensione dei dati inviati. 
+    Se mai si volesse esfiltrare un file contenente una grande quantità di dati; 
+    questo potrebbe generare rumore e destare sospetti. 
+    \item Un periodo di riposo randomico dopo ogni richiesta fatta dall'attaccante. 
+    Maggiore è il numero di richieste maggiore questo valore dovrà crescere così da non far notare la propria presenza. 
+    Questo valore può variare anche in base a quanti messaggi sono stati scambiati con la vittima.
+    \item Il testo scambiato non deve essere in chiaro. 
+    Averlo in chiaro permetterebbe di leggere il contenuto di ciò che viene mandato da sistemi di monitoraggio. 
+    \item usare il campo relativo all'id o alla sequenza per trasmettere i dati mentre il payload  sarà un testo usato comunemente per testare la rete. 
+    Questo per evitare che analizzando il payload si scopra la natura ilelcita della comunicazione. 
+    \footnote{
+        Il lato negativo è che può contenere solo 2 byte. 
+        \uppercase{è} quindi preferibile per mandare il comando piuttosto che per ricevere i dati.
+    } 
+    \item Evitare un numero importante di pacchetti tutti verso la stessa deastinazione. 
+    Per esempio non mandare più di 5 pacchetti, in un determinato istante, verso la stessa destinazione. 
+    \uppercase{è} preferibile mandare meno e poi aspettare che mandarli tutti e subit. 
+    In questo modo si evita di essere scoperti facilmente.
+    \item Possibilità di utilizzare solo le Echo Reply così da non avere il doppio dei messaggi. 
+    \footnote{
+        Ad ogni Echo Request viene associata una Echo Reply in cui la risposta manda gli stessi dati ricevuti
+    }
+    Tuttavia avere troppe reply senza una request potrebbe destare sospetti. 
+    Una soluzione potrebbe essere di disabilitare sulla macchina vittima le Echo Reply; 
+    così che quando arriva una richiesta non si invia una risposta. 
+    \item Un possibile approccio è disabilitare le risposte ma mandarle comunque, ma cambiando il contenuto al loro interno. 
+    Quindi la risposta non ripeterà il contenuto mandato dall'attaccante ma un'altro (possibilmente di diemsnione minore), così da avere per ogni Richiesta una Rispoassta
+    \item 
+    %\item 
+\end{enumerate}
+%l'attaccante si può connettere ai proxy. 
+%Si può quindi utilizzare una tipologia di comunicazione meno nascosta e più diretta.
+%Si possono quindi creare dei Socket
+
+
+%https://noxenius.medium.com/icmpdoor-how-i-used-an-icmp-reverse-shell-12814ca1b0e7
+\subsection{Detection and Mitigation}
+Network administrators and security engineers should limit or deny ICMP traffic as much as possible. 
+When this is not feasible due to protocol requirements or network planning, scope the accepted source and destination of ICMP packets. 
+This blog post elaborates on how to configure this with iptables.
+%TO-DO
