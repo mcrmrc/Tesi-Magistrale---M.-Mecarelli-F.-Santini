@@ -1914,20 +1914,20 @@ def get_filter_attack_from_function(self,function_name:str=None, ip_dst=None, ch
         #------------------------------------
         case "ipv6_destination_unreachable": 
             TYPE_DESTINATION_UNREACHABLE=1 
-            f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE})"# and dst {ip_host.compressed}" 
+            return f"icmp6 and (icmp6[0]=={TYPE_DESTINATION_UNREACHABLE})"# and dst {ip_host.compressed}" 
         case "ipv6_packet_to_big": 
             TYPE_PKT_BIG= 2
-            f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG})"# and dst {ip_host.compressed}" 
+            return f"icmp6 and (icmp6[0]=={TYPE_PKT_BIG})"# and dst {ip_host.compressed}" 
         case "ipv6_time_exceeded": 
             TYPE_TIME_EXCEEDED=3  
-            f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED})"# and dst {ip_host.compressed}" 
+            return f"icmp6 and (icmp6[0]=={TYPE_TIME_EXCEEDED})"# and dst {ip_host.compressed}" 
         case "ipv6_parameter_problem": 
             TYPE_PARAMETER_PROBLEM=4  
-            f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM})"# and dst {ip_host.compressed}" 
+            return f"icmp6 and (icmp6[0]=={TYPE_PARAMETER_PROBLEM})"# and dst {ip_host.compressed}" 
         case "ipv6_timing_channel_1bit" | "ipv6_timing_channel_2bit" | "ipv6_timing_channel_4bit": 
             TYPE_ECHO_REQUEST=128
             TYPE_ECHO_REPLY=129
-            f"icmp6 and (icmp6[0]=={TYPE_ECHO_REQUEST} or icmp6[0]=={TYPE_ECHO_REPLY})"# and dst {ip_host.compressed}"  
+            return f"icmp6 and (icmp6[0]=={TYPE_ECHO_REQUEST} or icmp6[0]=={TYPE_ECHO_REPLY})"# and dst {ip_host.compressed}"  
         case "ipv6_information_request" | "ipv6_information_reply": 
             TYPE_ECHO_REQUEST=128
             TYPE_ECHO_REPLY=129 
