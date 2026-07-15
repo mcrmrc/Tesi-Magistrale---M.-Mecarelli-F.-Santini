@@ -10,6 +10,8 @@ CONNECT="__CONNECT__"
 CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
 CONFIRM_VICTIM="__CONFIRM_VICTIM__"
 CONFIRM_PROXY="CONFIRM_PROXY"
+LAST_PACKET="__END__"
+READY="__READY__"
 
 ip_reg_pattern=r"^\d+\.\d+\.\d+\.\d+$"
 
@@ -20,7 +22,7 @@ def wait_pkt_conn_received():
 def set_pkt_conn_received():
     pkt_conn_received.set()
 
-def send_packet(data:bytes=None,ip_dst=None, time=10):
+def send_packet(data:bytes=None,ip_dst=None, time=10,icmp_seq=999):
     if type(ip_dst) is not str or re.match(ip_reg_pattern, ip_dst) is None :
         raise Exception("IP non valido")
     if data is None or type(data) is not bytes: 
@@ -30,7 +32,7 @@ def send_packet(data:bytes=None,ip_dst=None, time=10):
     
     icmp_id=mymethods.calc_checksum(data) 
 
-    pkt = IP(dst=ip_dst)/ICMP(id=icmp_id) / data  
+    pkt = IP(dst=ip_dst)/ICMP(id=icmp_id,seq=icmp_seq) / data  
     print(f"Sending...")
     print(f"{pkt.summary()}") #print(f"{pkt.show()}")
     ans = sr1(pkt, timeout=time, verbose=1)
@@ -188,4 +190,9 @@ if __name__=="__main__":
     for proxy in ip_proxy: 
         send_packet(data=CONNECT.encode(), ip_dst=proxy)
 
-
+def check_proxy_ipaddress(proxy_ip:list):
+    not_corrected_ip=[]
+    for proxy in proxy_ip:
+        if re.match(ip_reg_pattern, proxy) is None:
+            not_corrected_ip.append(proxy)
+    return not_corrected_ip
