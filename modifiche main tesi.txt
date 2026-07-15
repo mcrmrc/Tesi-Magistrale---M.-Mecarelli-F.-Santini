@@ -5,6 +5,7 @@ l'intero capitolo 3
 #v0.3
 timing_channel_8bit 
 2.1.2 Timing channel 8 bit
+2.1.3 Timing channel con tempi randomici
 
 
 

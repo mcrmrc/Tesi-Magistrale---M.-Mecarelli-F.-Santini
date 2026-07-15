@@ -93,3 +93,15 @@ la possibilità di decodificare il carattere sbagliato è magigore rispetto ai m
 %\vspace{1ex} \newline 
 %Lo sviluppo di un ulteriore Timing Channel che possa inviare 2 bytes sarebbe difficile. 
 %e al momento è possiibile farlo riducendo il massimo tempo di attesa. 
+
+\subsubsection{Timing Channel con tempi casuali} 
+La versione a 8 bit precedente, è stata sviluppata ulteriormente aggiungnedo del rumore al tempo che si aspetta fra ogni pacchetto. 
+Invece di aspettare un tempo costante per qualsiasi carattere; 
+si definisce un range in cui il tempo, associato al carattere può variare. 
+Per poter sincronizzare il mittente e il destinatario, su quanto tempo si è aggiunto o sottratto a quello di base, 
+si sono sviluppater due strade. 
+La prima è creando un numero randomico e sincronizzare le due entità tramite un seed condiviso; 
+un lato negativo è che se i numeri non combaciano, perchè un'entità ha effettuato un numero maggiore o minore di estrazioni, 
+non potrà essere ricodificato il carattere appropriato. 
+Il secondo approccio è di mettere il delay randomico aggiunto nel pacchetto stesso o direttamente nel payload o tramite uno dei campi, 
+per esempio il campo identifier. 
