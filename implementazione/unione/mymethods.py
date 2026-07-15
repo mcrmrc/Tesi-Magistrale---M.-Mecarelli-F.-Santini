@@ -48,7 +48,7 @@ def calc_checksum(data: bytes) -> int:
     :return: The checksum as an integer.
     """
     checksum = 0
-    # Process the data in 16-bit chunks
+    # Process the data in 16-bit chunks 
     for i in range(0, len(data), 2):
         # Combine two bytes into one 16-bit word
         word = data[i] << 8
@@ -60,6 +60,7 @@ def calc_checksum(data: bytes) -> int:
     
     # One's complement of the result
     checksum = ~checksum & 0xFFFF
+    print(f"The checksum of {data} is {checksum}")
     return checksum
 
 def iface_from_IP(target_ip=None):

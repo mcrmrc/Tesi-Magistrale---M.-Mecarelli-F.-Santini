@@ -23,7 +23,8 @@ def test_iface_from_IP():
     if iface_name is not None:
         print(f"Il nome dell'interfaccia per {target_ip} è: {iface_name}")
 
+from scapy.all import conf
 if __name__=="__main__":
     test_check_args()
     test_calc_checksum()
-    test_iface_from_IP()
+    test_iface_from_IP() 
