@@ -328,7 +328,6 @@ class ICMP_THREAD:
         print("Thread ICMP terminati")
 #-----------------------------------------  
 default_file_path:str = "./attack_file.json" 
-proxy_port=4567 
 
 class Attacker: 
     dati_separati={} 
