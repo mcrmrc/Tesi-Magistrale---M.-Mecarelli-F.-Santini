@@ -11,9 +11,10 @@
 Per testare se RITA fosse in grado di rilevare i Covert Channel implementati; 
 tramite Wireshark si è monitorato il traffico e il risultato è stato salvato in dei file pcap. 
 %I file del flusso di rete che rita deve analizzare sono in formato pcapng. 
-Tuttavia RITA non supporta questo formato, ma solo i log di Zeek. 
+Tuttavia RITA analizza solo i log generati da Zeek, non i file pcapp stessi. 
+%non supporta questo formato, ma solo i log di Zeek. 
 %Si dovrà quindi \href{https://www.youtube.com/watch?v=kwR3TjIgoCo&t=13s}{convertire} i file pcap in log Zeek e poi analizzarli con RITA. 
-Quindi tramite Zeek si sono estratti dai file pcap i log necessari che sono stati poi analizzati da RITA.  
+Tramite Zeek si sono quindi estratti (dal file pcap) i log necessari. %che sono stati poi analizzati da RITA.  
 %\begin{lstlisting}
 %    cd "/mnt/d/test_pacchetti_finali" 
 %    zeek readpcap ./100_ciao_receive_ICMP_destination_unreachable.pcapng  ./zeek_log/100_ciao_receive_ICMP_destination_unreachable/
@@ -28,12 +29,14 @@ Quindi tramite Zeek si sono estratti dai file pcap i log necessari che sono stat
 %I databse che RITA ha creato saranno: ciaoDest100, ciaoTimeExc100, ciaoParam100, ciaoQuench100, ciaoRedirect100, ciaoTimeStmp100, ciaoInfo100
 \vspace{1ex} \newline
 Per testare se i pacchetti venissero rilevati, si sono inviate tre tipologie di dati: 
-il primo è un testo corto e lineare volto a simulare un comando, 
-il secondo è un testo di lunghezza variabile, 
-mentre il terzo è invece un testo la cui lunghezza incrementa ogni volta. 
-L'odine di grandezza è dei Kilobytes; 
-questo è stato scelto per non appesantire troppo il carico di rete ed evitare lunghi tempi di attesa. 
-\vspace{1ex} \newline
+%L'odine di grandezza è dei Kilobytes; questo è stato scelto per non appesantire troppo il carico di rete ed evitare lunghi tempi di attesa. 
+\begin{enumerate}
+    \item Un testo corto e lineare. Per esempio un comando. 
+    \item Un testo di lunghezza variabile. Per esempio il contenuto di un file. 
+    \item Il terzo è invece un testo la cui lunghezza incrementa ogni volta. 
+    Ciò è stato usato per testare se un flusso maggiore di dati venisse rilevato. 
+    %RITA fosse in grado di rilevare un flusso di dati sempre più evidente.
+\end{enumerate}  
 I risultati sono divisi per la tipologia di messaggio inviato e la quantità di dati inviati. 
 All'interno di ogni cella si indicherà il livello di gravità che RITA ha associato alla comunicazione. 
 \vspace{2ex} \newline

@@ -1,0 +1,793 @@
+Prima di iniizare a testare RITA, è necessario configurarlo. 
+Questo passaggio è fondamentale per il corretto funzionamento del sistema. %di rilevamento delle intrusioni. 
+Senza una configurazione appropriata, il sitema non avrebbe rilevato l'attaccante in modo efficace.
+\vspace{1ex} \newline
+La configurazione di RITA avviene tramite il file di configurazione \textbf{config.hjson} 
+che si trova nella cartella \textbf{/etc/rita/}.
+%In questo file si possono settare diversi parametri che influenzano il funzionamento di RITA.
+
+\subsubsection{Configurazione del campo \textit{filtering}} 
+Il campo imposta i filtri che RITA utilizzerà durante lìanalisi dei log di Zeek. 
+\begin{center} 
+\begin{longtable}{|p{0.35\textwidth}|p{0.6\textwidth}|} 
+    \hline
+    \textbf{Sottocampo} & \textbf{Descrizione} \\
+    \hline
+    internal\_subnets &  
+    Specifica gli indirizzi IP che si considereranno interni alla rete.
+    %Questo perchè RITA analizza il traffico di rete in base alla distinzione tra host interni ed esterni. 
+    %In questo caso è stato lasciato il valore di default ma si poteva specifcare o direttamente l'indirizzo IP 
+    %della macchina vittima o la sottorete a cui appartiene. 
+    %Si può specificare l'indirizzo di una sottorete (e.g 192.168.1.0/24) ma 
+    Siccome l'attaccante e la vittima 
+    sono all'interno della stesse rete; 
+    nel campo è stato inserito solamente l'indirizzo IP della vititma. 
+    %I valori di defualt sono stati rimossi. 
+    \\ 
+    \hline 
+    always\_included\_subnets &  
+    Specifica le reti che RITA dovrà sempre includere nell'analisi. 
+    Siccome come rete interna si è specificato solo la vittima, il campo verrà lasciato al suo valore di default. 
+    %Altrimenti si sarebbe potuta specificare la sottorete della macchina vittima (ovvero 192.168.1.0/24).
+    %Il valore di default è un array vuoto, ma nel nostro caso si è aggiunta la sottorete della macchina vittima. 
+    %Questo perchè sia l'attaccante che la vittima si trovano nella stessa sottorete: 192.168.1.0/24.
+    \\
+    \hline 
+    filter\_external\_to\_internal &  
+    Se impostato a true, fa sì che RITA ignori tutte le comunicazioni che avvengono da un host esterno ad 
+    uno interno. In questo caso si è impostato a false, in modo che RITA analizzi anche queste comunicazioni.
+    %Ciò è importante perchè l'attaccante si trova all'interno della rete e la vittima anche.
+    \\
+    \hline 
+\caption{Sottocampi di \textit{filtering}} 
+\label{tabella:RITA:config:filtering} 
+\end{longtable} 
+\end{center}   
+\begin{lstlisting} [language=bash, showspaces=false, showstringspaces=false, showtabs=false]
+"filtering": {
+    "internal_subnets": [
+        "192.168.1.3"
+        #"192.168.1.11"
+    ], 
+    "always_included_subnets": [], 
+    //Ignores external host to internal host communication 
+    "filter_external_to_internal":false 
+},
+\end{lstlisting} 
+\captionof{lstlisting}{Configurazione del campo \textit{filtering}} 
+\label{lstlisting:RITA:config:filtering} 
+
+
+\subsubsection{Configurazione del campo \textit{scoring}}
+In questo campo si può impostare come RITA assegnerà i punteggi ad ogni tipologia di comunicazione sospetta. 
+%In particolare definirà in base a quali parametri verràdefinito un beacon, 
+%il punteggio che verrà assegnato in base alla durata della connessione ed altri.
+\vspace{2ex} \newline 
+In particolare il sottocampo \textbf{beacon} definisce i parametri che RITA utilizzerà 
+per definire una connessione come beacon e quale punteggio assegnargli. 
+%per assegnare un punteggio ad una connessione sospetta che potrebbe essere un beacon. 
+Al suo interno si possono settare diversi parametri che influenzano il calcolo del punteggio finale da associare alla connessione.
+%i seguenti sono quelli che determinano il punteggio 
+%Il punteggio è attualmente composto da una media ponderata di 4 sotto-punteggi.
+Il valore del punteggio è dato dalla media pesata di 4 sottocampi; 
+il valore di default per ognuno di essi è 0.25, tuttavia possono essere modificati in base alle esigenze; 
+a patto che la somma di tutti i pesi sia alla fine uguale a 1.
+%A ognuno di questi campi può essere associato un peso, il cui valore dipenderà dalle esigenze. 
+%\vspace{1ex} \newline 
+%Il valore di default tassociato ad ognuno di questi campi è 0.25; 
+%ciò significherà che tutti i campi hanno lo stesso peso e quindi la stessa importanza nel calcolo del punteggio. 
+%I campi in questione sono: 
+
+\begin{center} 
+\begin{longtable}{|p{0.2\textwidth}|p{0.7\textwidth}|} 
+    \hline
+    \textbf{Test} & \textbf{Descrizione} \\
+    \hline
+    ICMP Test &  
+    Comunicazione reale fra l'attacante e la vittima traimte il Covert Channel ICMP. 
+    L'attaccante inizia chiedendo alla vititma il ocntenuto di un file; 
+    una volta che la vittima ha inviato il contenuto del file, 
+    l'attaccante procede a richiedere un nuovo file. 
+    I file di testo hanno sempre una dimensione crescente: 
+    con il primo che è una semplece descrizione del contenuto di una cartella 
+    menre l'ultimo file ha una dimensione di 2 MB. 
+    \\ 
+    \hline 
+    600 ping &  
+    Si ha la \textbf{vittima} che pinga ogni 2 secondi l'attaccante per un totale di 600 ping. 
+    %\newline 
+    L'\textbf{attaccante} invece pinga la vittima ogni 2 secondi per un totale di 200 ping. 
+    %\newline
+    Questo scambio di messaggi è stato ripetuto altre 3 volte. 
+    \vspace{1ex} \newline 
+    Lo scambio è svolto a simulare uno scambio di messaggi tra i due host. 
+    \\
+    \hline 
+\caption{Test effettuati con RITA} 
+\label{tabella:RITA:testEffettuati} 
+\end{longtable} 
+\end{center}  
+
+\subsubsection*{Prima configurazione}
+La configurazione iniziale del campo \textit{scoring} è quella di default. 
+Ovvero quella che RITA utilizza appena installato. 
+%\begin{lstlisting} [language=bash, showspaces=false, showstringspaces=false, showtabs=false]
+%"scoring": {
+%        "beacon": { 
+%            //min number of unique conn to qualify as beacon
+%            "unique_connection_threshold": 4, 
+            
+%            "timestamp_score_weight": 0.25,
+%            "datasize_score_weight": 0.25,
+%            "duration_score_weight": 0.25,
+%            "histogram_score_weight": 0.25, 
+            
+%            "duration_min_hours_seen": 6,
+%            "duration_consistency_ideal_hours_seen": 12,
+%            "histogram_mode_sensitivity": 0.05,
+%            "histogram_bimodal_outlier_removal": 1,
+%            "histogram_bimodal_min_hours_seen": 11,
+
+%            "score_thresholds": {
+%                // beacon score
+%                "base": 50,
+%                "low": 70,
+%                "medium": 90,
+%                "high": 100
+%            }
+%        }, 
+%        "long_connection_score_thresholds": {
+%            // duration, in seconds
+%            "base": 3600, // 1 hour
+%            "low": 14400, // 4 hours
+%            "medium": 28800, // 8 hours
+%            "high": 43200 // 12 hours
+%        },
+%        "c2_score_thresholds": {
+%            // number of subdomains
+%            "base": 100,
+%            "low": 500,
+%            "medium": 800,
+%            "high": 1000
+%        },
+%        "strobe_impact": {
+%            "category": "high" 
+%        },
+%        "threat_intel_impact": {
+%            "category": "high" 
+%        }
+%    },
+%\end{lstlisting} 
+%\captionof{lstlisting}{Prima configurazione del campo \textit{scoring}} 
+%\label{lstlisting:RITA:config:scoring:prima} 
+
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Vittima to Attaccante} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    \hline 
+    ICMP test &   
+    None &
+    16\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping &   
+    None &
+    42.90\% & 
+    1h 22m 2s
+    \\
+    \hline  
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:vittimaAttaccante} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Attaccante to Vittima} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    \hline 
+    ICMP test &   
+    None &
+    22\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping &   
+    None &
+    41.60\% & 
+    34m 10s
+    \\
+    \hline 
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:attaccanteVittima} 
+\end{longtable} 
+\end{center}  
+
+\subsubsection*{Seconda configurazione} 
+%ICMP covert channels typically show: very regular inter-packet timing (small jitter), consistent ICMP payload sizes, and often many repeated packets. 
+%So you want to emphasize timing and histogram/size repeatability, keep duration moderate, and leave a little weight on datasize. 
+%
+%Tuttavia, siccome si vuole testare se un attacco Covert Channel viene rilevato da RITA, 
+Siccome i test effettuati con la configurazione di base non hanno generato alcun avvertimento sulla presenza 
+di un anomalia, si è deciso di modificare le soglie per il calcolo del punteggio finale. 
+\vspace{1ex} \newline 
+Siccome in questo tipo di attacco, la dimensione dei pacchetti rimangono costanti; 
+%poichè i dati saranno inseriti all'interno dei campi stessi del pacchetto.  
+i dati scambiati non sono così rilevanti. 
+Si è deciso quindi di diminuire il peso del campo \textbf{datasize\_score\_weight} a \textbf{0.15}. 
+Così come anche quello di \textbf{duration\_score\_weight}, che è stato diminuito a \textbf{0.1}.
+\vspace{1ex} \newline 
+Invece \textbf{timestamp\_score\_weight} è stato aumentato a \textbf{0.4}. 
+Mentre il campo \textbf{histogram\_score\_weight} avrà un peso pari a \textbf{0.35}. 
+%Un attacco Covert Channle può basarsi sulla regolarità temporale delle connessioni e siccome l'attacco cerca 
+%di generare il meno rumore possibile la durata per inviare i dati può essere significativa. 
+%siccome si vuole dare meno importanza alla distribuzione delle connessioni nel tempo 
+
+\begin{center} 
+\begin{longtable}{|p{0.3\textwidth}|p{0.65\textwidth}|} 
+    \hline
+    \textbf{Sottocampo} & \textbf{Descrizione} \\
+    \hline
+    timestamp\_score\_weight &  
+    %peso del punteggio dato dalla regolarità temporale delle connessioni. 
+    Parametro utilizzato per influenzare il modo in cui i timestamp vengono considerati nel punteggio delle potenziali minacce.
+    Questo peso regola l'importanza dei pattern basati sul tempo, nell'analisi complessiva delle minacce.
+    %This weight adjusts the importance of time-based patterns, such as beaconing intervals, in the overall threat analysis. 
+    %Aumentare il peso potrebbe rendere RITA più sensibile a 
+    Pattern basati sul tempo sono spesso indicativi di attività dannose come le comunicazioni di Comando e Controllo (C2). 
+    %Increasing the weight might make RITA more sensitive to consistent time-based patterns, which are often indicative of malicious activity like Command and Control (C2) communication.
+    %
+    %timestamp_score_weight / interval — emphasizes regular timing (periodicity). If your covert channel pings at very regular intervals (very low jitter) this subscore will be high. 
+    \\ 
+    \hline 
+    datasize\_score\_weight &  
+    %peso del punteggio dato dalla dimensione dei dati scambiati. 
+    Utilizzato per regolare il peso o l'importanza della dimensione dei dati nel calcolo dei punteggi per l'analisi delle minacce. 
+    Modificandolo, è possibile enfatizzare o ridurre il ruolo della dimensione dei dati nel punteggio complessivo delle minacce. 
+    %
+    %datasize_score_weight — rewards a consistent connection payload/packet size (mode + low dispersion). ICMP covert channels frequently use consistent payload sizes → this helps. 
+    \\
+    \hline 
+    duration\_score\_weight &  
+    %peso del punteggio dato dalla durata della connessione. 
+    Parametro utilizzato per regolare il peso del punteggio di durata della connessione nel calcolo dei punteggi.
+    %Aiuta a identificare potenziali comportamenti di beaconing nel traffico di rete analizzando la durata delle connessioni.
+    Modificandolo, è possibile influenzare l'impatto della durata delle connessioni sul punteggio complessivo. 
+    \vspace{1ex} \newline
+    Un peso maggiore: aumenta l'importanza della durata della connessione nel calcolo del punteggio beacon.
+    %Higher weight: Increases the importance of connection duration in the beacon score calculation.  
+    Un peso minore: riduce l'impatto della durata della connessione, dando maggiore importanza ad altri fattori come l'intervallo o il volume dei dati.
+    %Lower weight: Reduces the impact of connection duration, giving more weight to other factors like interval or data volume.
+    %
+    %duration_score_weight — rewards long-lived connections / many samples. If each test only has a few pings, this subscore will be small. 
+    \\
+    \hline 
+    histogram\_score\_weight &  
+    %peso del punteggio dato dalla distribuzione delle connessioni nel tempo. 
+    %Solitamente utilizzato per adattare l'importanza di diverse metriche durante l'analisi del traffico di rete o il rilevamento di anomalie.
+    %typically used to adjust the importance of different metrics when analyzing network traffic or detecting anomalies. 
+    Il punteggio dell'istogramma misura la regolarità nei tempi di comunicazione tra due host utilizzando un 
+    istogramma dei tempi di interarrivo (ritardi tra pacchetti o flussi). 
+    %Il punteggio dell'istogramma misura la regolarità degli intervalli di tempo tra le connessioni di rete verso la stessa destinazione.
+    %Si basa su un istogramma statistico delle differenze di tempo tra connessioni consecutive.
+    Da questo calcola quanto sia "grande" o "ripetitiva" la distribuzione: se una coppia di host scambia 
+    pacchetti a intervalli molto regolari (ad esempio ogni 2 secondi), l'istogramma presenterà dei picchi 
+    significativi e il punteggio dell'istogramma sarà alto. Se invece la comunicazione avviene a intervalli 
+    casuali o variabili, l'istogramma è piatto, assegnando un punteggio basso. 
+    %Una varianza inferiore (spaziatura più regolare) aumenta il punteggio dell'istogramma, suggerendo che è 
+    %probabile che l'host stia effettuando del beaconing a un sistema remoto secondo una pianificazione 
+    %prevedibile, una caratteristica comune nel traffico di comando e controllo dei malware. 
+    Una varianza inferiore, ceh aumenta il punteggio dell'istogramma, suggerisce che l'host stia effettuando 
+    del beaconing a un sistema remoto secondo una pianificazione prevedibile, una caratteristica comune nel 
+    traffico di comando e controllo. 
+    %
+    %histogram_score_weight — emphasizes the shape/mode of the interval/size histograms (peakiness / repeatability). Good for perfectly repeating intervals or repeating fixed packet sizes. 
+    \\
+    \hline 
+\caption{Sottocampi di \textit{beacon} relativi al punteggio} 
+\label{tabella:RITA:config:scoring:beacon:score} 
+\end{longtable} 
+\end{center} 
+
+\begin{lstlisting} [language=bash, showspaces=false, showstringspaces=false, showtabs=false]
+"timestamp_score_weight": 0.4,
+"datasize_score_weight": 0.15,
+"duration_score_weight": 0.1,
+"histogram_score_weight": 0.35, 
+\end{lstlisting} 
+\captionof{lstlisting}{Seconda configurazione dei campi in \textit{beacon}} 
+\label{lstlisting:RITA:config:scoring:seconda} 
+%These weights bias RITA to reward precise timing and repeated histogram modes (interval/size). 
+%If your covert channel uses very consistent sizes (same ICMP payload every packet), you can bump datasize_score_weight to 0.25 and reduce duration_score_weight further. 
+%If your covert channel intentionally adds jitter to timing but keeps size identical, move weight from timestamp → datasize/histogram. 
+
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Vittima to Attaccante} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    19.10\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    43.60\% & 
+    1h 22m 2s
+    \\
+    \hline  
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:vittimaAttaccante} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Attaccante to Vittima} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    22.7\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    41.50\% & 
+    34m 10s
+    \\
+    \hline  
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:attaccanteVittima} 
+\end{longtable} 
+\end{center}  
+
+\subsubsection*{Terza configurazione} 
+Dato il miglioramennto nella seconda configurazione si procede nel definire i parametri mancanti, 
+oltre che nel raffinare ulteriormente i parametri già impostati. 
+\vspace{1ex} \newline 
+Si è provato ad abbassare il numero minimo di connessioni univoche richieste per analizzare una connessione 
+come beacon. Tuttavia se il parametro risulta minore di 4 RITA non convalid a la configurazione.
+%// Minimum number of unique connections before analyzing for beaconing.
+%// Leave low to catch small ICMP patterns. 
+%//Non possibile scendere sotto 4 altrimenti si sarebbe messo 3 
+\vspace{1ex} \newline 
+Si raffinano poi il peso da assegnare agli score per enfatizzare la regolarità dei tempo e gli istogrammi.
+%la somiglianza degli istogrammi (intervallo e dimensione). 
+%We emphasize timing regularity and histogram similarity (interval & size), 
+Infatti gli attacchi Covert Channel ICMP tipicamente inviano pacchetti altamente regolari con dimensioni 
+e strutture di payload quasi identiche. 
+\vspace{2ex} \newline 
+Si raffina poi la sensibilità alla durata. 
+I beacon ICMP spesso si verificano in raffiche più brevi di 6 ore, quindi si  è abbassata la soglia entro cui 
+iniziare a calcolare il punteggio. Così da permettere di calcoalre il punteggio anche delle connessioni più brevi.
+Infine si è abbassata anche la soglia ideale per ottenere il punteggio massimo (\textit{duration\_consistency\_ideal\_hours\_seen}). 
+%// ---- Duration sensitivity ----
+%// ICMP beacons often occur in bursts shorter than 6 h, so lower thresholds.
+\vspace{2ex} \newline 
+Si è poi raffinato anche la sensibilità dell'istogramma. 
+Si è deciso di rendere la rilevazione della modalità più sensibile (con bucket più stretti si avrà meno tolleranza) 
+così che da distinguere chiarmanete gli intervalli ICMP. 
+%// ---- Histogram tuning ----
+%// Make the mode detection more sensitive (narrow buckets -> less forgiving)
+%// so that tight ICMP intervals stand out clearly.
+%// Default 0.05 -> tighter clustering
+\vspace{2ex} \newline 
+Infine si sono abbassati leggermente i punteggi delle soglie così che anche le comunicazioni ICMP più brevi 
+appaiano nell'analisi almeno nelle categorie "bassa/media". 
+%// ---- Beacon score thresholds ----
+%// Lower thresholds slightly so shorter ICMP patterns still appear
+%// in at least "low/medium" categories for analysis.
+
+\begin{center} 
+\begin{longtable}{|p{0.35\textwidth}|p{0.6\textwidth}|} 
+    \hline
+    \textbf{Sottocampo} & \textbf{Descrizione} \\  
+    \hline  
+    unique\_connection\_threshold &  
+    Il campo  indica il minimo di connessioni necessarie affinche RITA consideri la connessione come una beacon. 
+    %Numero minimo predefinito di connessioni univoche utilizzate per l'analisi dei beacon.
+    Due host con un numero di connessioni inferiore a questo non verranno analizzati. 
+    %È possibile aumentare questo valore in tutta sicurezza per migliorare le prestazioni se la lentezza dei beacon non rappresenta un problema. 
+    \\
+    \hline 
+\caption{Sottocampi di \textit{beacon} relativi al numero minimo di connessioni} 
+\label{tabella:RITA:config:scoring:beacon:connections:minNum} 
+\end{longtable} 
+\end{center} 
+\begin{center} 
+\begin{longtable}{|p{0.35\textwidth}|p{0.6\textwidth}|} 
+    \hline
+    \textbf{Sottocampo} & \textbf{Descrizione} \\ 
+    duration\_min\_hours\_seen &  
+    Il numero di ore visualizzate in una rappresentazione %grafica 
+    delle connessioni di un beacon deve 
+    essere superiore a questa soglia affinché venga calcolato un punteggio di durata complessivo.
+    %Valore predefinito: 6 
+    \\ 
+    \hline 
+    duration\_consistency\newline\_ideal\_hours\_seen &  
+    Questo è il numero minimo di ore visualizzate in una rappresentazione grafica delle connessioni di un 
+    beacon affinché il sottopunteggio di coerenza della durata raggiunga il 100\%.
+    %Valore predefinito: 12 (mezza giornata) 
+    \\ 
+    \hline 
+    histogram\_mode\_sensitivity &  
+    %Il punteggio dell'istogramma ha un sottopunteggio che tenta di rilevare più sezioni piatte in un grafico 
+    %di connessione rappresentante un beacon. 
+    La variabile controlla la dimensione del bucket per il raggruppamento delle connessioni. 
+    Questo valore è espresso come percentuale del numero massimo di connessioni. 
+    %Ad esempio, se il numero massimo di connessioni è 400 e questa variabile è impostata a 0,05 (5\%), 
+    %la dimensione del bucket sarà 20 (400*0,05=20). 
+    Aumentando questa variabile, l'algoritmo diventa più tollerante alle variazioni. 
+    %Valore predefinito: 0,05 
+    \\ 
+    \hline 
+    histogram\_bimodal\newline\_outlier\_removal &  
+    Questo è il numero di bucket che possono essere considerati valori anomali ed esclusi dal calcolo. 
+    %Valore predefinito: 1 
+    \\
+    \hline 
+    histogram\_bimodal\newline\_min\_hours\_seen &  
+    Questo è il numero minimo di ore visualizzate in una rappresentazione %grafica 
+    delle connessioni di un 
+    beacon prima che venga utilizzato il punteggio del sottopunteggio bimodale. 
+    %Valore predefinito: 11 (imposta la copertura minima a poco meno della metà della giornata) 
+    \\
+    \hline 
+\caption{Sottocampi di \textit{beacon}} 
+\label{tabella:RITA:config:scoring:beacon} 
+\end{longtable} 
+\end{center} 
+
+
+
+\begin{lstlisting} [language=bash, showspaces=false, showstringspaces=false, showtabs=false]
+"unique_connection_threshold": 4, 
+
+// Timing regularity = strongest signal 
+"timestamp_score_weight": 0.45, 
+// Repeated interval/size histogram shapes 
+"histogram_score_weight": 0.30, 
+// Consistent ICMP payload size 
+"datasize_score_weight": 0.20, 
+// De-emphasize total connection time 
+"duration_score_weight": 0.05, 
+
+"duration_min_hours_seen": 2, 
+"duration_consistency_ideal_hours_seen": 6, 
+
+//Tighter clustering
+"histogram_mode_sensitivity": 0.03, 
+"histogram_bimodal_outlier_removal": 1, 
+// Match duration window 
+"histogram_bimodal_min_hours_seen": 6, 
+
+"score_thresholds": {
+    "base": 40,
+    "low": 65,
+    "medium": 85,
+    "high": 100
+}
+\end{lstlisting} 
+\captionof{lstlisting}{Terza configurazione dei campi in \textit{beacon}} 
+\label{lstlisting:RITA:config:scoring:terza} 
+
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Vittima to Attaccante} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    24.2\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    56\% & 
+    1h 22m 2s
+    \\
+    \hline 
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:vittimaAttaccante} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Attaccante to Vittima} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    29.6\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    54.4\% & 
+    34m 10s
+    \\
+    \hline 
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:attaccanteVittima} 
+\end{longtable} 
+\end{center}  
+
+\subsubsection*{Quarta configurazione} 
+In questa configurazione si vanno a modificare i parametri esterni al sottocampo \textit{beacon}, 
+ma sempre all'interno del campo \textit{scoring}. 
+Tuttavia non si sono raggiunte modifiche sostanziali nei risultati finali.
+
+\begin{center} 
+\begin{longtable}{|p{0.35\textwidth}|p{0.6\textwidth}|} 
+    \hline
+    \textbf{Sottocampo} & \textbf{Descrizione} \\ 
+    long\_connection\_score\_thresholds &  
+    controls how RITA buckets long-lived connections into base/low/medium/high 
+tiers by duration. Lowering these makes shorter connections count as “long” (so the “long connection” detector 
+will flag them sooner). This can help if your ICMP tests are shorter than the defaults and you want them 
+assessed as notable long connections.
+    \\ 
+    \hline 
+    c2\_score\_thresholds &  
+    applies to DNS / domain-subdomain analysis for C2 detection. Not directly relevant to 
+ICMP, but lowering these will make small-scale domain churn look more suspicious (useful if you want more 
+sensitivity to metadata-based C2). 
+    \\ 
+    \hline 
+    strobe\_impact \& threat\_intel\_impact &  
+    already set to "high". Any flow that RITA flags as a strobe 
+(fast repeated connections) or that matches threat intel will be escalated as high — keep these at high 
+to ensure flagged ICMP flows are prioritized.
+    \\ 
+    \hline 
+\caption{Sottocampi di \textit{beacon}} 
+\label{tabella:RITA:config:scoring:beacon} 
+\end{longtable} 
+\end{center} 
+
+\begin{lstlisting} [language=bash, showspaces=false, showstringspaces=false, showtabs=false]
+"long_connection_score_thresholds": {
+    "base": 1800, // 30 min
+    "low": 7200    // 2 hours
+    "medium": 14400, // 4 hours
+    "high": 28800, // 8 hours 
+}, 
+\end{lstlisting} 
+\captionof{lstlisting}{Terza configurazione dei campi in \textit{beacon}} 
+\label{lstlisting:RITA:config:scoring:terza} 
+
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Vittima to Attaccante} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    24.2\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    56\% & 
+    1h 22m 2s
+    \\
+    \hline 
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:vittimaAttaccante} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Attaccante to Vittima} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    29.6\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    54.4\% & 
+    34m 10s
+    \\
+    \hline 
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:attaccanteVittima} 
+\end{longtable} 
+\end{center}  
+
+
+\subsubsection{Risultati della configurazione del campo \textit{scoring}}
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Vittima to Attaccante} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Prima configurazione}} \\ 
+    \hline 
+    ICMP test &   
+    None &
+    16\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping &   
+    None &
+    42.90\% & 
+    1h 22m 2s
+    \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Seconda configurazione}} \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    19.10\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    43.60\% & 
+    1h 22m 2s
+    \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Terza configurazione}} \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    24.2\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    56\% & 
+    1h 22m 2s
+    \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Quarta configurazione}} \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    24.2\% & 
+    19m 10s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    56\% & 
+    1h 22m 2s
+    \\
+    \hline 
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:vittimaAttaccante} 
+\end{longtable} 
+\end{center}  
+%
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline 
+    \multicolumn{4}{|c|}{Comunicazione Attaccante to Vittima} \\ 
+    \hline
+    \textbf{Test} & \textbf{Risultato} & \textbf{Beacon}  & \textbf{Connessione}   \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Prima configurazione}} \\ 
+    \hline 
+    ICMP test &   
+    None &
+    22\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping &   
+    None &
+    41.60\% & 
+    34m 10s
+    \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Seconda configurazione}} \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    22.7\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    41.50\% & 
+    34m 10s
+    \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Terza configurazione}} \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    29.6\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    54.4\% & 
+    34m 10s
+    \\
+    \hline 
+    \multicolumn{4}{|c|}{\textbf{Quarta configurazione}} \\ 
+    %\\[-2pt]   % negative moves up, positive moves down 
+    %\\[4pt]      % adds vertical space below this row
+    \hline 
+    ICMP test 2 &   
+    None &
+    29.6\% & 
+    1m 9s
+    \\ 
+    \hline 
+    600 ping 2 &   
+    None &
+    54.4\% & 
+    34m 10s
+    \\
+    \hline 
+\caption{Risultati dei test effettuati con RITA} 
+\label{tabella:RITA:risultatiTestEffettuati:attaccanteVittima} 
+\end{longtable} 
+\end{center}  
+
+
+
+
