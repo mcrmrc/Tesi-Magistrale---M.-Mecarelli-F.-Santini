@@ -1,4 +1,14 @@
+#v0.2
 file/tools/introduzione	- parte su RITA
 l'intero capitolo 3
+
+#v0.3
+timing_channel_8bit 
+2.1.2 Timing channel 8 bit
+
+
+
+
+
 
 
