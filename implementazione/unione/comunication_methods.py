@@ -53,65 +53,6 @@ def get_wrong_ipaddress(proxy_list:list):
 
 #------------------------
  
-def get_mac_by_ipv6(ipv6_dst: str, ipv6_src: str, iface_name: str):
-    try:
-        # Validate and convert
-        dst_ip = ipaddress.IPv6Address(ipv6_dst) 
-        src_ip = ipaddress.IPv6Address(ipv6_src)
-        src_mac = get_if_hwaddr(iface_name)
-        print(f"Source MAC: {src_mac}")
-        print(f"Source IPv6: {src_ip.compressed}")
-        print(f"Destination IPv6: {dst_ip.compressed}")
-
-        # Create solicited-node multicast address (ff02::1:ffXX:XXXX)
-        ns_multicast_ip = in6_getnsma(dst_ip.packed)
-        dst_multicast_mac = in6_getnsmac(dst_ip.packed)
-        print(f"Solicited Node Multicast IP: {ns_multicast_ip}")
-        print(f"Destination Multicast MAC: {dst_multicast_mac}")
-        ns_multicast_ip_str = socket.inet_ntop(socket.AF_INET6, ns_multicast_ip)
-
-        # Build NDP Neighbor Solicitation
-        ndp_pkt = (
-            Ether(dst=dst_multicast_mac, src=src_mac) /
-            IPv6(src=f"{src_ip.compressed }%{iface_name}", dst=f"{ns_multicast_ip_str}%{iface_name}") /
-            ICMPv6ND_NS(tgt=str(dst_ip)) /
-            ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
-        )
-
-        print(f"Sending NDP to {ns_multicast_ip} via iface {iface_name}")
-        resp = srp1(ndp_pkt, timeout=2, iface=iface_name, verbose=False)
-
-        if resp and ICMPv6NDOptDstLLAddr in resp:
-            resolved_mac = resp[ICMPv6NDOptDstLLAddr].lladdr
-            print(f"Resolved MAC: {resolved_mac}")
-            return resolved_mac
-        else: 
-            cached_mac=check_mac_in_cache(dst_ip, iface_name)
-            if cached_mac:
-                print(f"(Fallback) Resolved MAC from cache: {cached_mac}")
-                return cached_mac
-            raise Exception("MAC resolution failed: No NDP response and no cache entry.") 
-    except Exception as e:
-        raise Exception(f"get_mac_by_ipv6: {e}")
-
-def check_mac_in_cache(ipv6_addr:str=None, iface_name: str=None):
-    try: 
-        is_string(iface_name)
-        ipv6_addr = is_valid_ipaddress_v6(ipv6_addr)
-
-        output = subprocess.check_output(
-            ["ip", "-6", "neigh", "show", "dev", iface_name],
-            universal_newlines=True
-        )
-        for line in output.splitlines():
-            if ipv6_addr.compressed.lower() in line.lower():
-                match = re.search(r"lladdr\s+([0-9a-f:]{17})", line)
-                if match:
-                    print(f"MAC address found in cache: {match}")
-                    return match.group(1)
-        return None
-    except Exception as e:
-        raise Exception(f"check_mac_in_cache: {e}") 
 
 
 
