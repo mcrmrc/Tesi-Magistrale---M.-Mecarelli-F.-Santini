@@ -1,0 +1,140 @@
+\subsection{Covert Channel} 
+Un \textbf{Covert Channel} è un attacco che permette (in ambienti ritenuti sicuri) la capacità di comunicare e/o trasferire dati in maniera non autorizzata e non voluta.  
+%Ciò avverrà fra processi e/o entità comunicanti senza che vengano rivelati ed evitando (se non violando) le normali politiche di sicurezza. 
+Solitamente operano al di fuori degli usuali meccanismi di comunicazioni sfruttando vulnerabilità o comportamenti non previsti nei sistemi. 
+%Non usando i normali protocolli e/o canali di comunicazione (es network sockets, emails) 
+%ciò gli permette di non generare segnali di un uso improprio del sistema. 
+Ciò gli permette di non generare segnali di un uso improprio del sistema ed inoltre, 
+nascondendosi all'interno dei normali processi del sistema, sono difficili da rilevare e/o identificare. 
+%Questi attacchi sono un problema significativo in tutti quegli ambienti dove una fuoriuscita 
+%di informazioni può avere conseguenze gravi (es ambienti militari, governativi,\dots).  
+%Siccome l'suo imporprio che si fà di queste risorse: porta alla fuoriuscita (o scambio) dei dati. 
+%
+%In generale il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
+%(e.g carico della CPU, accesso alla memoria, traffico della rete, metadati del file systema). 
+%sere usate (in maniere non previste) per la comunicazione. %(e.g memoria condivisa, uso della CPU, attributi dei file)
+%Questo perchè, permetterebbero l
+%    Di solilto si sfruttano servizi e/o risorse già presenti e quindi non sospette; 
+%    uno dei maggiori problemi nell'implementazione di un canale nascosto è il “rumore” che potrebbe attirare l'attenzione 
+%    da parte degli amministratori (es. se si sfruttano eccessivamente le risorse). 
+%    La necessità è quella di riuscire a trasmette attraverso un canale nascosto mantenendo conforme e inalterato il 
+%    funzionamento della risorsa utilizzata così da rendersi “indistinguibili” dalla risorsa autorizzata e di 
+%    conseguenza invisibili ai sistemi di monitoraggio.
+%    Per evitare la rilevazione, il canale è incorporato in operazioni di sistema legittime per poter mascherare la trasmissione dei dati. 
+%    (e.g carico della CPU, accesso alla memoria, traffico della rete, metadati del file systema). 
+%\vspace{2ex} \newline
+%Per evitare la presenza dei Covert Channel, bisogna quindi prestare attenzione all'\textbf{uso involontario delle risorse} 
+%ed evitare che esse possano eso scambio non non autorizzato di informazioni; 
+%potenzialmente violando le politiche di sicurezza; 
+%nelle quali i principali requisiti sono: la confidenzialità dei dati, l'integrità di quest'ultimi o la disponibilità delle risorse e/o servizi. 
+%Di conseguenza un metodo per la \textbf{rilevazione delle violazioni} delle politiche di sicurezza, risulta necessaria. 
+\vspace{2ex} \newline 
+Qualsiasi risorsa condivisa può essere utilizzata per la creazione di un canale nascosto. 
+%E per questo la loro esistenza rappresenta un problema che spesso rimane non notato. %dagli amministratori o dai tipici strumenti di monitoraggio. 
+%Questo permetterà ai Covert Channel di esistere in qualsiasi sistema. 
+E per poter essere efficace, un Covert Channel deve possedere determinate caratterisitche [Tabella \ref{tabella:caratteristiche:covert:channel} ]. 
+L'\textbf{indistinguibilità} è la principale; è estremamente importante riuscire a trasmettere informazioni mantenendo conforme lo stato del sistema. 
+L'obbiettivo è rendere il canale indistinguibile rispetto alle altre risorse presenti nel sistema così da risultare invisibili ai sistemi di monitoraggio. 
+\begin{center} 
+\begin{longtable}{|p{0.4\textwidth}|p{0.4\textwidth}|} 
+    \hline
+    \textbf{Caratteristica} & \textbf{Descrizione} \\
+    \hline
+    \textbf{Furtività} & 
+        Evitare di attirare le attenzioni sia degli amministratori che degli strumenti utilizzati per il rilevamento degli attacchi. 
+        %Si devono poter aggirare i controlli in maniera nascosta.
+    \\
+    \hline 
+    \textbf{Capacità di trasmissione} &
+        %Espressa in termini di \textbf{throughput} ($\frac{dati}{tempo}$). 
+        Più dati il canale trasmette per un determinato intervallo di tempo, 
+        maggiore sarà il rischio che venga scoperto.  
+        %siccome potrebbe rendere anomalo il funzionamento delle altre risorse.
+        %e un valore maggiore permetterà di scambiare un maggior numero di informazioni. 
+        %Evitare trasmissione risultasse anomala o eccessiva, un eccessivo carico di informazioni, 
+        %potrebbe rendere anomalo il funzionamento delle risorse.
+        %Quindi se la lunghezza di banda (Bandwith) risultasse limitata;  
+        %Quindi il throughput è inversamente correlato alla segretezza di un canale: 
+        %più dati un canale trasmette in un determinato periodo di tempo, maggiore è il rischio che il canale venga scoperto
+    \\
+    \hline
+    \textbf{Uso delle risorse} &
+        Un uso delle risorse improprio o sproporzionato %aumenta il rischio di essere individuati. 
+        da parte del canale potrebbe andare in conflitto con le risorse legittime presenti nel sistema. 
+        %I Covert channels sfruttano le risorse del sistema (e.g memoria cxondivisa, uso della CPU, attributi dei file) 
+        %in maniere non previste per la comunicazione. 
+    \\
+    \hline
+    \textbf{Rumore} &
+        L'uso dei servizi e/o delle risorse nel sistema potrebbe alterare il loro funzionamento. 
+        %L'alterazione del comportamento della risorsa o del servizio sfruttato 
+        Ciò potrebbe attirare l'attenzione da parte degli amministratori. 
+    \\
+    \hline
+    \textbf{Indistinguibilità} & 
+        %Si ha la necessità di riuscire a 
+        La trasmissione dei dati mantiene conforme e inalterato il funzionamento delle risorse utilizzate. 
+        L'obbietivo è quello di rendersi indistinguibili dalla risorsa autorizzata. 
+        %e di conseguenza invisibili ai sistemi di monitoraggio.
+    \\ 
+    \hline
+    %Violazione delle politiche di sicurezza &
+    %    Permettono lo scambio non autorizzato di informazioni, potenzialmente violando 
+    %    i requisiti di confidenzialità, di integrità o quelli di disponibilità.  
+    %\\
+    %\hline 
+\caption{Caratterisitche di un Covert Channel} 
+\label{tabella:caratteristiche:covert:channel} 
+\end{longtable} 
+\end{center} 
+
+
+\subsubsection{Tipologie di Covert Channel \cite{covert_channel_tipologie1} \cite{covert_channel_tipologie2}}
+
+\subsubsection*{Timing Covert Channel}
+I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (un umano o un processo) 
+di acquisire informazioni attraverso il cambiamento del tempo di risposta di una risorsa. 
+%Sfruttando gli intervalli di tempo o l'ordine degli eventi per codificare informazioni (e.g. ritardi fra i pacchetti di rete,\dots). 
+Qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo.
+%\begin{esempio}
+%        Modificare i permessi dei file o i metadati per codificare informazioni oppure modificare variabili condivise o buffer.
+%    \end{esempio}
+%\href{https://www.youtube.com/watch?v=QIvsmQQ6vu8}{Video Esempio}  
+
+\subsubsection*{Storage Covert Channel}
+Il canale viene creato scrivendo dei dati su un'area di memoria condivisa accessibile da tutte entità presenti. %entrambi i processi. 
+%(e.g attributi del file, i bit di memoria, gli stati della cache,\dots) 
+%Coinvolgono quindi la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi  
+I possibili veicoli saranno tutte quelle risorse che consentiranno la scrittura (diretta o indiretta) da parte di un processo e 
+la lettura (diretta o indiretta) da parte di un altro. 
+%Quindi in uno Storage Covert channel, un processo scrive su una risorsa condivisa mentre un altro processo legge da essa. 
+%Nei covert channel di archiviazione un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
+%Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
+%\vspace{2ex} \newline
+%\begin{esempio}
+%    Un esempio di un canale di archiviazione è la condivisione di un file. 
+%    Supponendo che l'utente A (con privilegi sufficenti) voglia trasmettere segretamente dei dati riservati all'utente B (con un livello di sicurezza inferiore). 
+%    Utilizzando un file di testo in cui apparentemente verranno scritte informazioni non classificate, mentre in verità occulterà l'informazione riservata. 
+%\end{esempio}
+%\vspace{2ex} 
+%\begin{esempio}
+%    Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
+%    oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
+%\end{esempio} 
+
+\subsubsection*{Behavioural Covert Channel} 
+%I canali nascosti comportamentali operano estraendo 
+Le informazioni vengono codificate modificando il comportamento del sitema. 
+Quindi i dati vengono ricavati osservando il comportamento del sistema 
+%durante l'esecuzione di operazioni, 
+piuttosto che attraverso l'accesso diretto ai dati.
+%La trasmissione dei dati avviene quindi in base ai diversi eventi che avvengono e 
+%generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli. 
+%Operano quindi trasmettendo dati in base all'avvenimento di diversi eventi. 
+%di processi, sistemi e applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli. 
+
+
+\subsubsection*{Hybrid Covert Channel} 
+Un Hybrid Covert Channel combina più tecniche per aumentare la capacità di trasmissione dei 
+dati nascosti e rendere più difficile la loro rilevazione. 
+

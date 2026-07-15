@@ -1,0 +1,150 @@
+\subsection{Tipologie di attacchi Covert Channel} 
+I Covert Channel sono spesso applicati per: 
+\begin{itemize}
+    \item \textbf{Malware e Spionaggio}: usati per esfiltrare dati sensibili. 
+    \item \textbf{Test di sicurezza}: identificare e mitigare i Covert Channel. \uppercase{è} una parte fondamentale nel stabilire la sicurezza del sistema. 
+    \item \textbf{Ricerca}: espolare i Covert Channel aiuta a capire potenziali vulnerabilità in sistemi complessi. 
+\end{itemize} 
+Gli attacchi tramite Covert Channel sfruttando le debolezze relative al tempo, alle risorse condivise, al design del sistema, ai protocolli di rete, \dots per trasmettere dati nascosti; 
+pongono una seria minaccia nella comunicazione fra malware, esfiltrazione dei dati e il cyber-spionaggio. 
+\vspace{2ex} \newline
+Gli attachi tramite Covert Channel sfruttano vulnerabilita nel , nelle risorse condivise e nelle
+politiche di sicurezza per trasmettere segretamente dati fra processi o sistemi 
+Potendo aggire i tradizionali  controlli di sicurezza, questi attacchi sono spessi usati per l'esfiltrazione dei dati, privilege escaletion o comunicazioni silenzione tra componenti malware.  
+\subsubsection*{Attacchi basati sulla memoria}
+Questi attacchi manipolano le risorse di sistema condivise per memorizzare e recuperare informazioni nascoste.
+    \begin{esempio}{\quad \newline}
+        $\bullet$\underline{Manipolazione degli attributi dei file}: \newline
+        il malware altera i metadati dei file (e.g. timestamp, permessi) per codificare i messaggi.
+        \vspace{1ex} \newline 
+        $\bullet$\underline{Sfruttamento della memoria condivisa}: \newline 
+        i processi comunicano modificando le regioni di memoria condivise. 
+        \vspace{1ex} \newline 
+        $\bullet$\underline{Segnali tramite l'utilizzo del disco}: \newline 
+        un processo scrive o elimina i dati mentre un altro processo rileva le modifiche.
+        Disk Usage Signaling: One process writes or deletes data, and another process detects changes. 
+        \vspace{1ex} \newline 
+        $\bullet$\underline{Campi nell intestazione TCP/IP}: \newline 
+        gli attaccani codificano i dati in campi inutilizzati o facoltativi dei pacchetti di rete 
+        (e.g. ID IP, numeri di sequenza o valori TTL). 
+    \end{esempio}
+\subsubsection*{Attacchi basati sulla temporizzazione} 
+Questi attacchi manipolano la tempistica o le prestazioni del sistema per trasmettere informazioni nascoste.
+    \begin{esempio}{\quad\newline}
+        $\bullet$\underline{Fluttuazione del carico della CPU}: 
+        il malware altera gli schemi di utilizzo della CPU, che un altro processo misura per decodificare le informazioni. 
+        \vspace{1ex} \newline 
+        $\bullet$\underline{Temporizzazione dei pacchetti di rete}: 
+        il mittente trasmette i pacchetti a intervalli di tempo specifici per codificare i dati binari. 
+        \vspace{1ex} \newline 
+        $\bullet$\underline{Attacchi basati sulla cache}: 
+        gli aggressori utilizzano i tempi di accesso alla cache (e.g. Flush+Reload, Prime+Probe) per far trapelare segreti
+        \vspace{1ex} \newline 
+        $\bullet$\underline{Analisi del consumo energetico}: 
+        i dati sensibili vengono estratti analizzando le variazioni del consumo energetico 
+        (utilizzate negli attacchi crittografici side-channel). 
+    \end{esempio} 
+\subsubsection*{Esempi reali di attacchi Covert Channel} 
+\begin{itemize}
+    \item Attacchi basati sui Malware: \newline 
+    Duqu 2.0 (2015) utilizzava canali TCP/IP occulti per esfiltrare i dati evitando il rilevamento
+    \item Attacchi di tunneling DNS: \newline 
+    il malware nasconde i dati all'interno delle query DNS (ad esempio, comunicazione C2 per le botnet). 
+    %\item Covert Channels basati sul Cloud e sulla Virtualizatione: \newline 
+    \item Hypervisor Covert Channels: 
+    Le macchine virtuali (VM) sullo stesso host fisico perdono dati attraverso la cache o la memoria della CPU condivisa.
+    %\vspace{1ex} \newline 
+    %Cloud Timing Attacks: Cloud tenants use execution timing differences to infer co-resident VM activities. 
+\end{itemize} 
+\begin{minipage}{\linewidth}
+    \begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|}
+        \hline
+        Nome Attacco & Tipo & Descrizione \\
+        \hline 
+        Spectre and Meltdown & Timing (Cache) & Sfrutta l'esecuzione speculativa per divulgare i contenuti della memoria \\ %Exploit speculative execution to leak memory contents
+        \hline 
+        Flush+Reload & Timing (Cache) & L'attaccante svuota la memoria condivisa e la ricarica per osservare i modelli di accesso. \\ %Attacker flushes shared memory and reloads it to observe access patterns.
+        \hline 
+        Prime+Probe & Timing (Cache) & L'attaccante riempie la cache e monitora i modelli di espulsione per inferire dati segreti. \\ %Attacker fills cache and monitors eviction patterns to infer secret data.
+        \hline 
+        Packet Timing Attack & Timing (Network) & Varia il timing di trasmissione dei pacchetti per inviare messaggi nascosti. \\ %Varies packet transmission timing to send hidden messages.
+        \hline 
+        Keystroke Timing Attack & Timing (Human Interaction) & Inferisce i tasti digitati in base alle variazioni temporali tra i colpi di tasto. \\ %Infers typed keys based on timing variations between keystrokes.
+        \hline 
+        TCP Covert Channel & Storage (Network) & Codifica i dati nei campi dei pacchetti TCP (ad esempio, numeri di sequenza, flag). \\ %Encodes data in TCP packet fields (e.g., sequence numbers, flags).
+        \hline 
+        File Lock Covert Channel & Storage (Filesystem) & Utilizza il blocco/sblocco dei file come meccanismo di segnalazione. \\ %Uses file locking/unlocking as a signaling mechanism.
+        \hline 
+    \end{tabular}
+    \captionof{table}{Menzione a degli attacchi Covert Channel}
+\end{minipage}
+
+
+
+
+
+
+
+\subsection*{Attacchi} 
+\subsubsection*{Icmp Flood (Ping Flood)}
+Limitare la velocità del traffico ICMP su firewall e router.
+Disattivare le richieste di eco ICMP dalle reti esterne se non necessarie. 
+Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare le richieste di ping eccessive.
+
+
+\subsubsection*{Attacco Smurf} 
+Disabilitare le richieste di broadcast ICMP sui router (nessuna trasmissione diretta IP)
+Implementare filtri in ingresso per bloccare i pacchetti con indirizzi di origine falsificati. 
+Utilizzare le regole del firewall per bloccare il traffico ICMP non necessario.
+
+
+\subsubsection*{Ping della morte (attacco storico)} 
+I sistemi moderni rifiutano i pacchetti di dimensioni eccessive.
+Applicare aggiornamenti e patch di sistema per prevenire questa vulnerabilità.
+
+
+\subsubsection*{ICMP Unreachable Flood}
+Configurare limiti di velocità per i messaggi di errore ICMP.
+Implementare regole firewall per eliminare il traffico ICMP eccessivo
+
+
+\subsubsection*{ICMP Ping Sweep}
+Blocca le richieste ICMP Echo da fonti esterne. 
+Utilizzare sistemi di prevenzione delle intrusioni (IPS) per rilevare e bloccare attività di scansione sospette.
+
+
+\subsubsection*{Attacco Timestamp ICMP}
+Disattivare le richieste di timestamp ICMP su firewall e router.
+Utilizzare protocolli di sincronizzazione temporale (NTP) con autenticazione anziché query orarie basate su ICMP.
+
+
+\subsubsection*{Attacco Timestamp ICMP}
+Disattivare le richieste di timestamp ICMP su firewall e router.
+Utilizzare protocolli di sincronizzazione temporale (NTP) con autenticazione anziché query orarie basate su ICMP.
+
+
+\subsubsection*{Attacco ICMP che maschera l'indirizzo}
+Disattivare le risposte ICMP Address Mask a meno che non siano necessarie per le operazioni di rete.
+Utilizzare i firewall per filtrare il traffico ICMP proveniente da fonti non attendibili.
+
+
+\subsubsection{Attacchi ICMP Tunneling e Covert Channel}
+Ispezione approfondita dei pacchetti (DPI) per rilevare ICMP Tunneling. 
+Blocca le richieste/risposte di ICMP Echo da reti non attendibili.
+Monitorare il traffico di rete per individuare modelli ICMP insoliti.
+
+
+\subsubsection*{Esfiltrazione ICMP (furto di dati tramite ICMP)}
+Monitorare e registrare il traffico ICMP per rilevare attività anomale.
+Utilizzare i firewall per limitare il traffico ICMP solo ai dispositivi necessari.
+Utilizzare soluzioni DLP (Data Loss Prevention) per rilevare i tentativi di esfiltrazione.
+
+
+\subsubsection*{ICMP Covert Channels}
+Monitorare il traffico ICMP per individuare modelli di utilizzo insoliti.
+Utilizzare i sistemi di rilevamento delle intrusioni di rete (NIDS) per rilevare Covert Channel.
+Limitare la comunicazione ICMP tra reti interne ed esterne.
+
+
+\subsubsection*{Attacco di reindirizzamento ICMP}
+Disabilitare il reindirizzamento ICMP.

@@ -1,0 +1,127 @@
+%https://hackerzzz.com/hacker-news/tunneling-tcp-over-icmp-with-ptunnel/
+%https://www.cs.uit.no/~daniels/PingTunnel/
+%https://www.kali.org/tools/ptunnel/
+%https://salsa.debian.org/alteholz/ptunnel 
+%https://pkg.kali.org/pkg/ptunnel 
+
+\section{Ptunnel Tools}
+Ptunnel is a powerful tool that allows users to bypass firewalls, access remote networks securely, and evade network restrictions.
+%
+\subsection{What is Ptunnel? How does Ptunnel work?}
+Ptunnel is a lightweight and versatile tunneling application that enables users to tunnel TCP connections through ICMP echo and reply packets. By encapsulating TCP traffic within ICMP packets, Ptunnel can bypass network firewalls that may be blocking direct TCP connections.
+Ptunnel works by leveraging the ICMP protocol to create a covert channel for TCP traffic. It achieves this by encapsulating TCP packets within ICMP echo packets, which are typically allowed through most firewalls. The encapsulated packets are then sent to a remote Ptunnel server, which extracts the TCP data and forwards it to the desired destination.
+
+Ptunnel is a specialized tunneling tool engineered to enable the transmission of TCP traffic over ICMP packets. This capability allows data to successfully navigate through network devices that impose stringent access controls.
+
+%Sito utile per la relazione https://www.cs.uit.no/~daniels/PingTunnel/
+This is a technical description of how ptunnel works. If you're not interested in low-level networking details, you can skip this section. It might help to read it either way, as it provides some insights into the situations where ptunnel doesn't work. Ptunnel works by tunneling TCP connections over ICMP packets. In the following, we will talk about the proxy, the client and the destination. The proxy is the "endpoint" for our ping packets, i.e. the computer that we send the ping packets to. The client is the computer we're trying to surf the net from, and the destination is the computer we would normally be trying to access over TCP (such as a web site or an ssh server somewhere).
+So, in order to accomplish this,ecc\dots
+%The protocol
+\dots
+
+Ptunnel is an application that allows you to reliably tunnel TCP connections to a remote host using ICMP echo request and reply packets, commonly known as ping requests and replies. At first glance, this might seem like a rather useless thing to do, but it can actually come in handy in some cases.
+
+ptunnel is an application that allows you to reliably tunnel TCP connections to a remote host using ICMP echo request and reply packets, commonly known as ping requests and replies. It acts as a proxy and can handle sockets and secured identification.
+
+Those features can be very handy when working in a closed networking environment with firewalls and proxies.
+
+How to install: sudo apt install ptunnel
+%
+\subsection{Benefits of Using Ptunnel}
+\begin{itemize}
+    \item Ptunnel can bypass firewalls that may be blocking direct TCP connections. This allows users to access restricted resources and services.
+    \item Ptunnel provides a secure tunnel for remote network access, ensuring that data transmitted between the client and server remains encrypted and protected from potential eavesdropping.
+    \item With Ptunnel, users can overcome network restrictions imposed by ISPs or network administrators, enabling access to blocked websites, services, or applications
+\end{itemize}
+%
+Ptunnel finds its applications in various scenarios:
+\begin{itemize}
+    \item \textbf{Bypassing Firewalls}
+    Ptunnel is particularly useful for bypassing firewalls that block direct TCP connections. It allows users to establish TCP connections by encapsulating them within ICMP packets, effectively bypassing firewall restrictions and accessing desired resources.
+    \item \textbf{Secure Remote Access} 
+    Another area where Ptunnel shines is secure remote access. It provides a secure tunnel for remote connections, enabling users to access resources on a remote network securely and privately.
+    \item \textbf{Evading Network Restrictions} 
+    Network restrictions can be frustrating, but with Ptunnel, users can evade these limitations. By encapsulating TCP traffic within ICMP packets, Ptunnel allows users to access blocked websites, services, or applications.
+\end{itemize}
+
+Ptunnel is not a feature-rich tool by any means, but it does what it advertises. So here is what it can do:
+
+Tunnel TCP using ICMP echo request and reply packets
+Connections are reliable (lost packets are resent as necessary)
+Handles multiple connections
+Acceptable bandwidth (150 kb/s downstream and about 50 kb/s upstream are the currently measured maximas for one tunnel, but with tweaking this can be improved further)
+Authentication, to prevent just anyone from using your proxy
+%
+There is a program called Ping Tunnel to send TCP traffic over ICMP.
+Ptunnel is an application that allows you to reliably tunnel TCP connections to a remote host using ICMP echo request and reply packets, commonly known as ping requests and replies. At first glance, this might seem like a rather useless thing to do, but it can actually come in handy in some cases. The following example illustrates the main motivation in creating ptunnel:
+%
+Setting: You’re on the go, and stumble across an open wireless network. The network gives you an IP address, but won’t let you send TCP or UDP packets out to the rest of the internet, for instance to check your mail. What to do? By chance, you discover that the network will allow you to ping any computer on the rest of the internet. With ptunnel, you can utilize this feature to check your mail, or do other things that require TCP.
+
+
+%
+\subsection{Setting Up Ptunnel}
+After installing Ptunnel, the next step is to configure it according to your specific requirements. Follow these steps to configure Ptunnel:
+\begin{enumerate}
+    \item Create a configuration file for Ptunnel, specifying the necessary parameters such as the server address, port, and connection details.
+    \item Save the configuration file in a location accessible to Ptunnel.
+    \item Launch Ptunnel with the specified configuration file using the appropriate command-line options or flags.
+\end{enumerate}
+%
+Ptunnel can be employed to access blocked websites or bypass censorship filters. By directing your web traffic through Ptunnel, you can browse the web securely and privately, even if certain websites are blocked.
+%
+With Ptunnel, you can transfer files securely and efficiently. By tunneling your file transfer protocol (FTP) or secure file transfer protocol (SFTP) traffic through Ptunnel, you can ensure that your file transfers remain protected from unauthorized access.
+
+\begin{lstlisting}
+    Client: ./ptunnel -p <proxy address> -lp <listen port> -da <destination address> -dp <destination port> [-c <network device>] [-v <verbosity>] [-f <logfile>] [-u] [-x password]
+    
+    Proxy: ./ptunnel [-c <network device>] [-v <verbosity>] [-f <logfile>] [-u] [-x password]
+\end{lstlisting}
+The -p switch sets the address of the host on which the proxy is running. A quick test to see if the proxy will work is simply to try pinging this host - if you get replies, you should be able to make the tunnel work.
+The -lp, -da and -dp switches set the local listening port, destination address and destination port. For instance, to tunnel ssh connections from the client machine via a proxy running on proxy.pingtunnel.com to the computer login.domain.com, the following command line would be used:
+\begin{lstlisting}
+    sudo ./ptunnel -p proxy.pingtunnel.com -lp 8000 -da login.domain.com -dp 22
+
+    An ssh connection to login.domain.com can now be established as follows:
+    ssh -p 8000 localhost
+\end{lstlisting}
+If ssh complains about potential man-in-the-middle attacks, simply remove the offending key from the known_hosts file. The warning/error is expected if you have previously ssh'd to your local computer (i.e., ssh localhost), or you have used ptunnel to forward ssh connections to different hosts.
+Of course, for all of this to work, you need to start the proxy on your proxy-computer (we'll call it proxy.pingtunnel.com here). Doing this is very simple:
+\begin{lstlisting}
+    sudo ./ptunnel
+\end{lstlisting}
+If you find that the proxy isn't working, you will need to enable packet capturing on the main network device. Currently this device is assumed to be an ethernet-device (i.e., ethernet or wireless). Packet capturing is enabled by giving the -c switch, and supplying the device name to capture packets on (for instance eth0 or en1). The same goes for the client. On versions of Mac OS X prior to 10.4 (Tiger), packet capturing must always be enabled (both for proxy and client), as resent packets won't be received otherwise.
+To protect yourself from others using your proxy, you can protect access to it with a password using the -x switch. The password is never sent in the clear, but keep in mind that it may be visible from tools like top or ps, which can display the command line used to start an application.
+Finally, the -u switch will attempt to run the proxy in unprivileged mode (i.e., no need for root access), and the -v switch controls the amount of output from ptunnel. -1 indicates no output, 0 shows errors only, 1 shows info messages, 2 gives more output, 3 provides even more output, level 4 displays debug info and level 5 displays absolutely everything, including the nasty details of sends and receives. The -f switch allows output to be saved to a logfile.
+
+
+Client:./ptunnel -p [proxy address] -lp [listen port] -da [destination address] -dp [destination port] [-c network device] [-v verbosity] [-f logfile] [-u] [-x password]
+Proxy:./ptunnel [-c network device] [-v verbosity] [-f logfile] [-u] [-x password]
+The -p switch sets the address of the host on which the proxy is running. A quick test to see if the proxy will work is simply to try pinging this host – if you get replies, you should be able to make the tunnel work.
+The -lp, -da and -dp switches set the local listening port, destination address and destination port. For instance, to tunnel ssh connections from the client machine via a proxy running on proxy.pingtunnel.com to the computer login.domain.com, the following command line would be used:
+sudo ./ptunnel -p proxy.pingtunnel.com -lp 8000 -da login.domain.com -dp 22
+An ssh connection to login.domain.com can now be established as follows:
+ssh -p 8000 localhost
+If ssh complains about potential man-in-the-middle attacks, simply remove the offending key from the known_hosts file. The warning/error is expected if you have previously ssh’d to your local computer (i.e., ssh localhost), or you have used ptunnel to forward ssh connections to different hosts.
+Of course, for all of this to work, you need to start the proxy on your proxy-computer (we’ll call it proxy.pingtunnel.com here). Doing this is very simple:
+sudo ./ptunnel
+If you find that the proxy isn’t working, you will need to enable packet capturing on the main network device. Currently this device is assumed to be an ethernet-device (i.e., ethernet or wireless). Packet capturing is enabled by giving the -c switch, and supplying the device name to capture packets on (for instance eth0 or en1). The same goes for the client. On versions of Mac OS X prior to 10.4 (Tiger), packet capturing must always be enabled (both for proxy and client), as resent packets won’t be received otherwise.
+To protect yourself from others using your proxy, you can protect access to it with a password using the -x switch. The password is never sent in the clear, but keep in mind that it may be visible from tools like top or ps, which can display the command line used to start an application.
+Finally, the -u switch will attempt to run the proxy in unprivileged mode (i.e., no need for root access), and the -v switch controls the amount of output from ptunnel. -1 indicates no output, 0 shows errors only, 1 shows info messages, 2 gives more output, 3 provides even more output, level 4 displays debug info and level 5 displays absolutely everything, including the nasty details of sends and receives. The -f switch allows output to be saved to a logfile.
+
+
+%
+%ptunnel is a very cool application. Interestingly, it’s not very effective when the administrator properly configures his firewall to use “stateful”/application inspection of ICMP traffic.
+%e.g. looking for egress echo requests before allowing only one response, and checking for icmp sequence numbers.
+
+
+%https://github.com/utoni/ptunnel-ng
+%https://www.kali.org/tools/ptunnel/
+
+
+%https://github.com/utoni/ptunnel-ng
+
+
+%https://github.com/utoni/ptunnel-ng
+
+
+%https://github.com/ptunnel-win/ptunnel
