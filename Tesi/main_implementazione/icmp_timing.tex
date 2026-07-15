@@ -31,13 +31,14 @@ si associa ad ogni punto una distanza di sicurezza, coì da evitare che due
 codici combacino verso lo stesso tempo di delay. 
 Di seguito la formula usata per calcolare il tempo di delay associato ad un 
 byte e nella Tabella \ref{tabella:timingCC:parametri:funzione1} la descrizione dei parametri usati:
-\begin{equation}
-    %\text{tempo\_base}+\text{indice}*(2*\text{distanza\_tempi})
-    \text{tempo\_base}+\text{indice}*\text{distanza\_tempi}
-\end{equation}
-\label{equation:1:tempi:timingCC} 
-\begin{center} 
+\begin{center}
+$\text{tempo\_base}+\text{indice}\times\text{distanza\_tempi}$
+\end{center} 
+\begin{minipage}{\textwidth}
+\centering
 \begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+\caption{Parametri della prima funzione (Timing Channel)} 
+\label{tabella:timingCC:parametri:funzione1} \\
     \hline
     \textbf{Parametro} & \textbf{Descrizione} \\
     \hline
@@ -57,12 +58,11 @@ byte e nella Tabella \ref{tabella:timingCC:parametri:funzione1} la descrizione d
     Distanza minima di secondi che tutte le codifiche dovranno avere fra di loro. 
     %Lo scopo è evitare che i tempi relativi a due codifiche si sovrappongano. 
     %In quei casi la decodifica potrà essere erronea. 
-    \\ 
-    \hline 
-    \caption{Parametri della prima funzione (Timing Channel)} 
-    \label{tabella:timingCC:parametri:funzione1} 
+\\
+\hline
 \end{longtable} 
-\end{center} 
+\end{minipage} 
+\vspace{1ex} \newline
 Le distanze fra i vari intervalli di tempo sono necessarie per evitare 
 errori nella decodifica. 
 Infatti durante la trasmissione dela pacchetto possono avvenire dei 
@@ -93,11 +93,12 @@ un massimo di 266 ms\footnote{
 %\captionof{lstlisting}{heading} 
 %Si definisce un \textbf{tempo di base} di \textit{3 secondi} e una \textbf{distanza} minima che tutti i tempi dovranno avere. 
 %In questo caso si è deciso che la distanza sia di almeno \textit{2 secondi}. 
+\vspace{3ex}\newline
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{./img/timing_channel/timing_channel_times_nonoverlapping.png}
-    \captionof{figure}{Assegnazione degli intervalli con la distanza} %di tempo 
+    \captionof{figure}{Assegnazione degli intervalli con la distanza \cite{draw_io}} %di tempo 
     \label{fig:covertTiming:intervalli:distanza}
+    \includegraphics[width=\textwidth]{./img/timing_channel/timing_channel_times_nonoverlapping.png}
 \end{minipage}  
 %\begin{minipage}{\textwidth}
 %    \includegraphics[width=\textwidth]{./img/timing_channel/timing_channel_times_overlapping.png}
@@ -154,6 +155,8 @@ o si fosse mandato un file che non fosse di testo,
 sarebbero stati tagliati dati importanti.  
 \begin{center} 
 \begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+\caption{Struttura della tabella ASCII} 
+\label{tabella:ASCII:table} \\
     \hline
     \textbf{Range} & \textbf{Descrizione} \\
     \hline
@@ -173,21 +176,17 @@ sarebbero stati tagliati dati importanti.
     Non fanno parte dell'ASCII standard ma alla sua versione estesa. 
     I caratteri presenti dipendono dalla codifica utilizzata. 
     %La più comune è ISO 8859-1 (chiamata anche ISO Latin-1). 
-    \\  
-    \hline 
-    \caption{Struttura della tabella ASCII} 
-    \label{tabella:ASCII:table} 
+    \\
+\hline
 \end{longtable} 
 \end{center} 
 Quindi si è definita una funzione che cercerà di normalizzare l'intervallo 
-di tempo (associato al dato), fra un valore minimo e uno massimo\cite{time_normalization1}\cite{time_normalization2}\cite{time_normalization3}. 
+di tempo (associato al dato), fra un valore minimo e uno massimo \cite{time_normalization1}\cite{time_normalization2}\cite{time_normalization3}. 
 Tramite questa funzione il range dei delay viene ristretto in un intervallo 
 preciso e definito (come mostra la Figura \ref{fig:covertTiming:intervalli:normalizzazione}).
-\begin{equation}
-    \text{min\_delay}+(\text{byte}/255)*(\text{max\_delay}-\text{min\_delay})
-\end{equation} 
-\label{equation:2:tempi:timingCC}  
-\newline
+\begin{center}
+$\text{min\_delay}+(\text{byte}/255)\times(\text{max\_delay}-\text{min\_delay})$
+\end{center} 
 Tramite questo approoccio; l'ampiezza dell'intervello permetterà di 
 regolare la velocità di trasmissione delle informazioni (che può essere 
 magiore o minore) con il costo di avere una maggiore sensibilità ai delay 
@@ -199,11 +198,12 @@ fra l'invio e la ricezione dei pacchetti.
 %minore è la loro differenza maggiore sarà la probabilità che i ritardi influenzino il risultato. 
 %di decodificare il carattere sbagliato.  
 %maggiore rispetto ai metodi che implementavano una distanz adi sicurezza. 
+\vspace{3ex}\newline
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=0.45\textwidth]{./img/timing_channel/timinmg_channel_2nd_function.png}
-    \captionof{figure}{Normalizzazione degli intervalli (Timing Channel) \cite{time_normalization4}} 
+    \captionof{figure}{Normalizzazione degli intervalli (Timing Channel) \cite{time_normalization4}\cite{draw_io}} 
     \label{fig:covertTiming:intervalli:normalizzazione} 
+    \includegraphics[width=0.45\textwidth]{./img/timing_channel/timinmg_channel_2nd_function.png}
 \end{minipage} 
 %
 \subsection{Randomizzazione dei tempi di invio} 
@@ -240,11 +240,12 @@ Le strade possibili sono due:
     \item Gli intervalli temporali non trasportano alcun dato. 
     Ma in questo caso non si tratterà più di un Timing Covert Channel. 
 \end{enumerate} 
+\vspace{3ex}
 \begin{minipage}{\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{./img/timing_channel/timinmg_channel_rumore.png}
-    \captionof{figure}{Randomizzazione dei tempi con il rumore (Timing Channel)} 
+    \captionof{figure}{Randomizzazione dei tempi con il rumore \cite{draw_io}} 
     \label{fig:covertTiming:intervalli:casuali} 
+    \includegraphics[width=\textwidth]{./img/timing_channel/timinmg_channel_rumore.png}
 \end{minipage}  
 
 \subsection{Requisiti per la comunicazione} 
