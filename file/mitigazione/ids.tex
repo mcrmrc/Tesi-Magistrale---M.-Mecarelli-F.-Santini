@@ -431,6 +431,509 @@ can be trained according to the applications and hardware configurations.
 \subsection{Svantaggi}
 
 
+%https://www.ibm.com/it-it/topics/intrusion-detection-system
+Un sistema di rilevamento delle intrusioni (IDS) è uno strumento di sicurezza della rete che monitora il traffico di 
+rete e i dispositivi alla ricerca di attività dannose note, attività sospette o violazioni delle politiche di sicurezza.
+
+Un IDS può aiutare ad accelerare e automatizzare il rilevamento delle minacce di rete avvisando gli amministratori della 
+sicurezza di minacce note o potenziali o inviando avvisi a uno strumento di sicurezza centralizzato. 
+
+Uno strumento di sicurezza centralizzato come un sistema SIEM (Security Information and Event Management) può 
+combinare dati provenienti da altre fonti per aiutare i team addetti alla sicurezza a individuare e rispondere alle 
+minacce informatiche che potrebbero sfuggire ad altre misure di sicurezza.
+
+Un sistema IDS non può fermare da solo le minacce alla sicurezza. Le funzionalità IDS di oggi sono solitamente 
+integrate (o incorporate) all'interno dei sistemi di prevenzione delle intrusioni (IPS), in grado di rilevare le 
+minacce e di agire automaticamente per prevenirle.
+
+
+\subsection{Come funzionano i sistemi di rilevamento delle intrusioni}
+
+\textbf{Rilevamento basato sulla firma}
+Il rilevamento basato sulle firme analizza i pacchetti di rete alla ricerca di firme di attacchi, caratteristiche o 
+comportamenti unici associati a una specifica minaccia. 
+Una sequenza di codice visualizzata in una particolare variante malware è un esempio di una firma di attacco.
+
+Un IDS basato su firme mantiene un database di firme di intrusioni con cui confronta i pacchetti di rete. 
+Se un pacchetto attiva una corrispondenza con una delle firme, l'IDS lo segnala. 
+Per essere efficaci, i database delle firme devono essere aggiornati regolarmente con nuova threat intelligence man mano che 
+emergono nuovi attacchi informatici e gli attacchi esistenti si evolvono. 
+I nuovi attacchi non ancora analizzati per le firme possono eludere un IDS basato su firme.
+
+\hyperlink{https://www.ibm.com/it-it/topics/threat-intelligence}{threat intelligence}
+
+
+\textbf{Rilevamento basato sulle anomalie}
+I metodi di rilevamento basati sulle anomalie utilizzano l'apprendimento automatico per creare e perfezionare 
+costantemente un modello di riferimento per la normale attività di rete. 
+Quindi confronta l'attività di rete con il modello e contrassegna le deviazioni
+
+Gli IDS basati sulle anomalie spesso riescono a rilevare nuovi attacchi informatici che potrebbero eludere il rilevamento basato sulle firme
+Ma gli IDS basati sulle anomalie sono anche più soggetti a falsi positivi. 
+Anche l'attività non dannosa, ad esempio un utente autorizzato che accede a una risorsa di rete sensibile per la prima volta, può attivare un IDS basato sulle anomalie.
+
+
+\subsection{Metodi di rilevamento meno comuni}
+Il rilevamento basato sulla reputazione blocca il traffico proveniente da indirizzi IP e domini connessi a attività dannose o sospette. 
+L'analisi del protocollo con stato si concentra sul comportamento del protocollo: ad esempio, potrebbe individuare un attacco 
+denial-of-service (DoS) rilevando un singolo indirizzo IP, facendo numerose richieste di connessione TCP simultanee in un breve periodo.
+
+
+Indipendentemente dai metodi utilizzati, quando un IDS rileva una potenziale minaccia o violazione delle politiche, 
+avvisa il team di risposta agli incidenti affinché indaghi. 
+Gli IDS registrano anche gli incidenti di sicurezza, sia nei propri log, sia registrandoli all'interno di uno strumento di 
+gestione delle informazioni e degli eventi di sicurezza (SIEM) 
+I log degli incidenti possono essere utilizzati per affinare i criteri degli IDS, ad esempio aggiungendo nuove 
+firme di attacchi o aggiornando il modello di comportamento della rete.
+
+
+\subsection{Tipi di sistemi di prevenzione delle intrusioni}
+Gli IDS sono classificati in base alla posizione in cui si trovano all'interno di un sistema e al tipo di attività che monitorano. 
+
+I \textbf{sistemi di rilevamento delle intrusioni di rete} (NIDS) monitorano il traffico in entrata e in uscita verso i dispositivi in tutta la rete. 
+I sistemi NIDS sono posizionati in punti strategici della rete, spesso immediatamente dietro i firewall sul perimetro della rete, in modo 
+da poter segnalare qualsiasi traffico dannoso che vi penetra.
+I sistemi NIDS possono anche essere inseriti all'interno della rete per individuare le minacce interne o eventuali hacker che hanno violato gli account degli utenti.
+
+Un NIDS analizza le copie dei pacchetti di rete piuttosto che i pacchetti stessi. 
+In questo modo, il traffico autorizzato non deve attendere l'analisi e il sistema NIDS sarà comunque in grado di rilevare e contrassegnare il traffico dannoso.
+
+
+I \textbf{sistemi di rilevamento delle intrusioni host} (HIDS) sono installati su un endpoint specifico, ad esempio un laptop, un router o 
+un server. L'HIDS monitora solo l'attività di quel dispositivo, incluso il traffico in entrata e uscita. 
+Un HIDS funziona in genere eseguendo snapshot periodici dei file critici del sistema operativo e confrontandoli nel tempo. 
+Se l'HIDS nota un cambiamento, ad esempio la modifica dei file di log o l'alterazione delle configurazioni, avvisa il team di sicurezza.
+
+Un \textbf{IDS basato sul protocollo} (PIDS) monitora i protocolli di connessione tra server e dispositivi. I PIDS vengono spesso collocati sui server web per monitorare le connessioni HTTP o HTTPS.
+
+Un \textbf{IDS basato sul protocollo applicativo} (APIDS) funziona a livello di applicazione, monitorando i protocolli specifici delle applicazioni. Un APIDS viene spesso distribuito tra un server web e un database SQL per rilevare l'SQL injection.
+
+
+\subsection{Tattiche di evasione agli IDS}
+Alcune tattiche comuni di evasione degli IDS includono:
+
+Attacchi DDoS (Distributed Denial of Service): mettono offline gli IDS inondandoli di traffico ovviamente dannoso proveniente da più fonti. 
+Quando le risorse dell'IDS sono sopraffatte dalle finte minacce, gli hacker si intrufolano.
+
+Spoofing : falsificazione di indirizzi IP e record DNS per far sembrare che il traffico provenga da un'origine affidabile.
+
+Frammentazione: la suddivisione di malware o altri payload dannosi in 
+pacchetti più piccoli, che oscura la firma e impedisce il rilevamento. 
+Ritardando strategicamente l'invio dei pacchetti o inviandoli in ordine sparso, gli hacker impediscono che 
+gli IDS possano riassemblarli e notare l'attacco.
+
+Crittografia: l'utilizzo di protocolli crittografati per aggirare un IDS se quest'ultimo non dispone della chiave di decodifica corrispondente.
+
+Sfinimento dell'operatore: generare un gran numero di avvisi IDS per distrarre il team di risposta agli incidenti dalle attività reali.
+
+
+\subsection{IDS e altre soluzioni di protezione}
+Gli IDS non sono strumenti autonomi. 
+Sono progettati come parte di un sistema di sicurezza informatica olistico e spesso sono strettamente integrati con una o più delle seguenti soluzioni di sicurezza:
+
+\subsubsection{IDS e SIEM (informazioni sulla sicurezza e gestione degli eventi)}
+Gli avvisi IDS vengono spesso incanalati nel SIEM di un'organizzazione, dove possono essere combinati con 
+avvisi e informazioni provenienti da altri strumenti di sicurezza in un'unica dashboard centralizzato.
+
+L'integrazione degli IDS con i SIEM consente ai team addetti alla sicurezza di arricchire gli avvisi IDS con informazioni sulle 
+minacce e dati provenienti da altri strumenti, filtrare falsi allarmi‌ e assegnare priorità agli incidenti per la correzione.
+
+
+\subsubsection{IDS e IPS (sistemi di prevenzione delle intrusioni)}
+Un IPS monitora il traffico di rete alla ricerca di attività sospette, come gli IDS, e intercetta le minacce in tempo reale, 
+interrompendo automaticamente le connessioni o attivando altri strumenti di sicurezza.
+
+Alcune organizzazioni implementano un IDS e un IPS come soluzioni separate. Più spesso, IDS e IPS vengono combinati in un unico 
+sistema di rilevamento e prevenzione delle intrusioni (IDPS) che rileva le intrusioni, le registra, 
+avvisa i team addetti alla sicurezza e risponde in modo automatico.
+
+\subsection{IDS e firewall}
+IDS e firewall sono complementari. 
+I firewall sono rivolti all'esterno della rete e hanno funzione di barriera utilizzando set di 
+regole predefinite per consentire o impedire il traffico. 
+Gli IDS spesso si trovano vicino ai firewall e aiutano a fermare tutto ciò che li supera. 
+Alcuni firewall, in particolare i firewall di nuova generazione, dispongono di funzioni IDS e IPS integrate.
+
+
+%https://cyberment.it/sicurezza-informatica/ids-intrusion-detection-system-di-cosa-si-tratta/ 
+L’Intrusion Detection System è un sistema di sicurezza informatica basato su controllo e monitoraggio continuo dell’infrastruttura da proteggere.
+Quindi l’IDS, più che uno scudo vero e proprio, è una sentinella, in grado di lanciare l’allarme affinché si intervenga manualmente per bloccare l’intrusione.
+
+In sostanza, l’IDS analizza il traffico di rete, i log di sistema o altre fonti di dati per identificare:
+pattern
+comportamenti anomali
+firme di attacchi noti
+
+Quando viene rilevata un’attività sospetta, l’IDS può generare avvisi o segnalazioni per notificare le 
+anomalie agli amministratori di sistema o altri responsabili della sicurezza.
+
+Questa tecnologia consente di avere piena visibilità su infrastrutture tecnologiche e reti, 
+semplificando la redazione di audit e l’adeguamento alle normative di sicurezza.
+
+Qualsiasi sistema di rilevamento delle intrusioni può essere composto tanto da una componente software, 
+quanto da un dispositivo hardware (o da una combinazione di queste soluzioni).
+Solitamente gli IDS vengono posizionati dopo i firewall perimetrali, i quali si occupano propriamente della 
+“schermatura” dei pacchetti di dati tramite il controllo del traffico in entrata in uscita.
+
+
+L’intrusion detection è basato sulle tecniche di analisi comportamentale
+Queste cercano di descrivere e classificare il comportamento normale o anomalo di un utente.
+Le tecniche di analisi comportamentale si basano principalmente su due metriche di rilevazione, la misuse detection e la anomaly detection:
+La differenza principale tra i due sistemi di prevenzione è la generazione di falsi positivi, e quindi la rilevazione di intrusioni false.
+
+L’anomaly detection incappa maggiormente in falsi positivi. 
+La misuse detection, dal canto suo, produce un numero molto basso di falsi positivi ma, allo stesso tempo, 
+fa registrare un aumento di falsi negativi, e quindi di attacchi informatici non rilevati o riconosciuti.
+
+
+\subsection{Tipologie di IDS}
+La classificazione degli IDS è basata sia sulle differenti tecniche di rilevamento che sul posizionamento dei sensori.
+Ci sono prevalentemente tre tipologie di rilevamento IDS:
+$\bullet$ basato su firma (SIDS): questo approccio si basa sul confronto delle firme degli attacchi conosciuti con 
+il traffico di rete o i file in arrivo. 
+Quando l’IDS trova una corrispondenza tra una firma conosciuta e il traffico in analisi, 
+segnala l’evento come un possibile attacco. Questo metodo è efficace nel rilevare attacchi noti, 
+ma può essere inefficace nel rilevare attacchi nuovi o modificati che non corrispondono alle firme esistenti
+$\bullet$ basato su comportamento (BIDS): approccio basato sull’identificazione di comportamenti 
+anomali rispetto a un modello di comportamento normale. 
+L’IDS crea un profilo delle attività normali sulla rete o sul sistema e confronta 
+i dati in ingresso con questo modello. 
+Se viene rilevata una deviazione significativa rispetto al modello normale, l’IDS segnala un possibile attacco. 
+Questo metodo può rilevare attacchi nuovi o sconosciuti, ma può anche generare falsi positivi se le deviazioni sono causate da attività legittime ma inconsuete
+$\bullet$ analisi dei protocolli di stato: che consiste nell’analisi dei protocolli di 
+comunicazione e dei loro stati per identificare attività anomale. 
+L’IDS monitora i flussi di comunicazione e controlla se gli stati e i comportamenti sono 
+conformi alle definizioni di attività normali. 
+Questo metodo può rilevare attacchi che sfruttano vulnerabilità nei protocolli o che cercano di manipolare gli stati di comunicazione
+$\bullet$ IDS ibridi: questi IDS combinano più approcci, come la firma, l’analisi del comportamento e 
+la rilevazione delle anomalie, per ottenere una copertura più ampia nel rilevamento degli attacchi. 
+Possono utilizzare sia dati di rete che dati dell’host per analizzare l’intero ecosistema IT e 
+fornire una visione più completa delle minacce.
+
+
+%https://www.fortinet.com/resources/cyberglossary/intrusion-detection-system
+An intrusion detection system (IDS) is an application that monitors network traffic and 
+searches for known threats and suspicious or malicious activity. 
+The IDS sends alerts to IT and security teams when it detects any security risks and threats.
+Most IDS solutions simply monitor and report suspicious activity and traffic when they detect an anomaly. 
+However, some can go a step further by taking action when it detects anomalous activity, 
+such as blocking malicious or suspicious traffic.
+
+The answer to "what is intrusion" is typically an attacker gaining unauthorized access to a device, network, or system. 
+Cyber criminals use increasingly sophisticated techniques and tactics to infiltrate organizations without being discovered. 
+This includes common techniques like:
+\begin{itemize}
+    \item Address spoofing: The source of an attack is hidden using spoofed, misconfigured, and poorly secured proxy servers, which makes it difficult for organizations to discover attackers.
+    \item Fragmentation: Fragmented packets enable attackers to bypass organizations’ detection systems.
+    \item Pattern evasion: Hackers adjust their attack architectures to avoid the patterns that IDS solutions use to spot a threat.
+    \item Coordinated attack: A network scan threat allocates numerous hosts or ports to different attackers, making it difficult for the IDS to work out what is happening.
+\end{itemize}
+
+IDS solutions come in a range of different types and varying capabilities. Common types of intrusion detection systems (IDS) include:
+\begin{itemize}
+    \item Network intrusion detection system (NIDS): A NIDS solution is deployed at strategic points within an organization’s network to monitor incoming and outgoing traffic. This IDS approach monitors and detects malicious and suspicious traffic coming to and going from all devices connected to the network.
+    \item Host intrusion detection system (HIDS): A HIDS system is installed on individual devices that are connected to the internet and an organization’s internal network. This solution can detect packets that come from inside the business and additional malicious traffic that a NIDS solution cannot. It can also discover malicious threats coming from the host, such as a host being infected with malware attempting to spread it across the organization’s system.
+    \item Signature-based intrusion detection system (SIDS): A SIDS solution monitors all packets on an organization’s network and compares them with attack signatures on a database of known threats. 
+    \item Anomaly-based intrusion detection system (AIDS): This solution monitors traffic on a network and compares it with a predefined baseline that is considered "normal." It detects anomalous activity and behavior across the network, including bandwidth, devices, ports, and protocols. An AIDS solution uses machine-learning techniques to build a baseline of normal behavior and establish a corresponding security policy. This ensures businesses can discover new, evolving threats that solutions like SIDS cannot. 
+    \item Perimeter intrusion detection system (PIDS): A PIDS solution is placed on a network to detect intrusion attempts taking place on the perimeter of organizations’ critical infrastructures.
+    \item Virtual machine-based intrusion detection system (VMIDS): A VMIDS solution detects intrusions by monitoring virtual machines. It enables organizations to monitor traffic across all the devices and systems that their devices are connected to.
+    \item Stack-based intrusion detection system (SBIDS): SBIDS is integrated into an organization’s Transmission Control Protocol/Internet Protocol (TCP/IP), which is used as a communications protocol on private networks. This approach enables the IDS to watch packets as they move through the organization’s network and pulls malicious packets before applications or the operating system can process them.
+\end{itemize}
+
+An IDS works by looking for the signature of known attack types or detecting activity that deviates from a prescribed normal. It then alerts or reports these anomalies and potentially malicious actions to administrators so they can be examined at the application and protocol layers.
+
+This enables organizations to detect the potential signs of an attack beginning or being carried out by an attacker. IDS solutions do this through several capabilities, including:
+\begin{itemize}
+    \item Monitoring the performance of key firewalls, files, routers, and servers to detect, prevent, and recover from cyberattacks
+    \item Enabling system administrators to organize and understand their relevant operating system audit trails and logs that are often difficult to manage and track
+    \item Providing an easy-to-use interface that allows staff who are not security experts to help with the management of an organization’s systems
+    \item Providing an extensive database of attack signatures that can be used to match and detect known threats
+    \item Providing a quick and effective reporting system when anomalous or malicious activity occurs, which enables the threat to be passed up the stack
+    \item Generating alarms that notify the necessary individuals, such as system administrators and security teams, when a breach occurs
+    \item In some cases, reacting to potentially malicious actors by blocking them and their access to the server or network to prevent them from carrying out any further action
+\end{itemize}
+
+
+While IDS solutions are important tools in monitoring and detecting potential threats, they are not without their challenges. These include:
+\begin{itemize}
+    \item False alarms: Also known as false positives, these leave IDS solutions vulnerable to identifying potential threats that are not a true risk to the organization. To avoid this, organizations must configure their IDS to understand what normal looks like, and as a result, what should be considered as malicious activity.
+    \item False negatives: This is a bigger concern, as the IDS solution mistakes an actual security threat for legitimate traffic. An attacker is allowed to pass into the organization’s network, with IT and security teams oblivious to the fact that their systems have been infiltrated. 
+\end{itemize}
+As the threat landscape evolves and attackers become more sophisticated, it is preferable for IDS solutions to provide false positives than false negatives. In other words, it is better to discover a potential threat and prove it to be wrong than for the IDS to mistake attackers for legitimate users.
+
+
+An IDS solution is typically limited to the monitoring and detection of known attacks and activity that deviates from a baseline normal prescribed by an organization.
+An intrusion prevention system (IPS) goes beyond this by blocking or preventing security risks. An IPS can both monitor for malicious events and take action to prevent an attack from taking place.
+
+
+Firewalls and intrusion detection systems (IDS) are cybersecurity tools that can both safeguard a network or endpoint. Their objectives, however, are very different from one another.
+\begin{itemize}
+    \item IDS: Intrusion detection systems are passive monitoring tools that identify possible threats and send out notifications to analysts in security operations centers (SOCs). In this way, incident responders can promptly look into and address the potential event.
+    \item Firewall: A firewall, on the other hand, analyzes the metadata contained in network packets and decides whether to allow or prohibit traffic into or out of the network based on pre-established rules. A firewall essentially creates a barrier that stops certain traffic from crossing through it. 
+\end{itemize}
+ An IDS is focused on detecting and generating alerts about threats, while a firewall inspects inbound and outbound traffic, keeping all unauthorized traffic at bay.  
+
+
+
+%https://www.ionos.it/digitalguide/server/sicurezza/intrusion-detection-system-ids/
+Si distingue tra tre tipi di IDS: possono essere basati su host (HIDS), basati su rete (NIDS) o ibridi (ovvero combinare HIDS e NIDS).
+
+\textbf{HIDS: Intrusion Detection System basati su host}
+L’Intrusion Detection System basato su host è la forma più vecchia del sistema di sicurezza. L’IDS viene installato direttamente sul relativo sistema. Analizza i dati direttamente a livello di registro e di kernel, controllando anche altri file di sistema. Per poter essere usato nelle stazioni di lavoro autonome, l’Intrusion Detection System basato su host ricorre ad agenti di monitoraggio che prefiltrano il traffico di dati e inoltrano le informazioni così acquisite al server centrale. Il metodo è molto preciso ed esteso, ma può essere aggirato dagli attacchi DoS e DDoS. Inoltre, questo sistema di rilevamento delle intrusioni dipende dal sistema operativo.
+
+\textbf{NIDS: Intrusion Detection System basati su rete}
+Un IDS basato su rete scansiona i pacchetti di dati che vengono inviati e ricevuti all’interno di una rete. Così, i modelli insoliti o discordanti vengono rilevati e segnalati rapidamente. Da questo punto di vista, il volume di dati inviati può risultare problematico. Se supera le capacità dell’Intrusion Detection System, il monitoraggio non riesce più a essere capillare.
+
+\textbf{Intrusion Detection System ibrido}
+Oggi si punta molto sugli Intrusion Detection System ibridi, che coniugano i due diversi approcci. Questi sistemi sono costituiti da sensori basati su host, sensori basati su rete e un livello di gestione in cui confluiscono i risultati, che vengono poi analizzati approfonditamente. Anche il comando parte da questo livello.
+
+
+
+\textbf{Monitoraggio dati}
+Con il monitoraggio dati, appositi sensori raccolgono tutti i dati pertinenti e li filtrano in base alla rilevanza. Si tratta sia di informazioni da parte dell’host sia di file di registro e dati di sistema. Vengono considerati anche i pacchetti di dati inviati attraverso la rete. L’IDS rileva e ordina anche indirizzi di origine e di destinazione e altre caratteristiche importanti. Il presupposto più importante è che i dati raccolti provengano da una fonte affidabile o dallo stesso Intrusion Detection System.
+
+\textbf{Analisi}
+Il secondo componente dell’Intrusion Detection System è l’analizzatore, che valuta tutti i dati ottenuti e prefiltrati sfruttando diversi modelli.
+L’analizzatore può contare su due metodi diversi:
+\begin{itemize}
+    \item Misuse Detection: con la tecnica del Misuse Detection (traducibile con “rilevamento per uso improprio”), l’analizzatore tenta di riconoscere tra i dati ricevuti schemi di attacco già noti. Questi sono salvati in un database separato, che viene aggiornato regolarmente. Gli attacchi sferrati con una firma già registrata possono così essere rilevati tempestivamente. Quelli che invece non sono ancora noti al sistema non vengono rilevati.
+    \item Anomaly Detection: questa tecnica (traducibile con “rilevamento per anomalia”) si basa sull’osservazione dell’intero sistema. Non appena una o più fasi di lavoro deviano dalla norma, viene segnalata l’anomalia, ad esempio quando il carico della CPU supera un valore prestabilito o gli accessi a una pagina aumentano in modo inusuale. L’Intrusion Detection System può anche controllare la successione temporale degli eventi per rilevare gli schemi di attacco sconosciuti. Talvolta vengono però segnalate anche anomalie innocue.
+\end{itemize}
+
+%https://www.redbooks.ibm.com/redpapers/pdfs/redp4226.pdf
+%file:///D:/Tesi%20Magistrale/file/mitigazione/ids_ibm.pdf
+
+%https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9623451
+%file:///D:/Tesi%20Magistrale/file/mitigazione/nids_iee.pdf
+
+%https://www.sciencedirect.com/science/article/pii/S1877050922004422
+%file:///D:/Tesi%20Magistrale/file/mitigazione/ids_w_supervised_ML.pdf
+
+%https://docs.trendmicro.com/all/ent/apex-one/2019/en-us/apexOne_2019_agent_olh/Intrusion-Detection-.html
+
+%https://www.sciencedirect.com/science/article/abs/pii/S1084804512001944
+%https://www.sciencedirect.com/science/article/pii/S2665917423001630
+%file:///D:/Tesi%20Magistrale/file/mitigazione/ids_w_AI.pdf
+
+%https://onlinelibrary.wiley.com/doi/full/10.1002/ett.4150?msockid=0d2c7404210469333f0b6091207c68dd
+%file:///D:/Tesi%20Magistrale/file/mitigazione/Transactions%20on%20Emerging%20Telecommunications%20Technologies%20-%202020%20-%20Ahmad%20-%20Network%20intrusion%20detection%20system%20%20A%20systematic.pdf
+
+%https://www.frontiersin.org/journals/computer-science/articles/10.3389/fcomp.2024.1387354/full
+%file:///D:/Tesi%20Magistrale/file/mitigazione/fcomp-06-1387354.pdf
+
+%https://www.mdpi.com/2078-2489/16/7/515
+%file:///D:/Tesi%20Magistrale/file/mitigazione/information-16-00515-v2.pdf
+
+%https://www.academia.edu/Documents/in/Intrusion_Detection_System
+
+%file:///D:/Tesi%20Magistrale/file/mitigazione/NCRTCA-PID-428.pdf
+
+%https://www.degruyterbrill.com/document/doi/10.1515/jisys-2023-0248/html
+%file:///D:/Tesi%20Magistrale/file/mitigazione/10.1515_jisys-2023-0248.pdf
+
+%https://www.researchgate.net/publication/316599266_INTRUSION_DETECTION_SYSTEM
+%https://www.researchgate.net/publication/339551603_INTRUSION_DETECTION_SYSTEM_-A_STUDY
+%https://ijsrset.com/paper/6331.pdf
+%file:///D:/Tesi%20Magistrale/file/mitigazione/nids_using_AI.pdf
+%https://www.academia.edu/5234791/INTRUSION_DETECTION_SYSTEMS_IDS_AND_INTRUSION_PREVENTION_SYSTEMS_IPS_FOR_NETWORK_SECURITY_A_CRITICAL_ANALYSIS
+%https://www.researchgate.net/publication/339551603_INTRUSION_DETECTION_SYSTEM_-A_STUDY
+%file:///D:/Tesi%20Magistrale/file/mitigazione/ids_review.pdf
+%file:///D:/Tesi%20Magistrale/file/mitigazione/ids_based_AI.pdf
+%https://www.researchgate.net/publication/364200354_Intrusion_Detection_System_using_Machine_Learning_Techniques_A_Review
+%
+
+%---------------------
+%https://www.proofpoint.com/it/threat-reference/intrusion-detection-system-ids
+\section{Tipologie di Intrusion Detection Systems (IDS)}
+
+Gli IDS (Intrusion Detection Systems) utilizzano varie tecniche di rilevamento per identificare le attività sospette all’interno di una rete. Mentre i primi due (sotto) sono i tipi principali di rilevamento IDS, per ambienti specifici vengono utilizzati metodi alternativi:
+
+\textbf{Rilevamento basato sulle firme}
+Il rilevamento basato sulle firme è uno dei metodi di rilevamento più comuni e si basa su un database di modelli di attacco noti, spesso definiti “firme”. Quando il traffico in entrata corrisponde a uno di questi schemi, viene generato un avviso. Pur essendo efficace contro le minacce note, non è in grado di rilevare nuove minacce non registrate in precedenza.
+
+\textbf{Rilevamento basato sulle anomalie}
+A differenza dei sistemi basati sulle firme, gli IDS basati sulle anomalie si concentrano sulla definizione di una linea di base del comportamento “normale” della rete. Se il traffico in entrata si discosta significativamente da questa linea di base, viene emesso un avviso. Questo approccio è vantaggioso per rilevare minacce nuove o sconosciute, ma a volte può produrre falsi positivi.
+
+\textbf{Rilevamento basato su euristica}
+Gli IDS basati su euristica utilizzano algoritmi e analisi avanzate per prevedere la prossima mossa di un attaccante in base ai suoi modelli di comportamento. Può adattarsi e imparare dal traffico osservato, proteggendo dalle minacce nuove e in evoluzione.
+
+\textbf{Analisi dei protocolli Stateful}
+Questo metodo prevede la comprensione e il monitoraggio dello stato dei protocolli di rete in uso. Identifica le deviazioni che potrebbero indicare un attacco confrontando gli eventi osservati con profili predeterminati di definizioni generalmente accettate di attività benigne.
+
+\textbf{Rilevamento basato sulle policy}
+Questa tipologia di IDS funziona in base a una serie di criteri o regole definite dall’amministratore di rete. Qualsiasi attività che violi tali criteri attiva un avviso. Si tratta di un approccio proattivo che richiede l’aggiornamento periodico dei criteri per essere sempre attuale.
+
+\textbf{Rilevamento delle honeypot}
+Non si tratta di una tecnica di rilevamento tradizionale, gli honeypot sono sistemi esca che attirano potenziali aggressori. Distolgono l’attaccante dai sistemi reali e raccolgono informazioni sui suoi metodi. Le informazioni ricavate dagli honeypot possono informare altri IDS sui modelli di minaccia emergenti.
+
+La comprensione dei diversi tipi di rilevamento è fondamentale per la scelta dell’IDS adatto a specifici ambienti di rete. L’approccio migliore spesso combina più metodi di rilevamento per garantire un livello di protezione completo contro un’ampia gamma di minacce.
+
+
+\section{Intrusion Detection Systems vs. Intrusion Prevention Systems}
+Gli Intrusion Detection Systems (IDS) e gli Intrusion Prevention Systems (IPS) sono strumenti essenziali per la sicurezza di rete, progettati per identificare e contrastare le attività dannose o le violazioni dei criteri all’interno di una rete. La loro distinzione principale risiede nelle rispettive reazioni alle minacce percepite.
+
+Funzionalità e risposta:
+
+IDS: funziona principalmente come un meccanismo di sorveglianza, monitorando da vicino il traffico di rete. Quando rileva attività sospette o anomale, genera avvisi, fungendo da dispositivo di “solo ascolto” senza la capacità di intervenire autonomamente.
+IPS: agisce in modo più proattivo. Al di là del semplice rilevamento, un IPS reagisce in tempo reale alle minacce in corso adottando misure per bloccarle, assicurando che non raggiungano mai i bersagli previsti nella rete.
+ 
+
+Applicazioni e vantaggi:
+
+IDS: oltre alle funzioni principali di rilevamento, gli IDS sono fondamentali per quantificare e classificare i tipi di attacchi. Queste informazioni possono consentire alle organizzazioni di rafforzare le misure di sicurezza, individuare le vulnerabilità o correggere eventuali anomalie di configurazione nei dispositivi di rete.
+IPS: essendo uno strumento prevalentemente preventivo, le capacità dell’IPS vanno oltre il semplice rilevamento delle minacce. Cerca attivamente di bloccare o attenuare qualsiasi azione dannosa, fungendo da solida barriera protettiva contro le potenziali intrusioni.
+ 
+
+Sebbene IDS e IPS abbiano ruoli distinti, spesso funzionano meglio se utilizzati in combinazione. L’IDS garantisce che nulla passi inosservato e l’IPS impedisce alle minacce rilevate di causare danni.
+
+\section{IDS vs. Firewalls}
+Gli Intrusion Detection System e i firewall sono entrambi componenti integrali della sicurezza di rete. Tuttavia, hanno scopi diversi, principalmente in base alla loro funzionalità e al meccanismo di risposta.
+
+Funzionalità:
+
+IDS: principalmente uno strumento di monitoraggio, l’IDS scansiona la rete alla ricerca di attività sospette e avvisa gli amministratori quando queste vengono rilevate. Agisce come una telecamera di sorveglianza, che osserva e segnala costantemente.
+Firewalls: si tratta di barriere di rete che filtrano il traffico in entrata e in uscita in base a regole predefinite. Sono come dei gatekeeper che decidono che traffico può entrare o uscire da una rete.
+ 
+
+Meccanismo di risposta:
+
+IDS: Sebbene gli IDS siano in grado di rilevare e segnalare il traffico dannoso, non lo bloccano intrinsecamente.
+Firewalls: Bloccano in modo proattivo il traffico non conforme alle regole impostate, offrendo una prima linea di difesa contro le potenziali minacce.
+ 
+
+Mentre i firewall controllano il flusso di traffico in base a parametri prestabiliti, gli IDS monitorano la rete per identificare e segnalare le anomalie. Per ottenere una solida posizione di sicurezza, l’uso congiunto di entrambi offre una protezione a più livelli, con i firewall che filtrano il traffico indesiderato e gli IDS che assicurano un monitoraggio continuo.
+
+\section{IDS vs. SIEM}
+ Mentre l’IDS è uno strumento specializzato nel rilevamento delle minacce, il Security Information and Event Management (SIEM) fornisce una piattaforma completa di analisi e gestione dei dati di sicurezza. Ognuno di questi strumenti opera a diverso titolo all’interno di un quadro di sicurezza di rete.
+
+Funzionalità:
+
+IDS: Concentrandosi principalmente sul rilevamento di attività sospette o anomale in una rete, l’IDS avvisa gli amministratori una volta identificate tali attività. È come una sentinella vigile, sempre alla ricerca di potenziali minacce.
+SIEM: il SIEM non si limita al semplice rilevamento, ma raccoglie e centralizza i log e gli eventi provenienti da varie fonti dell’ambiente IT. È un centro di intelligence che consolida i dati per offrire una visione olistica del panorama della sicurezza.
+ 
+
+Obiettivo:
+
+IDS: il suo compito è generalmente limitato al rilevamento di potenziali minacce basate su schemi o anomalie note.
+SIEM: grazie alla sua portata più ampia, il SIEM non solo rileva, ma correla anche i dati, aiuta nell’analisi forense e supporta i rapporti di conformità.
+ 
+
+Il SIEM opera come centro di controllo principale, offrendo una visione a 360 gradi dello stato della sicurezza, delle tendenze e delle minacce. È la controparte analitica e integrativa della vigilanza dell’IDS. L’utilizzo di entrambi in sinergia garantisce un rapido rilevamento delle minacce, unito a una visione approfondita e a una difesa a più livelli.
+
+
+\section{Tattiche di evasione IDS}
+Con l’evoluzione dei sistemi di rilevamento delle intrusioni, si evolvono anche le tattiche degli attori delle minacce. Molti hacker hanno ideato tecniche per aggirare o eludere il rilevamento da parte degli IDS. La comprensione di questi metodi è fondamentale per rafforzare le difese e mantenere una sicurezza solida. Ecco alcune tecniche di elusione degli IDS comunemente utilizzate e le relative spiegazioni:
+
+Frammentazione: gli hacker dividono i payload dannosi in pacchetti più piccoli o frammenti. Frammentando i dati dannosi in pezzi che non sembrano dannosi di per sé, possono eludere il rilevamento. Una volta all’interno della rete, questi frammenti vengono riassemblati per eseguire l’attacco.
+
+Shellcode polimorfico: il polimorfismo consiste nell’alterare l’aspetto del codice dannoso in modo che la sua firma cambi, ma la sua funzione rimanga la stessa. In questo modo, gli hacker possono rendere il loro codice irriconoscibile alle soluzioni IDS basate sulla firma.
+
+Offuscamento: gli attori delle minacce utilizzano questa tecnica per modificare il payload dell’attacco in modo che il computer di destinazione lo inverta, ma l’IDS no. L’offuscamento può essere utilizzato per sfruttare l’host finale senza allertare l’IDS.
+
+Crittografia e tunneling: criptando il payload dell’attacco o creando un tunnel attraverso un protocollo legittimo (come HTTP o DNS), gli aggressori possono mascherare il loro traffico dannoso, rendendo difficile per gli IDS rilevare il contenuto nascosto.
+
+Attacchi low-and-slow: alcuni aggressori distribuiscono le loro attività su periodi prolungati o limitano la frequenza delle loro richieste, rimanendo di fatto “sotto il radar”. Questi attacchi prolungati e a bassa frequenza possono passare inosservati ai sistemi IDS che rilevano azioni rapide ed eccessivamente sospette.
+
+Splicing di sessione: simile alla frammentazione, lo splicing di sessione comporta la distribuzione di payload dannosi in più sessioni o pacchetti TCP. L’intento è quello di introdurre il payload in modo lento e poco appariscente, evitando così i trigger di rilevamento.
+
+Per combattere queste tattiche di evasione, le organizzazioni e le aziende devono aggiornare e configurare regolarmente i loro IDS. Inoltre, gli intrusion detection system dovrebbero essere integrati con altri strumenti di sicurezza, in quanto la combinazione di più livelli di sicurezza e il mantenimento della vigilanza possono contribuire a mitigare il rischio di tali tecniche di evasione.
+
+
+%https://intrusa.io/magazine/intrusion-detection-system-ids/
+\section{Rilevare le intrusioni: le diverse tipologie di detection}
+
+L’efficacia degli Intrusion Detection System si basa naturalmente sulla loro capacità di rilevare le minacce. Questi sistemi possono in realtà essere distinti in due categorie principali, a seconda della posizione dei sensori dedicati al rilevamento delle intrusioni. Gli IDS possono infatti essere “posizionati” sugli endpoint oppure sulla rete. Una differenza, questa, non certo secondaria, in quanto determina che cosa si intende monitorare di specifico all’interno del sistema informatico aziendale.
+
+NIDS o Network intrusion Detection System: i sistemi di rilevamento delle intrusioni di rete, noti come NIDS, analizzano i pacchetti IP e monitorano il traffico in entrate e in uscita su tutta la rete. Posizionati strategicamente, spesso direttamente dietro i firewall, i NIDS possono rilevare il traffico dannoso che è riuscito a penetrare nella rete, attività anomale come accessi non autorizzati, propagazioni di software malevoli e l’acquisizione abusiva di privilegi utente. Fondamentali per fornire informazioni sulle scansioni di rete, evidenziare errori di configurazione e vulnerabilità, i NIDS monitorano anche il comportamento degli utenti interni e segnalano eventuali malfunzionamenti di altre misure di sicurezza.
+
+HIDS o Host based Intrusion Detection System: i sistemi di rilevamento delle intrusioni basati sugli host sono installati su specifici endpoint (laptop, router, server, etc.). Il loro compito è quello di monitorare l’attività del singolo dispositivo, incluso il traffico in entrata e in uscita, eseguendo snapshot periodici dei file critici del sistema operativo e confrontandoli nel tempo. Alla base di questi sistemi si trova la certezza che chi entra illecitamente nel sistema lascia necessariamente una traccia del proprio passaggio. Ne sono degli esempi l’installazione di programmi deputati alla raccolta di informazioni e alla gestione remota della macchina. Una volta rilevati i cambiamenti, dalla modifica dei file di log alle alterazioni delle configurazioni, gli HIDS avvisano il team di sicurezza.
+
+
+%https://www.paloaltonetworks.com/cyberpedia/what-is-an-intrusion-detection-system-ids
+The following table summarizes the differences between the IPS and the IDS deployment.
+
+\begin{table}
+    \begin{tabular}{c|c|c}
+   & Intrusion Prevention System &	IDS Deployment \\
+   Placement in Network Infrastructure &		Part of the direct line of communication (inline) &		Outside direct line of communication (out-of-band) \\
+System Type	 &	Active (monitor & automatically defend) and/or passive	 &	Passive (monitor & notify) \\
+Detection Mechanisms	 &	1. Statistical anomaly-based detection 2. Signature detection:- Exploit-facing signatures- Vulnerability-facing signatures	 &	1. Signature detection:- Exploit-facing signatures \\
+    \end{tabular}
+\end{table}
+
+The two most common types of IDS are:
+
+\textbf{Network-based intrusion detection system (NIDS)}
+A network IDS monitors a complete protected network. It is deployed across the infrastructure at strategic points, such as the most vulnerable subnets. The NIDS monitors all traffic flowing to and from devices on the network, making determinations based on packet contents and metadata.
+\textbf{Host-based intrusion detection system (HIDS)}
+A host-based IDS monitors the computer infrastructure on which it is installed. In other words, it is deployed on a specific endpoint to protect it against internal and external threats. The IDS accomplishes this by analyzing traffic, logging malicious activity and notifying designated authorities.
+
+
+The remaining three types can be described as such:
+\textbf{Protocol-based (PIDS)}
+A protocol-based intrusion detection system is usually installed on a web server. It monitors and analyzes the protocol between a user/device and the server. A PIDS normally sits at the front end of a server and monitors the behavior and state of the protocol.
+\textbf{Application protocol-based (APIDS)}
+An APIDS is a system or agent that usually sits inside the server party. It tracks and interprets correspondence on application-specific protocols. For example, this would monitor the SQL protocol to the middleware while transacting with the web server.
+\textbf{Hybrid intrusion detection system}
+A hybrid intrusion detection system combines two or more intrusion detection approaches. Using this system, system or host agent data combined with network information for a comprehensive view of the system. The hybrid intrusion detection system is more powerful compared to other systems. One example of Hybrid IDS is Prelude.
+
+There is also a subgroup of IDS detection methods, the two most common variants being:
+\textbf{Signature-based}
+A signature-based IDS monitors inbound network traffic, looking for specific patterns and sequences that match known attack signatures. While it is effective for this purpose, it is incapable of detecting unidentified attacks with no known patterns.
+\textbf{Anomaly-based}
+The anomaly-based IDS is a relatively newer technology designed to detect unknown attacks, going beyond the identification of attack signatures. This type of detection instead uses machine learning to analyze large amounts of network data and traffic.
+
+Anomaly-based IDS creates a defined model of normal activity and uses it to identify anomalous behavior. However, it is prone to false positives. For example, if a machine demonstrates rare, but healthy behavior, it is identified as an anomaly. This results in a false alarm.
+
+\subsection{IDS Evasion Techniques}
+
+There are numerous techniques intruders may use to avoid detection by IDS. These methods can create challenges for IDSes, as they are meant to circumvent existing detection methods:
+
+\textbf{Fragmentation}
+Fragmentation divides a packet into smaller, fragmented packets. This allows an intruder to remain hidden, as there will be no attack signature to detect.
+
+Fragmented packets are later reconstructed by the recipient node at the IP layer. They are then forwarded to the application layer. Fragmentation attacks generate malicious packets by replacing data in constituent fragmented packets with new data.
+\textbf{Flooding}
+This attack is designed to overwhelm the detector, triggering a failure of control mechanism. When a detector fails, all traffic will then be allowed.
+
+A popular way to cause flooding is by spoofing the legitimate User Datagram Protocol (UDP) and Internet Control Message Protocol (ICMP). The traffic flooding is then used to camouflage the anomalous activities of the perpetrator. As a result, the IDS would have great difficulty finding malicious packets within an overwhelming volume of traffic.
+\textbf{Obfuscation}
+Obfuscation can be used to avoid being detected by making a message difficult to understand, thereby hiding an attack. The terminology of obfuscation means altering program code in such a way which keeps it functionally indistinguishable.
+
+The objective is to reduce detectability to reverse engineering or static analysis process by obscuring it and compromising readability. Obfuscating malware, for instance, allows it to evade IDSes.
+\textbf{Encryption}
+Encryption offers multiple security capabilities including data confidentiality, integrity and privacy. Unfortunately, malware creators use security attributes to conceal attacks and evade detection.
+
+For instance, an attack on an encrypted protocol cannot be read by an IDS. When the IDS cannot match encrypted traffic to existing database signatures, the encrypted traffic is not encrypted. This makes it very difficult for detectors to identify attacks.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
