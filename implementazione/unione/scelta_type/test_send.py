@@ -2,25 +2,7 @@ from scapy.all import *
 from attacksingleton  import * 
 import ipaddress   
 
-
-def test_SendSingleton():
-    data="Dato mandato da computer di Marco".encode()
-    ip_dst=ipaddress.ip_address("192.168.1.17")
-    SendSingleton.ipv4_timing_channel_2bit(data=data, ip_dst=ip_dst) 
-    #ipv4_timestamp_reply warnings MAC address 
-
-def test_ReceiveSingleton():
-    final_data=[]
-    ip_dst=ipaddress.ip_address("192.168.1.17")
-    ip_src=ipaddress.ip_address("192.168.1.3")
-    ReceiveSingleton.ipv4_information_reply(ip_dst, final_data, ip_src)
-    print("Dati ricevuti: ", final_data)
-
-data="Dato mandato da computer di Marco".encode()
-ip_dst=ipaddress.ip_address("192.168.1.17")
-#test_ReceiveSingleton()
-#test_SendSingleton()
-
+ 
 
 def ipv4_timing_channel_8bit(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
     print("ipv4_timing_channel_8bit")
@@ -65,4 +47,7 @@ def ipv4_timing_channel_8bit(data:bytes=None, ip_dst:ipaddress.IPv4Address=None)
     end_time=datetime.datetime.now(datetime.timezone.utc) 
     print("Tempo di esecuzione: ", end_time-start_time, (end_time-start_time).total_seconds())
 
+#-------------------------------------------------------
+data="Dato mandato da computer di Marco".encode()
+ip_dst=ipaddress.ip_address("192.168.1.17") 
 ipv4_timing_channel_8bit(data, ip_dst)
