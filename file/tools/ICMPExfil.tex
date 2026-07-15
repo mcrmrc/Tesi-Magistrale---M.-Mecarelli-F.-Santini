@@ -2,20 +2,15 @@
 %https://medium.com/@martinoj2009/data-exfiltration-using-valid-icmp-packets-b5c489548fb1
 %https://github.com/aptmasterclass/powershell-kungfu/blob/master/exfil/Invoke-ICMPExfil.ps1
 
-\subsection{Introduction}
-ICMP security
-Most companies don’t disallow ICMP out because… well, they need it for troubleshooting… how else are they going to determine what is causing system or network issues??? 
 Typically you ping some outside IP address if you want to troubleshoot where your connectivity issue(s) are.
 \vspace{2ex} \newline
-This isn’t entirely new, using ICMP to send messages has been done before; however, I’ll be communicating using normal ICMP packets, to the same IP… the first two I know have been done before. 
-It’s just not very common, or the way I’m going about my communication. 
-I’ll be using time to encode my data. 
+This isn't entirely new, using ICMP to send messages has been done before; however, I'll be communicating using normal ICMP packets, to the same IP… the first two I know have been done before. 
+I'll be using time to encode my data. 
 Some, if not all, IPS systems can find invalid ICMP packets. 
-You can even look at ICMP packets using packet captures and you’d notice the data isn’t a normal ICMP packet.
+You can even look at ICMP packets using packet captures and you'd notice the data isn't a normal ICMP packet.
 
-
-\subsection{How does it work?}
-Encoding
+\subsection{Come funziona?}
+Encoding:
 There are different methods you can go about encoding your data. 
 You want to do this for two reasons. 
 One being the obvious… you don’t want it to look obvious. 
@@ -51,26 +46,9 @@ I was able to send my name and number this way and it was pretty reliable.
 If you set the leway too low you could run into issues properly translating it.
 
 
-\section{ICMP Exfil}
+
 ICMP Exfil allows you to transmit data via valid ICMP packets. 
 You use the client script to pass in data you wish to exfiltrate, then on the device you're transmitting to you run the server. 
 Anyone watching-- human or security system-- will just see valid ICMP packets, there's nothing malicious about the structure of the packets. 
 Your data isn't hidden inside the ICMP packets either, so looking at the packet doesn't tell you what was exfiltrated.
 \vspace{4ex} \newline
-Right now, the only thing I've added support for is ASCII characters. 
-You will be able to exfiltrate anything that can be represented in ASCII characters (e.g. letters and numbers). 
-For example: you borrowed some cool 16 digit numbers, well you'd use the client script to pass those numbers to your server by doing ./ping.py --ascii "4111111111111111".
-\vspace{4ex} \newline
-You have two options for setting the server to send to. 
-You can either use the --ip or you can set the default IP in the script called ipToPing.
-\vspace{1ex} \newline
-If you would like to see the pings going through you can use the --show.
-\vspace{1ex} \newline
-When you want to start the server you just do sudo python3 server.py. 
-You don't need to do anything else. When you're done, you just need to do Control+C. 
-Right now the server needs work, it needs to map the input based on who they recived the data from, right now I only have it tested with one client pinging the server, this of course needs to be tuned. 
-The groundwork is already there, just need to get the reset put together.
-
-\subsection*{Conclusioni}
-Dopo varie prove non si riesce a capire il perchè non funziona, tuttavia prendiamo pusto dall'intuizione di Martino per avere un ulteriore metodo di esfiltrazione dei dati. 
-

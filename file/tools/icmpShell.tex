@@ -1,13 +1,14 @@
 %https://icmpshell.sourceforge.net/ 
-\section{ICMP Shell}
-ICMP Shell (ISH) is a telnet-like protocol. 
-It allows users to connect to a remote host and to open a shell using only ICMP to send and receive data. 
+
+ICMP Shell (ISH) allows users to connect to a remote host and to open a shell using only ICMP to send and receive data. 
 ICMP Shell was written in C for the UNIX environment.
 
 \subsection{How does it work?}
 The ISHELL server is run in daemon mode on the remote server. 
-When the server recieves a request from the client it will strip the header and look at the ID field, if it matches the server then it will pipe the data to "/bin/sh". 
-It will then read the results from the pipe and send them back to the client and the client prints the results to stdout.
+When the server recieves a request from the client it will strip the header and look at the ID field, 
+if it matches the server then it will pipe the data to "/bin/sh". 
+It will then read the results from the pipe and send them back to the client and 
+the client prints the results to stdout.
 \vspace{1ex} \newline
 By default the client and server send packets with an ICMP type of 0 (ICMP\_ECHO\_REPLY), however this can be changed on both the client and server side. 
 ISHELL does not care what type you send out from the client or server end, the types do not have to match.
@@ -16,38 +17,23 @@ ISHELL does not only pipe commands to a server and send back the output.
 It also works with interactive programs (ie. gdb). 
 However, there comes a minor problem from this. ISHELL cannot display a shell prompt (\#). 
 The reason for that is because there is no way to differentiate between a command an interaction with a program. 
-If you have any ideas on how to implement that then I'd be more then happy to hear from you. 
 \vspace{4ex} \newline
 
-Firewall? No one said anything about a firewall!
+
 By default ISHELL uses icmp type 0 (ICMP\_ECHO\_REPLY) to send/recv. 
-With a little bit of research I have found that icmp type 0 works best with this program. 
+%With a little bit of research I have found that icmp type 0 works best with this program. 
 Other types do work, however some kernels process ICMP\_ECHO\_REQUEST packets automatically (BSD) while others do not (Linux).
-\vspace{4ex} \newline
 
-Installation
-Call 'make' and follow the instructions.
-\vspace{1ex} \newline
-Files
-MD5 (ish.c) = 07934540ee7ca6ac7919bb1ea49fd7ff
-MD5 (ish\_main.c) = e2885ef2eb7688caff9b45f8c81daf8f
-MD5 (ish\_open.c) = 81b11fce190a321a02b5313b1b244aa7
-MD5 (ishd.c) = de574728574dc3a8d5389172ca4e3b6a
-MD5 (ishell.h) = 380b110ba648164a82a0ffddbb0920f9
-\vspace{1ex} \newline
-The server/client have been tested on:
-- Linux Mandrake 8.1 x86
-- FreeBSD 4.4 x86
-- OpenBSD 3.0 x86
-- Solaris 8 sparc
-\vspace{2ex} \newline
+
+
 
 Some IMPORTANT words on the usage
 \begin{enumerate}
     \item  ISHELL uses raw sockets on both the client and server side, therefore root privileges ARE REQUIRED to use this program.
-    \item When configuring the options for the server/client make sure the following options are the same on both the client and the server:
-    -i <id>
-    -p <packetsize>
+    \item When configuring the options for the server/client make sure the following options are the same on both 
+    the client and the server:
+    -i $<\text{id}>$
+    -p $<\text{packetsize}>$
 \end{enumerate}
 
 \subsection{Setting up}
@@ -55,6 +41,9 @@ Il server verrà eseguito sulla machciona della vittima.
 Per impostarlo eseguiamo il comando: 
 \begin{lstlisting}
     ./ishd [options]
+
+    #Comando per attivare il server (la vittima)
+    sudo ./ishd -t 0 -p 1024
 \end{lstlisting} 
 \captionof{lstlisting}{Comando per attivare il server}
 \label{lstlisting:script:server}
@@ -63,9 +52,9 @@ And the available options are:
 \begin{itemize}
     \item h Display this screen
     \item d Run server in debug mode
-    \item i <id> Set session id; range: 0-65535 (default: 1515)
-    \item t <type> Set ICMP type (default: 0)
-    \item p <packetsize> Set packet size (default: 512)
+    \item i $<\text{id}>$ Set session id; range: 0-65535 (default: 1515)
+    \item t $<\text{type}>$ Set ICMP type (default: 0)
+    \item p $<\text{packetsize}>$ Set packet size (default: 512)
 \end{itemize}
 %./ishd -i 65535 -t 0 -p 1024
 \vspace{1ex} 
@@ -73,60 +62,45 @@ Invece il client verrà eseguito sulla macchina dell'attaccante.
 Per impostarlo eseguiamo il comando:
 \begin{lstlisting}
     ./ish [options] <host>
+
+    #Comando per attivare il client
+    sudo ./ish -t 0 -p 1024 192.168.1.42
 \end{lstlisting} 
 \captionof{lstlisting}{Comando per attivare il client}
 \label{lstlisting:script:client}
 \vspace{1ex} 
 And the available options are: 
 \begin{itemize}
-    \item i <id> Set session id; range: 0-65535 (default: 1515)
-    \item t <type> Set ICMP type (default: 0)
-    \item p <packetsize> Set packet size (default: 512)
+    \item i $<\text{id}>$ Set session id; range: 0-65535 (default: 1515)
+    \item t $<\text{type}>$ Set ICMP type (default: 0)
+    \item p $<\text{packetsize}>$ Set packet size (default: 512)
 \end{itemize}
 %./ish -i 65535 -t 0 -p 1024 host.com
 \vspace{1ex} 
-Eseguiamo i comandi per attivare la comunicaizone (Code.\ref{lstlisting:settingup}) e possiamo vedere (Fig.\ref{fig:shell:settingup}) che l'attaccante e la vittima sono in comunicazione. 
-Quindi riusciamo ad eseguire dei comandi sulla macchina della vittima il cui output verrà poi trasmesso all'attaccante. 
-\vspace{1ex} \newline
-\begin{lstlisting}
-    #Comando per attivare il server (la vittima)
-    sudo ./ishd -t 0 -p 1024
-
-    #Comando per attivare il client
-    sudo ./ish -t 0 -p 1024 192.168.1.42
-\end{lstlisting} 
-\captionof{lstlisting}{Comando per impostare la comunicazione}
-\label{lstlisting:settingup}
-\vspace{2ex}
-\begin{minipage}{\linewidth}
-    \centering
-    \includegraphics[width=0.7\linewidth]{../img/ICMPshell/setup.png}
-    \captionof{figure}{Attivazione della comunicaizone}
-    \label{fig:shell:settingup}
-\end{minipage} 
-\vspace{1ex} \newline
-Proviamo quindi ad eseguire vari comandi per vedere come reagisce il programma e 
+Eseguiamo i comandi per attivare la comunicaizone e così che l'attaccante e la vittima siano in comunicazione. 
+D'ora in poi riusciremo ad eseguire dei comandi sulla macchina della vittima il cui output verrà poi trasmesso all'attaccante (Fig.\ref{fig:icmpShell:creazionefile}). 
 \vspace{1ex} \newline
 \begin{minipage}{\linewidth}
     \centering
-    \includegraphics[width=0.8\linewidth]{../img/ICMPshell/creazione_file.png}
     \captionof{figure}{Creazione del file \textit{prova.txt}}
+    \includegraphics[width=0.8\linewidth]{../img/ICMPshell/creazione_file.png} 
     \label{fig:icmpShell:creazionefile}
 \end{minipage}
-\vspace{1ex} \newline
+\vspace{2ex} \newline
 \begin{minipage}{\linewidth}
     \centering
-    \includegraphics[width=0.6\linewidth]{../img/ICMPshell/example_echoFile_request.jpg} 
     \captionof{figure}{Traffico ICMP per la creazione del file}
+    \includegraphics[width=0.6\linewidth]{../img/ICMPshell/example_echoFile_request.jpg}  
     \label{fig:wireshark:creazionefile}
 \end{minipage}
 %
 \vspace{3ex} \newline
-Proviamo ora a visualizzare un file di grandi dimensioni per vedere come si comporta il programma nel trasmettere i messaggi: 
+Proviamo ora a visualizzare un file di grandi dimensioni per vedere il comportamento del programma. 
 \begin{itemize}
-    \item Dopo la richiesta vediamo varie risposte contenenti i dati del file
-    \item Vengono trasmessi undici Echo Reply tutte di dimensioni uguali tranne che per l'ultima.
+    \item Dopo la richiesta vengono trasmesse undici Echo Reply (contenenti i dati del file), tutte di dimensioni uguali tranne che per l'ultima.
 \end{itemize}
+Questo numero elevsto di risposte potrebbe far notare la natura illecita della comunicazione.
+\vspace{1ex} \newline
 \begin{minipage}{0.5\linewidth}
     \centering
     \includegraphics[width=\linewidth]{../img/ICMPshell/example_hugefile_request.jpg} 
