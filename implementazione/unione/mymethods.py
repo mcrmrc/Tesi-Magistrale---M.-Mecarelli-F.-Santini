@@ -4,6 +4,20 @@ import re
 import argparse
 import socket
 import urllib.request
+import sys
+import subprocess
+
+systemsDictionary={
+    'aix':"AIX",
+    'android':"Android",
+    'emscripten':"Emscripten",
+    'ios':"iOS", 
+    'linux':"Linux", 
+    'darwin':"macOS", 
+    'win32':"Windows", 
+    'cygwin':"Windows/Cygwin", 
+    'wasi':"WASI" 
+}
 
 def add_argument(param_arg, parser=None):
     if parser is None:
@@ -107,3 +121,30 @@ def find_local_IP():
 
 def find_public_IP():
     return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
+
+def getShellProcess():
+    if sys.platform == "win32":
+        print("Il sistema è Windows...")
+        return subprocess.Popen(
+            ["cmd.exe"], 
+            stdin=subprocess.PIPE
+            ,stdout=subprocess.PIPE
+            ,stderr=subprocess.PIPE
+            ,text=True
+            ,bufsize=1
+        )
+    elif sys.platform=="linux":
+        print("Il sistema è Linux...")
+        return subprocess.Popen(
+            ["bash"] 
+            ,stdin=subprocess.PIPE 
+            ,stdout=subprocess.PIPE 
+            ,stderr=subprocess.PIPE 
+            ,text=True
+            ,bufsize=1
+        )
+    print("Sistema operativo non supportato per l'apertura della shell.")
+    raise Exception(
+        "Sistema operativo non supportato per l'apertura della shell"
+    )
+
