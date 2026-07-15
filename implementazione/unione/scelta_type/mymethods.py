@@ -968,7 +968,7 @@ class SNIFFER():
 
 #------------------------
 class TIMER(): 
-    def stop_timer(timer:threading.Timer=None): 
+    def stop(timer:threading.Timer=None): 
         if IS_TYPE.threading_Timer(timer) and timer.is_alive(): 
             timer.cancel() 
             print("Timer Stopped")
