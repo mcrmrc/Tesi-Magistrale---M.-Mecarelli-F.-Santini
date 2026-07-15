@@ -279,7 +279,7 @@ class Victim:
             #,"count":1 
             ,"prn":callback_wait_conn_from_proxy
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(self.gateway_host)[1] 
+            ,"iface":mymethods.iface_from_IPv4(self.gateway_host)[1] 
         }  
         try:
             self.event_enough_proxy=com.get_threading_Event() 
@@ -338,7 +338,7 @@ class Victim:
             #,"count":1 
             ,"prn":callback_wait_for_command 
             #,"store":True 
-            ,"iface":mymethods.iface_from_IP(self.gateway_host)[1] 
+            ,"iface":mymethods.iface_from_IPv4(self.gateway_host)[1] 
         }
         try:
             self.event_pktconn=com.get_threading_Event()

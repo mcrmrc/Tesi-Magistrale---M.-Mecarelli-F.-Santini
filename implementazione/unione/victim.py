@@ -48,7 +48,7 @@ def conn_from_proxy():
         #,"count":1 
         ,"prn":callback_conn_from_proxy 
         #,"store":True 
-        ,"iface":mymethods.iface_from_IP(gateway_host)[1] 
+        ,"iface":mymethods.iface_from_IPv4(gateway_host)[1] 
     }
     com.sniff_packet(args,None) 
     global timeout_done_waiting
@@ -228,7 +228,7 @@ def part_2():
         #,"count":1 
         ,"prn":callback_receive_command 
         #,"store":True 
-        ,"iface":mymethods.iface_from_IP(gateway_host)[1] 
+        ,"iface":mymethods.iface_from_IPv4(gateway_host)[1] 
     }
     com.sniff_packet(args,None) 
     com.wait_pkt_conn_received() 
