@@ -1,0 +1,81 @@
+%Zeek sites
+%https://kifarunix.com/analyze-network-traffic-using-zeek/ 
+%https://medium.com/@Mohamed-Medhat/zeek-commands-sheet-cheat-de4358bd277a 
+%https://docs.zeek.org/en/master/logs/conn.html
+%   %https://gist.github.com/donovanrodriguez/a6cb54c1e1a525a2810f3eb2b8b7ffaa
+%   %https://community.zeek.org/t/icmp-not-in-conn-log/4990 
+%   %https://github.com/zeek/zeek/issues/3915
+%https://docs.zeek.org/en/current/install.html
+
+
+Per testare se RITA fosse in grado di rilevare i Covert Channel implementati; 
+tramite Wireshark si è monitorato il traffico e il risultato è stato salvato in dei file pcap. 
+%I file del flusso di rete che rita deve analizzare sono in formato pcapng. 
+Tuttavia RITA non supporta questo formato, ma solo i log di Zeek. 
+%Si dovrà quindi \href{https://www.youtube.com/watch?v=kwR3TjIgoCo&t=13s}{convertire} i file pcap in log Zeek e poi analizzarli con RITA. 
+Quindi tramite Zeek si sono estratti dai file pcap i log necessari che sono stati poi analizzati da RITA.  
+%\begin{lstlisting}
+%    cd "/mnt/d/test_pacchetti_finali" 
+%    zeek readpcap ./100_ciao_receive_ICMP_destination_unreachable.pcapng  ./zeek_log/100_ciao_receive_ICMP_destination_unreachable/
+%    zeek readpcap ./source_path/file.pcapng  ./zeek_log/destination_path/
+%    rita import -l "/mnt/d/test_pacchetti_finali/zeek_log/100_ciao_receive_ICMP_destination_unreachable" -d "ciaoDest100"
+%    rita import -l "./zeek_log/log_path" -d database_name
+%    rtia list
+%    rita view ciaoDest100
+%    rita view database_name 
+%    zeek readpcap /mnt/d/test_pacchetti_finali/100_ciao_receive_ICMP_information.pcap /mnt/d/test_pacchetti_finali/zeek_log/100_ciao_information/
+%\end{lstlisting}
+%I databse che RITA ha creato saranno: ciaoDest100, ciaoTimeExc100, ciaoParam100, ciaoQuench100, ciaoRedirect100, ciaoTimeStmp100, ciaoInfo100
+\vspace{1ex} \newline
+Per testare se i pacchetti venissero rilevati, si sono inviate tre tipologie di dati: 
+il primo è un testo corto e lineare volto a simulare un comando, 
+il secondo è un testo di lunghezza variabile, 
+mentre il terzo è invece un testo la cui lunghezza incrementa ogni volta. 
+L'odine di grandezza è dei Kilobytes; 
+questo è stato scelto per non appesantire troppo il carico di rete ed evitare lunghi tempi di attesa. 
+\vspace{1ex} \newline
+I risultati sono divisi per la tipologia di messaggio inviato e la quantità di dati inviati. 
+All'interno di ogni cella si indicherà il livello di gravità che RITA ha associato alla comunicazione. 
+\vspace{2ex} \newline
+Ed il risultato è insoddisfacente. Il riusltato è che RITA non rileva le connessioni ICMP. 
+Sebbene si siano provate diverse tipologie di messaggio e diverse tipologie di messaggi RITA non rileva niente. 
+All'inizio il problema erano i log di Zeek che non moritoravano le connesisoni ICMP; 
+ma dopo aver dockerizzato Zeek così da avere l'ultima versione, il test è risultato Indefinibile. 
+E in questa seconda prova zeek nei file di log dava una cossesisone ICMP. 
+\vspace{1ex} \newline 
+Si sono quindi provate vari livelli di connesioni, dalle più leggere a quelle che inviavano un costante flusso di dati. 
+Per testare il caso di una comunicazione pesante, si è creato apposta un file contenente 2 MB di dati. 
+Il risultato è ancora Indefinito sicocme i log di Zeek mostrano queste connessione sebbene i database creati da RITA risultino negativi. 
+Data questa ambiguità il riusltato non può essere definito ne positivo ne negativo. 
+\vspace{4ex} \newline
+\begin{minipage}{\textwidth}
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline 
+\textbf{Tipologia Messaggio} & \multicolumn{3}{c|}{\textbf{Quantita di byte totali inviati}} \\ \hline
+ & 33 bytes & 2,5 KB & 20 KB \\ \hline 
+Information Reply & Non definito & Non definito & Non definito \\ \hline
+Timestamp Reply & Non definito & Non definito & Non definito \\ \hline
+Redirect & Non definito & Non definito & Non definito  \\ \hline 
+Echo & Non definito & Non definito & Non definito  \\ \hline 
+Source Quench & Non definito & Non definito & Non definito  \\ \hline 
+Parameter Problem & Non definito & Non definito & Non definito  \\ \hline 
+Time Exceeded & Non definito & Non definito & Non definito  \\ \hline 
+Destination Unreachable & Non definito & Non definito & Non definito  \\ \hline 
+Timing Channel 1bit & Non definito & Non definito & Non definito  \\ \hline 
+Timing Channel 2bit & Non definito & Non definito & Non definito  \\ \hline 
+\end{tabular}
+\captionof{table}{Quali comunicazioni RITA ha rilevato}
+\label{tab:rita_icmp:rilevati} 
+\end{minipage}
+\vspace{1ex} \newline 
+%Zeek è stato utilizzato nella WSL Windows; 
+%si è visto che la versione non fosse aggiornata siccome non rilevava nei log il protocollo ICMP. 
+%Si è proceduto quindi a virtualizzarlo tramite docker; 
+%la repository utilizzata era 'latest'. 
+%Tuttavia ha ritornato risultati insoddisfacenti. 
+%Sebbene ora venga rilevato il protocollo ICMP e l'indirizzo IP dell'attaccante RITA non rileva un attività sospetta. 
+%\vspace{1ex} \newline 
+%Si procederà ad effettuare un maggior numero di scambi con una singola tipologia. 
+
+
