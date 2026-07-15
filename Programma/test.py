@@ -1,3 +1,4 @@
+from attacksingleton import _IPx
 from mymethods import *  
 from scapy.all import *
 from attacksingleton  import *
@@ -5,15 +6,19 @@ import datetime, ipaddress
 import re 
 import time  
 import math
-from pypdf import PdfReader 
+#from pypdf import PdfReader 
 
-qazwsx=ReceiveSingleton("ipv4_time_exceeded")
-data=qazwsx.wait_data()  
+#import sys
+#print(sys.byteorder) 
+
+wait_class=ReceiveSingleton(AttackType.ipv4_echo_campi_payload).wait_class
+if not isinstance(wait_class, _IPx): 
+    raise TypeError("wait_class non valida")  
+data=wait_class.wait()
 print("test DATA output: ",data) 
 print("test DATA replace: ",data.replace("BORGOGNA","")) 
 print("test DATA len: ",len(data)) 
-exit(0)
-
+exit(0) 
 
 destinazione=ipaddress.ip_address("192.168.1.151") 
 tempo_inizio=datetime.datetime.now() 
@@ -22,13 +27,11 @@ ripetizioni=1
 un_KB=("BORGOGNA"*128)#.encode()
 print("Dato length:", len(un_KB)) 
 for index in range(ripetizioni):
-    SendSingleton.send_data(
-        True, 
-        False, 
-        AttackType.ipv4_destination_unreachable,  
-        un_KB.encode(),
-        destinazione
-    ) 
+    SendSingleton(
+        AttackType.ipv4_echo_campi_payload,
+        SENDER_TYPE.TRUE_SENDER, 
+        True 
+    ).send_data(un_KB.encode(), destinazione)
     tempo_fine=datetime.datetime.now()
     print("Tempo di invio:", tempo_fine-tempo_inizio)
     if index!=ripetizioni-1: 
