@@ -119,8 +119,8 @@ Unfortunately, data-dependent problems have been known to sneak into networks an
 In many cases the particular pattern that will have problems is something that doesn't have sufficient ''transitions'', such as all ones or all zeros, or a pattern right at the edge, such as almost all zeros. 
 It isn't necessarily enough to specify a data pattern of all zeros (for example) on the command line because the pattern that is of interest is at the data link level, and the relationship between what you type and what the controllers transmit can be complicated.
 \vspace{1ex} \newline
-This means that if you have a data-dependent problem you will probably have to do a lot of testing to find it. 
-If you are lucky, you may manage to find a file that either can't be sent across your network or that takes much longer to transfer than other similar length files. 
+This means that if you have a data-dependent problem you will probably have to do a lot of testing to get it. 
+If you are lucky, you may manage to get a file that either can't be sent across your network or that takes much longer to transfer than other similar length files. 
 You can then examine this file for repeated patterns that you can test using the -p option of ping.
 
 

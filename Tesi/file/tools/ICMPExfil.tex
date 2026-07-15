@@ -6,7 +6,7 @@ Typically you ping some outside IP address if you want to troubleshoot where you
 \vspace{2ex} \newline
 This isn't entirely new, using ICMP to send messages has been done before; however, I'll be communicating using normal ICMP packets, to the same IP… the first two I know have been done before. 
 I'll be using time to encode my data. 
-Some, if not all, IPS systems can find invalid ICMP packets. 
+Some, if not all, IPS systems can get invalid ICMP packets. 
 You can even look at ICMP packets using packet captures and you'd notice the data isn't a normal ICMP packet.
 
 \subsection{Come funziona?}
@@ -27,8 +27,8 @@ The leway is so that I’m forgiving slower connections, but that means the tran
 You’d be sending out pings less often.
 \vspace{1ex} \newline
 If a security researcher saw these ICMP packets they’d just see valid ICMP packets. 
-Unless they knew about this method there wouldn’t be any data for them to find. 
-If they knew about this method they would then need to look at the time between packets and try to find a pattern. 
+Unless they knew about this method there wouldn’t be any data for them to get. 
+If they knew about this method they would then need to look at the time between packets and try to get a pattern. 
 That doesn’t mean they’d know what was sent. 
 You could get a little trickier by encrypting, that way they’d just get noise when trying to look. 
 There’d be a lot of entropy, too random, then there’s probably something there.
