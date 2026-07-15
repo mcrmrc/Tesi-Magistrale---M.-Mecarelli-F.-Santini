@@ -576,6 +576,12 @@ class SendSingleton():
     def ipv4_timing_channel_8bit(data:bytes=None, ip_dst:ipaddress=None, min_delay:int=1, max_delay:int=30, stop_value: int = 255): 
         if not (IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_delay) and IS_TYPE.integer(max_delay) and IS_TYPE.integer(stop_value)):
             raise Exception("test_timing_channel8bit: Argomenti non validi") 
+        if min_delay<=0: 
+            raise Exception("Valori negativi o nulli non sono accettati")
+        if max_delay<=min_delay: 
+            raise Exception("Il vlaore masismo non può essere minore di quello minimo") 
+        if not (0<=stop_value <=255): 
+            raise Exception("Valore stop value non corretto")
         old_time=current_time=time.perf_counter() 
         target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower() 
         interface=IP_INTERFACE.iface_from_IP(ip_dst) 
@@ -1746,6 +1752,12 @@ class ReceiveSingleton():
     def ipv4_timing_channel_8bit(ip_dst:ipaddress=None, min_delay:int=1, max_delay:int=30, stop_value: int = 255): 
         if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_delay) and IS_TYPE.integer(max_delay) and IS_TYPE.integer(stop_value)):
             raise Exception("test_timing_channel8bit: Argomenti non validi") 
+        if min_delay<=0: 
+            raise Exception("Valori negativi o nulli non sono accettati")
+        if max_delay<=min_delay: 
+            raise Exception("Il vlaore masismo non può essere minore di quello minimo") 
+        if not (0<=stop_value <=255): 
+            raise Exception("Valore stop value non corretto")
         start_time=end_time=previous_time=None 
         stop_flag={"value":False} 
         received_data=[] 
