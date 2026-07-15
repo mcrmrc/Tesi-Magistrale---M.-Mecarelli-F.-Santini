@@ -163,7 +163,6 @@ class PROXY_THREAD:
                 print("Timer started...") 
         
         def wait(self): 
-            print("Waiting thread to end...") 
             THREADING_EVENT.wait(self.event_pktconn) 
             if self.timer.is_alive(): 
                 self.timer.cancel()
@@ -359,7 +358,11 @@ class Proxy:
             #FIREWALL.enable() 
     
     def connessione_vittima(self): 
-        #------------------------ 
+        thread_victim_connection=PROXY_THREAD.VICTIM_CONNECTION()
+        thread_victim_connection.start(self.ip_vittima, self.ip_host) 
+        print("Waiting thread to end...") 
+        thread_victim_connection.wait() 
+        
         self.thread_data=THREAD_VAR( 
             lambda: wait_conn_from_victim(self) 
         ) 
