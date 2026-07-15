@@ -180,63 +180,36 @@ def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4A
         if not com.is_dictionary(attack_function) or not com.is_list(connected_proxy) or not com.is_list(data_to_send): 
             raise Exception("send_data_to_proxies: Argomenti non corretti") 
         if not com.is_list(data_to_send) or len(data_to_send)<=0:
-            raise ValueError(f"send_data_to_proxies: Lista nessun dato presente {data_to_send}") 
-        chosen_proxy=choose_proxy(connected_proxy) 
-        print(f"Il proxy scelto è {chosen_proxy}") 
-        #print("I dati che verranno mandati a", chosen_proxy," sono: ",data_to_send) 
-        data_has_being_sent=False
-        sequenza=0
-
+            raise ValueError(f"send_data_to_proxies: Lista nessun dato presente {data_to_send}")   
         data_for_proxies:list[list]=[[] for _ in connected_proxy]
-        print(f"data_for_proxies: {data_for_proxies}")
+        #print(f"data_for_proxies: {data_for_proxies}")
         for index in range(len(data_to_send)): 
             data_for_proxies[index % len(connected_proxy)].append(str(index)+"&&"+data_to_send[index])
-        print(f"data_for_proxies: {data_for_proxies}")
+        #print(f"data_for_proxies: {data_for_proxies}")
         for index in range(len(data_for_proxies)):
             data_for_proxies[index]="".join(
                 data_for_proxies[index][j] if j==0 
                 else "||"+data_for_proxies[index][j] 
                 for j in range(len(data_for_proxies[index]))
             )
-        print(f"data_for_proxies: {data_for_proxies}")
-        
-        for data in data_to_send:
-            print("Sending data: ",data) 
-            if com.END_DATA in data: 
-                try: 
-                    unavailable_proxy=send_lastpacket_toall_proxies(attack_function, connected_proxy)  
-                    print(f"Proxy che non hanno ricevuto l'aggiornamento {unavailable_proxy}")
-                    #for proxy in unavailable_proxy:
-                    #    connected_proxy.remove(proxy)
-                    print(f"Proxy che hanno ricevuto l'aggiornamento {connected_proxy}")
-                except Exception as e:
-                    raise Exception(f"send_data_to_proxies: {e}")
-                break
-            data=data if isinstance(data,bytes) else data.encode()  
-            print(f"Sending to proxy: {data} with attack function {attack_function}")
-            data_has_being_sent=attacksingleton.send_data(attack_function, data, chosen_proxy) 
-            #print("data_has_being_sent: ",data_has_being_sent)
-            continue
-            #data_has_being_sent=com.send_packet(
-            #     data
-            #    ,chosen_proxy
-            #    ,icmp_seq=sequenza
-            #) 
-            if not data_has_being_sent:
-                print(f"{chosen_proxy} non ha ricevuto i dati") 
-                connected_proxy.remove(chosen_proxy)
-                for proxy in connected_proxy.copy():
-                    print(f"proviamo il proxy {proxy}")
-                    #if com.send_packet( data,proxy,icmp_seq=sequenza): 
-                    if attacksingleton.send_data(next(iter(attack_function.items()))[0], data, chosen_proxy):
-                        chosen_proxy=proxy 
-                        print(f"scelto il nuovo proxy {chosen_proxy}")
-                        break
-                    connected_proxy.remove(proxy) 
-                    print(f"rimosso il proxy {proxy}")
-            else:
-                print(f"{chosen_proxy} ha ricevuto i dati")
-            sequenza+=1
+        #print(f"data_for_proxies: {data_for_proxies}")
+        for index in range(len(data_for_proxies)): 
+            data=None  
+            if isinstance(data_for_proxies[index], bytes): 
+                data=data_for_proxies[index]
+            elif isinstance(data_for_proxies[index], str): 
+                data=data_for_proxies[index].encode()
+            else: print("data: Caso non contemplato")
+            print(f"Sending to {connected_proxy[index]}: {data}") 
+            attacksingleton.send_data(attack_function, data, connected_proxy[index]) 
+        try: 
+            unavailable_proxy=send_lastpacket_toall_proxies(attack_function, connected_proxy) 
+            print(f"Proxy che non hanno ricevuto l'aggiornamento {unavailable_proxy}")
+            #for proxy in unavailable_proxy:
+            #    connected_proxy.remove(proxy)
+            print(f"Proxy che hanno ricevuto l'aggiornamento {connected_proxy}")
+        except Exception as e:
+                    raise Exception(f"send_data_to_proxies: {e}") 
 
 def append_END_DATA_2_command(command:list[str]):
     if not com.is_list(command):
