@@ -6,6 +6,7 @@ import socket
 import urllib.request
 import sys
 import subprocess
+import ipaddress
 
 systemsDictionary={
     'aix':"AIX",
@@ -91,12 +92,46 @@ def calc_gateway(ip_dst=None):
         for index in range(len(ip_dst.split(".")))
     )
 
-def iface_from_IP(target_ip=None):
+def calc_gateway_ipv6(ip_dst=None):
+    try:
+        addr=ipaddress.IPv6Address(ip_dst)
+        return addr.exploded[0:4]+"::1"
+    except ValueError:
+        raise Exception("calc_gateway_ipv6: Indirizzo IPv6 non valido") 
+    
+def iface_from_IPv4(target_ip=None):
     if target_ip is None:
         raise Exception("Indirizzo IP uguale a None")
     iface_name = conf.route.route(target_ip)[0]
     iface_ip = conf.route.route(target_ip)[1] 
-    return iface_ip,iface_name 
+    return iface_ip,iface_name  
+
+def iface_from_IPv6(target_ip=None):
+    try:
+        addr=ipaddress.IPv6Address(target_ip)
+        result=subprocess.run(
+            ["ip", "-6", "route", "get", addr.compressed],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            check=True
+        )
+        output = result.stdout.strip() 
+        #match = re.search(r'src ([\da-f:]+).* dev (\S+)', output)
+        #if not match:
+        #    raise RuntimeError(f"Impossibile estrarre interfaccia da:\n{output}")
+        #ip_src = match.group(1)
+        #iface = match.group(2)
+        return output.split(" ")[0], output.split(" ")[4]
+    except ValueError:
+        raise Exception("Indirizzo IPv6 non valido") 
+    except subprocess.CalledProcessError:
+        raise RuntimeError(f"Nessuna route trovata per {target_ip}") 
+    ## Usa una regex per trovare src e dev
+    #match = re.search(r'src ([\da-f:]+).* dev (\S+)', output)
+    #if not match:
+    #    raise RuntimeError(f"Impossibile estrarre interfaccia da:\n{output}")
+
 
 def sanitize(stringa):
     if type(stringa) is not str or string is None:
