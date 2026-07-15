@@ -378,13 +378,14 @@ siano nei primi 64 bit dei dati del datagramma originale.
 
 
 \subsubsection{Echo Request / Echo Reply} 
-Un messaggio di tipologia di messaggio \textit{Echo}, viene usata per ricevere indietro una risposta da un host. 
+Un messaggio \textit{Echo}, viene usato per ricevere indietro una risposta da un host. 
 Si inviano dei dati tramite una Echo Request, e questi'ultimi dovranno essere restituiti in un messaggio di risposta. 
 Questo perchè chi risponde dovrà restituire gli stessi valori ricevuti nel messaggio integralmente e senza modifiche. 
 %I dati ricevuti dovranno essere restituiti nel messaggio di risposta integralmente e senza modifiche. 
-Il mittente non ha alcuna limitazione sulla quantità di dati inseribili nei messaggi \textit{Echo}
-I campi identificatore e numero di sequenza possono essere utilizzati dal 
-mittente per facilitare l'abbinamento delle risposte con le richieste.
+Il mittente può inserire nel campo del payload quanti dati desidera, a patto che risultino minori di 65.000 bytes. 
+Questo perchè nell'intestazione IP, il campo relativo alla lunghezza totale del pacchetto è composto da 16 bit.
+%Il mittente non ha alcuna limitazione sulla quantità di dati inseribili nei messaggi \textit{Echo} 
+Sempre nel messaggio, i campi identificatore e numero di sequenza possono essere utilizzati dal mittente per facilitare l'abbinamento delle risposte con le richieste.
 %Ad esempio, l'identificatore potrebbe essere utilizzato come una porta in TCP o UDP per identificare una 
 %sessione e il numero di sequenza potrebbe essere incrementato a ogni richiesta di eco inviata. 
 %Per creare un messaggio di risposta, gli indirizzi di origine e di destinazione vengono semplicemente invertiti,
@@ -394,7 +395,13 @@ mittente per facilitare l'abbinamento delle risposte con le richieste.
 %In aggiunta, ogni nodo deve implementare una funzione di risposta ai messaggi \textit{Echo ICMPv6} così che 
 %quando riceve delle richieste Echo, generi le relative risposte. 
 %A node SHOULD also implement an application-layer interface for originating Echo Requests and receiving Echo Replies, for diagnostic purposes.
-%E inoltre, un nodo dovrebbe implementare un'interfaccia a livello applicazione per poter generare Richieste Echo e ricevere Risposte Echo, a fini diagnostici.
+%E inoltre, un nodo dovrebbe implementare un'interfaccia a livello applicazione per poter generare Richieste Echo e ricevere Risposte Echo, a fini diagnostici. 
+\vspace{1ex} \newline
+\textbf{NB} Una limitazione inferiore sui dati potrà essere definità dalla massima capacità di trasporto dei collegamenti. 
+Nel caso la dimensione del messaggio la superasse, il pacchetto dovrà essere frammentato. 
+In media questo valore si attesta sui 1400 bytes. 
+%Da un sito \href{URL}{https://learningnetwork.cisco.com/s/article/Understanding-the-ICMP-Protocol-with-Wireshark-in-Real-Time} 
+%in cui questo problema è stato analizzato, si è ricavato che in media la MTU di un canale è 1400 bytes. 
 \vspace{2ex} \newline 
 Nel protocollo \textbf{ICMPv4} il pacchetto è strutturato in questo modo: 
 \vspace{1ex} \newline
