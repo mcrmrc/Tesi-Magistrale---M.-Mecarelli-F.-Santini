@@ -780,41 +780,7 @@ class IP_INTERFACE():
             return scope_id
         return None
     
-    def mac_from_ipv6(ipv6_dst:ipaddress.IPv6Address, ipv6_src:ipaddress.IPv6Address, iface_name: str):
-        if not(IS_TYPE.ipaddress(ipv6_dst) and IS_TYPE.ipaddress(ipv6_src) and IS_TYPE.string(iface_name) and ipv6_dst.version==6 and ipv6_src.version==6): 
-            raise Exception("mac_from_ipv6: Argomenti non validi")
-        src_mac = get_if_hwaddr(iface_name)
-        print(f"Source MAC: {src_mac}")
-        print(f"Source IPv6: {ipv6_src.compressed}")
-        print(f"Destination IPv6: {ipv6_dst.compressed}")  
-        # Create solicited-node multicast address (ff02::1:ffXX:XXXX)
-        ns_multicast_ip = in6_getnsma(ipv6_dst.packed)
-        dst_multicast_mac = in6_getnsmac(ipv6_dst.packed)
-        print(f"Solicited Node Multicast IP: {ns_multicast_ip}")
-        print(f"Destination Multicast MAC: {dst_multicast_mac}")
-        ns_multicast_ip_str = socket.inet_ntop(socket.AF_INET6, ns_multicast_ip)
-
-        # Build NDP Neighbor Solicitation
-        ndp_pkt = (
-            Ether(dst=dst_multicast_mac, src=src_mac) /
-            IPv6(src=f"{ipv6_src.compressed }%{iface_name}", dst=f"{ns_multicast_ip_str}%{iface_name}") /
-            ICMPv6ND_NS(tgt=str(ipv6_dst)) /
-            ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
-        ) 
-        print(f"Sending NDP to {ns_multicast_ip} via iface {iface_name}")
-        resp = srp1(ndp_pkt, timeout=2, iface=iface_name, verbose=False)
-
-        if resp and ICMPv6NDOptDstLLAddr in resp:
-            resolved_mac = resp[ICMPv6NDOptDstLLAddr].lladdr
-            print(f"Resolved MAC: {resolved_mac}")
-            return resolved_mac
-        else: 
-            cached_mac=IP_INTERFACE.check_mac_in_cache(ipv6_dst, iface_name)
-            if cached_mac:
-                print(f"(Fallback) Resolved MAC from cache: {cached_mac}")
-                return cached_mac
-            print("MAC resolution failed: No NDP response and no cache entry.") 
-        return None
+    
     
     def is_valid_ipaddress(ip_address:ipaddress.IPv4Address): 
         if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
