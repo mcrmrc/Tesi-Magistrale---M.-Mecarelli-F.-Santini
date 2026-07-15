@@ -1,4 +1,5 @@
 from enum import Enum 
+import time
 
 class SEPARAZIONE_DATI(Enum): 
     ID="by_id"
@@ -84,3 +85,12 @@ class EXIT_CASES(Enum):
     EXIT="exit"
     QUIT="quit"
     END_COMMUNICATION=MSG.END_COMMUNICATION.value.lower()
+
+
+def print_enum(enum_class:type[Enum]=None): 
+    if not enum_class or not issubclass(enum_class, Enum): 
+        raise ValueError(f"Enum non valido: {enum_class}") 
+    print("I valori presenti sono:")
+    for enumerator in enum_class: 
+        #time.sleep(0.5) 
+        print(f"\t{enumerator.name}:{enumerator.value}") 
