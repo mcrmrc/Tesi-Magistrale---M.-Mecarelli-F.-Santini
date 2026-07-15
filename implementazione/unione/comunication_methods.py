@@ -26,28 +26,5 @@ END_DATA="__END_DATA__"
 exit_cases=["exit","quit",END_COMMUNICATION]
 
 
-def check_ipaddress(ip_address:ipaddress.IPv4Address): 
-        if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
-            return True 
-        elif isinstance(ip_address, str):
-            try:
-                ipaddress.ip_address(ip_address) 
-                return True
-            except Exception as e:
-                print(f"is_valid_ipaddress: {e}", file=sys.stderr)  
-                return False 
-        else: return False 
 
-#------------------------
-
-def get_wrong_ipaddress(proxy_list:list):
-    wrong_ips=[]
-    for proxy in proxy_list:
-        try:  
-            if is_valid_ipaddress(proxy) is None: 
-                wrong_ips.append(proxy)
-        except Exception as e: 
-            print(f"\tcheck_proxy_ipaddress: {e}") 
-            wrong_ips.append(proxy)
-    return wrong_ips  
 
