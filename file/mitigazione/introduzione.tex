@@ -1,124 +1,86 @@
-\begin{itemize}
-    \item \textbf{Difendersi} richiede una combinazione di rinforzo delle politiche, gestione delle risorse e tecniche di monitoraggio. 
-    \item \textbf{Mitigarli}, richiede una sicurezza multi livello fra hardware, OS, applicazioni e reti. 
-\end{itemize} 
 Il rilevamento e la mitigazione dei covert Channel richiede quindi un rigoroso monitoraggio  delle anomalie, l'isolamento delle risorse e tecniche per introdurre rumore. 
+\vspace{1ex} \newline 
+La difesa richiede una combinazione di rinforzo delle politiche, gestione delle risorse e tecniche di monitoraggio. 
+Mentre la mitigazione richiede una sicurezza multi livello fra hardware, OS, applicazioni e reti. 
+
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+    \hline
+    \textbf{Tipologie di difesa} & \textbf{Sottotipologie} \\
+    \hline 
+    Difese basate sul Sistema e sule Politiche(Policy) & 
+    Politiche di controllo degli accessi. \newline 
+    Controllo del flusso di informazioni. \newline
+    Separazione e isolamento dei processi.
+    \\
+    \hline 
+    Protezioni basate sulla gestione delle risorse e dei tempi & 
+    Tecniche di Randomizzazione. \newline 
+    Limitazione della velocità e controllo della larghezza di banda.
+    \\
+    \hline 
+    Protezioni basate sulla sicurezza della rete & 
+    Ispezione e filtraggio dei pacchetti. \newline 
+    Analisi del traffico e rilevamento delle anomalie.
+    \\
+    \hline 
+    Verifica e test dei Covert Channel & 
+    
+    \\
+    \hline  
+\caption{Tipologie di difese} 
+\label{tabella:difese:tipologie} 
+\end{longtable} 
+\end{center}  
+
+\subsection{Difese basate sul Sistema e sule Politiche(Policy)} 
+
+\subsubsection*{Politiche di controllo degli accessi}  
+Applicare un forte controllo degli accessi (MAC, RBAC) per evitare interazioni non autorizzate con i processi. 
+Limitare i permessi implementando il minimo privilegio e il controllo obbligatorio dell'accesso (MAC) per limitare e/o prevenire la comunicazione non autorizzata tra i processi (e quindi lo scambio di informazioni non autorizzato). 
+Utilizzare sandbox e compartimentazione per isolare i processi.
+
+\subsubsection*{Controllo del flusso di informazioni}  
+Utilizzare obbligatoriamente modelli di controllo del flusso di dati (Bell-LaPadula, Biba) 
+per evitare fughe di informazioni e impedire così che i processi ad alta 
+sicurezza perdano dati ai processi a bassa sicurezza.
+
+\subsubsection*{Separazione e isolamento dei processi}  
+Disattivare le risorse condivise non necessarie (ad esempio, comunicazione tra processi, memoria condivisa).
+Utilizzare la virtualizzazione e la containerizzazione per separare i processi. 
+Applicare l'air-gapping per i sistemi altamente sensibili.
+
+\subsection*{Protezioni basate sulla gestione delle risorse e dei tempi} 
+
+\subsubsection*{Tecniche di Randomizzazione} 
+Introdurre rumore (Noise Injection) nelle risposte del sistema (ad esempio, randomizzando i tempi di 
+esecuzione, aggiungendo ritardi) per interrompere i Covert Channel basati sul tempo. 
+Utilizzare tecniche di randomizzazione o svuotamento della cache per 
+prevenire attacchi side-channel basati sulla cache.
+    
+
+\subsubsection*{Limitazione della velocità e controllo della larghezza di banda} 
+Limitare la CPU, la memoria o la larghezza di banda della rete per limitare la capacità di un canale nascosto. 
+Implementare meccanismi di throttling (limitazione) per le risorse condivise. 
+E analizzare i comportamenti del sistema per rilevare anomalie. 
+
+\subsection*{Protezioni basate sulla sicurezza della rete} 
+
+\subsubsection*{Ispezione e filtraggio dei pacchetti} 
+Monitoraggio del Traffico utilizzando la Deep Packet Inspection (DPI) per rilevare schemi anomali nel traffico di rete.
+Bloccare o sanificare i campi inutilizzati dei protocolli (ad esempio, le intestazioni TCP/IP). 
+
+\subsubsection*{Analisi del traffico e rilevamento delle anomalie} 
+Applicare la segmentazione della rete per limitare i flussi di dati non autorizzati.
+Utilizza il monitoraggio basato sull'intelligenza artificiale per rilevare modelli di comunicazione insoliti.
+Utilizza sistemi di rilevamento delle intrusioni (IDS) e analisi dei log per identificare attività sospette.
+
+\subsection*{Verifica e test dei Covert Channel} 
+Eseguire regolarmente analisi dei canali nascosti nei test di penetrazione.
+Utilizzare strumenti di rilevamento dei Covert Channel (ad esempio, analisi del flusso di rete, monitoraggio del comportamento del sistema). 
 
 
-\subsubsection*{Difese basate sul Sistema e sule Politiche(Policy)}  
-\begin{enumerate}
-    \item \textbf{Politiche di controllo degli accessi}: \newline 
-    Applicare un forte controllo degli accessi (MAC, RBAC) per evitare interazioni non autorizzate con i processi. 
-    Limitare i permessi implementando il minimo privilegio e il controllo obbligatorio dell'accesso (MAC) per limitare e/o prevenire la comunicazione non autorizzata tra i processi (e quindi lo scambio di informazioni non autorizzato). 
-    Utilizzare sandbox e compartimentazione per isolare i processi.
-    \item \textbf{Controllo del flusso di informazioni}: \newline 
-    Utilizzare obbligatoriamente modelli di controllo del flusso di dati (Bell-LaPadula, 
-    Biba) per evitare fughe di informazioni e impedire così che i processi ad alta 
-    sicurezza perdano dati ai processi a bassa sicurezza.
-    \item \textbf{Separazione e isolamento dei processi}: \newline 
-    Disattivare le risorse condivise non necessarie (ad esempio, comunicazione tra processi, memoria condivisa).
-    Utilizzare la virtualizzazione e la containerizzazione per separare i processi. 
-    Applicare l'air-gapping per i sistemi altamente sensibili.
-\end{enumerate}
-
-
-\subsubsection*{Protezioni basate sulla gestione delle risorse e dei tempi} 
-\begin{itemize}
-    \item \textbf{Tecniche di Randomizzazione}: \newline 
-    Introdurre rumore (Noise Injection) nelle risposte del sistema (ad esempio, randomizzando i tempi di esecuzione, aggiungendo 
-    ritardi) per interrompere i Covert Channel basati sul tempo. 
-    Utilizzare tecniche di randomizzazione o svuotamento della cache per prevenire attacchi side-channel basati sulla cache.
-    \item \textbf{Limitazione della velocità e controllo della larghezza di banda}: \newline 
-    Limitare la CPU, la memoria o la larghezza di banda della rete per limitare la capacità di un canale nascosto. 
-    Implementare meccanismi di throttling (limitazione) per le risorse condivise. 
-    E analizzare i comportamenti del sistema per rilevare anomalie. 
-\end{itemize}
-
-
-\subsubsection*{Protezioni basate sulla sicurezza della rete}  
-\begin{itemize}
-    \item \textbf{Ispezione e filtraggio dei pacchetti}: \newline 
-    Monitoraggio del Traffico utilizzando la Deep Packet Inspection (DPI) per rilevare schemi anomali nel traffico di rete.
-    Bloccare o sanificare i campi inutilizzati dei protocolli (ad esempio, le intestazioni TCP/IP). 
-    \item \textbf{Analisi del traffico e rilevamento delle anomalie}: \newline 
-    Applicare la segmentazione della rete per limitare i flussi di dati non autorizzati.
-    Utilizza il monitoraggio basato sull'intelligenza artificiale per rilevare modelli di comunicazione insoliti.
-    Utilizza sistemi di rilevamento delle intrusioni (IDS) e analisi dei log per identificare attività sospette.
-\end{itemize} 
-
-
-\subsubsection*{Verifica e test dei Covert Channel} 
-\begin{itemize}
-    \item Eseguire regolarmente analisi dei canali nascosti nei test di penetrazione.
-    \item Utilizzare strumenti di rilevamento dei Covert Channel (ad esempio, analisi del flusso di rete, monitoraggio del comportamento del sistema).
-\end{itemize}
-
-
-\subsubsection*{Icmp Flood (Ping Flood)}
-Limitare la velocità del traffico ICMP su firewall e router.
-Disattivare le richieste di eco ICMP dalle reti esterne se non necessarie. 
-Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare le richieste di ping eccessive.
-
-
-\subsubsection*{Attacco Smurf} 
-Disabilitare le richieste di broadcast ICMP sui router (nessuna trasmissione diretta IP)
-Implementare filtri in ingresso per bloccare i pacchetti con indirizzi di origine falsificati. 
-Utilizzare le regole del firewall per bloccare il traffico ICMP non necessario.
-
-
-\subsubsection*{Ping della morte (attacco storico)} 
-I sistemi moderni rifiutano i pacchetti di dimensioni eccessive.
-Applicare aggiornamenti e patch di sistema per prevenire questa vulnerabilità.
-
-
-\subsubsection*{ICMP Unreachable Flood}
-Configurare limiti di velocità per i messaggi di errore ICMP.
-Implementare regole firewall per eliminare il traffico ICMP eccessivo
-
-
-\subsubsection*{ICMP Ping Sweep}
-Blocca le richieste ICMP Echo da fonti esterne. 
-Utilizzare sistemi di prevenzione delle intrusioni (IPS) per rilevare e bloccare attività di scansione sospette.
-
-
-\subsubsection*{Attacco Timestamp ICMP}
-Disattivare le richieste di timestamp ICMP su firewall e router.
-Utilizzare protocolli di sincronizzazione temporale (NTP) con autenticazione anziché query orarie basate su ICMP.
-
-
-\subsubsection*{Attacco Timestamp ICMP}
-Disattivare le richieste di timestamp ICMP su firewall e router.
-Utilizzare protocolli di sincronizzazione temporale (NTP) con autenticazione anziché query orarie basate su ICMP.
-
-
-\subsubsection*{Attacco ICMP che maschera l'indirizzo}
-Disattivare le risposte ICMP Address Mask a meno che non siano necessarie per le operazioni di rete.
-Utilizzare i firewall per filtrare il traffico ICMP proveniente da fonti non attendibili.
-
-
-\subsubsection{Attacchi ICMP Tunneling e Covert Channel}
-Ispezione approfondita dei pacchetti (DPI) per rilevare ICMP Tunneling. 
-Blocca le richieste/risposte di ICMP Echo da reti non attendibili.
-Monitorare il traffico di rete per individuare modelli ICMP insoliti.
-
-
-\subsubsection*{Esfiltrazione ICMP (furto di dati tramite ICMP)}
-Monitorare e registrare il traffico ICMP per rilevare attività anomale.
-Utilizzare i firewall per limitare il traffico ICMP solo ai dispositivi necessari.
-Utilizzare soluzioni DLP (Data Loss Prevention) per rilevare i tentativi di esfiltrazione.
-
-
-\subsubsection*{ICMP Covert Channels}
-Monitorare il traffico ICMP per individuare modelli di utilizzo insoliti.
-Utilizzare i sistemi di rilevamento delle intrusioni di rete (NIDS) per rilevare Covert Channel.
-Limitare la comunicazione ICMP tra reti interne ed esterne.
-
-
-\subsubsection*{Attacco di reindirizzamento ICMP}
-Disabilitare il reindirizzamento ICMP.
-
-
-
+\subsection{Mitigazioni}
 Per prevenire gli attacchi basati su ICMP; buone misure di sicurezza sono: 
 \begin{itemize}
     \item limitare e filtrare l'utilizzo di ICMP tramite i firewall 
@@ -126,78 +88,34 @@ Per prevenire gli attacchi basati su ICMP; buone misure di sicurezza sono:
     \item il monitoraggio del traffico (tramite strumenti di sicurezza) per rilevare le anomalie
 \end{itemize} 
 
-subsubsection*{Regole del firewall}
-Limitare o bloccare il traffico ICMP non necessario. %sui firewall. 
-\begin{itemize}
-    \item Bloccare le richieste Echo di ICMP da reti esterne, a meno che non siano necessarie.
-    \item Disabilitare le risposte a ICMP Timestamp e Address Mask per impedire la ricognizione.
-    \item Consentire solo i messaggi di errore ICMP necessari (ad esempio, Destinazione non raggiungibile).
-    \item Eliminare i messaggi di reindirizzamento ICMP per impedire la manipolazione dell'instradamento (del routing).
-\end{itemize}
-\subsubsection*{Limitazione della velocità} 
-Limitare la velocità delle richieste ICMP. %per evitare di essere sopraffatti
-\begin{itemize}
-    \item Limita il numero di pacchetti ICMP al secondo per prevenire la sovrastazione. 
-    \item Configura i criteri di limitazione della velocità ICMP su router e firewall.
-\end{itemize}
-\subsubsection*{Monitoraggio della rete e Rilevamento}
-%Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare attività ICMP sospette. 
-\begin{itemize}
-    \item Utilizzare i sistemi di rilevamento delle intrusioni (IDS/IPS) per rilevare abusi del protocollo ICMP.
-    \item Analizza i registri di rete per attività ICMP insolite (ad esempio, pacchetti ICMP di grandi dimensioni, ping frequenti).
-    \item Implementa l'ispezione approfondita dei pacchetti (DPI) per identificare il Tunneling ICMP.
-\end{itemize}
-\subsubsection*{Rafforzamento del sistema}
-\begin{itemize}
-    \item Mantieni aggiornati i sistemi e il firmware per correggere le vulnerabilità ICMP note
-    \item Disattivare i servizi ICMP sui sistemi critici se non necessari.
-    \item Utilizzare soluzioni di sicurezza degli endpoint per rilevare malware che utilizzano ICMP per la comunicazione
-\end{itemize} 
+\begin{center} 
+\begin{longtable}{|p{0.3\textwidth}|p{0.5\textwidth}|} 
+    \hline
+    \textbf{Tipologie di mitigazioni} & \textbf{Descrizione} \\
+    \hline 
+    Regole del firewall & 
+    Limitare o bloccare il traffico ICMP non necessario.
+    \\
+    \hline 
+    Limitazione della velocità & 
+    Limitare la velocità delle richieste ICMP.
+    \\
+    \hline 
+    Monitoraggio della rete e Rilevamento & 
+    Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare attività ICMP sospette. 
+    \\
+    \hline 
+    %Rafforzamento del sistema & 
+    %
+    %\\
+    %\hline  
+\caption{Tipologie di mitigazioni} 
+\label{tabella:mitigazioni:tipologie} 
+\end{longtable} 
+\end{center}  
 
-
-\subsection{Strategie di rilevamento} 
 \begin{minipage}{\linewidth}
-    \begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|}
-        \hline 
-        \textbf{Tecnica} & \textbf{Rilevamento} & \textbf{Mitigazione} \\
-        \hline \hline 
-        Analisi del traffico di rete & Identifica anomalie nel volume e nei pattern ICMP & Limita i tipi ICMP non necessari \\
-        \hline 
-        Deep Packet Inspection (DPI) & Rileva l'esfiltrazione e il tunneling dei dati & Blocca i pacchetti ICMP con payload inattesi \\
-        \hline 
-        IDS/IPS (Snort, Zeek) & Segnala comportamenti ICMP insoliti & Blocca le richieste ICMP sospette \\
-        %Utilizza la Deep Packet Inspection (DPI) & identifica i dati nascosti nei pacchetti ICMP. \\
-        %Implementa regole IDS/IPS per ICMP & avvisi su attività ICMP sospette \\ 
-        \hline 
-    \end{tabular} 
-    \captionof{table}{Strumenti di rilevamento}
-\end{minipage}
-\subsubsection{Monitoraggio del traffico di rete} 
-Analizzare il volume e le dimensioni dei pacchetti ICMP (ad esempio, payload insolitamente grandi) per eventuali anomalie.
-Rileva il traffico ICMP ad alta frequenza verso host esterni sconosciuti.
-Verificare la presenza di pacchetti ICMP con payload insolitamente grandi (e.g tentativi di esfiltrazione dei dati) o con 
-schemi irregolari (e.g valori TTL variabili). 
-Pacchetti ICMP con modifiche costanti del payload potrebbero indicare il trasferimento di dati nascosti. 
-%
-\subsubsection{Deep Packet Inspection (DPI)}
-Esaminare il contenuto del payload ICMP per rilevare eventuali dati incorporati insoliti (messaggi codificati, crittografia o anomalie).
-Contrassegna i pacchetti ICMP che contengono risposte non standard (e.g, una risposta Echo contenente dati inaspettati).
-Identificare schemi di comunicazione con indirizzi IP esterni tramite ICMP
-%
-\subsubsection{Sistemi di rilevamento e prevenzione delle intrusioni (IDS/IPS)}  
-Utilizzare Snort, Suricata o Zeek per rilevare e segnalare attività ICMP sospette
-%
-\subsubsection{Rilevamento basato su anomalie} 
-Rilevare il traffico ICMP che potrebbe indicare una comunicazione C2 implementando analisi 
-comportamentali che possano rilevare un utilizzo anomalo di ICMP.
-Utilizzare strumenti di apprendimento automatico o SIEM (Security Information and Event 
-Management) per segnalare deviazioni nell'utilizzo di ICMP. 
-%
-
-
-\subsection{Strategie di mitigazione}
-\begin{minipage}{\linewidth}
-    \begin{tabular}{|p{0.5\linewidth}|p{0.5\linewidth}|}
+    \begin{tabular}{|p{0.45\linewidth}|p{0.45\linewidth}|}
         \hline
         \textbf{Metodo di mitigazione} & \textbf{Effetti} \\
         \hline \hline 
@@ -214,31 +132,96 @@ Management) per segnalare deviazioni nell'utilizzo di ICMP.
         Endpoint Security (EDR) & Previene l'esecuzione dannosa di ICMP \\ %Rileva malware tramite Covert Channel ICMP & 
         \hline 
     \end{tabular} 
-    \captionof{table}{Metodologie di mitigazione}
-\end{minipage}
-\subsubsection{Restringere/ Limitare il traffico ICMP}
+    \captionof{table}{Strategie di mitigazione}
+\end{minipage} 
+
+\subsection*{Regole del firewall} 
+Limitare o bloccare il traffico ICMP non necessario. %sui firewall. 
+\begin{itemize}
+    \item Bloccare le richieste Echo di ICMP da reti esterne, a meno che non siano necessarie.
+    \item Disabilitare le risposte a ICMP Timestamp e Address Mask per impedire la ricognizione.
+    \item Consentire solo i messaggi di errore ICMP necessari (ad esempio, Destinazione non raggiungibile).
+    \item Eliminare i messaggi di reindirizzamento ICMP per impedire la manipolazione dell'instradamento (del routing).
+\end{itemize} 
 Disattivare ICMP sui server e sugli endpoint a meno che non sia esplicitamente necessario e 
 bloccare il traffico ICMP proveniente da fonti non attendibili. %sul firewall.
 Configurare firewall e router in modo tale da consentire solo i messaggi ICMP necessari 
 (e.g Destinazione non raggiungibile, Tempo Scaduto).
-Disattivare le richieste/risposte di eco ICMP sui sistemi critici.
+Disattivare le richieste/risposte di eco ICMP sui sistemi critici. 
 %
-\subsubsection{Limitazione della velocità del traffico ICMP}
+Impedisci il traffico ICMP in uscita dalle reti interne per fermare l'esfiltrazione.
+Consenti ICMP solo per scopi diagnostici interni.
+
+\subsection*{Limitazione della velocità} 
+Limitare la velocità delle richieste ICMP. %per evitare di essere sopraffatti
+\begin{itemize}
+    \item Limita il numero di pacchetti ICMP al secondo per prevenire la sovrastazione. 
+    \item Configura i criteri di limitazione della velocità ICMP su router e firewall.
+\end{itemize} 
 Limitare la frequenza e la dimensione dei pacchetti ICMP per evitare il trasferimento nascosto di dati.
 Configurare i firewall in modo da consentire solo un numero specifico di pacchetti ICMP al secondo.
-%
+
+\subsection*{Monitoraggio della rete e Rilevamento} 
+%Utilizzare sistemi di rilevamento delle intrusioni (IDS) per monitorare attività ICMP sospette. 
+\begin{itemize}
+    \item Utilizzare i sistemi di rilevamento delle intrusioni (IDS/IPS) per rilevare abusi del protocollo ICMP.
+    \item Analizza i registri di rete per attività ICMP insolite (ad esempio, pacchetti ICMP di grandi dimensioni, ping frequenti).
+    \item Implementa l'ispezione approfondita dei pacchetti (DPI) per identificare il Tunneling ICMP.
+\end{itemize} 
+Analizzare il volume e le dimensioni dei pacchetti ICMP (ad esempio, payload insolitamente grandi) per eventuali anomalie.
+Rileva il traffico ICMP ad alta frequenza verso host esterni sconosciuti.
+Verificare la presenza di pacchetti ICMP con payload insolitamente grandi (e.g tentativi di esfiltrazione dei dati) o con 
+schemi irregolari (e.g valori TTL variabili). 
+Pacchetti ICMP con modifiche costanti del payload potrebbero indicare il trasferimento di dati nascosti. 
+
+\subsubsection*{Deep Packet Inspection (DPI)} 
+Esaminare il contenuto del payload ICMP per rilevare eventuali dati incorporati insoliti (messaggi codificati, crittografia o anomalie).
+Contrassegna i pacchetti ICMP che contengono risposte non standard (e.g, una risposta Echo contenente dati inaspettati).
+Identificare schemi di comunicazione con indirizzi IP esterni tramite ICMP. 
+
+\subsubsection*{Sistemi di rilevamento e prevenzione delle intrusioni (IDS/IPS)} 
+Utilizzare Snort, Suricata o Zeek per rilevare e segnalare attività ICMP sospette
+
+\subsubsection*{Rilevamento basato su anomalie}
+Rilevare il traffico ICMP che potrebbe indicare una comunicazione C2 implementando analisi 
+comportamentali che possano rilevare un utilizzo anomalo di ICMP.
+Utilizzare strumenti di apprendimento automatico o SIEM (Security Information and Event 
+Management) per segnalare deviazioni nell'utilizzo di ICMP. 
+
+\begin{minipage}{\linewidth}
+    \begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|}
+        \hline 
+        \textbf{Tecnica} & \textbf{Rilevamento} & \textbf{Mitigazione} \\
+        \hline \hline 
+        Analisi del traffico di rete & Identifica anomalie nel volume e nei pattern ICMP & Limita i tipi ICMP non necessari \\
+        \hline 
+        Deep Packet Inspection (DPI) & Rileva l'esfiltrazione e il tunneling dei dati & Blocca i pacchetti ICMP con payload inattesi \\
+        \hline 
+        IDS/IPS (Snort, Zeek) & Segnala comportamenti ICMP insoliti & Blocca le richieste ICMP sospette \\
+        %Utilizza la Deep Packet Inspection (DPI) & identifica i dati nascosti nei pacchetti ICMP. \\
+        %Implementa regole IDS/IPS per ICMP & avvisi su attività ICMP sospette \\ 
+        \hline 
+    \end{tabular} 
+    \captionof{table}{Strategie di rilevamento}
+\end{minipage} 
+
+\subsection*{Rafforzamento del sistema} 
+\begin{itemize}
+    \item Mantieni aggiornati i sistemi e il firmware per correggere le vulnerabilità ICMP note
+    \item Disattivare i servizi ICMP sui sistemi critici se non necessari.
+    \item Utilizzare soluzioni di sicurezza degli endpoint per rilevare malware che utilizzano ICMP per la comunicazione
+\end{itemize} 
+
 \subsubsection{Utilizza la crittografia per prevenire la fuga di dati}
 Implementa la crittografia TLS/SSL per tutte le comunicazioni legittime così da impedire agli 
 aggressori di utilizzare ICMP per l'esfiltrazione. 
-Inoltre bloccare le trasmissioni non autorizzate di testo in chiaro su ICMP.
-%
-\subsubsection{Blocca ICMP su interfacce esterne}
-Impedisci il traffico ICMP in uscita dalle reti interne per fermare l'esfiltrazione.
-Consenti ICMP solo per scopi diagnostici interni.
-%
+Inoltre bloccare le trasmissioni non autorizzate di testo in chiaro su ICMP. 
+
 \subsubsection{Sicurezza degli endpoint \& Antivirus}
 Implementare strumenti antivirus e soluzioni EDR (Endpoint Detection \& Response) per 
 rilevare le minacce informatiche che utilizzano i covert channel ICMP per comunicare.
+
+
 
 
 
