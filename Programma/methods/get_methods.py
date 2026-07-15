@@ -5,6 +5,7 @@ import subprocess
 import threading 
 import socket 
 import urllib
+<<<<<<< HEAD
 import json
 import os
 import argparse
@@ -149,6 +150,12 @@ class ARGS_FROM_COMMAND_LINE:
             args=None 
         return args
 
+=======
+from Programma.methods.utils_methods import sanitize_str 
+from scapy.all import AsyncSniffer, ARP, Ether, conf, srp 
+from Programma.methods.network_methods import check_sniffer_args
+from Programma.methods.check_type import is_dictionary, is_ipaddress, is_string, is_callable_function, is_time
+>>>>>>> 9ea1dd5 (modified methods)
 
 def get_threading_Event()->threading.Event: 
     return threading.Event() 
@@ -213,7 +220,18 @@ def get_local_IP():
         error=e 
     finally:
         s.close()
+<<<<<<< HEAD
     return ip_address, error    
+=======
+    while not ip_address: 
+        try:  
+            ip_address=ipaddress.ip_address(
+                input("Inserire indirizzo IP dell'host:\n\t#")
+            ) 
+        except Exception as e: 
+            error=e 
+    return ip_address, error
+>>>>>>> 9ea1dd5 (modified methods)
 
 def get_public_IP():
     return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8') 
