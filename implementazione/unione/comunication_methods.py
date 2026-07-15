@@ -51,24 +51,6 @@ def get_wrong_ipaddress(proxy_list:list):
             wrong_ips.append(proxy)
     return wrong_ips  
 
-#-------------------- 
-
-
-#-------------------- 
-def wait_threading_Event(event:threading.Event=None):
-    try:
-        is_threading_Event(event)
-    except Exception as e:
-        raise Exception(f"wait_threading_Event: {e}") 
-    event.wait() 
-    event.clear()
-
-def set_threading_Event(event:threading.Event=None):
-    try:
-        is_threading_Event(event)
-    except Exception as e:
-        raise Exception(f"set_pkt_threading_Event: {e}") 
-    event.set()
 
 #------------------------
 def start_sniffer(sniffer:AsyncSniffer=None, timer:threading.Timer=None):
