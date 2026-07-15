@@ -6,7 +6,7 @@ import threading
 import os
 import time 
 import ctypes
-from custom_enum import MSG, ENTITY, ATTACK_TYPE
+from custom_enum import MSG, ENTITY, ATTACK_TYPE, SEPARAZIONE_DATI
 from check_type import * 
 from get_type import *
 from network_methods import IP 
