@@ -1,20 +1,24 @@
+import json
 import time
+import os 
+import json
 from enum import Enum
 from Programma.custom_enum import ATTACK_TYPE
 from Programma.methods.check_type import is_enum_member, is_integer, is_string
 from Programma.methods.utils_methods import ask_bool_choice
+from ..custom_enum import print_enum
 
 
 class GET_ATTACK_FUNCTION: 
     def choose_attack_function(): 
         attack_enum=None
         while True: 
-            print(ATTACK_TYPE.print_available_attack(),"\n")
+            print(GET_ATTACK_FUNCTION.print_available_attack(),"\n")
             msg="Scegli il nome o il codice della funzione:\t" 
             scelta=str(input(msg)).lower().strip() 
             print("Hai scelto: ",scelta if str(scelta)!="" else "<empty>") 
-            attack_enum=ATTACK_TYPE.get_attack_method(scelta) 
-            if is_enum_member(attack_enum,ATTACK_TYPE): 
+            attack_enum=GET_ATTACK_FUNCTION.get_attack_method(scelta) 
+            if is_enum_member(attack_enum,GET_ATTACK_FUNCTION): 
                 break
             msg="\n\nNessuna funzione trovata. Si vuole continuare? S/N\t" 
             if not ask_bool_choice(msg): 
@@ -25,33 +29,64 @@ class GET_ATTACK_FUNCTION:
         #Data in input una qualsiasi variabile ritorna l'enum associato quando possibile
         if is_enum_member(attack, ATTACK_TYPE): 
             return attack  
-        elif is_enum_member(attack,Enum): 
-            try: 
-                return ATTACK_TYPE[attack.name] 
-            except KeyError as k: 
-                print("STRINGA NON VALIDA",k)
-            try: 
-                return ATTACK_TYPE(attack.value)
-            except ValueError as v: 
-                print("INTEGER NON VALIDO",v) 
-        elif is_integer(attack): 
+        if is_enum_member(attack,Enum): 
+            for function in (
+                lambda: ATTACK_TYPE[attack.name],
+                lambda: ATTACK_TYPE(attack.value), 
+            ): 
+                try: 
+                    return function() 
+                except (KeyError, ValueError) as e: 
+                    print(e)
+                    print("Valore valido:",attack) 
+        if is_integer(attack): 
             try:
                 return ATTACK_TYPE(attack)
             except ValueError as v:
-                print("INTEGER NON VALIDO",v)
-        elif is_string(attack): 
+                print(v)
+                print("Valore non valido:",attack)
+        if is_string(attack): 
+            for function in (
+                lambda: ATTACK_TYPE[attack], 
+                lambda: ATTACK_TYPE(int(attack)), 
+            ): 
+                try: 
+                    return function() 
+                except (KeyError, ValueError) as e: 
+                    print(e)
+                    print("Valore non valido:",attack)
             try:
                 return ATTACK_TYPE(int(attack))
             except ValueError as k: 
-                print("STRINGA NON VALIDA",k)
+                print(k)
+                print("Non è un valore valido:",attack)
             try:
                 return ATTACK_TYPE[attack]
             except KeyError as k: 
-                print("STRINGA NON VALIDA",k)
-        
+                print(k)
+                print("Non è una chiave valida:",attack)
+        print(f"Tipologia attacco non valida: {type(attack)}.")
         return None
     
     def get_description(attack:Enum=None)->str: 
+        if not is_enum_member(attack, ATTACK_TYPE): 
+            raise TypeError(f"Attacco non valido: {attack}. Deve essere un membro di ATTACK_TYPE")
+        if not os.path.exists("Programma/icmp_description.json"):
+            raise FileNotFoundError("File 'icmp_description.json' non trovato nella cartella 'Programma'.")
+        try: 
+            with open("Programma/icmp_description.json","r") as f: 
+                icmp_description=json.load(f)  
+                return icmp_description.get(
+                    attack.name,
+                    "Nessuna descrizione trovata per questo attacco"
+                ) 
+        except FileNotFoundError as e: 
+            print(f"Errore: {e}. Assicurati che il file 'icmp_description.json' esista nella cartella 'Programma'.")
+        except json.JSONDecodeError as e: 
+            print(f"Errore nel decodificare il file JSON: {e}")
+        except Exception as e: 
+            print(e)
+        
         if is_enum_member(attack, ATTACK_TYPE): 
             match attack: 
                 case ATTACK_TYPE.ipv4_destination_unreachable: 
@@ -105,17 +140,13 @@ class GET_ATTACK_FUNCTION:
         raise Exception("Attacco immesso non valido: ",attack) 
     
     def print_available_attack(): 
-        time.sleep(0.5)
-        print("Gli attacchi disponibili sono:\n")
-        for enumerator in list(ATTACK_TYPE): 
-            time.sleep(2) 
-            print(f" *{enumerator.name}:{enumerator.value}\n\t{ATTACK_TYPE.get_description(enumerator)}\n") 
-        time.sleep(0.5) 
+        print_enum(ATTACK_TYPE)
+        time.sleep(1)
         print("\n Per scegliere un attacco, usa il nome o il numero corrispondente.") 
-        time.sleep(1) 
         print(""" 
-            \nAd esempio per l'attacco ICMPv4 Destination Unreachable, puoi scegliere: 
-            \n\t*Il nome 'ipv4_destination_unreachable' 
+            \nAd esempio per 'ICMPv4 Destination Unreachable': 
+            \n\t*Nome: 'ipv4_destination_unreachable' 
             \n\t\toppure'.
-            \n\t*Il numero '0'.
+            \n\t*Numero '0'.
         """) 
+        time.sleep(1.5) 
