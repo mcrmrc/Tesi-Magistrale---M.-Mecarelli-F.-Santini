@@ -124,6 +124,7 @@ def part_1():
         print(f"An Exception has occured: {e}") 
         exit(1)
 
+#---------------
 def send_data_to_proxies(data_to_send:list=None,ip_dst=None):
     if data_to_send==None:
         raise ValueError("Dati incorretti")
@@ -247,9 +248,10 @@ def part_2():
     print(f"I proxy utilzzabili sono: {len(proxy_ip)}\n\t{proxy_ip}") 
 
 if __name__=="__main__":
-    global proxy_ip
-    proxy_ip=["192.168.56.101"]
-    #part_1()
+    #global proxy_ip
+    #proxy_ip=["192.168.56.101"]
+    part_1()
+    exit(0)
     part_2()
     exit(0) 
     #thread = threading.Thread(target=sniff_4_start)
