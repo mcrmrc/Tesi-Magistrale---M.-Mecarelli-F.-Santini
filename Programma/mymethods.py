@@ -27,7 +27,7 @@ class MSG(Enum):
     END_COMMUNICATION="__END_COMMUNICATION__"
     END_DATA="__END_DATA__"
     START_SOURCES="__START_SOURCES__"
-    END_SOURCES="__END_SOURCES__"
+    END_SOURCES="__END_SOURCES__" 
 
 exit_cases=["exit","quit",MSG.END_COMMUNICATION.value]
 
