@@ -83,8 +83,7 @@ class ATTACK_TYPE(Enum):
 
 class EXIT_CASES(Enum): 
     EXIT="exit"
-    QUIT="quit"
-<<<<<<< HEAD
+    QUIT="quit" 
     END_COMMUNICATION=MSG.END_COMMUNICATION.value.lower()
 
 
@@ -94,7 +93,4 @@ def print_enum(enum_class:type[Enum]=None):
     print("I valori presenti sono:")
     for enumerator in enum_class: 
         #time.sleep(0.5) 
-        print(f"\t{enumerator.name}:{enumerator.value}") 
-=======
-    END_COMMUNICATION=MSG.END_COMMUNICATION.value.lower()
->>>>>>> 54b6bae (enum value all lower case)
+        print(f"\t{enumerator.name}:{enumerator.value}")  
