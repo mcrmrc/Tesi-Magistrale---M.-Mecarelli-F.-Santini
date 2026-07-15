@@ -1,0 +1,57 @@
+\subsection{Principali categorie di Covert Channel} 
+\begin{itemize}
+    \item Covert Channel Timing (Temporizzazione)
+    \item Covert Channel Storage (Archiviazione)c
+    \item Covert Channel Behavioral (Comportamentali) 
+\end{itemize}
+\subsubsection{Covert Channel Timing (Temporizzazione)}
+I covert channel di temporizzazione sono metodi di comunicazione che permettono ad un osservatore (un umano o unj processo) di acquisire 
+informazioni attraverso il cambiamento del tempo di rispostadi una risorsa. 
+Sfruttando gli intervalli di tempo o l'ordine degli eventi per codificare informazioni (e.g. ritardi fra i pacchetti di rete,\dots); 
+qualsiasi metodo che utilizza un orologio (o una misurazione del tempo) per segnalare il valore può implementarlo.
+\begin{esempio}
+        Modificare i permessi dei file o i metadati per codificare informazioni oppure modificare variabili condivise o buffer.
+    \end{esempio}
+%\href{https://www.youtube.com/watch?v=QIvsmQQ6vu8}{Video Esempio}
+%
+\subsubsection{Covert Channel Storage (Archiviazione)}
+Nei covert channel di archiviazione un processo scrive su una risorsa condivisa, mentre un altro processo legge da essa. 
+Possono essere quindi utilizzati da processi all'interno di un singolo computer o tra più computer in una rete.
+\begin{esempio}
+    Variare deliberatamente il tempo fra delle azioni (es trasmissione di network packet, patter di uso della CPU) 
+    oppure codificando dati nella temporalizzazione dell'esecuzione dei processi o delay di risposta. 
+\end{esempio}
+\vspace{1ex} \noindent
+Coinvolgono quindi la scrittura di dati su un'area di memoria condivisa accedibile da entrambi i processi (e.g attributi del file, i bit di memoria, gli stati della cache,\dots).
+Di conseguenza, i veicoli sono tutte le risorse che consentono la scrittura (diretta o indiretta) da parte di un processo e la lettura (diretta o indiretta) da parte di un altro.
+\begin{esempio}
+    Un esempio di canale di archiviazione è la condivisione di un file. 
+    Supponiamo che l’utente A con privilegi di autorizzazione elevati voglia trasmettere in segreto, dati riservati all'utente B con un livello di sicurezza inferiore. 
+    Per farlo, utilizzerà un file di testo apparentemente contenente informazioni non classificate, dove invece occulterà l'informazione riservata. 
+\end{esempio}
+%
+\subsubsection{Covert Channel Behavioral (Comportamentali)}
+I canali nascosti comportamentali operano trasmettendo dati in base all'assegnazione di diversi eventi 
+di processi, sistemi e applicazioni, generalmente suddividendo e trasmettendo i dati in pacchetti più piccoli.
+\vspace{2ex} \newline
+Un esempio di canale nascosto comportamentale è quello che utilizza il protocollo ICMP (Internet Control Message Protocol). 
+Sfruttando appieno le su caratterisitche bypassa molte delle policy e standard di sicurezza. %manifestando in maniera ottimale le caratteristiche di Stealthiness e Indistinguishability.
+%\vspace{1ex} \newline
+%
+%L’ICMP è progettato per fornire feedback su problemi di comunicazione di una rete TCP/IP. 
+%L’ ICMP si affida al supporto di base dell’IP come parte di protocollo di livello superiore. 
+%A causa di questa dipendenza, sia ICMPv4 che ICMPv6 esistono per entrambe le versioni di IP. 
+%Applicazioni come ad es. traceroute e ping utilizzano i messaggi ICMP per raccogliere informazioni e diagnosticare eventuali 
+%problemi di rete. 
+%\vspace{1ex} \newline
+%I canali nascosti spesso sfruttano per i propri flussi di informazioni, alcune caratteristiche tecniche incorporate nelle reti 
+%IEEE 802, caratteristiche che normalmente non vengono “viste” a livello di rete più alto perché considerate di servizio.
+%\vspace{1ex} \newline
+%L’idea di utilizzare l’ICMP come canale nascosto è quindi quella di sfruttare una comunicazione standard con un protocollo inferiore 
+%rispetto a TCP o UDP. Questo avrà un “ingombro” ridotto in tutto il traffico di rete e potrà passare inosservato agli amministratori 
+%di rete e agli analizzatori di traffico, in quanto, come detto, normalmente è utilizzato per la diagnostica e manutenzione della rete 
+%e degli host connessi, non per il trasporto dati, quindi difficilmente bloccato da policy di sicurezza.
+%Questo rende il protocollo ICMP un canale nascosto decisamente praticabile, l’uso di campi dati o payload all’interno di determinati 
+%messaggi ICMP permette di incorporare il messaggio del canale nascosto facilmente e trasforma paradossalmente l’ICMP stesso in un 
+%canale nascosto. Questi semplici fattori consentono all’ICMP di essere di fatto un traffico invisibile, vediamo un esempio. 
+%

@@ -1,0 +1,40 @@
+\subsection{Struttura e caratteristiche dei Covert Channel} 
+%
+\subsubsection*{Come funzionano i Covert Channel?} 
+Si opera cifrando dati nascosti nei comportamenti del sistema che i controlli di sicurezza 
+tipicamente non monitorano così da permettere la comunicazione segreta fra due entità. 
+%è strutturato come un sistema di comunicazione segreta che bypassa i normali meccanismi di sicurezza. 
+\vspace{1ex} \newline
+Le informazioni vengono inserite sfruttano gli effetti collaterali delle normali operazione del sistema 
+senza un esplicito intento di comunicare.  %(delay o scrittura su file condivisi) 
+\vspace{2ex} \newline
+$\bullet$  \textbf{Meccanismi di Codifica}: \newline 
+%Il mittente inserisce informazioni segrete in un componente del sistema osservabile dal destinatario. 
+Il mittente manipola una risorsa di sistema condivisa (osservabile dal destinatario) 
+per codificare i dati segreti (eg tramite il tempo o la memoria). 
+\vspace{1ex} \newline
+Tecniche comuni: 
+\begin{itemize} 
+    \item \underline{Abuso del Protocollo}: 
+    alterazione dei flag TCP, dei numeri di sequenza oppure dei bit inutilizzati nelle intestazione dei pacchetti 
+\end{itemize}  
+$\bullet$  \textbf{Meccanismo di comunicazione}: \newline 
+%Il destinatario decifra i dati trasmessi di nascosto monitorando i cambiamenti nel comportamento del sistema. 
+il mittente modifica continuamente i comportamenti del sistema per trasmettere bit di informazione. 
+Questo può essere fatto introducendo ritardi, cambiando il carico di lavoro della CPU, o modificando gli stati 
+della memoria in maniera controllata. 
+\vspace{2ex} \newline
+$\bullet$  \textbf{Meccanismi di Decodifica}: \newline 
+il destinatario monitora la risorsa condivisa per rilevare, ricostruire e decifrare i dati trasmessi. 
+\begin{esempio}{\quad \newline}
+    Misurazione dele variazioni del tempo di esecuzione per dedurre i dati segreti.
+\end{esempio} 
+\vspace{2ex} \noindent
+$\bullet$  \textbf{Sincronizzazione e Correzione degli Errori}: \newline 
+il mittente e il destinatario devono sincronizzarsi (e.g. utilizzando segnali di temporizzazione pre-concordati). 
+I meccanismi di rilevamento degli errori (come bit di parità o checksum) garantiscono un recupero accurato dei dati. 
+\begin{esempio}{Esempio di un Covert channel in una rete} \newline
+   \underline{Mittente}: modifica il campo TTL (time-to-live) nei pacchetti IP per rappresentare dati binari (e.g. TTL=65$\rightarrow$bit 1, TTL=128$\rightarrow$bit 0)
+    \vspace{1ex} \newline
+    \underline{Destinatario}: osserva i valori TTL dei pacchetti in arrivo per ricostruire il messaggio nascosoto 
+\end{esempio}
