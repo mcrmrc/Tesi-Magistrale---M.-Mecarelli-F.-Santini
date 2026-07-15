@@ -11,6 +11,7 @@ import subprocess
 import ipaddress
 import sys
 import socket
+import os
 
 CONFIRM_ATTACKER="__CONFIRM_ATTACKER__"
 CONFIRM_VICTIM="__CONFIRM_VICTIM__"
@@ -27,102 +28,97 @@ exit_cases=["exit","quit",END_COMMUNICATION]
 def is_callback_function(callback_function=None):
     #the type of a function can be 'function' or 'method'
     if callback_function is None or not callable(callback_function):
-        raise Exception(f"is_callback_function: Callback function invalida {callback_function}") 
+        print(f"is_callback_function: Callback function invalida {callback_function}") 
+        return False
     return True
 
 def is_valid_ipaddress(ip_address:str): 
-    #print(f"\tControllo la validità dell'indirizzo IP: {ip_address}")
+    if not isinstance(ip_address, str):
+        print(f"is_valid_ipaddress: ip_address non è una stringa: {type(ip_address)}")
+        return None
     try:
-        addr=ipaddress.IPv4Address(ip_address)
-        if addr is not None:
-            #print(f"\tis_valid_ipaddress: {addr} è un indirizzo IPv4 valido")
-            return addr
-    except ValueError as e:
-        #print(f"\tis_valid_ipaddress: {e}", file=sys.stderr)  
-        pass
-    try:
-        addr=ipaddress.IPv6Address(ip_address) 
-        if addr is not None:
-            #print(f"\tis_valid_ipaddress: {addr} è un indirizzo IPv6 valido")
-            return addr 
-    except ValueError as e:
-        #print(f"\tis_valid_ipaddress: {e}", file=sys.stderr) 
-        pass
-    #print(f"\tis_valid_ipaddress: {ip_address} non è un indirizzo IPv4 o IPv6 valido ",file=sys.stderr)
-    return None
+        return ipaddress.ip_address(ip_address) 
+    except Exception as e:
+        print(f"is_valid_ipaddress: {e}", file=sys.stderr)  
+        return None 
 
-def is_valid_ipaddress_v4(ip_address:str): 
-    try:
-        return ipaddress.IPv4Address(ip_address)
-    except ValueError:
-        raise ValueError(f"is_valid_ipaddress_v4: ip_address non è un indirizzo IPv4 valido {ip_address}") 
-
-def is_valid_ipaddress_v6(ip_address:str): 
-    try:
-        return ipaddress.IPv6Address(ip_address)
-    except ValueError:
-        raise ValueError(f"is_valid_ipaddress_v6: ip_address non è un indirizzo IPv6 valido {ip_address}") 
-
-def is_valid_time(timeout_time=None):    
-    if timeout_time is None or not isinstance(timeout_time, (int, float)):
-        raise Exception(f"is_valid_time: Tempo non accettato {timeout_time}")  
+def is_valid_time(timeout_time:int|float=None):    
+    if not isinstance(timeout_time, (int, float)):
+        print(f"is_valid_time: Tempo non accettato {timeout_time}")  
+        return False
     return True
 
 def is_threading_Event(event:threading.Event=None):
-    if event is None or not isinstance(event, threading.Event):
-        raise Exception(f"is_threading_Event: event non è un threading.Event {event}")
+    if not isinstance(event, threading.Event):
+        print(f"is_threading_Event: event non è un threading.Event {type(event)}") 
+        return False
     return True 
 
 def is_dictionary(args:dict=None):
-    if args is None or not isinstance(args, dict):
-        raise Exception(f"is_dictionary: Argomenti non validi {args}") 
+    if not isinstance(args, dict):
+        print(f"is_dictionary: Argomenti non validi {args}") 
+        return False
     return True
 
 def is_AsyncSniffer(sniffer:AsyncSniffer=None):
-    if sniffer is None or not isinstance(sniffer,AsyncSniffer):
-        raise ValueError(f"is_AsyncSniffer: lo sniffer non è valido {sniffer}") 
+    if not isinstance(sniffer,AsyncSniffer):
+        print(f"is_AsyncSniffer: lo sniffer non è valido {sniffer}") 
+        return False
     return True 
 
 def is_threading_Timer(timer:threading.Timer=None):
-    if timer is None or not isinstance(timer, threading.Timer):
-        raise Exception(f"is_threading_Timer: timer non è un threading.Timer {timer}")
+    if not isinstance(timer, threading.Timer):
+        print(f"is_threading_Timer: timer non è un threading.Timer {type(timer)}")
+        return False
     return True 
 
 def is_list(lista:list=None):
-    if list is None or not isinstance(lista,list):
-        raise Exception(f"is_list: lista non è una lista {lista}")
+    if not isinstance(lista,list):
+        print(f"is_list: lista non è una lista {lista}") 
+        return False
     return True  
 
 def is_string(stringa:str=None):
-    if stringa is None or not isinstance(stringa,str):
-        raise Exception(f"is_string: stringa non valida {stringa}")
+    if not isinstance(stringa,str):
+        print(f"is_string: stringa non valida {stringa}")
+        return False
     return True 
 
 def is_bytes(byte:bytes=None):
-    if byte is None or not isinstance(byte,bytes):
-        raise Exception(f"is_bytes: byte non valido {byte}")
+    if not isinstance(byte,bytes):
+        print(f"is_bytes: byte non valido {byte}") 
+        return False
     return True 
 
 def is_integer(integer:int=None):
-    if integer is None or not isinstance(integer,int):
-        raise Exception(f"is_integer: int non valido {integer}")
+    if not isinstance(integer,int):
+        print(f"is_integer: int non valido {integer}")
+        return False
     return True 
 
 def is_boolean(booleano:bool=None):
-    if booleano is None or not isinstance(booleano,bool):
-        raise Exception(f"is_boolean: booleano non valido {booleano}")
+    if not isinstance(booleano,bool):
+        print(f"is_boolean: booleano non valido {booleano}")
+        return False
     return True 
 
-def is_threading_lock(block:threading.Lock=None):
-    if block is None or not isinstance(block,type(threading.Lock())):
-        raise Exception(f"is_threading_lock: lock non valido {block}")
+def is_threading_lock(lock:threading.Lock=None):
+    if not isinstance(lock,type(threading.Lock())):
+        print(f"is_threading_lock: lock non valido {lock}")
+        return False
     return True 
 
 def is_valid_shell(shell:subprocess.Popen[str]=None):
-    if shell is None or not isinstance(shell, subprocess.Popen):
-        raise ValueError(f"is_valid_shell: shell non valida {shell}")
+    if not isinstance(shell, subprocess.Popen):
+        print(f"is_valid_shell: shell non valida {shell}")
+        return False
     return True
 
+def is_IPAddress(ip_address:ipaddress.IPv4Address|ipaddress.IPv6Address):
+    if not isinstance(ip_address, ipaddress.IPv4Address) and not isinstance(ip_address, ipaddress.IPv6Address):
+        print(f"is_IPAddress: Non è istanza ne di IPv4Address ne di IPv6Address: {type(ip_address)}")
+        return False
+    return True
 #------------------------
 def check_args_sniffer(args:dict=None): 
     try:
@@ -223,48 +219,46 @@ def set_threading_Event(event:threading.Event=None):
 
 #------------------------
 def start_sniffer(sniffer:AsyncSniffer=None, timer:threading.Timer=None):
-    if sniffer is None or not isinstance(sniffer, AsyncSniffer):
-        raise Exception("start_sniffer: sniffer non valido")
-    if timer is None or not isinstance(timer, threading.Timer):
-        raise Exception("start_sniffer: timer non valido")
+    if not isinstance(sniffer, AsyncSniffer):
+        raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}")
+    if not isinstance(timer, threading.Timer):
+        raise Exception(f"Timer non istanza di threading.Timer: {type(timer)}")
     sniffer.start()
     timer.start()
 
-def stop_sinffer(sniffer=None):
-    try:
-        if not is_AsyncSniffer(sniffer):
-            raise Exception(f"stop_sinffer: sniffer non valido")
-    except Exception as e:
-        raise Exception(f"stop_sinffer: {e}")
-    if sniffer.running: 
+def stop_sinffer(sniffer:AsyncSniffer=None): 
+    if not is_AsyncSniffer(sniffer):
+        raise Exception(f"Sniffer non istanza di AsyncSniffer: {type(sniffer)}") 
+    if sniffer.running(): 
         sniffer.stop() 
         print("Sniffer Stopped")
+        if sniffer.running():
+            print("\t***sniffer still alive")
+        return True
+    return False 
+
+def stop_timer(timer:threading.Timer=None):
+    if not is_threading_Timer(timer):
+        print(f"stop_timer: timer non valido") 
+        return False
+    if timer.is_alive():
+        timer.cancel() 
+        print("Timer Stopped")
+        if timer.is_alive():
+            print("\t***Timer still alive")
         return True
     return False
 
-def sniffer_timeout(sniffer:AsyncSniffer=None,threading_event:threading.Event=None):
-    try:
-        is_AsyncSniffer(sniffer)
-        is_threading_Event(threading_event)
-    except Exception as e:
-        raise ValueError(f"sniffer_timeout: {e}")
+def sniffer_timeout(sniffer:AsyncSniffer=None,threading_event:threading.Event=None): 
+    if not is_AsyncSniffer(sniffer) or not is_threading_Event(threading_event): 
+        raise ValueError("sniffer_timeout: Valori passati non corretti") 
     if not threading_event.is_set():
         print("Timeout: No packet received within 60 seconds")
         if sniffer.running:
             sniffer.stop() 
         set_threading_Event(threading_event) 
 
-def stop_timer(timer:threading.Timer=None):
-    try:
-        if not is_threading_Timer(timer):
-            raise Exception(f"stop_timer: timer non valido")
-    except Exception as e:
-        raise Exception(f"stop_timer: {e}")
-    if timer.is_alive():
-        timer.cancel() 
-        print("Timer Stopped")
-        return True
-    return False
+
 
 #------------------------
 def send_packet(data:bytes=None,ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, time=10,icmp_seq=0,id=None,interface=""):
@@ -404,3 +398,14 @@ def check_mac_in_cache(ipv6_addr:str=None, iface_name: str=None):
         return None
     except Exception as e:
         raise Exception(f"check_mac_in_cache: {e}") 
+
+
+
+def ping_once(ip_dst:ipaddress.IPv4Address|ipaddress.IPv6Address=None, iface:str=None, timeout=1):
+    try:
+        is_string(iface)
+        if isinstance(ip_dst, ipaddress.IPv4Address) or isinstance(ip_dst, ipaddress.IPv6Address):
+            os.system(f"ping6 -c 1 {ip_dst.compressed}%{iface}")
+        else: raise Exception("L'indirizzo non è ne un 'ipaddress.IPv4Address' ne un 'ipaddress.IPv6Address'")
+    except Exception as e:
+        raise Exception(f"ping_once: {e}")
