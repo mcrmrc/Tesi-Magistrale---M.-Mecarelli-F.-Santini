@@ -4,9 +4,9 @@ from custom_enum import ATTACK_TYPE, SENDER_TYPE
 #from attack.attack_classes import IPV4_TIMING, _IPx 
 #from attack.singleton import SendSingleton, ReceiveSingleton
 from config import block_size, min_wait, max_wait
-from utils_methods import non_blocking_sleep, threadEvent_wait, threadEvent_set
+from Programma.methods.utils_methods import non_blocking_sleep, threadEvent_wait, threadEvent_set
 #from network.network_classes import IP_INTERFACE
-#from network.network_methods import find_hosts_attivi
+#from network.network_methods import get_hosts_attivi
 #from type.check_type import is_bytes, is_ipaddress, is_integer, is_string
 #from pypdf import PdfReader  
 
@@ -1010,7 +1010,7 @@ AttackType.ipv4_echo_random_payload,
 
 def prova_fake_sender():
     cento_KB=(dieci_KB*10)#.encode() 
-    host_attivi, host_inattivi=find_hosts_attivi() 
+    host_attivi, host_inattivi=get_hosts_attivi() 
     print("HOST ATTIVI: ",host_attivi)
     
     #USO HOST ATTIVI

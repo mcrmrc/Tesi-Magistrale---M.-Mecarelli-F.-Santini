@@ -1,6 +1,6 @@
-from type.check_type import istype
+from Programma.methods.check_type import istype
 from scapy.all import Ether, IP, ICMP, Raw, sendp
-from network.network_classes import GET_MAC_ADDRESS, INTERFACE_FROM_IP
+from Programma.classes import GET_MAC_ADDRESS, INTERFACE_FROM_IP
 import ipaddress, datetime, time
 
 
