@@ -201,7 +201,8 @@ class Victim:
         #self.get_parameter_problem() 
         #self.get_time_exceeded() 
         #self.get_destination_unreachable() 
-        self.get_timing_cc() 
+        #self.get_timing_cc() 
+        pass
 
     def get_information_request(self):
         information_data=[]
