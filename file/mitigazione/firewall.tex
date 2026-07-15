@@ -1,3 +1,10 @@
+%NOT RED
+%https://www.bing.com/search?q=linux%20how%20to%20allow%20or%20drop%20packets&qs=n&form=QBRE&sp=-1&ghc=1&lq=0&pq=linux%20how%20to%20allow%20or%20drop%20packets&sc=12-34&sk=&cvid=BB9922DC160D445C8B5C10B7FCD20E9B 
+%https://www.lanzagiuseppe.it/guida_firewall_41.html 
+%https://linuxvox.com/blog/linux-firewalls/ 
+%https://linuxvox.com/blog/linux-firewalls/ 
+%https://allthings.how/set-up-a-firewall-using-ufw-or-firewalld-in-linux/ 
+
 %NOT USED
 %
 %https://www.geeksforgeeks.org/computer-science-fundamentals/what-is-an-ip-address/ 
@@ -5,111 +12,428 @@
 %https://www.geeksforgeeks.org/computer-organization-architecture/introduction-of-ports-in-computers/ 
 %
 %
-%https://www.geeksforgeeks.org/linux-unix/linux-firewall/
-\subsection{Firewall in Linux} 
-What is Linux Firewall (firewalld)
-The security system in Linux OS is known as Linux Firewall, which monitors and governs the network traffic 
-(outbound/inbound connections). It can be used to block access to different IP addresses, Specific subnets, 
-ports (virtual points where network connections begin and end), and services.
-%
-We have a daemon's name called Firewalld which is used to maintain the firewall policies. 
-A dynamically managed firewall tool in a Linux system is known as Firewalld, it can be updated in real-time 
-if there are any changes in the network environment.
-%
-This Firewalld works in concepts of zones (segments). We can check whether our firewall services are 
-running or not by using the commands sudo (user access) and systemctl (use to control and manage the 
-status of services).
-\begin{lstlisting}[language=bash, caption=Check the status of firewall service] 
-    sudo systemctl status firewalld
-\end{lstlisting}
-To protect our system from unauthorized access and to control network traffic (incoming and outgoing). 
-We can do customization in ports, addresses, protocols, etc.
-%
-Rule 1: Allowing SSH (Secure Shell or Secure Socket Shell) traffic
-By using this we can allow all incoming traffic on the SHH port so that we can connect to the system remotely.
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-    sudo firewall-cmd --zone=public --add-services=ssh --permanent 
-    sudo firewall-cmd --reload
-\end{lstlisting}
-%
-Rule 2: Allowing incoming traffic on a specific port
-We are allowing traffic on a specific TCP port 8080 you can replace it with requirements.
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-    sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
-    sudo firewall-cmd --reload
-\end{lstlisting}
-%
-Rule 3: Blocking incoming traffic on a specific IP address
-We are blocking incoming traffic on IP 192.168.52.1 you can replace it with your requirements.
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-sudo firewall-cmd --zone=public --add-rich='rule family="ipv4" source address="192.168.52.1" reject'
-sudo firewall-cmd --reload
-\end{lstlisting}
+%https://www.geeksforgeeks.org/linux-unix/linux-firewall/  
 
-
-\subsubsection{Types of Linux Firewalls}
-There is more than one Linux firewall option available. When we come to drop down and research, 
-we have a few popular names IPCop, iptables, Shorewall, and UFW But one of the most popular is 
-the "iptables" firewall.
+%https://www.geeksforgeeks.org/linux-unix/how-to-setup-firewall-in-linux/
 %
-\subsection{Iptables Working}
-Linux-based software that performs manipulation functions, packet filtering, and NAT 
-(network address translation) is known as Iptables. With the help of Iptables which 
-allows system administrators to control incoming and outgoing traffic by setting up the rules. 
-%
-When a packet is received in a Linux base system, it has to go through the chains and tables in 
-the iptables firewall. The most commonly used tables are filter and nat but we have five predefined 
-tables in iptables (raw, nat, filter, security, and mangle).
-
-\subsubsection{Types of Tables} 
-We will discuss five predefined tables:
+% 
+A firewall is a network security system, available as hardware or software, designed to monitor and control 
+incoming and outgoing network traffic. %based on predefined rules. 
+%By combining prevention, monitoring, and control, 
+%firewalls provide customizable and comprehensive protection against both external and internal threats.
+It is essential for protecting your system from unauthorized access and attacks. 
+And by configuring firewall rules, you can control the flow of traffic into and out of your system. 
+%A firewall inspects all incoming and outgoing traffic and decide whether to allow or block it. 
+It can filter the data packets to either:
 \begin{itemize}
-    \item Security Table: It is often used in conjunction with other security tools like SELinux, 
+    \item Accept: Allow the traffic.
+    \item Reject: Block with an error response.
+    \item Drop: Block silently without response. 
+\end{itemize} 
+A Linux firewall act as a barrier between trusted internal networks and untrusted external connections, filtering traffic based on predefined rules. 
+With them, you can enforce predefined security policies by restricting unauthorized access and allowing legitimate communication. 
+So setting up a firewall in Linux is an essential step to protect your system from unauthorized access and potential threats or data breaches. 
+%These firewalls help your system or server by keeping it safe and secure.
+%A firewall is the first line of defense in cybersecurity, acting as a security barrier between internal systems and external networks. 
+%It forces all traffic through a single checkpoint. 
+%It's a checkpoint, where data packets are monitored, filtered, and either allowed or blocked based on predefined rules. 
+%\vspace{2ex} \newline 
+%
+%, it is allowed; if it is suspicious, blacklisted, or 
+%contains malicious content, it is blocked.
+%Blocked or unusual traffic is recorded in logs, and real-time alerts may be generated for serious threats.
+\vspace{2ex} \newline 
+%When a packet enters or exits the system, the firewall checks it against its rules to determine whether it 
+%should be allowed to pass or blocked.
+%All data packets entering or leaving the network must first pass through the firewall.
+The firewall examines each packet against predefined security rules set by the organization and check 
+if the packet matches one of this rules. 
+%A Linux firewall filters network traffic based on a series of rules. 
+If a packet matches an "allow" rule, it is allowed to pass. If it matches a "deny" rule, it is blocked. 
+Since it is not possible to define every rule, the firewall applies a default policy (accept, reject, or drop). 
+Setting the default policy to drop or reject is considered best practice to prevent unauthorized access.
+\vspace{2ex} \newline 
+%These rules specify which types of network packets (data sent over the network) are allowed or denied based on factors like: 
+The rules are based on factors like: 
+\begin{itemize}
+    \item IP Address: The source or destination address of the packet. 
+    IP Address: The source or destination address of the packet.
+    \item Port Number: The communication port the packet is trying to reach 
+    (e.g., port 80 for HTTP or port 22 for SSH). 
+    Port Number: The communication port the packet is trying to reach (e.g., port 80 for HTTP or port 22 for SSH).
+    \item Protocol: The type of network protocol used (TCP, UDP, ICMP, etc.). 
+    Protocol: The type of network protocol used (TCP, UDP, ICMP, etc.).
+    \item Connection State: Whether the packet is part of an established connection or is a 
+    new connection request. 
+    Connection State: Whether the packet is part of an established connection or is a new connection request.
+\end{itemize} 
+Firewalls are essential because they:
+\begin{itemize}
+    \item Prevent Unauthorized Access: Like a locked door with a guard, only trusted users and traffic are allowed through.
+    \item Block Malicious Traffic: Harmful data such as viruses, phishing attempts, or denial-of-service (DoS) attacks are stopped before reaching the system.
+    \item Protect Sensitive Information: Safeguards personal and business data from theft or accidental leaks.
+    \item Control Network Usage: Enforces policies such as parental controls, workplace restrictions, or government filtering.
+    \item Mitigate Insider Risks: Detects suspicious applications or data exfiltration attempts from within the network.
+\end{itemize} 
+
+
+%https://www.ninjaone.com/it/blog/come-configurare-un-firewall-linux/# 
+%https://www.cybersecurity360.it/soluzioni-aziendali/iptables-cose-a-cosa-serve-come-configurarlo-e-gli-usi-avanzati-per-il-firewalling/ 
+\subsection{Come configurare un firewall Linux: la guida completa} 
+Prima di dedicarsi alle configurazioni, è necessario iniziare con una politica di sicurezza ben articolata. 
+Definisci quali dati e servizi devono essere protetti e da quali minacce, 
+per garantire che il firewall Linux funga da prima linea di difesa efficace. 
+Non si tratta solo di ciò che decidi di bloccare e da chi; 
+anche le considerazioni sulla sicurezza delle informazioni, come i metodi di blocco, entrano in gioco. 
+\vspace{2ex} \newline  
+Per una sicurezza ottimale di Linux, adotta una posizione di minima esposizione. 
+Una buona pratica consiste nel negare tutti per impostazione predefinita e aprire 
+le vie di accesso solo quando necessario, il che è essenzialmente un’architettura zero-trust. 
+In questo modo si minimizzano le superfici di attacco potenziali e si riduce l’esposizione involontaria. 
+Un caso d’uso comune è la distinzione tra regole di “deny” e “drop” nel firewall Linux: 
+le prime inviano attivamente una risposta di RICHIESTA RIFIUTATA al mittente dei pacchetti, 
+mentre le seconde scartano silenziosamente i pacchetti di richiesta senza risposta. 
+Chiunque abbia mai gestito un server di produzione su Internet aperto può dirti quanto 
+sia saggio non pubblicizzare il tuo indirizzo IP a scansioni di porte casuali, ad esempio.
+\vspace{2ex} \newline 
+Sebbene l’attenzione sia rivolta a contrastare il traffico in entrata non richiesto, 
+il monitoraggio ed il controllo del traffico in uscita sono altrettanto importanti. 
+Ciò assicura che i sistemi potenzialmente compromessi all’interno della rete non diventino canali 
+per l’esfiltrazione dei dati o altre attività dannose. 
+Le infezioni degli endpoint sui laptop degli utenti possono contaminare altri computer all’interno della rete, 
+come l’archiviazione di rete o i server aziendali, più facilmente di quanto possano fare i malintenzionati, 
+in parte a causa del livello di fiducia esistente. 
+\vspace{2ex} \newline  
+Configurazione di regole specifiche per i servizi
+Servizi diversi presentano vulnerabilità diverse.
+Adatta le regole del firewall Linux per soddisfare queste sfumature, assicurando che ogni servizio, 
+sia esso SSH, HTTP o FTP, abbia il suo scudo protettivo su misura. 
+I servizi di watchdog come fail2ban possono anche osservare i log dei servizi alla ricerca di 
+segnali di attacchi alla sicurezza, intervenendo generalmente in modo appropriato regolando le regole 
+del firewall e le blacklist.
+\vspace{2ex} \newline  
+Verifica e aggiornamenti regolari del firewall Linux
+Il panorama delle minacce è in continua evoluzione, e così anche le tue difese. 
+La verifica e l’aggiornamento regolari delle configurazioni del firewall garantiscono 
+che queste rimangano solide, pertinenti e rispondenti all’ambiente attuale delle minacce. 
+In sostanza, la configurazione di un firewall Linux non consiste solo nell’impostare le regole, 
+ma si tratta di costruire un sistema di protezione completo che sia in linea con gli standard di 
+sicurezza dell’organizzazione. 
+\vspace{4ex} \newline 
+Firewalls can be categorized based on their generation.
+\begin{enumerate}
+    \item Network Placement
+Packet Filtering Firewall
+Stateful Inspection Firewall
+Proxy Firewall (Application Level)
+Circuit-Level Gateway
+Web Application Firewall (WAF)
+Next-Generation Firewall (NGFW)
+\item Systems Protected
+Network Firewall
+Host-Based Firewall
+\item Data Filtering Method
+Perimeter Firewall
+Internal Firewall
+Distributed Firewall
+\item Form Factors
+Hardware Firewall
+Software Firewall 
+\end{enumerate} 
+
+%https://tekneed.com/how-to-configure-firewall-in-linux-systems/ 
+\subsection{Hardware vs. Software Firewalls}
+There are two primary types of firewalls:
+Hardware-based firewalls are physical devices designed to protect an entire network.
+Software-based firewalls (like those we use on Linux) protect individual systems.
+
+
+\subsection{How To Prevent Data Breaching}
+For Enterprises
+1. Vulnerability Management - Using a vulnerability tool or at the very least complete a vulnerability assessment will help you identify the gaps, weaknesses, and security miss configurations within your physical and virtual environments. It can continuously monitor your infrastructure and IT assets for vulnerabilities and compliance weaknesses and configuration best practices.
+2. End-user security awareness - End-user security awareness training when done, is a huge benefit. But only when it changes the culture of the company to be more security-minded. Training insiders may help to eliminate mistakes that lead to the breach as well as notice odd behavior by malicious insiders or fraudsters.
+3. Update software regularly - Keep software updated, install patches, Operating system must update regularly as out-dated software may contain bugs that can prevent attackers to get access to your data easily. This is an easy and cost-effective way to strengthen your network and stop attacks before they happen.
+4. Limit access to your valuable data - In old days employees have access to all the data of the company. Now the company is limiting the critical data for employee access because there is no need to show financial data or personal data to the employees.
+
+For Employees
+1. Securing Devices - While using any device we should ensure that we have installed genuine antivirus, we are using the password on our device, and all the software is updated.
+2. Securing accounts - We should change the password of our account after a short span of time so that an attacker cannot get easy access to the account.
+3. Beware of social engineering - Whenever you are surfing on the internet be aware of fraud links and sites do not open any site or don't provide any crucial information to anyone it can be so harmful.
+4. Keep checking bank receipt - You should daily check your bank transaction for ensuring that there is no fraud transaction.
+
+\subsection{Tips for Effective Firewall Management}
+1. Understand Your Network Needs
+Identify which ports and services are required for your system and block the rest.
+
+2. Use Logging for Monitoring
+Enable logging to track allowed and blocked traffic for better troubleshooting.
+
+For firewalld
+sudo firewall-cmd --set-log-denied=all
+For iptables
+Use the LOG target to record dropped packets.
+
+3. Test Firewall Rules
+Use tools like nmap to scan your system and verify that only intended ports are open.
+
+4. Automate Rule Application
+Write startup scripts or use tools like Ansible to automate firewall configurations.   
+
+
+\subsection{Common Mistakes to Avoid}
+Not Saving Rules: Forgetting to save changes leads to loss of configurations after a reboot. 
+\newline
+Over-Blocking Traffic: Be cautious when setting DROP rules to avoid locking yourself out.
+\newline
+Misapplying Zones (firewalld): Ensure interfaces are assigned to the correct zone.
+
+
+\subsection{Linux's firewall maanagment tools}
+Linux offers multiple firewall management tools, including iptables and firewalld, 
+both of which can be used to manage and secure your network.
+%
+There is more than one Linux firewall option available. 
+When we come to drop down and research, we have a few popular names IPCop, iptables, Shorewall, and UFW; 
+but one of the most popular is the "iptables" firewall. 
+%
+Though iptables is still available, Red Hat distributions have moved towards 
+using firewalld and nftables for better usability and scalability.
+\begin{center} 
+\begin{longtable}{|c|c|c|c|} 
+    \hline
+    Feature	& iptables & firewalld & UFW \\
+    \hline 
+    Ease of Use	& Moderate & Easy & Very Easy \\
+    \hline 
+    Best For & Advanced users & Zone-based management & Beginners \\
+    \hline 
+    Dynamic Rules & No & Yes & Limited \\
+    \hline 
+    GUI Available & No	& Yes (GUI plugins)	& Yes (Gufw) \\
+    \hline 
+%\caption{Tipologie di mitigazioni} 
+%\label{tabella:mitigazioni:tipologie} 
+\end{longtable} 
+\end{center}  
+
+
+%https://www.geeksforgeeks.org/linux-unix/iptables-command-in-linux-with-examples/ 
+%https://www.geeksforgeeks.org/linux-unix/ipv6-iptables-rules/
+%
+%NOT USED
+%https://en.wikipedia.org/wiki/Mandatory_access_control
+\subsection{iptables} 
+Linux-based software that performs manipulation functions, packet filtering, and NAT (network address translation). 
+%iptables is the most widely used firewall tool in Linux. 
+It works by defining chains of rules that filter network traffic at various points (such as incoming or outgoing traffic). 
+%And it operates at the network layer (Layer 3) and transport layer (Layer 4).
+%A powerful command-line tool that filters network traffic.  
+%The iptables command in Linux is a powerful tool that is used for managing the firewall rules and network traffic. 
+Iptables allows system administrators to control incoming and outgoing traffic by setting up the rules. 
+When a packet is received in a Linux base system, it has to go through the chains and 
+tables in the iptables firewall.  
+%It's essential for securing servers and networks by selectively permitting or denying specific types 
+%of traffic based on defined rules and conditions. 
+%This flexibility makes iptables a fundamental component in Linux networking and security configurations. 
+\vspace{3ex} \newline 
+There are other interfaces such ipv6 tables which are used to manage filtering tables for IPv6. 
+To block IPv6 traffic on a Linux system, you can use ip6tables, the IPv6 counterpart of iptables 
+%
+\vspace{3ex} \newline 
+The following are the some of the reasons to use Iptables in Linux: 
+\begin{itemize}
+    \item Firewall Configuration: It helps in enabling the precise control over the netowrk traffic to protect against unauthorized access and attacks.
+    Robust Firewall Capabilities: It facilitates with configuration of firewall rules to control incoming and outgoing traffic, enhancing network security.
+    Firewall Protection: Iptables can be configured through blocking the unauthorized access and allow legitimate traffic. It facilitates with providing a robust firewall to secure a network or individual system.
+    \item Packet Filtering: It allows in filtering based on the criteria like protocol, IP addresses and prots providing the security.
+    Packet Filtering: Iptables facilitates with providing filtering features for network packets based on various criteria such as source and destination IP addresses and ports.
+    Precise Packet Filtering: It provides the filtering based on criteria such as protocol, source/destination IP addresses, and ports, ensuring only authorized traffic passes through.
+    Traffic Shaping and Control: By setting rules, iptables we can manage and prioritize network traffic, ensuring critical services maintain performance and reducing congestion during peak usage times.
+    \item Network Address translation (NAT): It facilitates with seamless communication between different network segments.
+    NAT: Iptables supports the NAT by allowing for the translation of the private IP address to public address making an essential for devices within a private network to establish the communication with external networks.
+    Network Address Translation (NAT): It supports NAT functionality for translating IP addresses and ports, essential for network connectivity and management.
+    Network Address Translation (NAT): iptables facilitates NAT, allowing multiple devices on a private network to access external networks using a single public IP address, essential for home and business networks.
+    \item Logging and Monitoring: It provides the insights into the network activity for providing feature sof security auditing and troubleshooting. 
+    Logging and Monitoring: It provides logging capabilities to monitor and analyze network traffic, aiding in security auditing and troubleshooting.
+    \item Stateful Inspection: Through stateful inspection, iptables helps in tracking the state of network connections with providing the enhanced security by legitimating the traffic that is only allowed.
+    \item Port Forwarding: With iptables, administrators can redirect traffic from one port to another, enabling access to services running on different ports or internal servers from external networks.
+\end{itemize} 
+%Here filters are responsible for filtering the packets on the defined rules based on the source and destination of the IP address, port number, and protocol type. 
+
+
+\subsection{Configuring Firewall with iptables}
+iptables operates on a three-tiered system:
+%The firewall matches packets with rules defined in these tables and then takes the specified action on a possible match. 
+\begin{itemize}
+    \item Tables is the name for a set of chains.
+    \item Chain is a collection of rules.
+    \item Rule is condition used to match packet.
+    \item Target is action taken when a possible rule matches. Examples of the target are ACCEPT, DROP, QUEUE.
+    \item Policy is the default action taken in case of no match with the inbuilt chains and can be ACCEPT or DROP.
+\end{itemize}
+\begin{lstlisting}
+    iptables --table TABLE -A/-C/-D... CHAIN rule --jump Target
+
+    #The syntax for using policies:  
+    sudo iptables -I/-A name_chain -s source_ip -p protocol_name --dport port_number -j action_to_do 
+\end{lstlisting}  
+
+\subsubsection{Tables}
+These are categorized groups of rules. 
+Each table handles a specific type of packet. 
+The most commonly used tables are filter and nat but we have five predefined tables:  
+%There are five possible tables as follows: We will discuss five predefined tables: 
+\begin{center} 
+\begin{longtable}{|p{0.3\textwidth}|p{0.5\textwidth}|} 
+    \hline
+    \textbf{Tipologie di tabella} & \textbf{Descrizione} \\
+    \hline 
+    Security Table & 
+    It is often used in conjunction with other security tools like SELinux, 
     it is also used for MAC (Mandatory Access Control) rules, which can further be used to set rules 
     related to security labels and access controls. 
-    \vspace{2ex} \newline
-    It has four built-in chains: OUTPUT, FORWARD, INPUT, and SECMARK. 
-    \item Mangle Table: It is used to modify packets by setting the packet's ToS/DSCP field, altering packet header 
+    %\vspace{2ex} \newline
+    %It has four built-in chains: OUTPUT, FORWARD, INPUT, and SECMARK. 
+    \\
+    \hline 
+    Mangle Table & 
+    It is used to modify packets by setting the packet's ToS/DSCP field, altering packet header 
     fields, and changing packet marks. 
-    \vspace{2ex} \newline
-    It has Five built-in chains: POSTROUTING, FORWARD, OUTPUT, PREROUTING, and INPUT. 
-    \item Nat Table: It stands for network address translation, which helps in sharing a single 
+    %For specialised packet alteration. Inbuilt chains include PREROUTING and OUTPUT.
+    %\vspace{2ex} \newline
+    %It has five built-in chains: POSTROUTING, FORWARD, OUTPUT, PREROUTING, and INPUT. 
+    \\
+    \hline 
+    Nat Table & 
+    It stands for network address translation, which helps in sharing a single 
     public IP address between multiple devices. 
-    \vspace{2ex} \newline
-    It has two built-in chains: PREROUTING and POSTROUTING. 
-    \item Raw Table: It is used for the configuration of low-level packet processing. 
-    \vspace{2ex} \newline
+    %\vspace{2ex} \newline
+    %It has two built-in chains: PREROUTING and POSTROUTING.  
+    \\
+    \hline 
+    Raw Table & 
+    It is used for the configuration of low-level packet processing.  
     It has limited built-in chains, but the user can create additional chains if required. 
-    \item Filter Table: It is used for packet filtering. 
-    \vspace{2ex} \newline
-    It has three built-in chains. INPUT, OUTPUT, and FORWARD.
-\end{itemize}
-Here filters are responsible for filtering the packets on the defined rules based on the source and destination 
-of the IP address, port number, and protocol type. And Chains there are three different types of built-in chains.
+    %raw : Configures exemptions from connection tracking. Built-in chains are PREROUTING and OUTPUT.
+    \item 
+    \\
+    \hline 
+    Filter Table & 
+    It is used for packet filtering. 
+    %\vspace{2ex} \newline
+    %It has three built-in chains. INPUT, OUTPUT, and FORWARD. 
+    \\
+    \hline 
+\caption{Types of Tables} 
+\label{tabella:iptables:tipologie:tabelle} 
+\end{longtable} 
+\end{center}  
 
-\subsubsection{Types of Chains}
-Chain Rule: Rules that are described for a particular task. Subdivided into three types: 
+\subsubsection{Chains} 
+These are sequences of rules within a table. 
+Packets are processed through a chain until a matching rule is found, determining the packet's fate. 
+%There are few built-in chains that are included in tables. They are: 
+%Chain Rule: Rules that are described for a particular task. Subdivided into three types: 
+\begin{center} 
+\begin{longtable}{|p{0.25\textwidth}|p{0.55\textwidth}|} 
+    \hline
+    \textbf{Tipologie di difesa} & \textbf{Sottotipologie} \\
+    \hline 
+    INPUT Chains & 
+    Filter incoming traffic in the local system. 
+    Traffic has to go from every rule that has been assigned within input chains.
+    INPUT : A set of rules for packets destined to localhost sockets. 
+    INPUT: Incoming packets destined for the local machine.
+    \\
+    \hline 
+    OUTPUT Chains & 
+    Filter Outgoing traffic for the local system. 
+    Traffic going through local machines has to pass through these output chains. 
+    OUTPUT : It is locally generated packets, meant to be transmitted outside. 
+    OUTPUT: Outgoing packets originating from the local machine.
+    \\
+    \hline 
+    FORWARD Chains & 
+    Packets forwarded from one system to another go throw it. 
+    Traffic going from the arising network location to another network location has to pass through forward chains. 
+    FORWARD :for packets routed through the device. 
+    FORWARD: Packets routed through the machine.
+    \\
+    \hline 
+    PREROUTING & It is used for modifying packets as they arrive. \\ \hline 
+    POSTROUTING & IIt helps in modifying packets as they are leaving. \\ \hline 
+\caption{Types of Chains} 
+%\label{tabella:difese:tipologie} 
+\end{longtable} 
+\end{center} 
+
+\subsubsection{Rules} 
+These are the individual instructions within a chain. 
+Each rule has conditions (matching criteria) and targets (actions to take). Common actions include:
+%We have three basic Policies. Let's discuss Some Basic Operations and their Syntax
 \begin{itemize}
-    \item INPUT: Filter incoming traffic in the local system.
-    \item OUTPUT: Filter Outgoing traffic for the local system.
-    \item FORWARD: Packets forwarded from one system to another go throw it.
-\end{itemize}
+    \item ACCEPT: Allow the packet to pass. 
+    ACCEPT: It allows the IP we provide to make users go into the system.
+    \item DROP: Discard the packet silently. 
+    DROP: It can block an incoming signal, which basically states that the firewall is blocked for that particular IP.
+    \item REJECT: Discard the packet and send an error message. 
+    REJECT: It works similarly to Drop, but in 'drop' the sender is blocked without any notification whereas in 'reject' a message states the reason for not being able to connect.
+    \item LOG: Log information about the packet.
+    \item JUMP: Redirect the packet to another chain.
+\end{itemize} 
 
-\subsection{Configure a Firewall on Linux OS}
-We will be configuring iptables in our operating system.
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-To install iptables
-sudo dnf install iptables 
+\subsubsection{Example}
+\begin{lstlisting} 
+    #Check Current Rules by list current firewall rules
+    sudo iptables -L 
 
-Basic Syntax for using iptables
-sudo iptables [option] CHAIN-rule [-j target]
-\end{lstlisting}
-\begin{itemize}
-    \item Output Chains: Traffic going through local machines has to pass through these output chains. 
-    \item Input Chains: Traffic has to go from every rule that has been assigned within input chains.
-    \item Forward Chains: Traffic going from the arising network location to another network location 
-    has to pass through forward chains. 
-\end{itemize}
+    #Clear Existing Rules: Reset all current rules to start fresh
+    sudo iptables -F 
+    sudo iptables --flush
+
+    #Changing the Default Policy of each Chains
+    sudo iptables -P FORWARD DROP 
+    sudo iptables -P Chain_name Action_to_be_taken
+\end{lstlisting} 
+\begin{lstlisting} 
+    #Basic Syntax for using iptables
+    sudo iptables [option] CHAIN-rule [-j target] 
+
+    #allow incoming ICMP (ping) traffic on the INPUT chain:
+    sudo iptables -A INPUT -p icmp -j ACCEPT
+
+    #Implementing a DROP Rule 
+    sudo iptables -A/-I chain_name -s source_ip -j action_to_take
+    #block the traffic coming from 192.168.1.3.
+    sudo iptables -A INPUT -s 192.168.1.3 -j DROP
+    
+    #Implementing a ACCEPT Rule
+    sudo iptables -A/-I chain_name -s source_ip -p protocol_name --dport port_number -j Action_to_take
+
+    #rules to specific ports of your network
+    sudo iptables -A INPUT -s 192.168.1.3 -p tcp --dport 22 -j ACCEPT
+    
+    #Deleting a Rule from the iptable (Optional)
+    sudo iptables -D chain_name rule_number 
+\end{lstlisting} 
+\vspace{3ex} 
+It's always better to save your configurations. There are a lot of ways to do this, but the easiest way 
+you could find is with iptables-persistent package.
+%You can download the package from Ubuntu's default repositories:
+\begin{lstlisting} 
+    #Saving your Configuration 
+    sudo apt-get update
+    sudo apt-get install iptables-persistent
+    
+    #save your configuration using the command
+    sudo invoke-rc.d iptables-persistent save 
+    #To save the iptables configuration
+    sudo iptables-save
+
+    #Restoring iptables config 
+    sudo iptables-restore
+\end{lstlisting} 
+
 \begin{center} 
 \begin{longtable}{|p{0.3\textwidth}|p{0.5\textwidth}|} 
     \hline 
@@ -130,427 +454,195 @@ sudo iptables [option] CHAIN-rule [-j target]
     -X	& [DELETE CHAIN]: This deletes the entire supplied string. \\
     \hline 
     -p	& [Protocol\_name]: It is used to define the name of the protocol. \\
+    -p, --proto & is the protocol that the packet follows. Possible values maybe: tcp, udp, icmp, ssh etc. \\
     \hline 
     -N	& [NEW CHAIN]: To create a new chain. \\
     \hline 
-    -j	& [job]: It tells what operation has to be done with the packet. \\
+    -j	& [job]: It tells what operation has to be done with the packet. \\ 
+    -j, --jump & this parameter specifies the action to be taken on a match. \\
     \hline 
     -F	& [Flush]: It is to delete all rules. \\
     \hline 
-    -s	& [specify]: It is a flag used to specify the source of the packet.  \\
+    -s	& [specify]: It is a flag used to specify the source of the packet.  \\ 
+    -s, --source & is used to match with the source address of the packet. \\ 
+    -d, --destination & is used to match with the destination address of the packet.\\
+    -i, --in-interface & matches packets with the specified in-interface and takes the action. \\
     \hline 
 \caption{Tipologie di mitigazioni} 
 \label{tabella:mitigazioni:tipologie} 
 \end{longtable} 
-\end{center}  
-We have three basic Policies. Let's discuss Some Basic Operations and their Syntax
-\begin{itemize}
-    \item DROP: It can block an incoming signal, which basically states that the firewall is blocked for that particular IP.
-    \item ACCEPT: It allows the IP we provide to make users go into the system.
-    \item REJECT: It works similarly to Drop, but in 'drop' the sender is blocked without any notification whereas in 'reject' a message states the reason for not being able to connect.
-\end{itemize}
-%
-Creating our first rule
-The first rule to allow incoming ICMP (ping) traffic on the INPUT chain:
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-sudo iptables -A INPUT -p icmp -j ACCEPT
-\end{lstlisting}
-Uses '-A' to append the rule at the end of the INPUT chain. '-p icmp' tells that rule is applying to ICMP 
-traffic. '-j ACCEPT' tells you to accept(allow) any traffic that matches the rule.
-%
-The syntax for using policies: 
-\# Refer context mentioned above to see the use-case of [ -I , -A , -p , -s ,-j ] 
-sudo iptables -I/-A name\_chain -s source\_ip -p protocol\_name --dport port\_number -j action\_to\_do 
-%
-Example:
-Accept Rule: If we have to accept an IP (source) 192.168.160.51 on port number 22 using TCP protocol. 
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-sudo iptables -A INPUT -s 192.168.160.51 -p tcp --dport 22 -j ACCEPT
-\end{lstlisting}
-%
-Drop Rule: If we have to Drop an IP (source) 192.168.160.51.
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-sudo iptables -A/-I chain_name -s source_ip -j action_to_do
-\end{lstlisting}
-%
-Reset Rule: To reset all iptables rule we use -F.
-\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
-sudo iptables -F
-\end{lstlisting}
+\end{center} 
 
-%https://www.geeksforgeeks.org/linux-unix/iptables-command-in-linux-with-examples/ 
-%https://www.geeksforgeeks.org/linux-unix/ipv6-iptables-rules/
-%
-%NOT USED
-%https://en.wikipedia.org/wiki/Mandatory_access_control
-\subsection{iptables command in Linux with Examples}
-The iptables command in Linux is a powerful tool that is used for managing the firewall rules and network traffic. 
-It's essential for securing servers and networks by selectively permitting or denying specific types of traffic 
-based on defined rules and conditions. This flexibility makes iptables a fundamental component in 
-Linux networking and security configurations. 
 
-\subsubsection{What are iptables?}
-It is a command line interface used to set up and maintain tables for the Netfilter firewall for IPv4, 
-included in the Linux kernel. The firewall matches packets with rules defined in these tables and then 
-takes the specified action on a possible match. 
-\begin{itemize}
-    \item Tables is the name for a set of chains.
-    \item Chain is a collection of rules.
-    \item Rule is condition used to match packet.
-    \item Target is action taken when a possible rule matches. Examples of the target are ACCEPT, DROP, QUEUE.
-    \item Policy is the default action taken in case of no match with the inbuilt chains and can be ACCEPT or DROP.
-\end{itemize}
-\begin{lstlisting}
-    iptables --table TABLE -A/-C/-D... CHAIN rule --jump Target
-\end{lstlisting}
-There are five possible tables as follows: 
-\begin{itemize}
-    \item filter: Default used table for packet filtering. It includes chains like INPUT, OUTPUT and FORWARD.
-    \item nat : Related to Network Address Translation. It includes PREROUTING and POSTROUTING chains.
-    \item mangle : For specialised packet alteration. Inbuilt chains include PREROUTING and OUTPUT.
-    \item raw : Configures exemptions from connection tracking. Built-in chains are PREROUTING and OUTPUT.
-    \item security : Used for Mandatory Access Control
-\end{itemize}
-There are few built-in chains that are included in tables. They are: 
-\begin{itemize}
-    \item INPUT : A set of rules for packets destined to localhost sockets.
-    \item FORWARD :for packets routed through the device.
-    \item OUTPUT : It is locally generated packets, meant to be transmitted outside.
-    \item PREROUTING : It is used for modifying packets as they arrive.
-    \item POSTROUTING : IIt helps in modifying packets as they are leaving.
-\end{itemize}
 
-\subsubsection{User-defined Chains}
-User-defined chains can also be created. The following are the some of the possible one with examples:
-%
-1. -A, --append : Append to the chain provided in parameters.
-\begin{lstlisting}
-    iptables [-t table] --append [chain] [parameters]
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter --append INPUT -j DROP
-\end{lstlisting}
-%
-2. -D, --delete : Delete rule from the specified chain.
-\begin{lstlisting}
-    iptables [-t table] --delete [chain] [rule_number]
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter --delete INPUT 2
-\end{lstlisting}
-%
--C, --check :Check if a rule is present in the chain or not. It returns 0 if the rule exists and
-returns 1 if it does not. Syntax:
-\begin{lstlisting}
-    iptables [-t table] --check [chain] [parameters]
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter --check INPUT -s 192.168.1.123 -j DROP
-\end{lstlisting}
-
-\subsubsection{Examples of Iptables Commands with Common Parameters}
-The iptables command uses parameters to match packets and define actions. Key parameters include -p or --proto, 
-which specify the protocol of the packet, such as tcp, udp, icmp, ssh, etc. This parameter allows administrators 
-to selectively filter or handle packets based on their communication protocol. The common parameters are: 
-%
-1. -p, --proto : is the protocol that the packet follows. Possible values maybe: tcp, udp, icmp, ssh etc. 
-\begin{lstlisting}
-    iptables [-t table] -A [chain] -p {protocol_name} [target]
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter -A INPUT -p udp -j DROP
-\end{lstlisting}
-%
-2. -s, --source: is used to match with the source address of the packet.
-\begin{lstlisting}
-    iptables [-t table] -A [chain] -s {source_address} [target]
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter -A INPUT -s 192.168.1.230 -j ACCEPT
-\end{lstlisting}
-%
-3. -d, --destination : is used to match with the destination address of the packet.
-\begin{lstlisting}
-    iptables [-t table] -A [chain] -d {destination_address} [target]
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter -A OUTPUT -d 192.168.1.123 -j DROP
-\end{lstlisting}
-%
-4. -i, --in-interface : matches packets with the specified in-interface and takes the action. 
-\newline
-5. -o, --out-interface : matches packets with the specified out-interface.
-\begin{lstlisting}
-    iptables [-t table] -A [chain] -i {interface} [target]
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter -A INPUT -i wlan0 -j DROP
-\end{lstlisting}
-%
-6. -j, --jump : this parameter specifies the action to be taken on a match.
-\begin{lstlisting}
-    iptables [-t table] -A [chain] [parameters] -j {target}
-\end{lstlisting}
-\begin{lstlisting}
-    iptables -t filter -A FORWARD -j DROP
-\end{lstlisting}
-
-\subsubsection{Filters of Iptables}
-1. While trying out the commands, you can remove all filtering rules and user created chains. 
-\begin{lstlisting}
-sudo iptables --flush
-\end{lstlisting}
-%
-2. To save the iptables configuration use:
-\begin{lstlisting}
-sudo iptables-save
-\end{lstlisting}
-%
-3. Restoring iptables config can be done with:
-\begin{lstlisting}
-sudo iptables-restore
-\end{lstlisting}
-%
-There are other interfaces such ipv6 tables which are used to manage filtering tables for IPv6. 
-To block IPv6 traffic on a Linux system, you can use ip6tables, the IPv6 counterpart of iptables 
-
-\subsection{Why use Iptables in Linux?}
-The following are the some of the reasons to use Iptables in Linux: 
-\begin{itemize}
-    \item Firewall Configuration: It helps in enabling the precise control over the netowrk traffic to protect against unauthorized access and attacks.
-    \item Packet Filtering: It allows in filtering based on the criteria like protocol, IP addresses and prots providing the security.
-    \item Network Address translation (NAT): It facilitates with seamless communication between different network segments.
-    \item Logging and Monitoring: It provides the insights into the network activity for providing feature sof security auditing and troubleshooting. 
-\end{itemize}
-The following are the benefits of using iptable command: 
-\begin{itemize}
-    \item Robust Firewall Capabilities: It facilitates with configuration of firewall rules to control incoming and outgoing traffic, enhancing network security.
-    \item Precise Packet Filtering: It provides the filtering based on criteria such as protocol, source/destination IP addresses, and ports, ensuring only authorized traffic passes through.
-    \item Network Address Translation (NAT): It supports NAT functionality for translating IP addresses and ports, essential for network connectivity and management.
-    \item Logging and Monitoring: It provides logging capabilities to monitor and analyze network traffic, aiding in security auditing and troubleshooting.
-\end{itemize}
-The following are the some of the features of Iptables: 
-\begin{itemize}
-    \item Packet Filtering: Iptables facilitates with providing filtering features for network packets based on various criteria such as source and destination IP addresses and ports.
-    \item NAT: Iptables supports the NAT by allowing for the translation of the private IP address to public address making an essential for devices within a private network to establish the communication with external networks.
-    \item Stateful Inspection: Through stateful inspection, iptables helps in tracking the state of network connections with providing the enhanced security by legitimating the traffic that is only allowed.
-\end{itemize}
-The following are the some of the usecases of Iptables: 
-\begin{itemize}
-    \item Firewall Protection: Iptables can be configured through blocking the unauthorized access and allow legitimate traffic. It facilitates with providing a robust firewall to secure a network or individual system.
-    \item Traffic Shaping and Control: By setting rules, iptables we can manage and prioritize network traffic, ensuring critical services maintain performance and reducing congestion during peak usage times.
-    \item Network Address Translation (NAT): iptables facilitates NAT, allowing multiple devices on a private network to access external networks using a single public IP address, essential for home and business networks.
-    \item Port Forwarding: With iptables, administrators can redirect traffic from one port to another, enabling access to services running on different ports or internal servers from external networks.
-\end{itemize}
-
-%https://www.geeksforgeeks.org/linux-unix/how-to-setup-firewall-in-linux/
-%
-%
-\subsection{How to Configure your Linux Firewall - 3 Methods}
-Linux offers multiple firewall management tools, including iptables and firewalld, both of which can be 
-used to manage and secure your network.
-Setting up a firewall in Linux is an essential step to protect your system from unauthorized access 
-and potential threats. Firewalls act as a barrier between your internal network and external connections, 
-filtering traffic based on predefined rules. These firewalls help your system or server by keeping it safe and secure.
-
-\subsubsection{What is a Firewall?}
-A firewall is a security system designed to monitor and control incoming and outgoing network traffic. 
-Acting as a barrier between trusted internal networks and untrusted external connections, firewalls enforce predefined security policies. Firewalls can be implemented in both hardware and software, with the main goal being to:
-\begin{itemize}
-    \item Restrict unauthorized access.
-    \item Allow legitimate communication.
-    \item Prevent data breaches.
-\end{itemize}
-\textbf{iptables} \newline 
-iptables is the most widely used firewall tool in Linux. It works by defining chains of rules that filter 
-network traffic at various points (such as incoming or outgoing traffic). iptables operates at the network 
-layer (Layer 3) and transport layer (Layer 4).
-\newline
+%https://www.redhat.com/en/blog/firewalld-linux-firewall 
+\subsection{firewalld}
 \textbf{firewall} \newline 
-firewalld is a more modern firewall management tool for Linux, available on distributions like CentOS, RHEL, 
-and Fedora. It provides a more dynamic and user-friendly approach to managing firewall rules using zones.
-\newline 
-\textbf{nftables} \newline 
-nftables is the successor to iptables and provides an improved, more efficient way to filter network traffic. 
-It is designed to replace iptables in newer Linux distributions.
+firewalld is a more modern firewall management tool for Linux, available on distributions like CentOS, RHEL, and Fedora. 
+It provides a more dynamic and user-friendly approach to managing firewall rules using zones.
+A dynamic firewall management tool, offering flexible configuration that supports both IPv4 and IPv6
+It uses zones to define trust levels for network connections and interfaces, providing a simpler method to manage firewall settings. 
+%Linux Firewall (firewalld) monitors and governs the network traffic (outbound/inbound connections). 
+%It can be used to block access to different IP addresses, specific subnets, ports (virtual points where network connections begin and end), and services.
+It works in concepts of zones (segments) to protect our system from unauthorized access and to control network traffic (incoming and outgoing).  
+%firewalld simplifies managing rules by grouping them into zones (e.g., public, work, home). 
+%
+%FirewallD is a dynamic firewall daemon that manages firewall rules in real-time. 
+%It provides flexibility by allowing the use of zones, which are predefined sets of rules governing network traffic. 
+%These zones help you manage different types of traffic (incoming and outgoing) based on your system’s network interfaces.
+
+Firewalld: Simplified Firewall Management
+Firewalld is the default firewall tool in many Red Hat distributions. 
+It simplifies the process of how to configure firewall in Linux systems. It enables management of rules by allowing 
+dynamic rule changes without requiring a firewall restart. 
+Firewalld is structured around the concept of zones that define a level of trust for network connections.
 
 
-\subsection{How Does a Linux Firewall Work?} 
-A Linux firewall filters network traffic based on a series of rules. These rules specify which types of 
-network packets (data sent over the network) are allowed or denied based on factors like:
+Managing Firewall Zones
+FirewallD operates on the concept of zones, which group firewall rules together. 
+Every system has an active zone, and by default, this is usually the public zone. 
+
+
+Understanding Firewall Targets
+Before modifying the rules, it’s important to understand the targets available in FirewallD. 
+A target is essentially the action you want the firewall to take on a connection or packet. FirewallD offers the following targets:
 \begin{itemize}
-    \item IP Address: The source or destination address of the packet.
-    \item Port Number: The communication port the packet is trying to reach (e.g., port 80 for HTTP or port 22 for SSH).
-    \item Protocol: The type of network protocol used (TCP, UDP, ICMP, etc.).
-    \item Connection State: Whether the packet is part of an established connection or is a new connection request.
+    \item Accept: Allows all traffic.
+    \item Drop: Silently drops all traffic without notifying the sender. 
+    \item Reject: Drops all traffic but notifies the sender of the rejection. 
+    \item Default: Similar to reject, but used as the fallback action.
 \end{itemize}
-When a packet enters or exits the system, the firewall checks it against its rules to determine whether it 
-should be allowed to pass or blocked. If a packet matches an "allow" rule, it is allowed to pass. 
-If it matches a "deny" rule, it is blocked.
 
-\subsection{Understanding Firewall Tools}
-iptables: A powerful command-line tool that filters network traffic. It works by defining chains of rules for different types of network traffic.
-\newline
-ufw (Uncomplicated Firewall): A user-friendly frontend for iptables, simplifying configuration.
-\newline
-firewalld: A dynamic firewall management tool, offering flexible configuration. It uses zones to define trust levels for network connections and interfaces, providing a simpler method to manage firewall settings compared to iptables.
-\newline
-CSF (ConfigServer Security \& Firewall): A complete security solution, including firewall features.
-\newline
-ClearOS and OPNsense: Firewall-focused operating systems providing web-based interfaces.
 
-\subsection{Configuring Firewall with iptables}
-iptables is a powerful tool for configuring packet filtering and NAT rules. It's ideal for experienced Linux users and system administrators managing complex environments.
+Firewalld can restrict access to services, ports, and networks. You can block specific subnets and IP addresses.
 
-iptables operates on a three-tiered system:
-1. Tables: These are categorized groups of rules. Each table handles a specific type of packet:
-\begin{itemize}
-    \item INPUT: Incoming packets destined for the local machine.
-    \item OUTPUT: Outgoing packets originating from the local machine.
-    \item FORWARD: Packets routed through the machine.
-\end{itemize}
-2. Chains: These are sequences of rules within a table. Packets are processed through a chain until a matching rule is found, determining the packet's fate.
-\newline
-3. Rules: These are the individual instructions within a chain. Each rule has conditions (matching criteria) and targets (actions to take). Common actions include:
-\begin{itemize}
-    \item ACCEPT: Allow the packet to pass.
-    \item DROP: Discard the packet silently.
-    \item REJECT: Discard the packet and send an error message.
-    \item LOG: Log information about the packet.
-    \item JUMP: Redirect the packet to another chain.
-\end{itemize} 
-Step 1: Check Current Rules
-Run sudo iptables -L to list current firewall rules.
-This lists all rules for INPUT (incoming), FORWARD (forwarding), and OUTPUT (outgoing) chains.
+As with any firewall, firewalld inspects all traffic traversing the various interfaces on your system. 
+The traffic is allowed or rejected if the source address network matches a rule.
+
+Firewalld uses the concept of zones to segment traffic that interacts with your system. 
+A network interface is assigned to one or more zones, and each zone contains a list of allowed ports and services. 
+A default zone is also available to manage traffic that does not match any zones.
+
+Firewalld is the daemon's name that maintains the firewall policies. 
+Use the firewall-cmd command to interact with the firewalld configuration.
+
+Persistent vs. Runtime Rules
+One critical aspect of knowing how to configure firewall in Linux systems using FirewallD is understanding 
+the difference between runtime and persistent rules.
+
+Runtime rules are temporary and will be lost upon reboot.
+Persistent rules are saved and will be applied on every reboot.
+To ensure your rules are persistent, always add the --permanent flag when creating rules:
+
 \begin{lstlisting}
-sudo iptables -L
-\end{lstlisting}
-%
-Step 2: Clear Existing Rules
-If you want to clear/flush out all the existing rules. Run the following command 
-if you want to Reset all current rules to start fresh:
-\begin{lstlisting}
-sudo iptables -F
-\end{lstlisting}
-%
-Step 3: Changing the Default Policy of Chains
-the default policy of each of the chain is ACCEPT.
-In order to change the policy of forwarding to drop:
-\begin{lstlisting}
-sudo iptables -P FORWARD DROP
-\end{lstlisting}
-The above command will stop any traffic to be forwarded through your system. 
-That means no other system can your system as an intermediary to pass the data. 
-%
-Step 4: Implementing a DROP Rule 
-\begin{lstlisting}
-sudo iptables -A/-I chain_name -s source_ip -j action_to_take
-\end{lstlisting}
-The following command can be used:
-\begin{lstlisting}
-    Let's assume we want to block the traffic coming from an IP address 192.168.1.3.
-    sudo iptables -A INPUT -s 192.168.1.3 -j DROP
-\end{lstlisting}
--A INPUT: The flag -A is used to append a rule to the end of a chain. This part of the command 
-tells the iptable that we want to add a rule to the end of the INPUT chain. 
-\newline 
--I INPUT: In this flag the rules are added to the top of the chain.
-%
-Step 5: Implementing a ACCEPT Rule
-If you want to add rules to specific ports of your network, then the following commands can be used. 
-\begin{lstlisting}
-sudo iptables -A/-I chain_name -s source_ip -p protocol_name --dport port_number -j Action_to_take
-\end{lstlisting} 
-\begin{lstlisting}
-sudo iptables -A INPUT -s 192.168.1.3 -p tcp --dport 22 -j ACCEPT
-\end{lstlisting} 
-%
-The Rules you set in the iptables are checked from the top to the bottom. Whenever a packet is processed to one of the top rules, it is not checked with the lower rules.
-%
-Deleting a Rule from the iptable (Optional)
-If you want to delete the rule which accepts the traffic, 
-Please follow the below example to understand it properly:
-\begin{lstlisting}
-sudo iptables -D chain_name rule_number
-\end{lstlisting} 
-%
-Step 6: Saving your Configuration 
-it's always better to save your configurations. There are a lot of ways to do this, but the easiest way 
-you could find is with iptables-persistent package.
-You can download the package from Ubuntu's default repositories:
-\begin{lstlisting}
-sudo apt-get update
-sudo apt-get install iptables-persistent
-\end{lstlisting} 
-Once the installation is complete, you can save your configuration using the command:-
-\begin{lstlisting}
-sudo invoke-rc.d iptables-persistent save
+    sudo apt-get install firewalld 
+    sudo systemctl start firewalld 
+    sudo systemctl enable firewalld 
+
+    #Get a more detailed view of the FirewallD service
+    systemctl status firewalld
+
+    Check that firewalld is running:
+    sudo firewall-cmd --state 
+
+    Stop the firewall: 
+    sudo systemctl stop firewalld 
 \end{lstlisting} 
 
-\subsection{Method 2: Configuring Firewall with firewalld}
-firewalld simplifies managing rules by grouping them into zones (e.g., public, work, home).
-%
-Step 1: Install firewalld 
-\begin{lstlisting}
-sudo apt-get install firewalld 
-sudo systemctl start firewalld 
-sudo systemctl enable firewalld
-\end{lstlisting} 
-%
-Step 2: Assign Network Interfaces to Zones 
-\begin{lstlisting}
-Assign eth0 to the "public" zone: 
-sudo firewall-cmd --zone=public --add-interface=eth0 --permanent
-\end{lstlisting} 
-%
-Step 3: Allow Services in Zones
-\begin{lstlisting}
-Permit HTTP traffic in the "public" zone: 
-sudo firewall-cmd --zone=public --add-service=http --permanent 
-sudo firewall-cmd --reload
-\end{lstlisting} 
-%
-Step 4: View Active Zones and Rules 
-\begin{lstlisting}
-sudo firewall-cmd --get-active-zones 
-sudo firewall-cmd --list-all
+\begin{lstlisting}[language=bash, caption=Allowing SSH traffic] 
+    #Allow SSH (Secure Shell or Secure Socket Shell) traffic in the "public" zone
+    sudo firewall-cmd --zone=public --add-services=ssh --permanent   
+
+    #Allow traffic from any IP on a specific TCP port 8080
+    sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent 
+
+    #Remove a port rule
+    firewall-cmd --remove-port=44/tcp --permanent 
+
+    #Allow traffic from a specific IP
+    firewall-cmd --add-source=192.168.1.100 --permanent
+
+    #Blocking incoming traffic on a specific IP address 
+    sudo firewall-cmd --zone=public --add-rich='rule family="ipv4" source address="192.168.52.1" reject' 
+
+    #Assign eth0 to the "public" zone: 
+    sudo firewall-cmd --zone=public --add-interface=eth0 --permanent  
+
+    #Assign traffic coming from the network 172.16.1.0/24 to the internal zone 
+    #Allow the Jenkins service:
+    sudo firewall-cmd --zone=internal --add-source=172.16.1.0/24 --permanent 
+    sudo firewall-cmd --add-service=jenkins --permanent   
+
+    #Reload the firewall for them to take effect
+    sudo firewall-cmd --reload 
+\end{lstlisting}  
+
+\begin{lstlisting} 
+    #View all zones on a system
+    sudo firewall-cmd --get-zones
+
+    #View Active Zones and Rules 
+    sudo firewall-cmd --get-active-zones 
+    sudo firewall-cmd --list-all  
+
+    #View all settings for all zones
+    sudo firewall-cmd --list-all-zones 
+
+    #List all active ports 
+    firewall-cmd --list-ports 
+
+    #view all predefined services on your system:
+    firewall-cmd --get-services 
+
+    #Display the default zone
+    sudo firewall-cmd --get-default-zone
+
+    #Changing the Active Zone
+    firewall-cmd --set-default-zone=<zone>   
+
+    #Reload firewalld and all permanent rules:
+    sudo firewall-cmd --reload 
+\end{lstlisting}   
+
+
+\subsection{nftables}
+High-performance firewall tool designed to provide more flexible handling of complex firewall rules.
+%It is the successor to iptables and provides an improved, more efficient way to filter network traffic. 
+%It is designed to replace iptables in newer Linux distributions. 
+%nftables provides advanced management of firewall rules and offers greater flexibility compared to firewalld. 
+It supports complex firewall rules while maintaining high performance, which makes it suitable for managing large-scale systems.
+\begin{lstlisting} 
+    View existing rules:
+    nft list ruleset
+    
+    Add a rule to allow traffic on port 80:
+    nft add rule inet filter input tcp dport 80 accept
+    
+    Delete a rule:
+    nft delete rule inet filter input handle <rule-handle-number>
 \end{lstlisting} 
 
-\subsection{Method 3: Configuring Firewall with UFW (Uncomplicated Firewall)}
+\subsection{ufw (Uncomplicated Firewall)}
+User-friendly frontend for iptables, simplifying configuration.
 UFW is beginner-friendly and ideal for quick firewall setups. 
-%
-Step 1: Enable UFW
-\begin{lstlisting}
+\begin{lstlisting} 
+    Step 1: Enable UFW
     sudo ufw enable
-\end{lstlisting} 
-%
-Step 2: Allow Specific Services
-\begin{lstlisting}
-    Permit SSH: 
+
+    Allow Specific Services (permit SSH)
     sudo ufw allow ssh
-\end{lstlisting} 
-%
-Step 3: Block Traffic to Specific Ports
-\begin{lstlisting}
-    Block traffic to port 8080:
+
+    Block Traffic to Specific Ports (port 8080)
     sudo ufw deny 8080
+
+    View Status
+    sudo ufw status
 \end{lstlisting} 
-%
-Step 4: View Status
-\begin{lstlisting}
-sudo ufw status
-\end{lstlisting} 
-%
-\subsection{Common Mistakes to Avoid}
-Not Saving Rules: Forgetting to save changes leads to loss of configurations after a reboot. 
-\newline
-Over-Blocking Traffic: Be cautious when setting DROP rules to avoid locking yourself out.
-\newline
-Misapplying Zones (firewalld): Ensure interfaces are assigned to the correct zone.
 
 
+\subsection{CSF (ConfigServer Security \& Firewall)}
+CSF (ConfigServer Security \& Firewall) is a complete security solution, including firewall features.  
 
-
-
-
+\subsection{ClearOS and OPNsense}
+ClearOS and OPNsense is a Firewall-focused operating systems providing web-based interfaces.  
 
