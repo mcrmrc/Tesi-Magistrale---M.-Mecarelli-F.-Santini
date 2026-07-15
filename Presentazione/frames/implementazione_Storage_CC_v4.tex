@@ -1,0 +1,35 @@
+\begin{frame} [fragile]
+\frametitle{Implementazione Storage Covert Channel}
+\scriptsize 
+\begin{longtable}{|p{0.25\textwidth}|p{0.2\textwidth}|p{0.4\textwidth}|}
+    \hline 
+    \textbf{Campo del pacchetto} & \textbf{Byte inseribili} & \textbf{Messaggi ICMP che lo utilizzano} 
+    \\ \hline 
+    Pointer & 1 Byte & Parameter Problem \\ \hline 
+    Unused & 4 Byte & 
+        Destination Unreachable\par 
+        Time Exceeded\par 
+        Source Quench\par 
+        Parameter Problem (3 byte) 
+        \\ \hline 
+    Header+64 Bits & 9 byte & 
+        Redirect\par 
+        Destination Unreachable\par 
+        Time Exceeded\par 
+        Source Quench\par 
+        Parameter Problem 
+        \\ \hline  
+    Identifier & 2 Byte & 
+        Information Req/Rep\par
+        Echo Req/rep\par
+        Timestamp Req/Rep
+        \\ \hline 
+    Data & 32/64 Byte& 
+        Echo Req/rep\par
+        Timestamp Req/Rep 
+        \\ \hline 
+    Timestamp & 1 Byte a timestmap & Timestamp Req/Rep \\ \hline  
+    \caption{Campi utilizzati con i messaggi ICMPv4}  
+\end{longtable} 
+\end{frame} 
+\import{frames}{storage_CC_tipologieICMP_v4} 
