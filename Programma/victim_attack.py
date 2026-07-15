@@ -24,6 +24,7 @@ from attacksingleton import _IPx
 from custom_enum import SENDER_TRUE_SENDER, MSG, ATTACK_TYPE
 from get_type import * 
 from thread_methods import THREAD_VICTIM
+from mymethods import EXCEUTE_COMMAND
 
 #---------------------
 
@@ -144,9 +145,7 @@ class CONNECTED_PROXY:
         self.proxy_list:list[ipaddress._IPAddressBase]=[]
         self.lock:threading.Lock=get_threading_Lock() 
         self.enough_event:threading.Event=get_threading_Event() 
-        self.type_attack:dict[str:str]={}
-
-
+        self.type_attack:dict[str:str]={} 
 
 WAITING_TIME=20
 DEBUG=False 
