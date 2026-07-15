@@ -21,7 +21,7 @@ from get_type import *
 #sys.path.insert(0, directory)
 #import attacksingleton 
 from attacksingleton import *  
-from network import IP
+from network_methods import IP
 
 
 class DATA: 

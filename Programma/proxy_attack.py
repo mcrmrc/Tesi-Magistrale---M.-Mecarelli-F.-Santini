@@ -11,7 +11,7 @@ import socket
 
 from mymethods import *  
 from scapy.all import * 
-from network import *
+from network_methods import *
 
 #file_path = "./attacksingleton.py"
 #directory = os.path.dirname(file_path)
