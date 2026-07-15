@@ -4,7 +4,7 @@ import os
 import random
 import threading  
 
-from custom_enum import SEPARAZIONE_DATI 
+from custom_enum import SEPARAZIONE_DATI, ENTITY
 from attacksingleton import *  
 
 #file_path = "./attacksingleton.py"
@@ -129,7 +129,7 @@ class Attacker:
                 print(f"Errore durante la chiusura della connessione con proxy {proxy}")
 
 if __name__=="__main__": 
-    args=ARGS_CONFIG.FROM_COMMAND().args
+    args=ARGS_CONFIG.FROM_COMMAND(ENTITY.ATTACKER).args
     if not is_namespace(args): 
         exit(-1) 
     if not is_string(args.file_path):
