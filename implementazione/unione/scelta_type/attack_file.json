@@ -1,5 +1,5 @@
 {
-    "ip_vittima":"192.168.1.24" 
+    "ip_vittima":"192.168.56.102" 
     ,"proxy_list":[
         {"1vm_attaccante":"192.168.56.101"} 
         ,{"2vm_attaccante":"fe80::e274:33a8:a3ca:46ff"} 
