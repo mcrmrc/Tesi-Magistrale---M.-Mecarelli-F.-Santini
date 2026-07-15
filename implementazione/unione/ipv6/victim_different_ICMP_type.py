@@ -12,6 +12,12 @@ sys.path.insert(0, directory)
 import mymethods 
 
 from scapy.all import * 
+import ipaddress
+import socket
+
+
+
+
 
 def callback_get_timing_cc(victim,data,previous_time):
     TYPE_DESTINATION_UNREACHABLE=3 
@@ -174,14 +180,15 @@ def callback_get_timestamp_request(victim,data):
 
 def callback_get_information_request(victim,data):
     def callback(packet):
-        print(f"callback get_information_request received:\n\t{packet.summary()}") 
-        if packet.haslayer(IP) and packet.haslayer(ICMP): 
-            print(f"Ricevuto pacchetto da {packet[IP].src}...")
-            if packet[ICMP].id==0 and packet[ICMP].seq==1:
+        print(f"callback get_information_request received:\n\t{packet.summary()}")  
+        if packet.haslayer(IPv6) and (packet.haslayer(ICMPv6EchoReply) or packet.haslayer(ICMPv6EchoRequest)): 
+            echo_type="ICMPv6EchoReply" if packet.haslayer(ICMPv6EchoReply) else "ICMPv6EchoRequest" if packet.haslayer(ICMPv6EchoRequest) else None
+            print(f"Ricevuto pacchetto da {packet[IPv6].src}...")
+            if packet[echo_type].id==0 and packet[echo_type].seq==1:
                 print("END OF TRANSMISSION")
                 com.set_threading_Event(victim.event_pktconn)
                 return
-            icmp_id=packet[ICMP].id
+            icmp_id=packet[echo_type].id
             byte1 = (icmp_id >> 8) & 0xFF 
             byte2 = icmp_id & 0xFF 
             #print(icmp_id,type(icmp_id))  
@@ -190,11 +197,9 @@ def callback_get_information_request(victim,data):
             data.extend([chr(byte1),chr(byte2)]) 
     return callback
 
-
-
 class Victim:
     def __init__(self): 
-        #self.get_information_request() 
+        self.get_information_request() 
         #self.get_timestamp_request() 
         #self.get_redirect() 
         #self.get_source_quench() 
@@ -203,18 +208,20 @@ class Victim:
         #self.get_destination_unreachable() 
         self.get_timing_cc() 
 
-    def get_information_request(self):
+    def get_information_request(self): 
         information_data=[]
-        TYPE_INFORMATION_REQUEST=15
-        TYPE_INFORMATION_REPLY=16
-        ip_host="192.168.56.101"
-        gateway_vittima=mymethods.calc_gateway(ip_host) 
+        TYPE_INFORMATION_REQUEST=128
+        TYPE_INFORMATION_REPLY=129 
+        ip_host=ipaddress.IPv6Address("fe80::43cc:4881:32d7:a33e")  
+        #ip_google=socket.getaddrinfo("www.google.com", None, socket.AF_UNSPEC)
+        #print("IP_GOOGLE: ",ip_google)
+        interface= mymethods.default_iface()  
         args={
-                "filter":f"icmp and (icmp[0]=={TYPE_INFORMATION_REQUEST} or icmp[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host}" 
+                "filter":f"icmp6 and (icmp6[0]=={TYPE_INFORMATION_REQUEST} or icmp6[0]=={TYPE_INFORMATION_REPLY}) and dst {ip_host.compressed}" 
                 #,"count":1 
                 ,"prn":callback_get_information_request(self,information_data)
                 #,"store":True 
-                ,"iface":mymethods.iface_from_IPv4(gateway_vittima)[1]
+                ,"iface": interface
             }
         try:
             self.event_pktconn=com.get_threading_Event()
