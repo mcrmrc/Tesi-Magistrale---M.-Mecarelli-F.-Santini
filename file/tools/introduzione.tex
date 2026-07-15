@@ -15,11 +15,11 @@ Gli strumenti analizzati sono i seguenti:
     %Quindi se mai la comunicazione venisse scoperta la vuittima potrebbe filtrare i pacchetti con quello specifico ID
 \end{itemize}
 Se un agente monitorasse il flusso dei dati, in quel momento, noterebbe il numero di Echo Reply sospetto soprattuto se non è presente una Echo Request analoga.
-Inoltre non essendo i dati crittografati, gli basta analizzare il poacchetto per vedere cosa viene inviato.
+Inoltre non essendo i dati crittografati, gli basta analizzare il pacchetto per vedere cosa viene inviato.
 Potrebbe quindi facilmente scoprire il canale nascosto. 
 \vspace{1ex} \newline
-Di solito per ogni Echo Request corrisponde una singola Echo Reply in cui la risposta rimanda i dati ricevuti dalla richiesta.
-Il campo Data di solito o è vuoto o contiene frasi gia preimpostate (e.g helloworld). 
+Di solito per ogni Echo Request corrisponde una singola Echo Reply in cui la risposta rimanda i dati ricevuti. 
+Il campo Data di solito o è vuoto o contiene frasi gia preimpostate (e.g '\textit{helloworld}'). 
 
 \subsubsection*{$\bullet$ICMP Exfil}  
 \begin{itemize}

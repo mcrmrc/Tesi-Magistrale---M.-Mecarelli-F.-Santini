@@ -7,15 +7,14 @@
 %
 \subsection*{Svolgimento}
 Con \textbf{icmpdoor} possiamo eseguire il tunneling di un canale nascosto per stabilire una reverse shell ICMP e controllare una macchina compromessa in modo da esfiltrare i dati. 
-Molto probabilmente il tuo antivirus (AV) non rileverà e bloccherà nemmeno icmpdoor.
-vspace{2ex} newline
-ICMPdoor è scritto in Python e riesce ad aggirare le regole standard del firewall oltre agli antivirus più vecchie.
-Sebbene esistessero alcuni script o proof-of-concept più vecchi, l'autore di icmpdoor ha creato uno strumento Python 3 che funziona su "la maggior parte, se non tutte" le distribuzioni Linux e Windows 10 purché sia possibile eseguire il ping dalla macchina A alla macchina B.
+Molto probabilmente l'antivirus non lo rileverà ne lo bloccherà.
+Funzionerà su "la maggior parte, se non tutte" le distribuzioni Linux e Windows 10 purché 
+sia possibile eseguire il ping dalla macchina A alla macchina B.
 
 \subsection{Reverse Shell} 
 Una reverse shell è una sessione di shell remota che l'attaccante avvia dalla vittima verso se stesso, consentendogli di ottenere il 
 controllo e di eseguire comandi sul sistema compromesso. 
-Questa canale consentirà di estrarre dati attraverso questo. 
+Questa canale consentirà di estrarre dati. 
 \vspace{1ex} \newline
 I team di sicurezza spesso configurano i firewall per filtrare le porte TCP e UDP o bloccare applicazioni specifiche (firewalling di livello 7); 
 tuttavia potrebbero trascurare il traffico ICMP siccome bloccare completamente il protocollo implicherebbe che gli host non possono più monitorarsi a vicenda. 
@@ -30,13 +29,19 @@ La Figura.\ref{fig:struttura:firewall} mostra come un firewall ben configurato b
 \includegraphics[width=\linewidth]{../img/icmpdoor/tcp-reverse-shell.png}
 \label{fig:struttura:firewall} 
 \vspace{4ex} \newline
-Why It Bypassed Windows Defender
+Perché ha eluso Windows Defender
 \begin{enumerate}
-    \item Signature-Based Detection: Many AV/EDR engines rely on known-malware signatures. My custom build of icmpdoor.exe simply wasn’t in the signature database.
-    \item ICMP Blind Spot: Some AV solutions pay more attention to suspicious TCP or UDP traffic. ICMP (ping) is widely allowed for normal network operations.
-    \item Older Defender Definitions: My target Windows machine had an outdated definition set. The newest versions might still raise suspicion if large ICMP payloads are spotted.
+    \item Rilevamento Basato su Firma: 
+    Molti motori AV si basano su firme di malware conosciute. L
+    Questa versione di icmpdoor.exe semplicemente non era nel database.
+    \item Punto Cieco ICMP: 
+    Alcune soluzioni AV prestano maggiore attenzione al traffico TCP o UDP sospetto. 
+    ICMP (ping) è ampiamente consentito per le normali operazioni di rete.
+    \item Definizioni di difesa obsolete: 
+    La mia macchina di destinazione potrebbe aver avuto un insieme di regole obsoleto. 
+    Versioni più recenti potrebbero ritenerlo sospetti se vengono rilevati payload ICMP di grandi dimensioni.
 \end{enumerate}
-Still, even with up-to-date definitions, a carefully obfuscated or recompiled version of icmpdoor can often evade basic antivirus checks.
+Tuttavia, anche con le regole aggiornate, una versione offuscata o ricompilata può spesso eludere i controlli di base.
 
 \subsection{Struttura dei messaggi}
 \begin{minipage}{0.5\textwidth}
@@ -181,8 +186,8 @@ Prima lo scarichiamo su entrambe le machcine tramite la repository GitHub.
     \label{fig:icmpdoor:setup:victim}
 \end{minipage}
 \vspace{1ex}
-Having cloned the tool, we prepare everything on our attacking machine.  
-Now with the server UP, it’s the moment to execute the victim connection and get the shell.
+Dopo aver clonata la repository, prepariamo la nostra macchina attaccante. 
+E una volta che il server è attivo, si esegue la connessione con la vittima ottenendo così la shell. 
 Siamo riusciti quindi a collegare l'attaccante alla vittima; 
 verifichiamo la cosa stampando il nome della macchina su cui viene eseguita la shell e l'indirrizzo IP. 
 Come possiamo vedere (Fig.\ref{fig:icmpdoor:collegamento:esempio}) l'hostname è \textit{vittima} e l'indirizzo IP è \textit{192.168.1.42}
