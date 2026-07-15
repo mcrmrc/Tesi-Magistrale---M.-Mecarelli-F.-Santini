@@ -2313,7 +2313,7 @@ class Ticketer:
         # Variables for Signatures, indexed by ulType
         sig_i = {}
         sig_type = {}
-        # Read PAC buffers to find all signatures, and set them to 0
+        # Read PAC buffers to get all signatures, and set them to 0
         for k, buf in enumerate(pac.Buffers):
             if buf.ulType in [0x00000006, 0x00000007, 0x00000010, 0x00000013]:
                 sig_i[buf.ulType] = k

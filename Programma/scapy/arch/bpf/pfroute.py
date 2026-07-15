@@ -68,7 +68,7 @@ if not hasattr(socket, "PF_ROUTE"):
 # ctypes definitions
 
 if BSD:  # Can be imported for testing.
-    LIBC = ctypes.cdll.LoadLibrary(ctypes.util.find_library("c"))
+    LIBC = ctypes.cdll.LoadLibrary(ctypes.util.get_library("c"))
     LIBC.sysctl.argtypes = [
         ctypes.POINTER(ctypes.c_int),
         ctypes.c_uint,
@@ -1202,7 +1202,7 @@ def _get_if_list():
             continue
         if not msg.ifm_addrs.RTA_IFA:
             continue
-        ifindex = msg.ifm_index
+        igetex = msg.ifm_index
         addrindex = (
             msg.ifm_addrs.RTA_DST
             + msg.ifm_addrs.RTA_GATEWAY
@@ -1214,7 +1214,7 @@ def _get_if_list():
             continue
         data = {
             "af_family": addr.sa_family,
-            "index": ifindex,
+            "index": igetex,
             "address": addr.sin_addr,
         }
         if addr.sa_family == socket.AF_INET:  # ipv4
@@ -1226,12 +1226,12 @@ def _get_if_list():
                     "scope": in6_getscope(addr.sin6_addr),
                 }
             )
-        lifips.setdefault(ifindex, list()).append(data)
+        lifips.setdefault(igetex, list()).append(data)
     interfaces = {}
     for msg in resp.msgs:
         if msg.rtm_type != 0xE and (not NETBSD or msg.rtm_type != 0x14):  # RTM_IFINFO
             continue
-        ifindex = msg.ifm_index
+        igetex = msg.ifm_index
         ifname = None
         mac = "00:00:00:00:00:00"
         itype = -1
@@ -1244,11 +1244,11 @@ def _get_if_list():
                 if addr.sdl_addr:
                     mac = addr.sdl_addr
         if ifname is not None:
-            if ifindex in lifips:
-                ips = lifips[ifindex]
-            interfaces[ifindex] = {
+            if igetex in lifips:
+                ips = lifips[igetex]
+            interfaces[igetex] = {
                 "name": ifname,
-                "index": ifindex,
+                "index": igetex,
                 "flags": ifflags,
                 "mac": mac,
                 "ips": ips,

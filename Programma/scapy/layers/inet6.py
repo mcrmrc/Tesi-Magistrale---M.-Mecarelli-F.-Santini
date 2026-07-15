@@ -365,7 +365,7 @@ class IPv6(_IPv6GuessPayload, Packet, IPTools):
                 idx += 1
 
             if jumbo_len is None:
-                log_runtime.info("Scapy did not find a Jumbo option")
+                log_runtime.info("Scapy did not get a Jumbo option")
                 jumbo_len = 0
 
             tmp_len = hbh_len + jumbo_len
@@ -531,12 +531,12 @@ class IPerror6(IPv6):
         # Make sure that the ICMPv6 error is related to the packet scapy sent
         if isinstance(self.underlayer, _ICMPv6) and self.underlayer.type < 128:
 
-            # find upper layer for self (possible citation)
+            # get upper layer for self (possible citation)
             selfup = self.payload
             while selfup is not None and isinstance(selfup, _IPv6ExtHdr):
                 selfup = selfup.payload
 
-            # find upper layer for other (initial packet). Also look for RH
+            # get upper layer for other (initial packet). Also look for RH
             otherup = other.payload
             request_has_rh = False
             while otherup is not None and isinstance(otherup, _IPv6ExtHdr):
@@ -1682,7 +1682,7 @@ class ICMPv6MLReport2(_ICMPv6):  # RFC 3810
 #          ICMPv6 MRD - Multicast Router Discovery (RFC 4286)               #
 
 # TODO:
-# - 04/09/06 troglocan : find a way to automatically add a router alert
+# - 04/09/06 troglocan : get a way to automatically add a router alert
 #            option for all MRD packets. This could be done in a specific
 #            way when IPv6 is the under layer with some specific keyword
 #            like 'exthdr'. This would allow to keep compatibility with

@@ -1233,7 +1233,7 @@ def register_dcerpc_interface(name, uuid, version, opnums):
         bind_top_down(DceRpc5Request, operations.request, opnum=opnum)
 
 
-def find_dcerpc_interface(name):
+def get_dcerpc_interface(name):
     """
     Find an interface object through the name in the IDL
     """
@@ -2327,7 +2327,7 @@ class _NDRUnionField(MultipleTypeField):
     def getfield(self, pkt, s):
         fmt = _e(pkt.ndrendian) + self.switch_fmt[pkt.ndr64]
         remain, tag = NDRAlign(Field("", 0, fmt=fmt), align=self.align).getfield(pkt, s)
-        fld, _ = super(_NDRUnionField, self)._find_fld_pkt_val(pkt, NDRUnion(tag=tag))
+        fld, _ = super(_NDRUnionField, self)._get_fld_pkt_val(pkt, NDRUnion(tag=tag))
         remain, val = fld.getfield(pkt, remain)
         return remain, NDRUnion(
             tag=tag, value=val, ndr64=pkt.ndr64, ndrendian=pkt.ndrendian, _parent=pkt
@@ -2345,8 +2345,8 @@ class _NDRUnionField(MultipleTypeField):
         # Then, compute the subfield with its own alignment
         return super(_NDRUnionField, self).addfield(pkt, s, val)
 
-    def _find_fld_pkt_val(self, pkt, val):
-        fld, val = super(_NDRUnionField, self)._find_fld_pkt_val(pkt, val)
+    def _get_fld_pkt_val(self, pkt, val):
+        fld, val = super(_NDRUnionField, self)._get_fld_pkt_val(pkt, val)
         return fld, val.value
 
     # Can't use i2repr = Field.i2repr and so on on PY2 :/
@@ -2360,7 +2360,7 @@ class _NDRUnionField(MultipleTypeField):
         return x
 
     def valueof(self, pkt, x):
-        fld, val = self._find_fld_pkt_val(pkt, x)
+        fld, val = self._get_fld_pkt_val(pkt, x)
         return fld.valueof(pkt, x.value)
 
 
@@ -3046,7 +3046,7 @@ class DceRpcSocket(StreamSocket):
 
 # --- TODO cleanup below
 
-# Heuristically way to find the payload class
+# Heuristically way to get the payload class
 #
 # To add a possible payload to a DCE/RPC packet, one must first create the
 # packet class, then instead of binding layers using bind_layers, he must
@@ -3062,7 +3062,7 @@ class DceRpcSocket(StreamSocket):
 
 
 class DceRpc4Payload(Packet):
-    """Dummy class which use the dispatch_hook to find the payload class"""
+    """Dummy class which use the dispatch_hook to get the payload class"""
 
     _payload_class = []
 

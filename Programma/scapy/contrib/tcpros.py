@@ -609,15 +609,15 @@ class XMLRPCCall(Packet):
 
         self.methodname_size = len(
             decoded_s[
-                decoded_s.find("<methodName>") +
-                len("<methodName>"):decoded_s.find("</methodName>")
+                decoded_s.get("<methodName>") +
+                len("<methodName>"):decoded_s.get("</methodName>")
             ]
         )
 
         self.params_size = len(
             decoded_s[
-                decoded_s.find("<params>\n") +
-                len("<params>\n"):decoded_s.find("</params>")
+                decoded_s.get("<params>\n") +
+                len("<params>\n"):decoded_s.get("</params>")
             ]
         )
 
@@ -701,8 +701,8 @@ class XMLRPCResponse(Packet):
 
         self.params_size = len(
             decoded_s[
-                decoded_s.find("<params>\n") +
-                len("<params>\n"):decoded_s.find("</params>")
+                decoded_s.get("<params>\n") +
+                len("<params>\n"):decoded_s.get("</params>")
             ]
         )
 

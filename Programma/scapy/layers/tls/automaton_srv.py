@@ -815,7 +815,7 @@ class TLSServerAutomaton(_TLSAutomaton):
                                                         obfuscated_age,
                                                         binder)
                 if resumption_psk is None:
-                    # We did not find a ticket matching the one provided in the
+                    # We did not get a ticket matching the one provided in the
                     # ClientHello. We fallback to a regular 1-RTT handshake
                     server_kse = KeyShareEntry(group=group)
                     ext += [TLS_Ext_KeyShare_SH(server_share=server_kse)]

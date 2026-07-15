@@ -9,7 +9,7 @@ NTLM
 This is documented in [MS-NLMP]
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `GSSAPI <https://scapy.readthedocs.io/en/latest/layers/gssapi.html#ntlm>`_
 """
 

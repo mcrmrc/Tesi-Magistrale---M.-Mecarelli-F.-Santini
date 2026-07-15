@@ -141,7 +141,7 @@ def read_nameservers() -> List[str]:
     """
     try:
         with open('/etc/resolv.conf', 'r') as fd:
-            return re.findall(r"nameserver\s+([^\s]+)", fd.read())
+            return re.getall(r"nameserver\s+([^\s]+)", fd.read())
     except FileNotFoundError:
         warning("Could not retrieve the OS's nameserver !")
         return []

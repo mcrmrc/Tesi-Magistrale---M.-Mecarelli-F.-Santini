@@ -489,7 +489,7 @@ class MultipleTypeField(_FieldContainer):
 
     def _iterate_fields_cond(self, pkt, val, use_val):
         # type: (Optional[Packet], Any, bool) -> Field[Any, Any]
-        """Internal function used by _find_fld_pkt & _find_fld_pkt_val"""
+        """Internal function used by _get_fld_pkt & _get_fld_pkt_val"""
         # Iterate through the fields
         for fld, cond in self.flds:
             if isinstance(cond, tuple):
@@ -505,16 +505,16 @@ class MultipleTypeField(_FieldContainer):
                 return fld
         return self.dflt
 
-    def _find_fld_pkt(self, pkt):
+    def _get_fld_pkt(self, pkt):
         # type: (Optional[Packet]) -> Field[Any, Any]
         """Given a Packet instance `pkt`, returns the Field subclass to be
 used. If you know the value to be set (e.g., in .addfield()), use
-._find_fld_pkt_val() instead.
+._get_fld_pkt_val() instead.
 
         """
         return self._iterate_fields_cond(pkt, None, False)
 
-    def _find_fld_pkt_val(self,
+    def _get_fld_pkt_val(self,
                           pkt,  # type: Optional[Packet]
                           val,  # type: Any
                           ):
@@ -528,7 +528,7 @@ returns the Field subclass to be used, and the updated `val` if necessary.
             val = fld.default
         return fld, val
 
-    def _find_fld(self):
+    def _get_fld(self):
         # type: () -> Field[Any, Any]
         """Returns the Field subclass to be used, depending on the Packet
 instance, or the default subclass.
@@ -537,8 +537,8 @@ DEV: since the Packet instance is not provided, we have to use a hack
 to guess it. It should only be used if you cannot provide the current
 Packet instance (for example, because of the current Scapy API).
 
-If you have the current Packet instance, use ._find_fld_pkt_val() (if
-the value to set is also known) of ._find_fld_pkt() instead.
+If you have the current Packet instance, use ._get_fld_pkt_val() (if
+the value to set is also known) of ._get_fld_pkt() instead.
 
         """
         # Hack to preserve current Scapy API
@@ -554,7 +554,7 @@ the value to set is also known) of ._find_fld_pkt() instead.
                     if not pkt.default_fields:
                         # Packet not initialized
                         return self.dflt
-                    return self._find_fld_pkt(pkt)
+                    return self._get_fld_pkt(pkt)
             frame = frame.f_back
         return self.dflt
 
@@ -563,21 +563,21 @@ the value to set is also known) of ._find_fld_pkt() instead.
                  s,  # type: bytes
                  ):
         # type: (...) -> Tuple[bytes, Any]
-        return self._find_fld_pkt(pkt).getfield(pkt, s)
+        return self._get_fld_pkt(pkt).getfield(pkt, s)
 
     def addfield(self, pkt, s, val):
         # type: (Packet, bytes, Any) -> bytes
-        fld, val = self._find_fld_pkt_val(pkt, val)
+        fld, val = self._get_fld_pkt_val(pkt, val)
         return fld.addfield(pkt, s, val)
 
     def any2i(self, pkt, val):
         # type: (Optional[Packet], Any) -> Any
-        fld, val = self._find_fld_pkt_val(pkt, val)
+        fld, val = self._get_fld_pkt_val(pkt, val)
         return fld.any2i(pkt, val)
 
     def h2i(self, pkt, val):
         # type: (Optional[Packet], Any) -> Any
-        fld, val = self._find_fld_pkt_val(pkt, val)
+        fld, val = self._get_fld_pkt_val(pkt, val)
         return fld.h2i(pkt, val)
 
     def i2h(self,
@@ -585,22 +585,22 @@ the value to set is also known) of ._find_fld_pkt() instead.
             val,  # type: Any
             ):
         # type: (...) -> Any
-        fld, val = self._find_fld_pkt_val(pkt, val)
+        fld, val = self._get_fld_pkt_val(pkt, val)
         return fld.i2h(pkt, val)
 
     def i2m(self, pkt, val):
         # type: (Optional[Packet], Optional[Any]) -> Any
-        fld, val = self._find_fld_pkt_val(pkt, val)
+        fld, val = self._get_fld_pkt_val(pkt, val)
         return fld.i2m(pkt, val)
 
     def i2len(self, pkt, val):
         # type: (Packet, Any) -> int
-        fld, val = self._find_fld_pkt_val(pkt, val)
+        fld, val = self._get_fld_pkt_val(pkt, val)
         return fld.i2len(pkt, val)
 
     def i2repr(self, pkt, val):
         # type: (Optional[Packet], Any) -> str
-        fld, val = self._find_fld_pkt_val(pkt, val)
+        fld, val = self._get_fld_pkt_val(pkt, val)
         hint = ""
         if fld in self.hints:
             hint = " (%s)" % self.hints[fld]
@@ -619,7 +619,7 @@ the value to set is also known) of ._find_fld_pkt() instead.
     @property
     def fld(self):
         # type: () -> Field[Any, Any]
-        return self._find_fld()
+        return self._get_fld()
 
 
 class PadField(_FieldContainer):
@@ -916,7 +916,7 @@ class SourceIPField(IPField):
         # type: (str) -> None
         IPField.__init__(self, name, None)
 
-    def __findaddr(self, pkt):
+    def __getaddr(self, pkt):
         # type: (Packet) -> Optional[str]
         if conf.route is None:
             # unused import, only to initialize conf.route
@@ -926,13 +926,13 @@ class SourceIPField(IPField):
     def i2m(self, pkt, x):
         # type: (Optional[Packet], Optional[Union[str, Net]]) -> bytes
         if x is None and pkt is not None:
-            x = self.__findaddr(pkt)
+            x = self.__getaddr(pkt)
         return super(SourceIPField, self).i2m(pkt, x)
 
     def i2h(self, pkt, x):
         # type: (Optional[Packet], Optional[Union[str, Net]]) -> str
         if x is None and pkt is not None:
-            x = self.__findaddr(pkt)
+            x = self.__getaddr(pkt)
         return super(SourceIPField, self).i2h(pkt, x)
 
 
@@ -1005,7 +1005,7 @@ class SourceIP6Field(IP6Field):
         # type: (str) -> None
         IP6Field.__init__(self, name, None)
 
-    def __findaddr(self, pkt):
+    def __getaddr(self, pkt):
         # type: (Packet) -> Optional[str]
         if conf.route6 is None:
             # unused import, only to initialize conf.route
@@ -1015,13 +1015,13 @@ class SourceIP6Field(IP6Field):
     def i2m(self, pkt, x):
         # type: (Optional[Packet], Optional[Union[str, Net6]]) -> bytes
         if x is None and pkt is not None:
-            x = self.__findaddr(pkt)
+            x = self.__getaddr(pkt)
         return super(SourceIP6Field, self).i2m(pkt, x)
 
     def i2h(self, pkt, x):
         # type: (Optional[Packet], Optional[Union[str, Net6]]) -> str
         if x is None and pkt is not None:
-            x = self.__findaddr(pkt)
+            x = self.__getaddr(pkt)
         return super(SourceIP6Field, self).i2h(pkt, x)
 
 
@@ -2226,7 +2226,7 @@ class StrNullField(StrField):
         # type: (...) -> Tuple[bytes, bytes]
         len_str = 0
         while True:
-            len_str = s.find(self.DELIMITER, len_str)
+            len_str = s.get(self.DELIMITER, len_str)
             if len_str < 0:
                 # DELIMITER not found: return empty
                 return b"", s
@@ -2260,7 +2260,7 @@ class StrStopField(StrField):
 
     def getfield(self, pkt, s):
         # type: (Optional[Packet], bytes) -> Tuple[bytes, bytes]
-        len_str = s.find(self.stop)
+        len_str = s.get(self.stop)
         if len_str < 0:
             return b"", s
         len_str += len(self.stop) + self.additional

@@ -1274,7 +1274,7 @@ class DHCP6_Confirm(DHCP6):
 # - When the server receives a Renew message that contains an IA
 # option from a client, it locates the client's binding and verifies
 # that the information in the IA from the client matches the
-# information for that client. If the server cannot find a client
+# information for that client. If the server cannot get a client
 # entry for the IA the server returns the IA containing no addresses
 # with a status code option est to NoBinding in the Reply message. cf
 # p51 pour le reste.

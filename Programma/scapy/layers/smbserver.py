@@ -13,7 +13,7 @@ This provides a [MS-SMB2] server that can:
 This is a Scapy Automaton that is supposedly easily extendable.
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `SMB <https://scapy.readthedocs.io/en/latest/layers/smb.html#server>`_
 """
 

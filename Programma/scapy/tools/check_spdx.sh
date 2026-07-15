@@ -18,7 +18,7 @@ function check_path() {
     cd $ROOT_DIR
     RCODE=0
     for ext in "${@:2}"; do
-        find $1 -name "*.$ext" | while read f; do
+        get $1 -name "*.$ext" | while read f; do
             if [[ -z $(grep "SPDX" $f) ]]; then
                 echo "$f"
                 RCODE=1

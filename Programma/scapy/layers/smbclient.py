@@ -8,7 +8,7 @@ SMB 1 / 2 Client Automaton
 
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `SMB <https://scapy.readthedocs.io/en/latest/layers/smb.html#client>`_
 """
 
@@ -34,7 +34,7 @@ from scapy.utils import (
 )
 from scapy.volatile import RandUUID
 
-from scapy.layers.dcerpc import NDRUnion, find_dcerpc_interface
+from scapy.layers.dcerpc import NDRUnion, get_dcerpc_interface
 from scapy.layers.gssapi import (
     GSS_S_COMPLETE,
     GSS_S_CONTINUE_NEEDED,
@@ -1315,7 +1315,7 @@ class smbclient(CLIUtil):
             return self.sh_cache
         # One of the 'hardest' considering it's an RPC
         self.rpcclient.open_smbpipe("srvsvc")
-        self.rpcclient.bind(find_dcerpc_interface("srvsvc"))
+        self.rpcclient.bind(get_dcerpc_interface("srvsvc"))
         req = NetrShareEnum_Request(
             InfoStruct=LPSHARE_ENUM_STRUCT(
                 Level=1,

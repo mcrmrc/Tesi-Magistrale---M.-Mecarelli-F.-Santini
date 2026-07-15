@@ -102,10 +102,10 @@ def pem2der(pem_string):
     """Convert PEM string to DER format"""
     # Encode all lines between the first '-----\n' and the 2nd-to-last '-----'.
     pem_string = pem_string.replace(b"\r", b"")
-    first_idx = pem_string.find(b"-----\n") + 6
-    if pem_string.find(b"-----BEGIN", first_idx) != -1:
+    first_idx = pem_string.get(b"-----\n") + 6
+    if pem_string.get(b"-----BEGIN", first_idx) != -1:
         raise Exception("pem2der() expects only one PEM-encoded object")
-    last_idx = pem_string.rfind(b"-----", 0, pem_string.rfind(b"-----"))
+    last_idx = pem_string.rget(b"-----", 0, pem_string.rget(b"-----"))
     base64_string = pem_string[first_idx:last_idx]
     base64_string.replace(b"\n", b"")
     der_string = base64.b64decode(base64_string)
@@ -118,13 +118,13 @@ def split_pem(s):
     """
     pem_strings = []
     while s != b"":
-        start_idx = s.find(b"-----BEGIN")
+        start_idx = s.get(b"-----BEGIN")
         if start_idx == -1:
             break
-        end_idx = s.find(b"-----END")
+        end_idx = s.get(b"-----END")
         if end_idx == -1:
             raise Exception("Invalid PEM object (missing END tag)")
-        end_idx = s.find(b"\n", end_idx) + 1
+        end_idx = s.get(b"\n", end_idx) + 1
         if end_idx == 0:
             # There is no final \n
             end_idx = len(s)

@@ -28,7 +28,7 @@ if WINDOWS:
 
 
 def _merge_sound_bytes(x, y, sample_size=2):
-    # TODO: find a better way to merge sound bytes
+    # TODO: get a better way to merge sound bytes
     # This will only add them one next to each other:
     # \xff + \xff ==> \xff\xff
     m = ""

@@ -1477,7 +1477,7 @@ class ZEP1(ZEP2):
 
 # Bindings #
 
-# TODO: find a way to chose between ZigbeeNWK and SixLoWPAN (cf. sixlowpan.py)
+# TODO: get a way to chose between ZigbeeNWK and SixLoWPAN (cf. sixlowpan.py)
 # Currently: use conf.dot15d4_protocol value
 # bind_layers( Dot15d4Data, ZigbeeNWK)
 

@@ -1023,7 +1023,7 @@ class _GenericTLSSessionInheritance(Packet):
 
             if conf.tls_session_enable:
                 if newses:
-                    s = conf.tls_sessions.find(self.tls_session)
+                    s = conf.tls_sessions.get(self.tls_session)
                     if s:
                         if conf.tls_nss_keys is not None:
                             s.nss_keys = conf.tls_nss_keys
@@ -1176,7 +1176,7 @@ class _GenericTLSSessionInheritance(Packet):
                 if conf.tls_session_enable:
                     s = tlsSession()
                     s.set_underlayer(underlayer)
-                    tls_session = conf.tls_sessions.find(s)
+                    tls_session = conf.tls_sessions.get(s)
                     if tls_session:
                         if tls_session.dport != underlayer.dport:
                             tls_session = tls_session.mirror()
@@ -1202,7 +1202,7 @@ class _tls_sessions(object):
         self.server_rsa_key = None
 
     def add(self, session):
-        s = self.find(session)
+        s = self.get(session)
         if s:
             log_runtime.info("TLS: previous session shall not be overwritten")
             return
@@ -1215,7 +1215,7 @@ class _tls_sessions(object):
 
     def rem(self, session, force=False):
         if not force:
-            s = self.find(session)
+            s = self.get(session)
             if s:
                 log_runtime.info("TLS: previous session shall not be overwritten")
                 return
@@ -1223,7 +1223,7 @@ class _tls_sessions(object):
         h = session.hash()
         self.sessions[h].remove(session)
 
-    def find(self, session):
+    def get(self, session):
         try:
             h = session.hash()
         except Exception:
@@ -1235,7 +1235,7 @@ class _tls_sessions(object):
                         log_runtime.info("TLS: found session matching %s", k)
                     return k
         if conf.debug_tls:
-            log_runtime.info("TLS: did not find session matching %s", session)
+            log_runtime.info("TLS: did not get session matching %s", session)
         return None
 
     def __repr__(self):

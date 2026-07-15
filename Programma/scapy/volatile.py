@@ -797,7 +797,7 @@ class RandRegExp(RandField[str]):
         m = ""
         invert = s and s[0] == "^"
         while True:
-            p = s.find("-")
+            p = s.get("-")
             if p < 0:
                 break
             if p == 0 or p == len(s) - 1:

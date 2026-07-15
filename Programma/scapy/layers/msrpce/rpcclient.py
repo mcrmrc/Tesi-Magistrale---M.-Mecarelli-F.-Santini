@@ -28,7 +28,7 @@ from scapy.layers.dcerpc import (
     DceRpc5TransferSyntax,
     DceRpcSocket,
     DCERPC_Transport,
-    find_dcerpc_interface,
+    get_dcerpc_interface,
     CommonAuthVerifier,
     DCE_C_AUTHN_LEVEL,
     # NDR
@@ -692,7 +692,7 @@ def get_endpoint(
     smb_kwargs={},
 ):
     """
-    Call the endpoint mapper on a remote IP to find an interface
+    Call the endpoint mapper on a remote IP to get an interface
 
     :param ip:
     :param interface:
@@ -710,7 +710,7 @@ def get_endpoint(
     client.connect(ip, smb_kwargs=smb_kwargs)
     if transport == DCERPC_Transport.NCACN_NP:  # SMB
         client.open_smbpipe("epmapper")
-    client.bind(find_dcerpc_interface("ept"))
+    client.bind(get_dcerpc_interface("ept"))
     endpoints = client.epm_map(interface)
     client.close()
     return endpoints

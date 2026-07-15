@@ -117,7 +117,7 @@ used when socket.inet_pton is not available.
         # have two matches: 0:0: and :0:0: where the latter is longer,
         # though the first one should be taken. Group 1 is in both
         # cases 0:0.
-        match = max(_IP6_ZEROS.finditer(address),
+        match = max(_IP6_ZEROS.getiter(address),
                     key=lambda m: m.end(1) - m.start(1))
         return '{}::{}'.format(address[:match.start()], address[match.end():])
     except ValueError:

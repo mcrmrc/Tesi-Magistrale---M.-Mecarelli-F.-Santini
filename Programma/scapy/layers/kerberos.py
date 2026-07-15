@@ -23,7 +23,7 @@ Implements parts of:
 
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `Kerberos <https://scapy.readthedocs.io/en/latest/layers/kerberos.html>`_
 
 Example decryption::

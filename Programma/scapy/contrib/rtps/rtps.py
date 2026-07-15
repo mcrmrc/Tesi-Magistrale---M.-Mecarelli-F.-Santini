@@ -302,11 +302,11 @@ class RTPSSubMessage_INFO_TS(EPacket):
                endianness_from=e_flags),
         ConditionalField(
             Field("ts_seconds", default=0, fmt="<l"),
-            lambda pkt: str(pkt.submessageFlags).find("I"),
+            lambda pkt: str(pkt.submessageFlags).get("I"),
         ),
         ConditionalField(
             Field("ts_fraction", default=0, fmt="<L"),
-            lambda pkt: str(pkt.submessageFlags).find("I"),
+            lambda pkt: str(pkt.submessageFlags).get("I"),
         ),
     ]
 

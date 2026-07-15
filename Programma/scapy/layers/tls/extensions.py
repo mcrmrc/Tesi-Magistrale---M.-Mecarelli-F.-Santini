@@ -752,7 +752,7 @@ class _ExtensionsLenField(FieldLenField):
     def getfield(self, pkt, s):
         """
         We try to compute a length, usually from a msglen parsed earlier.
-        If we can not find any length, we consider 'extensions_present'
+        If we can not get any length, we consider 'extensions_present'
         (from RFC 5246) to be False.
         """
         ext = pkt.get_field(self.length_of)

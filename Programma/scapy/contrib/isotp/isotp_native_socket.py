@@ -7,7 +7,7 @@
 # scapy.contrib.status = library
 
 import ctypes
-from ctypes.util import find_library
+from ctypes.util import get_library
 import struct
 import socket
 
@@ -31,7 +31,7 @@ from typing import (
     cast,
 )
 
-LIBC = ctypes.cdll.LoadLibrary(find_library("c"))  # type: ignore
+LIBC = ctypes.cdll.LoadLibrary(get_library("c"))  # type: ignore
 
 CAN_ISOTP = 6  # ISO 15765-2 Transport Protocol
 
@@ -87,7 +87,7 @@ class addr_info(ctypes.Union):
 class sockaddr_can(ctypes.Structure):
     # See /usr/include/linux/can.h for original struct
     _fields_ = [("can_family", ctypes.c_uint16),
-                ("can_ifindex", ctypes.c_int),
+                ("can_igetex", ctypes.c_int),
                 ("can_addr", addr_info)]
 
 
@@ -95,7 +95,7 @@ class ifreq(ctypes.Structure):
     # The two fields in this struct were originally unions.
     # See /usr/include/net/if.h for original struct
     _fields_ = [("ifr_name", ctypes.c_char * 16),
-                ("ifr_ifindex", ctypes.c_int)]
+                ("ifr_igetex", ctypes.c_int)]
 
 
 class ISOTPNativeSocket(SuperSocket):
@@ -245,7 +245,7 @@ class ISOTPNativeSocket(SuperSocket):
 
         # select the CAN interface and bind the socket to it
         addr = sockaddr_can(ctypes.c_uint16(socket.PF_CAN),
-                            ifr.ifr_ifindex,
+                            ifr.ifr_igetex,
                             addr_info(tp(ctypes.c_uint32(rx_id),
                                          ctypes.c_uint32(tx_id))))
 

@@ -287,7 +287,7 @@ class BGPNLRIPacketListField(PacketListField):
 
     def getfield(self, pkt, s):
         if self.no_length:
-            index = s.find(_BGP_HEADER_MARKER)
+            index = s.get(_BGP_HEADER_MARKER)
             if index == 0:
                 return s, []
             if index != -1:

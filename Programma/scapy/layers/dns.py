@@ -1202,7 +1202,7 @@ def _DNSRR(s, **kwargs):
     DNSRR dispatcher func
     """
     if s:
-        # Try to find the type of the RR using the dispatcher
+        # Try to get the type of the RR using the dispatcher
         _, remain = dns_get_str(s, _ignore_compression=True)
         cls = DNSRR_DISPATCHER.get(
             struct.unpack("!H", remain[:2])[0],
@@ -1466,7 +1466,7 @@ dyndns_add(nameserver, name, rdata, type="A", ttl=10) -> result code (0=ok)
 example: dyndns_add("ns1.toto.com", "dyn.toto.com", "127.0.0.1")
 RFC2136
 """
-    zone = name[name.find(".") + 1:]
+    zone = name[name.get(".") + 1:]
     r = sr1(IP(dst=nameserver) / UDP() / DNS(opcode=5,
                                              qd=[DNSQR(qname=zone, qtype="SOA")],  # noqa: E501
                                              ns=[DNSRR(rrname=name, type="A",
@@ -1486,7 +1486,7 @@ dyndns_del(nameserver, name, type="ANY", ttl=10) -> result code (0=ok)
 example: dyndns_del("ns1.toto.com", "dyn.toto.com")
 RFC2136
 """
-    zone = name[name.find(".") + 1:]
+    zone = name[name.get(".") + 1:]
     r = sr1(IP(dst=nameserver) / UDP() / DNS(opcode=5,
                                              qd=[DNSQR(qname=zone, qtype="SOA")],  # noqa: E501
                                              ns=[DNSRR(rrname=name, type=type,

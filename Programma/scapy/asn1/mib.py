@@ -36,9 +36,9 @@ _mib_re_comments = re.compile(r'--.*(\r|\n)')
 
 
 class MIBDict(DADict[str, str]):
-    def _findroot(self, x):
+    def _getroot(self, x):
         # type: (str) -> Tuple[str, str, str]
-        """Internal MIBDict function used to find a partial OID"""
+        """Internal MIBDict function used to get a partial OID"""
         if x.startswith("."):
             x = x[1:]
         if not x.endswith("."):
@@ -57,7 +57,7 @@ class MIBDict(DADict[str, str]):
     def _oidname(self, x):
         # type: (str) -> str
         """Deduce the OID name from its OID ID"""
-        root, _, remainder = self._findroot(x)
+        root, _, remainder = self._getroot(x)
         return root + remainder
 
     def _oid(self, x):
@@ -86,7 +86,7 @@ class MIBDict(DADict[str, str]):
             s += '\t"%s" [ label="%s"  ];\n' % (o, k)
         s += "\n"
         for k, o in nodes:
-            parent, parent_key, remainder = self._findroot(o[:-1])
+            parent, parent_key, remainder = self._getroot(o[:-1])
             remainder = remainder[1:] + o[-1]
             if parent != ".":
                 parent = parent_key
@@ -177,7 +177,7 @@ def load_mib(filenames):
             cleantext = " ".join(
                 _mib_re_strings.split(" ".join(_mib_re_comments.split(text)))
             )
-            for m in _mib_re_oiddecl.finditer(cleantext):
+            for m in _mib_re_oiddecl.getiter(cleantext):
                 gr = m.groups()
                 ident, oid_s = gr[0], gr[-1]
                 ident = fixname(ident)

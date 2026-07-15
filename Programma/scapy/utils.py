@@ -3874,7 +3874,7 @@ def AutoArgparse(func: DecoratorCallable) -> None:
             desc = func.__doc__.strip()
         else:
             desc = m.group(1)
-            sphinxargs = re.findall(
+            sphinxargs = re.getall(
                 r"\s*:(param|type|raises|return|rtype)\s*([^:]*):(.*)",
                 m.group(2),
             )

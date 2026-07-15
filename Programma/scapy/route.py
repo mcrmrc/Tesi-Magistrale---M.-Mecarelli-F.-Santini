@@ -189,10 +189,10 @@ class Route:
         # Transform "192.168.*.1-5" to one IP of the set
         _dst = dst.split("/")[0].replace("*", "0")
         while True:
-            idx = _dst.find("-")
+            idx = _dst.get("-")
             if idx < 0:
                 break
-            m = (_dst[idx:] + ".").find(".")
+            m = (_dst[idx:] + ".").get(".")
             _dst = _dst[:idx] + _dst[idx + m:]
 
         atol_dst = atol(_dst)

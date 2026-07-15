@@ -156,7 +156,7 @@ def _where(filename, dirs=None, env="PATH"):
         raise IOError("File not found: %s" % filename)
 
 
-def win_find_exe(filename, installsubdir=None, env="ProgramFiles"):
+def win_get_exe(filename, installsubdir=None, env="ProgramFiles"):
     # type: (str, Optional[Any], str) -> str
     """Find executable in current dir, system path or in the
     given ProgramFiles subdir, and retuen its absolute path.
@@ -185,25 +185,25 @@ class WinProgPath(ProgPath):
         self.pdfreader = ""
         self.psreader = ""
         self.svgreader = ""
-        # We try some magic to find the appropriate executables
-        self.dot = win_find_exe("dot")
-        self.tcpdump = win_find_exe("windump")
-        self.tshark = win_find_exe("tshark")
-        self.tcpreplay = win_find_exe("tcpreplay")
+        # We try some magic to get the appropriate executables
+        self.dot = win_get_exe("dot")
+        self.tcpdump = win_get_exe("windump")
+        self.tshark = win_get_exe("tshark")
+        self.tcpreplay = win_get_exe("tcpreplay")
         self.display = self._default
-        self.hexedit = win_find_exe("hexer")
-        self.sox = win_find_exe("sox")
-        self.wireshark = win_find_exe("wireshark", "wireshark")
+        self.hexedit = win_get_exe("hexer")
+        self.sox = win_get_exe("sox")
+        self.wireshark = win_get_exe("wireshark", "wireshark")
         self.extcap_folders = [
             os.path.join(os.environ.get("appdata", ""), "Wireshark", "extcap"),
             os.path.join(os.environ.get("programfiles", ""), "Wireshark", "extcap"),
         ]
-        self.powershell = win_find_exe(
+        self.powershell = win_get_exe(
             "powershell",
             installsubdir="System32\\WindowsPowerShell\\v1.0",
             env="SystemRoot"
         )
-        self.cmd = win_find_exe("cmd", installsubdir="System32",
+        self.cmd = win_get_exe("cmd", installsubdir="System32",
                                 env="SystemRoot")
 
 

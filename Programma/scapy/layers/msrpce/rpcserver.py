@@ -248,7 +248,7 @@ class DCERPC_Server(metaclass=_DCERPC_Server_metaclass):
                     )
                 )
             if not self.session.rpc_bind_interface:
-                # The session did not find a matching interface !
+                # The session did not get a matching interface !
                 self.queue.extend(self.session.out_pkt(hdr / DceRpc5BindNak()))
                 if self.verb:
                     print(conf.color_theme.fail("! DceRpc5BindNak (unknown interface)"))

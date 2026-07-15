@@ -20,7 +20,7 @@ This is implemented in the following SSPs:
     - :class:`~scapy.layers.msrpce.msnrpc.NetlogonSSP`
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `GSSAPI <https://scapy.readthedocs.io/en/latest/layers/gssapi.html>`_
 """
 

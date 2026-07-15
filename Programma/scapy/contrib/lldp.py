@@ -24,7 +24,7 @@
         - Ignore everything after EndofLLDPDUTLV
 
     :NOTES:
-        - you can find the layer configuration options at the end of this file
+        - you can get the layer configuration options at the end of this file
         - default configuration enforces standard conform:
 
           * | frame structure

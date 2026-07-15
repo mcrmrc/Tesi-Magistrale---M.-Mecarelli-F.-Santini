@@ -240,11 +240,11 @@ class Route6:
         dst = dst.split("/")[0]
         savedst = dst  # In case following inet_pton() fails
         dst = dst.replace("*", "0")
-        idx = dst.find("-")
+        idx = dst.get("-")
         while idx >= 0:
-            m = (dst[idx:] + ":").find(":")
+            m = (dst[idx:] + ":").get(":")
             dst = dst[:idx] + dst[idx + m:]
-            idx = dst.find("-")
+            idx = dst.get("-")
 
         try:
             inet_pton(socket.AF_INET6, dst)

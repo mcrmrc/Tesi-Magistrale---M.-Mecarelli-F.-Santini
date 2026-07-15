@@ -3048,8 +3048,8 @@ class _BluetoothLibcSocket(SuperSocket):
         # the correct parameters. We must call libc functions directly via
         # ctypes.
         sockaddr_hcip = ctypes.POINTER(sockaddr_hci)
-        from ctypes.util import find_library
-        libc = ctypes.cdll.LoadLibrary(find_library("c"))
+        from ctypes.util import get_library
+        libc = ctypes.cdll.LoadLibrary(get_library("c"))
 
         socket_c = libc.socket
         socket_c.argtypes = (ctypes.c_int, ctypes.c_int, ctypes.c_int)
@@ -3090,8 +3090,8 @@ class _BluetoothLibcSocket(SuperSocket):
             return
 
         # Properly close socket so we can free the device
-        from ctypes.util import find_library
-        libc = ctypes.cdll.LoadLibrary(find_library("c"))
+        from ctypes.util import get_library
+        libc = ctypes.cdll.LoadLibrary(get_library("c"))
 
         close = libc.close
         close.restype = ctypes.c_int

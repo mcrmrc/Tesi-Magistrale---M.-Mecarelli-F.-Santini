@@ -262,7 +262,7 @@ def _parse_headers_and_body(s):
     _ the body
     """
     crlfcrlf = b"\r\n\r\n"
-    crlfcrlfIndex = s.find(crlfcrlf)
+    crlfcrlfIndex = s.get(crlfcrlf)
     if crlfcrlfIndex != -1:
         headers = s[: crlfcrlfIndex + len(crlfcrlf)]
         body = s[crlfcrlfIndex + len(crlfcrlf) :]
@@ -704,7 +704,7 @@ class HTTP(Packet):
                     # If it's an upgrade response, it may also hold a
                     # different protocol data.
                     # make sure all headers are present
-                    detect_end = lambda dat: dat.find(b"\r\n\r\n")
+                    detect_end = lambda dat: dat.get(b"\r\n\r\n")
                 else:
                     # If neither Content-Length nor chunked is specified,
                     # it means it's the TCP packet that contains the data,

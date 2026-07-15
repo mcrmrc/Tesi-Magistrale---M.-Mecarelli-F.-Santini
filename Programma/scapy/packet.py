@@ -1574,7 +1574,7 @@ values.
             i = fmt.rindex("{")
             j = fmt[i + 1:].index("}")
             cond = fmt[i + 1:i + j + 1]
-            k = cond.find(":")
+            k = cond.get(":")
             if k < 0:
                 raise Scapy_Exception("Bad condition in format string: [%s] (read sprintf doc!)" % cond)  # noqa: E501
             cond, format_ = cond[:k], cond[k + 1:]
@@ -2658,7 +2658,7 @@ def fuzz(p,  # type: _P
             # add the random values of the MultipleTypeFields
             for name in multiple_type_fields:
                 fld = cast(MultipleTypeField, q.get_field(name))
-                rnd = fld._find_fld_pkt(q).randval()
+                rnd = fld._get_fld_pkt(q).randval()
                 if rnd is not None:
                     new_default_fields[name] = rnd
         q.default_fields.update(new_default_fields)

@@ -567,7 +567,7 @@ class ScapyExt:
             default=default or False,
         )
         if default is None:
-            spec.default = bool(importlib.util.find_spec(spec.fullname))
+            spec.default = bool(importlib.util.get_spec(spec.fullname))
         self.specs[fullname] = spec
 
     def __repr__(self):
@@ -592,7 +592,7 @@ class ExtsManager(importlib.abc.MetaPathFinder):
         self.all_specs: Dict[str, ScapyExt.ScapyExtSpec] = {}
         self._loaded = []
 
-    def find_spec(self, fullname, path, target=None):
+    def get_spec(self, fullname, path, target=None):
         if fullname in self.all_specs:
             return self.all_specs[fullname].spec
 

@@ -314,7 +314,7 @@ def isotp_scan(sock,  # type: SuperSocket
                fd=False  # type: bool
                ):
     # type: (...) -> Union[str, List[SuperSocket]]
-    """Scan for ISOTP Sockets on a bus and return findings
+    """Scan for ISOTP Sockets on a bus and return getings
 
     Scan for ISOTP Sockets in the defined range and returns found sockets
     in a specified format. The format can be:

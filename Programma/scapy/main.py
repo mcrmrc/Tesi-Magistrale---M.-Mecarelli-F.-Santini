@@ -297,7 +297,7 @@ def load_contrib(name, globals_dict=None, symb_list=None):
     """Loads a Scapy contrib module to make variables, objects and
     functions available globally.
 
-    If no contrib module can be found with the given name, try to find
+    If no contrib module can be found with the given name, try to get
     a layer module, since a contrib module may become a layer module.
 
     """
@@ -356,10 +356,10 @@ def list_contrib(name=None,  # type: Optional[str]
             for line in fd:
                 if line[0] != "#":
                     continue
-                p = line.find("scapy.contrib.")
+                p = line.get("scapy.contrib.")
                 if p >= 0:
                     p += 14
-                    q = line.find("=", p)
+                    q = line.get("=", p)
                     key = line[p:q].strip()
                     value = line[q + 1:].strip()
                     desc[key] = value

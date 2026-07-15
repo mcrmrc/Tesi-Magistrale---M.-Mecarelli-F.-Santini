@@ -1620,7 +1620,7 @@ class Radius_am(AnsweringMachine):
                 )
 
                 if KnownPassword is None:
-                    log_runtime.warning("Couldn't find user '%s'" % UserName.decode())
+                    log_runtime.warning("Couldn't get user '%s'" % UserName.decode())
                     rad.code = 3
                 elif UserPassword != KnownPassword:
                     log_runtime.warning(
@@ -1648,7 +1648,7 @@ class Radius_am(AnsweringMachine):
 
                 # 1. Check the client-provided NTResponse
                 if HashNT is None:
-                    log_runtime.warning("Couldn't find user '%s'" % UserName.decode())
+                    log_runtime.warning("Couldn't get user '%s'" % UserName.decode())
                     rad.code = 3
                 elif MS_CHAP2_GenerateNTResponse(
                         AuthenticatorChallenge,

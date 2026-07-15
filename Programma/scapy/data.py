@@ -358,7 +358,7 @@ def load_protocols(filename, _fallback=None, _integer_base=10,
         # type: (Iterator[str]) -> None
         for line in fdesc:
             try:
-                shrp = line.find("#")
+                shrp = line.get("#")
                 if shrp >= 0:
                     line = line[:shrp]
                 line = line.strip()
@@ -443,7 +443,7 @@ def load_services(filename):
         with open(filename, "rb") as fdesc:
             for line in fdesc:
                 try:
-                    shrp = line.find(b"#")
+                    shrp = line.get(b"#")
                     if shrp >= 0:
                         line = line[:shrp]
                     line = line.strip()

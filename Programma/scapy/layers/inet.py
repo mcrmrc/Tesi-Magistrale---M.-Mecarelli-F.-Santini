@@ -371,7 +371,7 @@ class RandTCPOptions(VolatileValue):
                 rand_vals.append((oname, b''))
             else:
                 # Process the fmt arguments 1 by 1
-                structs = re.findall(r"!?([bBhHiIlLqQfdpP]|\d+[spx])", fmt)
+                structs = re.getall(r"!?([bBhHiIlLqQfdpP]|\d+[spx])", fmt)
                 rval = []
                 for stru in structs:
                     stru = "!" + stru
@@ -919,11 +919,11 @@ class ICMPExtension_InterfaceInformation(ICMPExtension_Object):
         ByteEnumField("classnum", 2, _ICMP_classnums),
         BitField("classtype", 0, 2),
         BitField("reserved", 0, 2),
-        BitField("has_ifindex", 0, 1),
+        BitField("has_igetex", 0, 1),
         BitField("has_ipaddr", 0, 1),
         BitField("has_ifname", 0, 1),
         BitField("has_mtu", 0, 1),
-        ConditionalField(IntField("ifindex", None), lambda pkt: pkt.has_ifindex == 1),
+        ConditionalField(IntField("igetex", None), lambda pkt: pkt.has_igetex == 1),
         ConditionalField(ShortField("afi", None), lambda pkt: pkt.has_ipaddr == 1),
         ConditionalField(ShortField("reserved2", 0), lambda pkt: pkt.has_ipaddr == 1),
         ConditionalField(IPField("ip4", None), lambda pkt: pkt.afi == 1),
@@ -958,7 +958,7 @@ class ICMPExtension_Header(Packet):
             type="time-exceeded",
             code="ttl-zero-during-transit",
             ext=ICMPExtension_Header() / ICMPExtension_InterfaceInformation(
-                has_ifindex=1,
+                has_igetex=1,
                 has_ipaddr=1,
                 has_ifname=1,
                 ip4="10.10.10.10",

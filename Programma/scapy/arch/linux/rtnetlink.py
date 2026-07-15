@@ -736,7 +736,7 @@ def _sr1_rtrequest(pkt: Packet) -> List[Packet]:
                 log_loading.warning("Failed to read the routes using RTNETLINK !")
                 return []
             for msg in msgs.msgs:
-                # Keep going until we find the end of the MULTI format
+                # Keep going until we get the end of the MULTI format
                 if not msg.nlmsg_flags.NLM_F_MULTI or msg.nlmsg_type == 3:
                     if msg.nlmsg_type == 3 and nlmsgerr in msg and msg.status != 0:
                         # NLMSG_DONE with errors
@@ -771,7 +771,7 @@ def _get_ips(af_family=socket.AF_UNSPEC):
     )
     ips: Dict[int, List[Dict[str, Any]]] = {}
     for msg in results:
-        ifindex = msg.ifa_index
+        igetex = msg.ifa_index
         address = None
         family = msg.ifa_family
         for attr in msg.data:
@@ -781,12 +781,12 @@ def _get_ips(af_family=socket.AF_UNSPEC):
         if address is not None:
             data = {
                 "af_family": family,
-                "index": ifindex,
+                "index": igetex,
                 "address": address,
             }
             if family == 10:  # ipv6
                 data["scope"] = scapy.utils6.in6_getscope(address)
-            ips.setdefault(ifindex, list()).append(data)
+            ips.setdefault(igetex, list()).append(data)
     return ips
 
 
@@ -808,7 +808,7 @@ def _get_if_list():
     lifips = _get_ips()
     interfaces = {}
     for msg in results:
-        ifindex = msg.ifi_index
+        igetex = msg.ifi_index
         ifname = None
         mac = "00:00:00:00:00:00"
         itype = msg.ifi_type
@@ -820,11 +820,11 @@ def _get_if_list():
             elif attr.rta_type == 0x03:  # IFLA_NAME
                 ifname = attr.rta_data[:-1].decode()
         if ifname is not None:
-            if ifindex in lifips:
-                ips = lifips[ifindex]
-            interfaces[ifindex] = {
+            if igetex in lifips:
+                ips = lifips[igetex]
+            interfaces[igetex] = {
                 "name": ifname,
-                "index": ifindex,
+                "index": igetex,
                 "flags": ifflags,
                 "mac": mac,
                 "type": itype,

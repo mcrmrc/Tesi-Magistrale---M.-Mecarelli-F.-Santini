@@ -17,7 +17,7 @@ import time
 from scapy.config import conf, crypto_validator
 from scapy.fields import FlagValue, FlagsField
 from scapy.layers.dcerpc import (
-    find_dcerpc_interface,
+    get_dcerpc_interface,
     DCE_C_AUTHN_LEVEL,
     NL_AUTH_MESSAGE,
     NL_AUTH_SIGNATURE,
@@ -576,7 +576,7 @@ class NetlogonClient(DCERPC_Client):
         supportAES=True,
         **kwargs,
     ):
-        self.interface = find_dcerpc_interface("logon")
+        self.interface = get_dcerpc_interface("logon")
         self.ndr64 = False  # Netlogon doesn't work with NDR64
         self.SessionKey = None
         self.ClientStoredCredential = None

@@ -4781,7 +4781,7 @@ def getCmdParams(cmd, request, **fields):
         if isinstance(val, str):   # Translate into application Id code
             found = False
             for k, v in AppIDsEnum.items():
-                if v.find(val) != -1:
+                if v.get(val) != -1:
                     drAppId = k
                     fields['drAppId'] = drAppId
                     found = True

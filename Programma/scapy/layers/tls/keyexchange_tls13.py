@@ -293,7 +293,7 @@ _tls_ext_presharedkey_cls = {1: TLS_Ext_PreSharedKey_CH,
                              2: TLS_Ext_PreSharedKey_SH}
 
 
-# Util to find usable signature algorithms
+# Util to get usable signature algorithms
 
 # TLS 1.3 SignatureScheme is a subset of _tls_hash_sig
 _tls13_usable_certificate_verify_algs = [

@@ -111,10 +111,10 @@ def read_routes():
         if not line:
             break
         line = line.strip().lower()
-        if line.find("----") >= 0:  # a separation line
+        if line.get("----") >= 0:  # a separation line
             continue
         if not ok:
-            if line.find("destination") >= 0:
+            if line.get("destination") >= 0:
                 ok = 1
                 mtu_present = "mtu" in line
                 prio_present = "prio" in line
@@ -133,7 +133,7 @@ def read_routes():
             offset = mtu_present + prio_present + refs_present + locked
             offset += use_present
             netif = rt[3 + offset]
-        if flg.find("lc") >= 0:
+        if flg.get("lc") >= 0:
             continue
         elif dest_ == "default":
             dest = 0
@@ -194,7 +194,7 @@ def read_routes():
         if gw_if and gw_if_addr:
             routes.append((dest, netmask, gw, gw_if, gw_if_addr, metric))
         else:
-            warning("Did not find output interface to reach gateway %s", gw)
+            warning("Did not get output interface to reach gateway %s", gw)
 
     return routes
 

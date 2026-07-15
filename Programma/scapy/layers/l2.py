@@ -383,7 +383,7 @@ class CookedLinuxV2(CookedLinux):
     name = "cooked linux v2"
     fields_desc = [XShortEnumField("proto", 0x800, ETHER_TYPES),
                    ShortField("reserved", 0),
-                   IntField("ifindex", 0),
+                   IntField("igetex", 0),
                    XShortField("lladdrtype", 512),
                    ByteEnumField("pkttype", 0, COOKED_LINUX_PACKET_TYPES),
                    ByteField("lladdrlen", 0),
@@ -568,7 +568,7 @@ class ARP(Packet):
         # type: () -> Tuple[Optional[str], Optional[str], Optional[str]]
         fld, dst = cast(Tuple[MultipleTypeField, str],
                         self.getfield_and_val("pdst"))
-        fld_inner, dst = fld._find_fld_pkt_val(self, dst)
+        fld_inner, dst = fld._get_fld_pkt_val(self, dst)
         scope = None
         if isinstance(dst, (Net, _ScopedIP)):
             scope = dst.scope

@@ -172,7 +172,7 @@ if conf.use_pcap:
             pcap_close,
             pcap_compile,
             pcap_datalink,
-            pcap_findalldevs,
+            pcap_getalldevs,
             pcap_freealldevs,
             pcap_geterr,
             pcap_if_t,
@@ -193,7 +193,7 @@ if conf.use_pcap:
 
         def load_winpcapy():
             # type: () -> None
-            """This functions calls libpcap ``pcap_findalldevs`` function,
+            """This functions calls libpcap ``pcap_getalldevs`` function,
             and extracts and parse all the data scapy will need
             to build the Interface List.
 
@@ -204,7 +204,7 @@ if conf.use_pcap:
             err = create_string_buffer(PCAP_ERRBUF_SIZE)
             devs = POINTER(pcap_if_t)()
             if_list = {}
-            if pcap_findalldevs(byref(devs), err) < 0:
+            if pcap_getalldevs(byref(devs), err) < 0:
                 return
             try:
                 p = devs

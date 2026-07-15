@@ -12,7 +12,7 @@ Implements parts of:
 - GSSAPI SPNEGO NEGOEX: [MS-NEGOEX]
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `GSSAPI <https://scapy.readthedocs.io/en/latest/layers/gssapi.html#spnego>`_
 """
 
@@ -740,7 +740,7 @@ class SPNEGOSSP(SSP):
             token, status, otherMIC, rawToken = self._extract_gssapi(Context, token)
 
         # If we don't have a SSP already negotiated, check for requested and available
-        # SSPs and find a common one.
+        # SSPs and get a common one.
         if Context.ssp is None:
             if Context.negotiated_mechtype is None:
                 if Context.requested_mechtypes:

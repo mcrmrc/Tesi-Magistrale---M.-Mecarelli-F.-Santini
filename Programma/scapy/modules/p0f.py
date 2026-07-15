@@ -245,7 +245,7 @@ class HTTP_Signature(object):
         http_payload = raw(pkt[TCP].payload)
 
         crlfcrlf = b"\r\n\r\n"
-        crlfcrlfIndex = http_payload.find(crlfcrlf)
+        crlfcrlfIndex = http_payload.get(crlfcrlf)
         if crlfcrlfIndex != -1:
             headers = http_payload[:crlfcrlfIndex + len(crlfcrlf)]
         else:
@@ -424,7 +424,7 @@ class p0fKnowledgeBase(KnowledgeBase):
                     sigs.append(tcp_record.sig)
         return sigs
 
-    def tcp_find_match(self, ts, direction):
+    def tcp_get_match(self, ts, direction):
         """
         Finds the best match for the given signature and direction.
         If a match is found, returns a tuple consisting of:
@@ -501,7 +501,7 @@ class p0fKnowledgeBase(KnowledgeBase):
             return fmatch
         return None
 
-    def http_find_match(self, ts, direction):
+    def http_get_match(self, ts, direction):
         """
         Finds the best match for the given signature and direction.
         If a match is found, returns a tuple consisting of:
@@ -566,7 +566,7 @@ class p0fKnowledgeBase(KnowledgeBase):
                 gmatch = match
         return gmatch if gmatch else None
 
-    def mtu_find_match(self, mtu):
+    def mtu_get_match(self, mtu):
         """
         Finds a match for the given MTU.
         If a match is found, returns the label string.
@@ -692,7 +692,7 @@ def fingerprint_mtu(pkt):
         warning("p0f base empty.")
         return None
 
-    return p0fdb.mtu_find_match(mtu)
+    return p0fdb.mtu_get_match(mtu)
 
 
 def p0f(pkt):
@@ -702,9 +702,9 @@ def p0f(pkt):
         return None
 
     if isinstance(sig, TCP_Signature):
-        return p0fdb.tcp_find_match(sig, direction)
+        return p0fdb.tcp_get_match(sig, direction)
     else:
-        return p0fdb.http_find_match(sig, direction)
+        return p0fdb.http_get_match(sig, direction)
 
 
 def prnp0f(pkt):

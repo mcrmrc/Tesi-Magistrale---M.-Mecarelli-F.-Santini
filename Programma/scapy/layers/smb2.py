@@ -7,7 +7,7 @@
 SMB (Server Message Block), also known as CIFS - version 2
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `SMB <https://scapy.readthedocs.io/en/latest/layers/smb.html>`_
 """
 

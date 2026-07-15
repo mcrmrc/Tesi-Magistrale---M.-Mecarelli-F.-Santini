@@ -388,7 +388,7 @@ class IODControlReq(Block):
     ]
 
     def post_build(self, p, pay):
-        # Try to find the right block type
+        # Try to get the right block type
         if self.block_type is None:
             if self.ControlCommand_PrmBegin:
                 p = struct.pack("!H", 0x0118) + p[2:]

@@ -498,7 +498,7 @@ class L3bpfSocket(L2bpfSocket):
         """Send a packet"""
         from scapy.layers.l2 import Loopback
 
-        # Use the routing table to find the output interface
+        # Use the routing table to get the output interface
         iff = pkt.route()[0]
         if iff is None:
             iff = network_name(conf.iface)

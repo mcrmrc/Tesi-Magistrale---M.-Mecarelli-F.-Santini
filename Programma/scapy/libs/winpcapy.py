@@ -10,7 +10,7 @@
 # with libpcap on non-Windows platforms, as well as for WinPcap and Npcap.
 
 from ctypes import *
-from ctypes.util import find_library
+from ctypes.util import get_library
 import os
 
 from scapy.libs.structures import bpf_program
@@ -35,9 +35,9 @@ if WINDOWS:
 else:
     # Try to load libpcap
     SOCKET = c_int
-    _lib_name = find_library("pcap")
+    _lib_name = get_library("pcap")
     if not _lib_name:
-        raise OSError("Cannot find libpcap.so library")
+        raise OSError("Cannot get libpcap.so library")
     _lib = CDLL(_lib_name)
 
 
@@ -170,7 +170,7 @@ if WINDOWS:
 pcap_stat._fields_ = _tmpList
 
 # struct   pcap_addr
-# Representation of an interface address, used by pcap_findalldevs().
+# Representation of an interface address, used by pcap_getalldevs().
 
 
 class pcap_addr(Structure):
@@ -184,7 +184,7 @@ pcap_addr._fields_ = [('next', POINTER(pcap_addr)),
                       ('dstaddr', POINTER(sockaddr))]
 
 # struct   pcap_if
-# Item in a list of interfaces, used by pcap_findalldevs().
+# Item in a list of interfaces, used by pcap_getalldevs().
 
 
 class pcap_if(Structure):
@@ -425,15 +425,15 @@ pcap_getnonblock = _lib.pcap_getnonblock
 pcap_getnonblock.restype = c_int
 pcap_getnonblock.argtypes = [POINTER(pcap_t), STRING]
 
-# int pcap_findalldevs (pcap_if_t **alldevsp, char *errbuf)
+# int pcap_getalldevs (pcap_if_t **alldevsp, char *errbuf)
 # Construct a list of network devices that can be opened with
 # pcap_open_live().
-pcap_findalldevs = _lib.pcap_findalldevs
-pcap_findalldevs.restype = c_int
-pcap_findalldevs.argtypes = [POINTER(POINTER(pcap_if_t)), STRING]
+pcap_getalldevs = _lib.pcap_getalldevs
+pcap_getalldevs.restype = c_int
+pcap_getalldevs.argtypes = [POINTER(POINTER(pcap_if_t)), STRING]
 
 # void pcap_freealldevs (pcap_if_t *alldevsp)
-#   Free an interface list returned by pcap_findalldevs().
+#   Free an interface list returned by pcap_getalldevs().
 pcap_freealldevs = _lib.pcap_freealldevs
 pcap_freealldevs.restype = None
 pcap_freealldevs.argtypes = [POINTER(pcap_if_t)]
@@ -897,11 +897,11 @@ if WINDOWS:
     pcap_sendqueue_transmit.argtypes = [
         POINTER(pcap_t), POINTER(pcap_send_queue), c_int]
 
-    # int pcap_findalldevs_ex (char *source, struct pcap_rmtauth *auth, pcap_if_t **alldevs, char *errbuf)
+    # int pcap_getalldevs_ex (char *source, struct pcap_rmtauth *auth, pcap_if_t **alldevs, char *errbuf)
     #   Create a list of network devices that can be opened with pcap_open().
-    pcap_findalldevs_ex = _lib.pcap_findalldevs_ex
-    pcap_findalldevs_ex.retype = c_int
-    pcap_findalldevs_ex.argtypes = [
+    pcap_getalldevs_ex = _lib.pcap_getalldevs_ex
+    pcap_getalldevs_ex.retype = c_int
+    pcap_getalldevs_ex.argtypes = [
         STRING,
         POINTER(pcap_rmtauth),
         POINTER(

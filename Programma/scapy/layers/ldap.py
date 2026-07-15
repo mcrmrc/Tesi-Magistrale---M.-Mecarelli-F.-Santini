@@ -14,7 +14,7 @@ Note: to mimic Microsoft Windows LDAP packets, you must set::
     conf.ASN1_default_long_size = 4
 
 .. note::
-    You will find more complete documentation for this layer over at
+    You will get more complete documentation for this layer over at
     `LDAP <https://scapy.readthedocs.io/en/latest/layers/ldap.html>`_
 """
 

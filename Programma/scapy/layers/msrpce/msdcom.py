@@ -42,7 +42,7 @@ from scapy.layers.dcerpc import (
     NDRSerializeType1PacketField,
     NDRSerializeType1PacketListField,
     ndr_deserialize1,
-    find_dcerpc_interface,
+    get_dcerpc_interface,
     RPC_C_AUTHN,
 )
 from scapy.layers.msrpce.rpcclient import DCERPC_Client, DCERPC_Transport
@@ -490,7 +490,7 @@ class DCOM_Client(DCERPC_Client):
         """
         Call IObjectExporter::ServerAlive2
         """
-        self.bind_or_alter(find_dcerpc_interface("IObjectExporter"))
+        self.bind_or_alter(get_dcerpc_interface("IObjectExporter"))
         resp = self.sr1_req(ServerAlive2_Request(ndr64=False))
         binds, secs = _parseStringArray(resp.ppdsaOrBindings.value)
         DCOMResults = collections.namedtuple("DCOMResults", ["addresses", "ssps"])
