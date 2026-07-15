@@ -3,17 +3,9 @@ import datetime
 import time
 import os
 import ipaddress
-import string
+import string 
 
-file_path = "../comunication_methods.py"
-directory = os.path.dirname(file_path)
-sys.path.insert(0, directory)
-import comunication_methods as com
-
-file_path = "../mymethods.py"
-directory = os.path.dirname(file_path)
-sys.path.insert(0, directory)
-import mymethods 
+from mymethods import IS_TYPE as istype
 
 from scapy.all import IP, ICMP, Raw, Ether, IPv6, IPerror6, ICMPerror, IPerror
 from scapy.all import ICMPv6EchoReply, ICMPv6EchoRequest, ICMPv6ParamProblem, ICMPv6TimeExceeded, ICMPv6PacketTooBig, ICMPv6DestUnreach
