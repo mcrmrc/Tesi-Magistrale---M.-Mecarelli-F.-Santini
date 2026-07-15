@@ -1,11 +1,16 @@
-In questo caso l'evento che si osserverà, e che indicherà il dato trasmesso, è la tipologia ed il 
-codice del messaggio ICMP arrivato. 
+\section{Implementazione Behavioural Covert Channel} 
+In questo caso ciò che indicherà l'informazione trasmessa, è l'arrivo di un 
+determinato messaggio ICMP (la cui tipologia e codice indicano il dato). 
 %Siccome oltre alla tipologia si potrà variare il codice inviato; 
+La Figura \ref{fig:behaveCC:eventi:mappatura} mostra come gli eventi vengono 
+mappati ai dati trasmessi. 
 \vspace{1ex} \newline 
-Seguendo questo approccio, la quantità totale di eventi possibili risulta 17 [Figura \ref{fig:behaveCC:eventi:mappatura}]. 
-Quindi ogni messaggio permetterà di codificare 4 bit alla volta (siccome $\log_216=4$). 
-Siccome un evento (tipologia,codice) rimane inutilizzato; verrà sfruttato per indicare l'inizio 
-e la terminazione dell'esfiltrazione dei dati. 
+Siccome la quantità di messaggi possibili risulta 17;  
+ogni evento permetterà di codificare 4 bit alla volta\footnote{
+    $\log_216=4$
+}. 
+L'evento che rimane inutilizzato, verrà usato per indicare l'inizio e la 
+terminazione dell'invio dei dati. 
 \vspace{1ex} \newline
 \begin{minipage}{\textwidth}
     \centering
@@ -14,17 +19,36 @@ e la terminazione dell'esfiltrazione dei dati.
     \label{fig:behaveCC:eventi:mappatura}
 \end{minipage}  
 \vspace{1ex} \newline 
-Siccome un singolo evento può trasmettere solo 4 bit, ogni byte che si vuole inviare dovrà essere diviso in due parti. 
-La divisione viene fatta mascherando il byte [Figura \ref{fig:behaveCC:eventi:estrazionebit}]. 
-Questi  primi quattro bit ricavati, così come gli ultimi quattro bit ricavati, determineranno la 
-tipologia (oltre al codice) del messaggio che verrà inviato.   
-\begin{minipage}{\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{./img/ICMP_behaveCC/estrazione_bit_orizzontale.png}
-    \captionof{figure}{Divisione del byte} 
-    \label{fig:behaveCC:eventi:estrazionebit}
-\end{minipage}   
-\vspace{2ex} \newline
+Siccome un singolo evento può trasmettere solo 4 bit; l'invio di un byte, 
+prevede la sua divisione in due parti. 
+Quindi i primi quattro bit ricavati (così come gli ultimi quattro), 
+determineranno la tipologia ed il codice del messaggio da inviare.   
+Il Codice \ref{listing:behaveCC:divisionebyte} mostra questo processo.  
+\begin{lstlisting} 
+data='m' 
+data.hex=0x6D
+data.bytes=b'0110 1101'
+
+Maschera il byte con b'11110000' per ottenere: 0x60 
+Shift a destra di 4 bit per ottenere: 0x06 
+I primi 4 bit sono: 0110
+
+Maschera il byte con b'00001111' per ottenere: 0x0D
+Gli ultimi 4 bit sono: 1101
+
+Mappa b'0110' alla tipologia ed al codice:
+    Tipologia: Time Exceeded (tipo 11)
+    Codice: 0 (Time to Live exceeded in Transit)
+Mappa b'1101' alla tipologia ed al codice:
+    Tipologia: Redirect (tipo 5)
+    Codice: 3 (Redirect for the host)
+
+Invia un messaggio ICMP Time Exceeded con codice 0
+Invia un messaggio ICMP Redirect con codice 3
+\end{lstlisting}
+\captionof{lstlisting}{Esempio dell'invio di un byte tramite due eventi}
+\label{listing:behaveCC:divisionebyte} 
+\vspace{2ex} 
 Il destinatario, per ricavare i dati, monitora il traffico di rete e controllerà le tipologie di 
 messaggi ICMP ricevuti; per ognuno di essi, prende la coppia (Tipologia, Codice) e da questa 
 ricaverà i quatttro bit associati.  
@@ -34,16 +58,19 @@ ricaverà i quatttro bit associati.
 %ogni volta ricava il byte associato alla coppia di messaggi ottenuta. 
 %Infine quando rileverà ancora un pacchetto \textit{Information Request} smetterà di monitorare la rete. 
 
-\subsubsection{Tipologie di messaggi deprecati \cite{icmp_deprecated} \cite{rfc6918_deprecated_types} \cite{rfc6633_sourcequench}} 
-Un problema di questa possibile implementazione, sono le tipologie deprecate dei messaggi. 
-Questi messaggi potranno comunque essere inviati ma le linee guide indicano ai router di ignorarli e all'host 
-utente di non mandarli. %Un effetto collaterale potrà quindi essere la non ricezione dei messaggi 
+\subsubsection{Tipologie di messaggi deprecati} 
+Un problema di questa possibile implementazione, sono le tipologie deprecate 
+dei messaggi. Questi messaggi potranno comunque essere inviati ma le linee 
+guida \cite{icmp_deprecated}\cite{rfc6918_deprecated_types}\cite{rfc6633_sourcequench} 
+indicano ai router di ignorarli e all'host utente di non mandarli. 
+%Un effetto collaterale potrà quindi essere la non ricezione dei messaggi 
 %senza che la cosa venga scoperta una volta che si cerca di ricostruire il dato esfiltrato. 
 %This document does not modify the security properties of the ICMPv4 message types being deprecated.  
 %However, formally deprecating these message types serves as a basis for, e.g., filtering these packets. \cite{rfc6633_sourcequench}
 \vspace{1ex} \newline 
-L'uso di tipologie deprecate renderà il canale meno legittimo e più facile da individuare. 
-Traffico di questo tipo inoltre sarà visto con sospetto e non è assicurata la ricezione dei messaggi. 
+L'uso di tipologie deprecate renderà quindi il canale meno legittimo e più 
+facile da individuare. Inoltre, siccome questo tipo di traffico sarà visto 
+con sospetto, non è assicurata la ricezione dei messaggi. 
 %Deprecated types = less likely to be used legitimately, so unusual traffic with those types is suspicious 
 %(which is relevant for covert channels).
 %
