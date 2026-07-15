@@ -1,0 +1,111 @@
+\subsection{Strategie di rilevamento} 
+\begin{minipage}{\linewidth}
+    \begin{tabular}{|p{0.3\linewidth}|p{0.3\linewidth}|p{0.3\linewidth}|}
+        \hline 
+        \textbf{Tecnica} & \textbf{Rilevamento} & \textbf{Mitigazione} \\
+        \hline \hline 
+        Analisi del traffico di rete & Identifica anomalie nel volume e nei pattern ICMP & Limita i tipi ICMP non necessari \\
+        \hline 
+        Deep Packet Inspection (DPI) & Rileva l'esfiltrazione e il tunneling dei dati & Blocca i pacchetti ICMP con payload inattesi \\
+        \hline 
+        IDS/IPS (Snort, Zeek) & Segnala comportamenti ICMP insoliti & Blocca le richieste ICMP sospette \\
+        %Utilizza la Deep Packet Inspection (DPI) & identifica i dati nascosti nei pacchetti ICMP. \\
+        %Implementa regole IDS/IPS per ICMP & avvisi su attività ICMP sospette \\ 
+        \hline 
+    \end{tabular} 
+    \captionof{table}{Strumenti di rilevamento}
+\end{minipage}
+\subsubsection{Monitoraggio del traffico di rete} 
+Analizzare il volume e le dimensioni dei pacchetti ICMP (ad esempio, payload insolitamente grandi) per eventuali anomalie.
+Rileva il traffico ICMP ad alta frequenza verso host esterni sconosciuti.
+Verificare la presenza di pacchetti ICMP con payload insolitamente grandi (e.g tentativi di esfiltrazione dei dati) o con 
+schemi irregolari (e.g valori TTL variabili). 
+Pacchetti ICMP con modifiche costanti del payload potrebbero indicare il trasferimento di dati nascosti. 
+%
+\subsubsection{Deep Packet Inspection (DPI)}
+Esaminare il contenuto del payload ICMP per rilevare eventuali dati incorporati insoliti (messaggi codificati, crittografia o anomalie).
+Contrassegna i pacchetti ICMP che contengono risposte non standard (e.g, una risposta Echo contenente dati inaspettati).
+Identificare schemi di comunicazione con indirizzi IP esterni tramite ICMP
+%
+\subsubsection{Sistemi di rilevamento e prevenzione delle intrusioni (IDS/IPS)}  
+Utilizzare Snort, Suricata o Zeek per rilevare e segnalare attività ICMP sospette
+\begin{esempio}{Regola Snort per il rilevamento del tunneling ICMP} 
+    \begin{lstlisting}{shell}
+        alert icmp any any -> any any ( 
+            msg:"ICMP tunnel detected"; 
+            content:"malicious_payload"; 
+            sid:100001; 
+        )
+    \end{lstlisting}
+\end{esempio}  
+%
+\subsubsection{Rilevamento basato su anomalie} 
+Rilevare il traffico ICMP che potrebbe indicare una comunicazione C2 implementando analisi 
+comportamentali che possano rilevare un utilizzo anomalo di ICMP.
+Utilizzare strumenti di apprendimento automatico o SIEM (Security Information and Event 
+Management) per segnalare deviazioni nell'utilizzo di ICMP. 
+%  
+\subsection{Strategie di mitigazione}
+\begin{minipage}{\linewidth}
+    \begin{tabular}{|p{0.5\linewidth}|p{0.5\linewidth}|}
+        \hline
+        \textbf{Metodo di mitigazione} & \textbf{Effetti} \\
+        \hline \hline 
+        Disattiva ICMP se non necessario & Impedisce la maggior parte degli attacchi basati su ICMP \\
+        \hline 
+        Limita ICMP ai tipi necessari & blocca i vettori di attacco non necessari \\
+        \hline 
+        Limitazione della velocità & Impedisce il flooding e il tunneling ICMP \\ %Rileva richieste ICMP eccessive &
+        \hline 
+        Regole del firewall & Blocca l'ICMP in uscita dai sistemi critici \\ % Contrassegna le richieste ICMPS non autorizzate &
+        \hline 
+        Blocca ICMP in uscita dai firewall & Impedisce perdite di dati tramite ICMP \\
+        \hline 
+        Endpoint Security (EDR) & Previene l'esecuzione dannosa di ICMP \\ %Rileva malware tramite Covert Channel ICMP & 
+        \hline 
+    \end{tabular} 
+    \captionof{table}{Metodologie di mitigazione}
+\end{minipage}
+\subsubsection{Restringere/ Limitare il traffico ICMP}
+Disattivare ICMP sui server e sugli endpoint a meno che non sia esplicitamente necessario e 
+bloccare il traffico ICMP proveniente da fonti non attendibili. %sul firewall.
+Configurare firewall e router in modo tale da consentire solo i messaggi ICMP necessari 
+(e.g Destinazione non raggiungibile, Tempo Scaduto).
+Disattivare le richieste/risposte di eco ICMP sui sistemi critici.
+\begin{esempio}{Regola del firewall per bloccare il traffico ICMP}\newline
+    \small
+    \begin{lstlisting}{bash}
+        iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+    \end{lstlisting}
+\end{esempio}
+%
+\subsubsection{Limitazione della velocità del traffico ICMP}
+Limitare la frequenza e la dimensione dei pacchetti ICMP per evitare il trasferimento nascosto di dati.
+Configurare i firewall in modo da consentire solo un numero specifico di pacchetti ICMP al secondo.
+%Esempio: Configurare i firewall per consentire solo un certo numero di richieste ICMP al secondo.
+\begin{esempio}{Regola del firewall per limitare il traffico ICMP}
+    \small
+    \begin{lstlisting}{bash}
+        iptables -A INPUT -p icmp -m limit --limit 1/second -j ACCEPT
+    \end{lstlisting}
+\end{esempio}
+\subsubsection{Utilizza la crittografia per prevenire la fuga di dati}
+%Impedire agli aggressori di intercettare dati sensibili crittografando tutte le 
+%comunicazioni legittime (ad esempio tramite VPN, TLS).
+Implementa la crittografia TLS/SSL per tutte le comunicazioni legittime così da impedire agli 
+aggressori di utilizzare ICMP per l'esfiltrazione. 
+Inoltre bloccare le trasmissioni non autorizzate di testo in chiaro su ICMP.
+%
+\subsubsection{Blocca ICMP su interfacce esterne}
+Impedisci il traffico ICMP in uscita dalle reti interne per fermare l'esfiltrazione.
+Consenti ICMP solo per scopi diagnostici interni.
+%
+\subsubsection{Sicurezza degli endpoint \& Antivirus}
+%Utilizzare firewall basati sull'host per bloccare le comunicazioni ICMP sospette.
+Implementare strumenti antivirus e soluzioni EDR (Endpoint Detection \& Response) per 
+rilevare le minacce informatiche che utilizzano i covert channel ICMP per comunicare.
+%Aggiorna regolarmente il software antivirus per identificare e bloccare le minacce note
+%
+\subsection*{Implementa ICMP Proxy Filtering}
+Utilizza proxy ICMP per ispezionare, sanificare e bloccare payload ICMP inaspettati.
+Consenti solo il passaggio di traffico ICMP diagnostico legittimo
