@@ -85,7 +85,7 @@ def check_value_in_parser(args):
         return False
     if type(args.ip_host) is not str or re.match(com.ip_reg_pattern, args.ip_host) is None:
         print("Devi specificare l'IP del host con --ip_host")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         return False
     if args.num_proxy is None or type(int(args.num_proxy)) is not int:
         print("Il numero di proxy non è un intero")

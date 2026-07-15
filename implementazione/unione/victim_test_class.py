@@ -175,7 +175,7 @@ def add_proxy_to_connected_list(ip_src):
 
 def is_proxy_already_connected(proxy:str=None):
     try:
-        if not com.is_valid_ipaddress(proxy):
+        if not com.is_valid_ipaddress_v4(proxy):
             raise Exception(f"done_waiting_timeout: proxy indirizzo non valido")
     except Exception as e:
         raise Exception(f"done_waiting_timeout: {e}")
@@ -242,10 +242,10 @@ def check_value_in_parser(args):
     if args.num_proxy is None or not isinstance(args.num_proxy, int):
         raise ValueError("check_value_in_parser: Il numero di proxy non è un intero") 
     try:
-        com.is_valid_ipaddress(args.ip_host)
+        com.is_valid_ipaddress_v4(args.ip_host)
     except Exception as e:
         print("Devi specificare l'IP del host con --ip_host")
-        mymethods.supported_arguments(parser)
+        mymethods.print_parser_supported_arguments(parser)
         raise Exception(f"check_value_in_parser: {e}") 
     return True
 
@@ -363,7 +363,7 @@ class Victim:
             raise ValueError(f"send_data_to_proxies: {e}")  
         try: 
             chosen_proxy=choose_proxy(self.connected_proxy)
-            com.is_valid_ipaddress(chosen_proxy)
+            com.is_valid_ipaddress_v4(chosen_proxy)
             print(f"Il proxy scelto è {chosen_proxy}") 
         except Exception as e:
             raise ValueError(f"send_data_to_proxies: {e}")  
