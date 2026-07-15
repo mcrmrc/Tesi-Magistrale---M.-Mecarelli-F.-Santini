@@ -1,38 +1,45 @@
 \begin{frame}
 \frametitle{Internet Control Message Protocol}
-%\begin{columns}[T,onlytextwidth]
-%\column{0.48\textwidth} 
-\justifying
-ICMP è un protocollo che opera al livello di rete e permette: 
-\begin{itemize}
-\item \textbf{Diagnostica della rete}  
-\item \textbf{Segnalazione di errori}
-\item \textbf{Risoluzione dei problemi}
-\item \textbf{Ottenimento di informazioni} 
-\end{itemize} 
-%\column{0.48\textwidth} 
 \begin{figure}
 \includegraphics[width=0.7\textwidth]{../Tesi/img/ICMP-packet-structure.png} 
 \captionof{figure}{Struttura di un messagio ICMP}
 \end{figure}
-%\end{columns}
+\begin{columns}[T,onlytextwidth]
+\column{0.48\textwidth} 
+\justifying
+Funzioni del protocollo ICMP: 
+\begin{itemize}
+\item \textbf{Diagnostica della rete}  
+\item \textbf{Segnalazione di errori}
+\item \textbf{Messaggisitca di controllo}
+%\item \textbf{Risoluzione dei problemi}
+%\item \textbf{Ottenimento di informazioni} 
+\end{itemize} 
+\column{0.48\textwidth} 
+%\justifying
+%Tipologie di messaggi: 
+%\begin{itemize}
+%\item \textbf{Messaggi di errore}  
+%\item \textbf{Messaggi informativi} 
+%\end{itemize} 
+\end{columns} 
 \end{frame}  
 
-\begin{frame}
-\frametitle{Tipologie di messaggi ICMP} 
-\textbf{Messaggi di errore}
-\begin{itemize}
-\item Destination Unreachable (IPv4, IPv6)
-\item Time Exceeded (IPv4, IPv6)
-\item Parameter Problem (IPv4, IPv6)
-\item Source Quench (IPv4)
-\item Redirect (IPv4)
-\item Packet Too Big (IPv6)
-\end{itemize} 
-\textbf{Messaggi di informazione}
-\begin{itemize}
-\item Echo Request/Reply (IPv4, IPv6)
-\item Timestamp Request/Reply (IPv4)
-\item Information Request/Reply (IPv4)
-\end{itemize} 
-\end{frame} 
+%\begin{frame}
+%\frametitle{Tipologie di messaggi ICMP} 
+%\textbf{Messaggi di errore}
+%\begin{itemize}
+%\item Destination Unreachable (IPv4, IPv6)
+%\item Time Exceeded (IPv4, IPv6)
+%\item Parameter Problem (IPv4, IPv6)
+%\item Source Quench (IPv4)
+%\item Redirect (IPv4)
+%\item Packet Too Big (IPv6)
+%\end{itemize} 
+%\textbf{Messaggi di informazione}
+%\begin{itemize}
+%\item Echo Request/Reply (IPv4, IPv6)
+%\item Timestamp Request/Reply (IPv4)
+%\item Information Request/Reply (IPv4)
+%\end{itemize} 
+%\end{frame} 
