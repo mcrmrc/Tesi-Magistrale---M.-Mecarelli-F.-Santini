@@ -461,25 +461,24 @@ class CALC():
 
 #------------------------
 class IP_INTERFACE(): 
-    def iface_from_IP(addr_target:ipaddress.IPv4Address=None)-> tuple[str,str]|tuple[None,None]:
-        if IS_TYPE.ipaddress(addr_target):  
+    def iface_from_IP(ip_address:ipaddress.IPv4Address=None)-> str|None:
+        if IS_TYPE.ipaddress(ip_address):  
             if sys.platform == "win32":
-                return IP_INTERFACE._windows_iface_from_IP(addr_target)
+                return IP_INTERFACE._windows_iface_from_IP(ip_address)
             elif sys.platform=="linux": 
-                return IP_INTERFACE._linux_iface_from_IP(addr_target) 
-            else: return None,None
+                return IP_INTERFACE._linux_iface_from_IP(ip_address) 
+            else: return None
         raise Exception("iface_from_IP: Argomenti non validi")
     
-    def _windows_iface_from_IP(addr_target:ipaddress.IPv4Address=None): 
-        if not IS_TYPE.ipaddress(addr_target): 
-            return None, None
-        #route_info = conf.route6.route(str(addr_target)) 
-        #route_info = conf.route.route(str(addr_target)) 
-        #iface, ip_src = conf.route.route(str(addr_target))[:2] 
-        iface=None
-        ip_src=None
+    def _windows_iface_from_IP(ip_address:ipaddress.IPv4Address=None): 
+        if not IS_TYPE.ipaddress(ip_address): 
+            return None
+        #route_info = conf.route6.route(str(ip_address)) 
+        #route_info = conf.route.route(str(ip_address)) 
+        #iface, ip_src = conf.route.route(str(ip_address))[:2] 
+        iface=None 
         try:
-            iface_command= f"Get-NetIPInterface -InterfaceIndex (Find-NetRoute -RemoteIPAddress {addr_target.exploded} | Select-Object -First 1 -ExpandProperty InterfaceIndex) | Select-Object -First 1 -ExpandProperty InterfaceAlias" 
+            iface_command= f"Get-NetIPInterface -InterfaceIndex (Find-NetRoute -RemoteIPAddress {ip_address.exploded} | Select-Object -First 1 -ExpandProperty InterfaceIndex) | Select-Object -First 1 -ExpandProperty InterfaceAlias" 
             #print("Iface Comando", iface_command)
             process=subprocess.run(
                 ["powershell","-Command", iface_command]
@@ -489,28 +488,17 @@ class IP_INTERFACE():
             iface=process.stdout.strip() 
             if not iface or len(iface)<1: 
                 raise Exception("Interfaccia non ricavata") 
-            elif addr_target.version==4: 
-                ip_command= f"Get-NetIPAddress -InterfaceAlias '{iface}' | "+"Where-Object {$_.AddressFamily -eq 'IPv4'} | "+"Select-Object -First 1 -ExpandProperty IPAddress" 
-            elif addr_target.version==6 :
-                ip_command= f"Get-NetIPAddress -InterfaceAlias '{iface}' | "+"Where-Object {$_.AddressFamily -eq 'IPv6'} | "+"Select-Object -First 1 -ExpandProperty IPAddress" 
-            else: raise Exception("Versione IP non implementata") 
-            process=subprocess.run(
-                ["powershell","-Command", ip_command]
-                ,capture_output=True
-                ,text=True
-            ) 
-            ip_src=process.stdout.strip() 
         except Exception as e:
             print(f"_windows_iface_from_IP: {e}") 
-        return (iface if len(iface)>0 else  None), (ip_src if len(ip_src)>0 else  None)
+        return iface if len(iface)>0 else  None 
 
-    def _linux_iface_from_IP(addr_target:ipaddress.IPv4Address=None): 
-        if not IS_TYPE.ipaddress(addr_target): 
-            return None, None 
+    def _linux_iface_from_IP(ip_address:ipaddress.IPv4Address=None): 
+        if not IS_TYPE.ipaddress(ip_address): 
+            return None  
         try:
-            #print(f"Indirizzo IPv{addr_target.version}: {addr_target.compressed}")
+            #print(f"Indirizzo IPv{ip_address.version}: {ip_address.compressed}")
             process=subprocess.Popen(
-                ["ip", f"-{addr_target.version}", "route", "get", addr_target.exploded],
+                ["ip", f"-{ip_address.version}", "route", "get", ip_address.exploded],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True 
@@ -532,10 +520,10 @@ class IP_INTERFACE():
                 iface=match_dev.group(0).replace("dev ","").strip()
                 #print(f"Sorgente trovata: {ip_src}")
                 #print(f"Interfaccia trovata: {iface}")
-                return iface, ip_src 
+                return iface  
         except Exception as e:
             print(f"_linux_iface_from_IP: {e}") 
-        return None, None 
+        return None 
 
     def default_iface(): 
         return conf.iface
@@ -636,16 +624,16 @@ class IP_INTERFACE():
                         return match.group(1)
         return None 
     
-    def macAddr_src_dsr(ip_src:ipaddress.IPv4Address=None, ip_dst:ipaddress.IPv4Address=None):
-        if IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src):  
+    def get_macAddress(ip_address:ipaddress.IPv4Address=None):
+        if IS_TYPE.ipaddress(ip_address):  
             if sys.platform == "win32":
-                return IP_INTERFACE._windows_macAddr_src_dsr(ip_src, ip_dst)
+                return (IP_INTERFACE._windows_macAddr(ip_address)).lower().strip().replace("-",":") 
             elif sys.platform=="linux": 
-                return IP_INTERFACE._linux_macAddr_src_dsr(ip_src, ip_dst) 
-            else: return None,None
-        raise Exception("iface_from_IP: Argomenti non validi") 
+                return (IP_INTERFACE._linux_macAddr(ip_address)).lower().strip().replace("-",":") 
+            else: return None
+        raise Exception("get_macAddress: Argomenti non validi") 
     
-    def _windows_macAddr_src_dsr(ip_address:ipaddress._BaseAddress): 
+    def _windows_macAddr(ip_address:ipaddress._BaseAddress): 
         if not IS_TYPE.ipaddress(ip_address):
             return None 
         #command_dst2="arp -a | findstr '192.168.1.17'"
@@ -659,11 +647,13 @@ class IP_INTERFACE():
             ,capture_output=True
             ,text=True
         )
-        stdout=process.stdout.strip()
+        mac_address=process.stdout.strip()
         stderr=process.stderr.strip()
-        if not stdout: 
+        if not mac_address: 
             print(f"Tabella di routing non contiene  MAC address per {ip_address.compressed}") 
-        if stderr or stdout=="":
+            #print("Provo a ricavarlo tramite l'interfaccia di rete...")
+            print(mac_address)
+        if stderr or mac_address=="":
             #print(f"Errore nell'esecuzione  del comando: {stderr}") 
             if ip_address.version==6:
                 scope_id=ip_address.scope_id 
@@ -683,62 +673,44 @@ class IP_INTERFACE():
                 ,capture_output=True
                 ,text=True
             )
-            stdout=process.stdout.strip() 
+            mac_address=process.stdout.strip() 
             stderr=process.stderr.strip() 
-            if not stdout: 
+            if not mac_address: 
                 print("MAC address non ricavato")
-            if stderr or stdout=="":
+            if stderr or mac_address=="":
                 #print(f"Errore nell'esecuzione  del comando: {stderr}") 
                 raise Exception(f"get_mac_address: Impossibile ricavare MAC address per l'IP {ip_address.compressed}")
-        print(f"Output comando:{stdout}")
+        print(f"MAC for {ip_address}:{mac_address}")
+        return mac_address
     
-    def _linux_macAddr_src_dsr(ip_src:ipaddress.IPv4Address=None, ip_dst:ipaddress.IPv4Address=None): 
-        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.ipaddress(ip_src)): 
-            return None, None 
-        if ip_dst.version!=ip_src.version: 
-            print("Gli indirizzi IP devono essere della stessa versione")
-            return None, None
-        
-        command_gateway=f"ip -{ip_src.version} route get {ip_src.compressed} | grep -o 'via [^ ]*' |awk '{{print $2}}'" #IP src gateway che raggiunge la destinazione
+    def _linux_macAddr(ip_address:ipaddress.IPv4Address=None): 
+        if not IS_TYPE.ipaddress(ip_address): 
+            return None 
+        command_gateway=f"ip -{ip_address.version} route get {ip_address.compressed} | grep -o 'via [^ ]*' |awk '{{print $2}}'" #IP src gateway che raggiunge la destinazione
         process=subprocess.run(
             ["bash","-c", command_gateway]
             ,capture_output=True
             ,text=True
         )
-        ip_gateway=process.stdout.strip()
-        print("IP source gateway:", ip_gateway)
+        ip_gateway=process.stdout.strip() 
+        stderr=process.stderr.strip() 
+        #print("IP source gateway:", ip_gateway)
         if not ip_gateway or ip_gateway.strip()=="":
-            ip_gateway=ip_src.compressed
-        command_src=f"ip -{ip_src.version} neigh show $({ip_gateway}) | grep -o 'lladr [^ ]*' | awk '{{print $2}}'" #MAC gateway che raggiunge la destinazione
+            ip_gateway=ip_address.compressed
+        command_mac=f"ip -{ip_address.version} neigh show $({ip_gateway}) | grep -o 'lladr [^ ]*' | awk '{{print $2}}'" #MAC gateway che raggiunge la destinazione
         process=subprocess.run(
-            ["bash","-c", command_src]
+            ["bash","-c", command_mac]
             ,capture_output=True
             ,text=True
         )
-        mac_src=process.stdout.strip() 
-        if not mac_src: 
-            print("MAC address della sorgente non ricavato")  
-        
-        command_gateway=f"ip -{ip_dst.version} route get {ip_dst.compressed} | grep -o 'via [^ ]*' |awk '{{print $2}}'" #IP dst gateway che raggiunge la destinazione
-        process=subprocess.run(
-            ["bash","-c", command_gateway]
-            ,capture_output=True
-            ,text=True
-        )
-        ip_gateway=process.stdout.strip()
-        print("IP destination gateway:", ip_gateway)
-        if not ip_gateway or ip_gateway.strip()=="":
-            ip_gateway=ip_dst.compressed
-        command_src=f"ip -{ip_dst.version} neigh show $({ip_gateway}) | grep -o 'lladr [^ ]*' | awk '{{print $2}}'" #MAC gateway che raggiunge la destinazione
-        process=subprocess.run(
-            ["bash","-c", command_src]
-            ,capture_output=True
-            ,text=True
-        )
-        mac_dst=process.stdout.strip() 
-        if not mac_dst : 
-            print("MAC address della destinazione non ricavato") 
-        return mac_src, mac_dst 
+        mac_address=process.stdout.strip() 
+        stderr=process.stderr.strip() 
+        if not mac_address: 
+            print("MAC address della sorgente non ricavato")   
+        if stderr or mac_address=="":
+            print(f"Errore nell'esecuzione  del comando: {stderr}") 
+        print(f"MAC for {ip_address}:{mac_address}")
+        return mac_address 
 
     def get_IPv6_scopeID(ip_addr:ipaddress.IPv6Address=None): 
         if IS_TYPE.ipaddress(ip_addr) and ip_addr.version==6:
@@ -779,9 +751,7 @@ class IP_INTERFACE():
                     print("Sistema operativo non supportato per il recupero dello scope ID")
             return scope_id
         return None
-    
-    
-    
+      
     def is_valid_ipaddress(ip_address:ipaddress.IPv4Address): 
         if isinstance(ip_address, ipaddress.IPv4Address) or isinstance(ip_address, ipaddress.IPv6Address): 
             return True
