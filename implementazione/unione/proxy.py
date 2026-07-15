@@ -6,9 +6,8 @@ import mymethods
 import time
 import re
 import comunication_methods as com
-
-event = threading.Event() 
-pkt_conn_received = threading.Event() 
+import sys 
+import datetime
 
 def callback_redirect(packet):
     if packet[IP].src is not ip_attaccante:
@@ -23,7 +22,7 @@ def callback_redirect(packet):
         payload=payload.replace("__END__","").strip()
         if payload=="":
             print("Fine connessione")
-            com.pkt_conn_received.set()
+            com.set_pkt_conn_received()
             return 
     if not packet[ICMP].id==mymethods.calc_checksum(payload):
         print("Il payload non combacia con il checksum")
@@ -46,103 +45,154 @@ def parte_redirect_packet():
         # #,iface=args.host_iface 
     ) 
     sniffer.start()
-    com.pkt_conn_received.wait()
-    sniffer.stop()
-    sniffer.join() 
+    com.wait_pkt_conn_received()
+    com.sniffer.stop()
+    com.sniffer.join() 
 
-def callback_vittima(packet):
-    print("callback_vittima")
-    global timeout_timer,ip_vittima
+#--Parte 4--#
+def callback_aggiorna_attaccante(packet):  
     print("Packet received: {}".format(packet.summary())) 
-    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
-        payload = mymethods.calc_checksum(bytes(packet[Raw].load))
-        check_sum=mymethods.calc_checksum(b"__CONNECT__ ")  
+    print("callback_aggiorna_attaccante")
+    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):  
+        print("aaaa") 
         if packet[ICMP].type!=8 and packet[ICMP].type!=0:
             print(f"Il messaggio non è una Request o Reply: {packet[ICMP].type}")
+            return 
+        check_sum=mymethods.calc_checksum(com.CONFIRM_PROXY.encode())
+        print(packet.show())
+        payload=packet[Raw].load
+        print(f"Confirm_ProxY in payload: {com.CONFIRM_PROXY.encode() in payload}")
+        if packet[IP].src==ip_attaccante and packet[ICMP].id==check_sum: #check_sum==payload and 
+            print(f"Payload: {payload}") 
+            print("Vittima IPs: {}".format(ip_vittima)) 
+            com.set_pkt_conn_received() 
             return
-            raise Exception(f"Il messaggio non è una Request o Reply: {packet[ICMP].type}")
-        if check_sum==payload and ip_vittima==packet[IP].src and packet[ICMP].id==check_sum:
-            print("Payload: {}".format(payload)) 
-            print("Vittima IPs: {}".format(ip_vittima))
-            com.pkt_received_event.set()
-            timeout_timer.cancel() 
-            com.pkt_conn_received.set()
-        else: 
-            print(f"Il paccheto proviene da {packet[IP].src} ma non è valido")
-            return
-            raise Exception(f"Il paccheto proviene da {packet[IP].src} ma non è valido")    
+    print(f"Il paccheto proviene da {packet[IP].src} ma non è valido") 
 
-def connessione_vittima():
-    data="__CONNECT__ "
-    if com.send_packet(data, ip_vittima):
+def aggiorna_attaccante(): 
+    data=com.CONFIRM_VICTIM.encode()
+    if com.send_packet(data,ip_attaccante):
+        checksum=mymethods.calc_checksum(com.CONFIRM_PROXY.encode())
         args={
-            "filter":f"icmp and src {ip_vittima}" 
+            "filter":f"icmp and src {ip_attaccante} and icmp[4:2]={checksum}" 
             #,"count":1 
-            ,"prn":callback_vittima 
+            ,"prn":callback_aggiorna_attaccante 
+            #,"store":True 
+            ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
+        }
+        com.sniff_packet(args,5) 
+        com.wait_pkt_conn_received() 
+        if com.sniffer.running:
+            com.sniffer.stop() 
+        if com.timeout_timer.is_alive(): 
+            com.timeout_timer.cancel()
+            print(f"Connessione con {ip_attaccante} stabilita")
+            return True 
+    print(f"Connessione con {ip_attaccante} impossibile")
+    return False 
+
+#--Parte 3--#
+def callback_conn_to_vittima(packet): 
+    global ip_vittima
+    global is_vittima_connected
+    print("Packet received: {}".format(packet.summary())) 
+    if not is_vittima_connected and packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):   
+        if packet[ICMP].type!=8 and packet[ICMP].type!=0:
+            print(f"Il messaggio non è una Request o Reply: {packet[ICMP].type}")
+            return 
+        check_sum=mymethods.calc_checksum(com.CONFIRM_PROXY.encode())
+        print(packet.show())
+        payload=packet[Raw].load 
+        if packet[IP].src==ip_vittima and packet[ICMP].id==check_sum: #check_sum==payload and 
+            print(f"Payload: {payload}") 
+            print("Vittima IPs: {}".format(ip_vittima))  
+            is_vittima_connected=True 
+            com.set_pkt_conn_received() 
+            return
+    print(f"Il paccheto proviene da {packet[IP].src} ma non è valido")  
+
+def conn_to_vittima():
+    global is_vittima_connected
+    is_vittima_connected=False
+    data=com.CONNECT.encode()
+    if com.send_packet(data, ip_vittima): 
+        checksum=mymethods.calc_checksum(com.CONFIRM_PROXY.encode())
+        args={
+            "filter":f"icmp and src {ip_vittima} and icmp[4:2]={checksum}" 
+            #,"count":1 
+            ,"prn":callback_conn_to_vittima 
             #,"store":True 
             ,"iface":mymethods.iface_from_IP(ip_vittima)[1]
-        }
-        com.sniff_packet(args)
-        pkt_conn_received.wait()
+        } 
+        com.sniff_packet(args) 
+        com.wait_pkt_conn_received() 
         if com.sniffer.running:
-            com.sniffer.stop()
-            com.sniffer.join()
-            return True
+            com.sniffer.stop() 
+        if com.timeout_timer.is_alive(): 
+            com.timeout_timer.cancel()
+            is_vittima_connected=True
+            print(f"Connessione con {ip_vittima} stabilita")
+            return True 
+        print(f"Connessione con {ip_vittima} impossibile")
+        return False
     print(f"{ip_vittima} is not responding: No Reply")
     return False 
 
-def callback_attaccante(packet):
-    global ip_vittima
+#--Parte 2--#
+def callback_conn_from_attaccante(packet): 
+    global is_attaccante_connected
     print("Packet received: {}".format(packet.summary())) 
-    if packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
-        payload = bytes(packet[Raw].load)
-        if b'__CONNECT__' in payload and ip_attaccante==packet[IP].src:
-            print("Found __CONNECT__")
-            ip_vittima= payload.decode().replace('__CONNECT__',"").strip()
+    if not is_attaccante_connected and packet.haslayer(IP) and packet.haslayer(ICMP) and packet.haslayer(Raw):
+        payload = packet[Raw].load 
+        if com.CONNECT.encode() in payload and ip_attaccante==packet[IP].src:
+            print(f"{packet[IP].src} si vuole connettere")
+            global ip_vittima, gateway_vittima
+            ip_vittima= payload.decode().replace(com.CONNECT,"").strip()
+            gateway_vittima=mymethods.calc_gateway(ip_vittima)
             print("Attacker IP: {}".format(ip_attaccante))
-            #print("Payload: {}".format(payload)) 
+            print("Payload: {}".format(payload)) 
             print("Vittima IPs: {}".format(ip_vittima))
-            com.pkt_conn_received.set()
+            print("Vittima Gateway: {}".format(gateway_vittima))
+            is_attaccante_connected=True
+            com.set_pkt_conn_received()
         else:
             print(f"Il paccheto proviene da {packet[IP].src} ma non richiede la connessione alla macchina")
 
-def wait_conn_from_attaccante():
-    print(f"Attendo connessione da {ip_attaccante} attraverso {mymethods.iface_from_IP(ip_attaccante)[1]}")
+def conn_from_attaccante():
+    global is_attaccante_connected
+    is_attaccante_connected=False
+    print(f"Attendo connessione da {ip_attaccante} attraverso {mymethods.iface_from_IP(ip_attaccante)[1]}") 
     args={
         "filter":f"icmp and src {ip_attaccante}" 
         #,"count":1 
-        ,"prn":callback_attaccante 
+        ,"prn":callback_conn_from_attaccante 
         #,"store":True 
         ,"iface":mymethods.iface_from_IP(ip_attaccante)[1]
     } 
-    com.sniff_packet(args)
-    com.pkt_conn_received.wait() 
+    com.sniff_packet(args, None)
+    com.wait_pkt_conn_received() 
     if com.sniffer.running:
         com.sniffer.stop()
+        is_vittima_connected=True
         com.sniffer.join()
     if com.timeout_timer.is_alive():
         com.timeout_timer.cancel()
-        data=b"__CONNECT__ " 
+        data=com.CONFIRM_ATTACKER.encode() 
         if com.send_packet(data,ip_attaccante):
             print(f"Connessione stabilita per {ip_attaccante}")
             return True
     print(f"Connessione non disponibile per {ip_attaccante}")
-    return False
+    return False 
 
-    if not com.check_connessione(ip_attaccante,args): 
-        print("Connessione con l'attaccante: NON DISPONIBILE")
-        exit(0)
-
+#-- Parte 1--#
 def get_value_of_parser(args):
     if args is None: 
         raise Exception("Nessun argomento passato")
     global ip_attaccante, gateway_attaccante
     ip_attaccante=args.ip_attaccante 
-    gateway_attaccante=mymethods.calc_gateway(ip_attaccante)
-
-    global ip_vittima, gateway_vittima
-    ip_vittima=args.ip_vittima 
-    gateway_vittima=mymethods.calc_gateway(ip_vittima)
+    gateway_attaccante=mymethods.calc_gateway(ip_attaccante) 
+    print(f"IP attaccante:\t{ip_attaccante}")
+    print(f"Gateway attaccante:\t{gateway_attaccante}") 
 
 def check_value_in_parser(args):
     if type(args) is not argparse.Namespace or args is None:
@@ -152,10 +202,10 @@ def check_value_in_parser(args):
         print("IP attaccante non valido o non specificato")
         mymethods.supported_arguments(parser)
         return False   
-    if args.ip_vittima is None or type(args.ip_vittima) is not str or re.match(com.ip_reg_pattern, args.ip_vittima) is None:
-        print("IP vittima non valido o non specificato")
-        mymethods.supported_arguments(parser)
-        return False
+    #if args.ip_vittima is None or type(args.ip_vittima) is not str or re.match(com.ip_reg_pattern, args.ip_vittima) is None:
+        #print("IP vittima non valido o non specificato")
+        #mymethods.supported_arguments(parser)
+        #return False
     return True
 
 def get_args_from_parser():
@@ -170,7 +220,9 @@ def get_args_from_parser():
 def def_global_variables():
     pass
 
+#-- Main --# 
 if __name__ == "__main__": 
+    #1) 
     try:
         def_global_variables()
         args=get_args_from_parser() 
@@ -178,32 +230,36 @@ if __name__ == "__main__":
             exit(0)
         get_value_of_parser(args) 
     except Exception as e: 
-        print(f"Eccezione: {e}")
+        print(f"Eccezione args: {e}")
         exit(1)
-    print(f"IP attaccante:\t{ip_attaccante}")
-    print(f"Gateway attaccante:\t{gateway_attaccante}") 
-    print(f"IP vittima:\t{ip_vittima}")
-    print(f"Gateway vittima:\t{gateway_vittima}") 
+    #2) 
     try:
-        wait_conn_from_attaccante()
+        print("\tconn_from_attaccante")
+        conn_from_attaccante()
     except Exception as e:
-        print(f"Eccezione: {e}")
-        exit(1)
-    exit(0)
+        print(f"Eccezione wait_conn_from_attaccante: {e}")
+        exit(1) 
+    #3) 
     try: 
-        if not connessione_vittima():
+        print("\tconn_to_vittima")
+        if conn_to_vittima():
+            #4) 
+            try:
+                while not aggiorna_attaccante():
+                    print("\taggiorna_attaccante")
+                    print(print(datetime.datetime.now()))
+                    time.sleep(1)
+            except Exception as e:
+                print(f"aggiorna_attaccante: {e}")
+        else:
             exit(0) 
     except Exception as e:
-        print(f"Eccezzione: {e}")
-        exit(1)
+        print(f"connessione_vittima: {e}")
+        exit(1) 
     exit(0)
-    try:
-        parte_vittima()
-    except Exception as e:
-        print(f"Eccezzione: {f}")
     try:
         parte_redirect_packet() 
         #thread = threading.Thread(target=sniff_4_start)
         #thread.start() 
     except Exception as e:
-        print(f"Eccezzione: {f}")
+        print(f"Eccezzione: {e}")
