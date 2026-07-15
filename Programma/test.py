@@ -7,6 +7,27 @@ import time
 import math
 from pypdf import PdfReader 
 
+destinazione=ipaddress.ip_address("192.168.1.151") 
+tempo_inizio=datetime.datetime.now() 
+sleep_time=10*60 #15 min
+ripetizioni=1 
+un_KB=("BORGOGNA"*128)#.encode()
+print("Dato length:", len(un_KB)) 
+for index in range(ripetizioni):
+    SendSingleton.send_data(
+        True, 
+        False, 
+        AttackType.ipv4_destination_unreachable,  
+        un_KB.encode(),
+        destinazione
+    ) 
+    tempo_fine=datetime.datetime.now()
+    print("Tempo di invio:", tempo_fine-tempo_inizio)
+    if index!=ripetizioni-1: 
+        print(f"{index}o tempo di invio:", datetime.datetime.now()) 
+        non_blocking_sleep(sleep_time) 
+exit(0)
+
 qazwsx=ReceiveSingleton("ipv4_information", True)
 data=qazwsx.wait_data()  
 print("DATA: ",data) 
