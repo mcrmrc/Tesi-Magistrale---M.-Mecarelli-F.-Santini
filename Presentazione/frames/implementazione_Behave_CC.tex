@@ -1,65 +1,37 @@
 \begin{frame}
-\frametitle{Implementazione Behavioural Covert Channel} 
-Nel Behavioural Covert Channel implementato, l'evento 
-sarà definito dall'arrivo di un messaggio ICMP. Il 
-destinatario ricaverà il dato trasmesso osservando 
-la tipologia di messaggio ed il codice presente per 
-poi vedere a quale informazione è mappata la coppia.
-\begin{figure}
-\includegraphics[width=\textwidth]{../Tesi/img/ICMP_behaveCC/behavioural_channel_1.png}
-\end{figure} 
-%\justifying 
-Siccome il numero di eventi possibili sono 17, 
-ognuno permetterà di codificare 4 bit alla volta 
-($\log_216=4$). L'evento rimasto inutilizzato, 
-verrà usato per indicare l'inizio e la terminazione 
-dell'invio dei dati. 
+\vfill
+\begin{center}
+{\huge Implementazione del Behavioural Covert Channel}
+\end{center}
+\vfill 
 \end{frame}
-\begin{frame} [fragile] 
-\scriptsize
-\begin{lstlisting} 
-data='m' 
-data.hex=0x6D
-data.bytes=b'0110 1101'
-
-#PRIMO EVENTO 
-Maschera il byte con b'11110000' per ottenere: 0x60 
-Effettua lo shift a destra per ottenere: 0x06 (0110) 
-Si ottiene come tipologia: Time Exceeded (tipo 11) 
-Si ottiene come codice: 0 (Time to Live exceeded in Transit)
-Invia un messaggio ICMP Time Exceeded con codice 0
-
-#SECONDO EVENTO
-Maschera il byte con b'00001111' per ottenere: 0x0D (1101) 
-Si ottiene come tipologia: Redirect (tipo 5)
-Si ottiene come codice: 3 (Redirect for the host)
-Invia un messaggio ICMP Redirect con codice 3 
-\end{lstlisting}
-\captionof{lstlisting}{Esempio dell'invio di un byte} 
-\end{frame} 
-
 \begin{frame} [fragile]
-\frametitle{Tipologie di messaggi deprecati}
-Un problema di questa implementazione, sono 
-le tipologie deprecate dei messaggi. Questi messaggi 
-potranno comunque essere inviati ma le linee guida 
-indicano ai router di ignorarli e all'host utente di 
-non mandarli. 
-\vspace{1ex} \newline 
-L'uso di tipologie deprecate renderà il canale meno 
-legittimo e maggiormente individuabile siccome il 
-traffico sarà visto con sospetto. Infine date le linee 
-guida, non è assicurata la ricezione dei messaggi. 
+\frametitle{Implementazione Behavioural Covert Channel} 
 \scriptsize 
-\begin{longtable}{|p{0.45\textwidth}|p{0.45\textwidth}|} 
+\begin{longtable}{|m{0.35\textwidth}|>{\centering\arraybackslash}p{0.25\textwidth}|>{\centering\arraybackslash}p{0.25\textwidth}|}
     \hline 
-    \textbf{Tipologia Messagio} & \textbf{Motivo} \\
-    \hline  
-    Information Request/Reply & è stato sostituito da 
-    protocolli come il DHCP. \\  \hline  
-    Source Quench & data la sua inefficenza, è stato 
-    sostituito dai meccanismi presenti nel 
-    protocollo TCP. \\ \hline 
-    \caption{Tipologie di messaggi deprecati}  
+    \multicolumn{1}{|c|}{\textbf{Messaggio ICMP inviato}} & \textbf{Codice del messaggio} & \textbf{Dato Mappato} 
+    \\ \hline 
+    \multirow{6}{*}{Destination Unreachable}
+    & 0 & 0000 \\ \cline{2-3} 
+    & 1 & 0001 \\ \cline{2-3} 
+    & 2 & 0010 \\ \cline{2-3} 
+    & 3 & 0011 \\ \cline{2-3} 
+    & 4 & 0100 \\ \cline{2-3} 
+    & 5 & 0101 \\ \hline 
+    \multirow{2}{*}{Time Exceeded} 
+    & 0 & 0110 \\ \cline{2-3} 
+    & 1 & 0111 \\ \hline 
+    Parameter Problem & 0 & 1000 \\ \hline 
+    \textbf{Source Quench} & 0 & 1001 \\ \hline 
+    \multirow{4}{*}{Redirect} 
+    & 0 & 1010 \\ \cline{2-3} 
+    & 1 & 1011 \\ \cline{2-3} 
+    & 2 & 1100 \\ \cline{2-3} 
+    & 3 & 1101 \\ \hline 
+    Echo Request & 0 & 1110 \\ \hline 
+    Timestmap Request & 0 & 1111 \\ \hline 
+    \textbf{Information Request} & 0 & Speciale \\ \hline 
+    \caption{Mappatura degli eventi ai dati}  
 \end{longtable} 
-\end{frame}  
+\end{frame} 
