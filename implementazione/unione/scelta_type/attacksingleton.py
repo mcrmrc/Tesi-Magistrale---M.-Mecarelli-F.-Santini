@@ -573,8 +573,8 @@ class SendSingleton():
             time.sleep(TEMPO_BYTE)
         end_time=datetime.datetime.now(datetime.timezone.utc) 
     
-    def ipv4_timing_channel_8bit(data:bytes=None, ip_dst:ipaddress=None, min_sec_delay:int=1, max_sec_delay:int=30, stop_value: int = 255): 
-        if not (IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_sec_delay) and IS_TYPE.integer(max_sec_delay) and IS_TYPE.integer(stop_value)):
+    def ipv4_timing_channel_8bit(data:bytes=None, ip_dst:ipaddress=None, min_delay:int=1, max_delay:int=30, stop_value: int = 255): 
+        if not (IS_TYPE.bytes(data) and IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_delay) and IS_TYPE.integer(max_delay) and IS_TYPE.integer(stop_value)):
             raise Exception("test_timing_channel8bit: Argomenti non validi") 
         old_time=current_time=time.perf_counter() 
         target_mac = IP_INTERFACE.get_macAddress(ip_dst).strip().replace("-",":").lower() 
@@ -585,7 +585,7 @@ class SendSingleton():
         pkt = Ether(dst=target_mac)/IP(dst=ip_dst.compressed)/ICMP() / data 
         sendp(pkt, verbose=1, iface=interface) 
         for byte in data:   
-            delay=min_sec_delay+(byte/255)*(max_sec_delay-min_sec_delay)
+            delay=min_delay+(byte/255)*(max_delay-min_delay)
             print(f"Delay :{byte}\t{delay}\n")
             #print(f"Data: {byte}\t{byte-31}\t{type(byte)}\n") 
             time.sleep(delay) 
@@ -1743,16 +1743,16 @@ class ReceiveSingleton():
             return True 
         return False
 
-    def ipv4_timing_channel_8bit(ip_dst:ipaddress=None, min_sec_delay:int=1, max_sec_delay:int=30, stop_value: int = 255): 
-        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_sec_delay) and IS_TYPE.integer(max_sec_delay) and IS_TYPE.integer(stop_value)):
+    def ipv4_timing_channel_8bit(ip_dst:ipaddress=None, min_delay:int=1, max_delay:int=30, stop_value: int = 255): 
+        if not (IS_TYPE.ipaddress(ip_dst) and IS_TYPE.integer(min_delay) and IS_TYPE.integer(max_delay) and IS_TYPE.integer(stop_value)):
             raise Exception("test_timing_channel8bit: Argomenti non validi") 
         start_time=end_time=previous_time=None 
         stop_flag={"value":False} 
         received_data=[] 
 
         def decode_byte(delay): 
-            #(byte/255)=(delay-min_sec_delay)/(max_sec_delay-min_sec_delay) 
-            frazione = (delay - min_sec_delay) / (max_sec_delay - min_sec_delay) 
+            #(byte/255)=(delay-min_delay)/(max_delay-min_delay) 
+            frazione = (delay - min_delay) / (max_delay - min_delay) 
             byte=int(round(frazione*255)) 
             return byte 
         
